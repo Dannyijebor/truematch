@@ -1,13 +1,56 @@
-from fastapi import FastAPI, Query, Depends, HTTPException
+from datetime import datetime, timezone
+from fastapi import FastAPI, Query, Depends, HTTPException, UploadFile, File, Header, status
+from pydantic import BaseModel, EmailStr
 from sqlalchemy import select, desc, func
 from sqlalchemy.orm import Session
 from app.db.session import get_db
-from app.db.models import Job
+from app.db.models import Job, User, Profile, Resume, Match
+from app.auth import hash_password, verify_password, create_token, decode_token
+from app.resume_parser import parse_resume
+from app.matching import find_matches
 
 
-app = FastAPI(title="TrueMatch API", version="0.1.0")
+app = FastAPI(title="TrueMatch API", version="0.2.0")
 
 
+# ---------- schemas ----------
+class SignupIn(BaseModel):
+    email: str
+    password: str
+    full_name: str | None = None
+    country: str | None = None
+
+
+class LoginIn(BaseModel):
+    email: str
+    password: str
+
+
+class ProfileIn(BaseModel):
+    headline: str | None = None
+    seniority: str | None = None
+    years_experience: int | None = None
+    location: str | None = None
+    remote_ok: bool = True
+    min_salary: int | None = None
+    skills: list[str] = []
+
+
+# ---------- auth helpers ----------
+def current_user(authorization: str = Header(None), db: Session = Depends(get_db)) -> User:
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(401, "missing token")
+    token = authorization.split(" ", 1)[1].strip()
+    uid = decode_token(token)
+    if not uid:
+        raise HTTPException(401, "invalid token")
+    user = db.get(User, uid)
+    if not user:
+        raise HTTPException(401, "user not found")
+    return user
+
+
+# ---------- health & stats ----------
 @app.get("/health")
 def health():
     return {"ok": True}
@@ -17,12 +60,137 @@ def health():
 def stats(db: Session = Depends(get_db)):
     total = db.execute(select(func.count(Job.id))).scalar()
     active = db.execute(select(func.count(Job.id)).where(Job.is_active == True)).scalar()
-    high_conf = db.execute(
-        select(func.count(Job.id)).where(Job.confidence >= 85)
-    ).scalar()
-    return {"total": total, "active": active, "high_confidence": high_conf}
+    high = db.execute(select(func.count(Job.id)).where(Job.confidence >= 85)).scalar()
+    users = db.execute(select(func.count(User.id))).scalar()
+    return {"jobs": total, "active": active, "high_confidence": high, "users": users}
 
 
+# ---------- auth endpoints ----------
+@app.post("/users/signup")
+def signup(payload: SignupIn, db: Session = Depends(get_db)):
+    existing = db.execute(select(User).where(User.email == payload.email.lower())).scalar_one_or_none()
+    if existing:
+        raise HTTPException(400, "email already registered")
+    user = User(
+        email=payload.email.lower(),
+        password_hash=hash_password(payload.password),
+        full_name=payload.full_name,
+        country=payload.country,
+    )
+    db.add(user)
+    db.flush()
+    db.add(Profile(user_id=user.id, skills=[], remote_ok=True))
+    db.commit()
+    token = create_token(str(user.id))
+    return {"user_id": str(user.id), "email": user.email, "token": token}
+
+
+@app.post("/users/login")
+def login(payload: LoginIn, db: Session = Depends(get_db)):
+    user = db.execute(select(User).where(User.email == payload.email.lower())).scalar_one_or_none()
+    if not user or not verify_password(payload.password, user.password_hash):
+        raise HTTPException(401, "invalid credentials")
+    token = create_token(str(user.id))
+    return {"user_id": str(user.id), "email": user.email, "token": token}
+
+
+@app.get("/users/me")
+def me(user: User = Depends(current_user), db: Session = Depends(get_db)):
+    profile = db.get(Profile, user.id)
+    return {
+        "user_id": str(user.id),
+        "email": user.email,
+        "full_name": user.full_name,
+        "country": user.country,
+        "profile": {
+            "headline": profile.headline,
+            "seniority": profile.seniority,
+            "years_experience": profile.years_experience,
+            "location": profile.location,
+            "remote_ok": profile.remote_ok,
+            "min_salary": profile.min_salary,
+            "skills": profile.skills or [],
+        } if profile else None,
+    }
+
+
+@app.put("/users/me/profile")
+def update_profile(payload: ProfileIn, user: User = Depends(current_user), db: Session = Depends(get_db)):
+    profile = db.get(Profile, user.id)
+    if not profile:
+        profile = Profile(user_id=user.id)
+        db.add(profile)
+    if payload.headline is not None: profile.headline = payload.headline
+    if payload.seniority is not None: profile.seniority = payload.seniority
+    if payload.years_experience is not None: profile.years_experience = payload.years_experience
+    if payload.location is not None: profile.location = payload.location
+    profile.remote_ok = payload.remote_ok
+    if payload.min_salary is not None: profile.min_salary = payload.min_salary
+    profile.skills = payload.skills
+    db.commit()
+    return {"ok": True}
+
+
+# ---------- resume ----------
+@app.post("/users/me/resume")
+async def upload_resume(
+    file: UploadFile = File(...),
+    user: User = Depends(current_user),
+    db: Session = Depends(get_db),
+):
+    data = await file.read()
+    if not data:
+        raise HTTPException(400, "empty file")
+    if len(data) > 8 * 1024 * 1024:
+        raise HTTPException(400, "file too large (max 8 MB)")
+
+    try:
+        parsed = parse_resume(data)
+    except Exception as e:
+        raise HTTPException(400, f"could not parse pdf: {e}")
+
+    resume = Resume(
+        user_id=user.id,
+        filename=file.filename or "resume.pdf",
+        raw_text=parsed["raw_text"][:50000],
+        parsed_skills=parsed["skills"],
+    )
+    db.add(resume)
+
+    profile = db.get(Profile, user.id)
+    if not profile:
+        profile = Profile(user_id=user.id)
+        db.add(profile)
+    merged = set(profile.skills or []) | set(parsed["skills"])
+    profile.skills = sorted(merged)
+    if parsed["seniority"] and not profile.seniority:
+        profile.seniority = parsed["seniority"]
+    if parsed["years_experience"] and not profile.years_experience:
+        profile.years_experience = parsed["years_experience"]
+    db.commit()
+
+    return {
+        "resume_id": str(resume.id),
+        "filename": resume.filename,
+        "skills_detected": parsed["skills"],
+        "seniority": parsed["seniority"],
+        "years_experience": parsed["years_experience"],
+        "text_chars": len(parsed["raw_text"]),
+    }
+
+
+# ---------- matches ----------
+@app.get("/users/me/matches")
+def my_matches(
+    limit: int = Query(30, le=100),
+    min_score: float = Query(50.0),
+    user: User = Depends(current_user),
+    db: Session = Depends(get_db),
+):
+    return find_matches(db, user, limit=limit, min_score=min_score)
+
+
+# ---------- public jobs ----------
 @app.get("/jobs")
 def list_jobs(
     db: Session = Depends(get_db),
@@ -41,7 +209,6 @@ def list_jobs(
     if remote is not None:
         stmt = stmt.where(Job.remote == remote)
     stmt = stmt.order_by(desc(Job.posted_at)).limit(limit).offset(offset)
-
     rows = db.execute(stmt).scalars().all()
     return [{
         "id": str(j.id),
@@ -52,22 +219,4 @@ def list_jobs(
         "apply_url": j.apply_url,
         "posted_at": j.posted_at.isoformat() if j.posted_at else None,
         "confidence": j.confidence,
-        "verify_reasons": j.verify_reasons,
     } for j in rows]
-
-
-@app.get("/jobs/{job_id}")
-def get_job(job_id: str, db: Session = Depends(get_db)):
-    job = db.get(Job, job_id)
-    if not job:
-        raise HTTPException(404, "not found")
-    return {
-        "id": str(job.id),
-        "title": job.title,
-        "company": job.company.name if job.company else None,
-        "location": job.location,
-        "remote": job.remote,
-        "apply_url": job.apply_url,
-        "description_text": job.description_text,
-        "confidence": job.confidence,
-    }
