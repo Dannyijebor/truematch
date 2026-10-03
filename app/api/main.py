@@ -4,10 +4,11 @@ from pydantic import BaseModel, EmailStr
 from sqlalchemy import select, desc, func
 from sqlalchemy.orm import Session
 from app.db.session import get_db
-from app.db.models import Job, User, Profile, Resume, Match
+from app.db.models import Job, User, Profile, Resume, Match, ApplyPacket
 from app.auth import hash_password, verify_password, create_token, decode_token
 from app.resume_parser import parse_resume
-from app.matching import find_matches
+from app.matching import find_matches, score_job
+from app.apply_packet import generate_packet
 
 
 app = FastAPI(title="TrueMatch API", version="0.2.0")
@@ -220,3 +221,71 @@ def list_jobs(
         "posted_at": j.posted_at.isoformat() if j.posted_at else None,
         "confidence": j.confidence,
     } for j in rows]
+
+
+# ---------- apply packet ----------
+@app.post("/jobs/{job_id}/apply_packet")
+def create_packet(
+    job_id: str,
+    force: bool = False,
+    user: User = Depends(current_user),
+    db: Session = Depends(get_db),
+):
+    job = db.get(Job, job_id)
+    if not job:
+        raise HTTPException(404, "job not found")
+
+    profile = db.get(Profile, user.id)
+    if not profile or not profile.skills:
+        raise HTTPException(400, "complete your profile first")
+
+    score, reason = score_job(profile, job)
+    if reason is None:
+        reason = {"matched_skills": [], "missing_skills": [], "job_seniority": "mid"}
+
+    try:
+        packet = generate_packet(db, user, job, reason, force=force)
+    except Exception as e:
+        raise HTTPException(500, f"generation failed: {e}")
+
+    return {
+        "packet_id": str(packet.id),
+        "job": {
+            "id": str(job.id),
+            "title": job.title,
+            "company": job.company.name if job.company else None,
+            "apply_url": job.apply_url,
+        },
+        "tailored_bullets": packet.tailored_bullets,
+        "cover_letter": packet.cover_letter,
+        "screening_answers": packet.screening_answers,
+        "gaps": packet.gaps,
+        "keywords_hit": packet.keywords_hit,
+        "model_used": packet.model_used,
+        "tokens_used": packet.tokens_used,
+    }
+
+
+@app.get("/jobs/{job_id}/apply_packet")
+def get_packet(
+    job_id: str,
+    user: User = Depends(current_user),
+    db: Session = Depends(get_db),
+):
+    packet = db.execute(
+        select(ApplyPacket).where(
+            ApplyPacket.user_id == user.id,
+            ApplyPacket.job_id == job_id,
+        )
+    ).scalar_one_or_none()
+    if not packet:
+        raise HTTPException(404, "no packet yet - POST to generate")
+    return {
+        "packet_id": str(packet.id),
+        "tailored_bullets": packet.tailored_bullets,
+        "cover_letter": packet.cover_letter,
+        "screening_answers": packet.screening_answers,
+        "gaps": packet.gaps,
+        "keywords_hit": packet.keywords_hit,
+        "created_at": packet.created_at.isoformat() if packet.created_at else None,
+    }

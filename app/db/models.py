@@ -83,3 +83,19 @@ class Match(Base):
     reason: Mapped[dict] = mapped_column(JSON, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     __table_args__ = (UniqueConstraint("user_id", "job_id", name="uq_user_job"),)
+
+
+class ApplyPacket(Base):
+    __tablename__ = "apply_packets"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    job_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("jobs.id", ondelete="CASCADE"))
+    tailored_bullets: Mapped[list] = mapped_column(JSON, default=list)
+    cover_letter: Mapped[str | None] = mapped_column(Text, nullable=True)
+    screening_answers: Mapped[dict] = mapped_column(JSON, default=dict)
+    gaps: Mapped[list] = mapped_column(JSON, default=list)
+    keywords_hit: Mapped[list] = mapped_column(JSON, default=list)
+    model_used: Mapped[str | None] = mapped_column(String, nullable=True)
+    tokens_used: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    __table_args__ = (UniqueConstraint("user_id", "job_id", name="uq_packet_user_job"),)
