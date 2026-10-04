@@ -1,3 +1,4 @@
+import time
 import hashlib
 import re
 from datetime import datetime, timezone
@@ -128,7 +129,18 @@ def upsert_jobs(db: Session, jobs: list):
                 print(f"    committed {processed}/{len(jobs)}")
 
         except Exception as e:
-            print(f"    skip {j.get('source_id')}: {e}")
+            msg = str(e)
+            if "resolve host" in msg or "SSL" in msg or "connection" in msg.lower():
+                # DNS/network hiccup — retry once
+                try:
+                    db.rollback()
+                    time.sleep(0.5)
+                    # retry the same job
+                    _upsert_one(db, j, new_count, updated)
+                    continue
+                except Exception:
+                    pass
+            print(f"    skip {j.get('source_id')}: {msg[:80]}")
             db.rollback()
             continue
 
