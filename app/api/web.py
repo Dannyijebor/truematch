@@ -119,12 +119,21 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse("/login", status_code=302)
 
     profile = db.get(Profile, user.id)
-    matches = []
-    if profile and profile.skills:
-        matches = find_matches(db, user, limit=40, min_score=40)
+    page = int(request.query_params.get("page", 1))
+    per_page = 20
+    offset = (page - 1) * per_page
 
-    return templates.TemplateResponse(request, "dashboard.html", _ctx(request, user=user, profile=profile, matches=matches),
-    )
+    matches = []
+    has_more = False
+    if profile and profile.skills:
+        raw = find_matches(db, user, limit=per_page + 1, offset=offset, min_score=40)
+        has_more = len(raw) > per_page
+        matches = raw[:per_page]
+
+    return templates.TemplateResponse(request, "dashboard.html", _ctx(
+        request, user=user, profile=profile, matches=matches,
+        page=page, has_more=has_more,
+    ))
 
 
 @router.post("/app/profile")
@@ -217,3 +226,35 @@ def auto_apply_web(job_id: str, request: Request, db: Session = Depends(get_db))
     except Exception as e:
         print("auto_apply error:", e)
     return RedirectResponse(f"/app/job/{job_id}", status_code=302)
+
+
+@router.post("/app/regions")
+async def save_full_profile(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    form = await request.form()
+
+    profile = db.get(Profile, user.id) or Profile(user_id=user.id)
+    profile.headline = (form.get("headline") or "").strip() or None
+    profile.seniority = form.get("seniority") or "mid"
+
+    try:
+        ye = form.get("years_experience")
+        profile.years_experience = int(ye) if ye else None
+    except (ValueError, TypeError):
+        profile.years_experience = None
+
+    profile.location = (form.get("location") or "").strip() or None
+    skills_raw = form.get("skills") or ""
+    profile.skills = [s.strip().lower() for s in skills_raw.split(",") if s.strip()]
+    profile.remote_ok = form.get("remote_ok") is not None
+    profile.regions = list(form.getlist("regions"))
+
+    db.add(profile)
+    db.commit()
+    return RedirectResponse("/app", status_code=302)
+
+
+

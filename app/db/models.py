@@ -61,6 +61,7 @@ class Profile(Base):
     remote_ok: Mapped[bool] = mapped_column(Boolean, default=True)
     min_salary: Mapped[int | None] = mapped_column(Integer, nullable=True)
     skills: Mapped[list] = mapped_column(JSON, default=list)
+    regions: Mapped[list] = mapped_column(JSON, default=list)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 

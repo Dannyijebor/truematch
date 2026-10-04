@@ -164,18 +164,24 @@ def score_job(profile: Profile, job: Job) -> tuple[float, dict] | tuple[None, No
     return round(total * 100, 1), reasons
 
 
-def find_matches(db: Session, user: User, limit: int = 30, min_score: float = 50.0) -> list[dict]:
+def find_matches(db: Session, user: User, limit: int = 30, offset: int = 0, min_score: float = 50.0) -> list[dict]:
     profile = db.get(Profile, user.id)
     if not profile:
         return []
 
-    # Cap the pool — full scan of 10k jobs is too slow on serverless
     stmt = (
         select(Job)
         .where(Job.is_active == True, Job.confidence >= 85)
         .order_by(desc(Job.posted_at))
         .limit(500)
     )
+
+    regions = getattr(profile, "regions", None) or []
+    if regions:
+        from sqlalchemy import or_
+        clauses = [Job.location.ilike(f"%{r}%") for r in regions]
+        stmt = stmt.where(or_(*clauses))
+
     jobs = db.execute(stmt).scalars().all()
 
     scored = []
@@ -185,6 +191,8 @@ def find_matches(db: Session, user: User, limit: int = 30, min_score: float = 50
             scored.append((score, reasons, job))
 
     scored.sort(key=lambda x: x[0], reverse=True)
+
+    page = scored[offset:offset + limit]
 
     return [{
         "job_id": str(job.id),
@@ -196,4 +204,4 @@ def find_matches(db: Session, user: User, limit: int = 30, min_score: float = 50
         "remote": job.remote,
         "apply_url": job.apply_url,
         "posted_at": job.posted_at.isoformat() if job.posted_at else None,
-    } for score, reasons, job in scored[:limit]]
+    } for score, reasons, job in page]
