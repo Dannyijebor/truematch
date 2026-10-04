@@ -360,3 +360,20 @@ def notify_job(
         "packet_id": str(packet.id),
         "score": score,
     }
+
+
+@app.post("/jobs/{job_id}/auto_apply")
+def auto_apply_route(
+    job_id: str,
+    dry_run: bool = False,
+    user: User = Depends(current_user),
+    db: Session = Depends(get_db),
+):
+    from app.auto_apply import auto_apply_to_job
+    job = db.get(Job, job_id)
+    if not job:
+        raise HTTPException(404, "job not found")
+    try:
+        return auto_apply_to_job(db, user, job, dry_run=dry_run)
+    except Exception as e:
+        raise HTTPException(500, str(e))

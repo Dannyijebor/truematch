@@ -201,3 +201,19 @@ def generate_packet_web(job_id: str, request: Request, db: Session = Depends(get
         raise HTTPException(500, f"generation failed: {e}")
 
     return RedirectResponse(f"/app/job/{job_id}", status_code=302)
+
+
+@router.post("/app/job/{job_id}/auto_apply_web")
+def auto_apply_web(job_id: str, request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+    job = db.get(Job, job_id)
+    if not job:
+        raise HTTPException(404, "not found")
+    from app.auto_apply import auto_apply_to_job
+    try:
+        auto_apply_to_job(db, user, job)
+    except Exception as e:
+        print("auto_apply error:", e)
+    return RedirectResponse(f"/app/job/{job_id}", status_code=302)
