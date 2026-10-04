@@ -19,6 +19,15 @@
      class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-5 py-2.5 rounded-xl">
     🔗 Open company application
   </a>
+  <form method="post" action="/app/resume/tailor/{{ job.id }}">
+    <button class="bg-indigo-500 hover:bg-indigo-400 text-white font-semibold px-5 py-2.5 rounded-xl">
+      🎯 Tailor my resume for this job
+    </button>
+  </form>
+  <a href="/app/resume/download-tailored/{{ job.id }}"
+     class="border border-slate-700 hover:border-slate-500 text-slate-200 px-5 py-2.5 rounded-xl">
+    ⬇ Tailored DOCX
+  </a>
   <form method="post" action="/app/job/{{ job.id }}/mark_applied">
     <button class="border border-slate-700 hover:border-slate-500 text-slate-200 px-5 py-2.5 rounded-xl">
       ✓ Mark as applied

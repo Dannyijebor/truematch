@@ -304,3 +304,203 @@ def mark_applied(job_id: str, request: Request, db: Session = Depends(get_db)):
         ))
     db.commit()
     return RedirectResponse("/app", status_code=302)
+
+
+# ---------- resume ----------
+@router.get("/app/resume", response_class=HTMLResponse)
+def resume_page(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login?next=/app/resume", status_code=302)
+
+    from app.db.models import Resume
+    resume = db.query(Resume).filter_by(user_id=user.id).order_by(Resume.uploaded_at.desc()).first()
+
+    return templates.TemplateResponse(request, "resume.html", _ctx(
+        request, user=user, resume=resume,
+    ))
+
+
+@router.post("/app/resume/upload")
+async def resume_upload(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    from app.db.models import Resume
+    from app.resume_builder import extract_text, structure_resume
+    from app.resume_parser import extract_skills, guess_seniority, guess_years_experience
+
+    form = await request.form()
+    file = form.get("file")
+
+    if not file or not file.filename:
+        return RedirectResponse("/app/resume?error=no-file", status_code=302)
+
+    data = await file.read()
+    if len(data) > 8 * 1024 * 1024:
+        return RedirectResponse("/app/resume?error=too-large", status_code=302)
+
+    try:
+        raw = extract_text(data, file.filename)
+    except Exception as e:
+        return RedirectResponse(f"/app/resume?error=extract", status_code=302)
+
+    try:
+        structured = structure_resume(raw)
+    except Exception as e:
+        return RedirectResponse(f"/app/resume?error=structure", status_code=302)
+
+    resume = Resume(
+        user_id=user.id,
+        filename=file.filename,
+        raw_text=raw[:50000],
+        parsed_skills=extract_skills(raw),
+        structured_data=structured,
+    )
+    db.add(resume)
+
+    profile = db.get(Profile, user.id) or Profile(user_id=user.id)
+    merged = set(profile.skills or []) | set(extract_skills(raw))
+    profile.skills = sorted(merged)
+    if not profile.seniority:
+        profile.seniority = guess_seniority(raw)
+    if not profile.years_experience:
+        profile.years_experience = guess_years_experience(raw)
+    if not profile.headline and structured.get("headline"):
+        profile.headline = structured["headline"]
+    db.add(profile)
+
+    db.commit()
+    return RedirectResponse("/app/resume", status_code=302)
+
+
+@router.post("/app/resume/paste")
+async def resume_paste(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    from app.db.models import Resume
+    from app.resume_builder import structure_resume
+    from app.resume_parser import extract_skills, guess_seniority, guess_years_experience
+
+    form = await request.form()
+    raw = (form.get("raw_text") or "").strip()
+    if len(raw) < 100:
+        return RedirectResponse("/app/resume?error=too-short", status_code=302)
+
+    try:
+        structured = structure_resume(raw)
+    except Exception:
+        return RedirectResponse("/app/resume?error=structure", status_code=302)
+
+    resume = Resume(
+        user_id=user.id,
+        filename="pasted.txt",
+        raw_text=raw[:50000],
+        parsed_skills=extract_skills(raw),
+        structured_data=structured,
+    )
+    db.add(resume)
+
+    profile = db.get(Profile, user.id) or Profile(user_id=user.id)
+    merged = set(profile.skills or []) | set(extract_skills(raw))
+    profile.skills = sorted(merged)
+    db.add(profile)
+
+    db.commit()
+    return RedirectResponse("/app/resume", status_code=302)
+
+
+@router.get("/app/resume/download")
+def resume_download(request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import Response
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    from app.db.models import Resume
+    from app.resume_builder import generate_docx
+
+    resume = db.query(Resume).filter_by(user_id=user.id).order_by(Resume.uploaded_at.desc()).first()
+    if not resume or not resume.structured_data:
+        return RedirectResponse("/app/resume", status_code=302)
+
+    data = generate_docx(resume.structured_data)
+    name = (user.full_name or "resume").replace(" ", "_")
+    return Response(
+        content=data,
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers={"Content-Disposition": f'attachment; filename="{name}_TrueMatch.docx"'},
+    )
+
+
+@router.post("/app/resume/tailor/{job_id}")
+def resume_tailor(job_id: str, request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    from app.db.models import Resume, ApplyPacket
+    from app.resume_builder import tailor_resume, generate_docx, generate_job_questions
+
+    job = db.get(Job, job_id)
+    if not job:
+        raise HTTPException(404, "job not found")
+
+    resume = db.query(Resume).filter_by(user_id=user.id).order_by(Resume.uploaded_at.desc()).first()
+    if not resume or not resume.structured_data:
+        return RedirectResponse(f"/app/apply/{job_id}?error=no-resume", status_code=302)
+
+    try:
+        tailored = tailor_resume(resume.structured_data, job, db.get(Profile, user.id))
+    except Exception:
+        return RedirectResponse(f"/app/apply/{job_id}?error=tailor", status_code=302)
+
+    # Save as a new resume row so original is preserved
+    new_resume = Resume(
+        user_id=user.id,
+        filename=f"tailored_{job.title[:30].replace(' ','_')}.docx",
+        raw_text=resume.raw_text,
+        parsed_skills=resume.parsed_skills,
+        structured_data=tailored,
+    )
+    db.add(new_resume)
+    db.commit()
+
+    return RedirectResponse(f"/app/apply/{job_id}", status_code=302)
+
+
+@router.get("/app/resume/download-tailored/{job_id}")
+def resume_download_tailored(job_id: str, request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import Response
+    from app.db.models import Resume
+    from app.resume_builder import generate_docx
+
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    job = db.get(Job, job_id)
+    if not job:
+        raise HTTPException(404, "job not found")
+
+    # Find the tailored version (filename starts with "tailored_")
+    resume = (
+        db.query(Resume)
+        .filter(Resume.user_id == user.id, Resume.filename.like("tailored_%"))
+        .order_by(Resume.uploaded_at.desc())
+        .first()
+    )
+    if not resume or not resume.structured_data:
+        return RedirectResponse(f"/app/apply/{job_id}", status_code=302)
+
+    data = generate_docx(resume.structured_data)
+    name = (user.full_name or "resume").replace(" ", "_")
+    company = (job.company.name if job.company else "job").replace(" ", "_")
+    return Response(
+        content=data,
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers={"Content-Disposition": f'attachment; filename="{name}_{company}_tailored.docx"'},
+    )

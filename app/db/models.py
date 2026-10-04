@@ -72,6 +72,7 @@ class Resume(Base):
     filename: Mapped[str] = mapped_column(String, nullable=False)
     raw_text: Mapped[str] = mapped_column(Text, nullable=False)
     parsed_skills: Mapped[list] = mapped_column(JSON, default=list)
+    structured_data: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     uploaded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 

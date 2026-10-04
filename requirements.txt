@@ -11,3 +11,5 @@ pypdf
 PyJWT
 jinja2
 python-multipart
+python-docx
+lxml

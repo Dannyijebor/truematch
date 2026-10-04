@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Resume · TrueMatch{% endblock %}
+{% block content %}
+
+<a href="/app" class="text-slate-400 hover:text-white text-sm">← Back to matches</a>
+
+<h1 class="text-2xl md:text-3xl font-extrabold tracking-tight mt-4">Your Resume</h1>
+<p class="text-slate-400 mt-1">Upload, paste, or build from scratch. We'll structure it for you.</p>
+
+{% if request.query_params.get('error') %}
+<div class="mt-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 p-3 text-sm">
+  {{ request.query_params.get('error') }}
+</div>
+{% endif %}
+
+{% if resume and resume.structured_data %}
+
+<!-- Current resume preview -->
+<div class="mt-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5">
+  <div class="flex items-start justify-between gap-3 flex-wrap">
+    <div>
+      <div class="text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-1">✓ Currently active</div>
+      <h2 class="text-xl font-bold">{{ resume.structured_data.name or user.full_name or "Your Resume" }}</h2>
+      {% if resume.structured_data.headline %}
+        <p class="text-slate-300 text-sm mt-1">{{ resume.structured_data.headline }}</p>
+      {% endif %}
+    </div>
+    <a href="/app/resume/download"
+       class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-4 py-2 rounded-xl text-sm shrink-0">
+      ⬇ Download DOCX
+    </a>
+  </div>
+
+  {% if resume.structured_data.summary %}
+  <div class="mt-4">
+    <div class="text-slate-400 text-xs uppercase tracking-wider mb-1">Summary</div>
+    <p class="text-slate-300 text-sm">{{ resume.structured_data.summary }}</p>
+  </div>
+  {% endif %}
+
+  {% if resume.structured_data.experience %}
+  <div class="mt-4">
+    <div class="text-slate-400 text-xs uppercase tracking-wider mb-2">Experience ({{ resume.structured_data.experience|length }})</div>
+    {% for e in resume.structured_data.experience[:3] %}
+      <div class="text-sm mb-2">
+        <div class="font-semibold">{{ e.title }}{% if e.company %} · {{ e.company }}{% endif %}</div>
+        <div class="text-slate-500 text-xs">{{ e.start or '' }} – {{ e.end or 'Present' }}</div>
+      </div>
+    {% endfor %}
+    {% if resume.structured_data.experience|length > 3 %}
+      <div class="text-slate-500 text-xs">+{{ resume.structured_data.experience|length - 3 }} more</div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if resume.structured_data.skills %}
+  <div class="mt-4">
+    <div class="text-slate-400 text-xs uppercase tracking-wider mb-2">Skills</div>
+    <div class="flex flex-wrap gap-1.5">
+      {% for s in resume.structured_data.skills[:20] %}
+        <span class="text-xs bg-slate-800 text-slate-300 border border-slate-700 rounded-full px-2.5 py-0.5">{{ s }}</span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<details class="mt-6 rounded-2xl border border-slate-800 bg-slate-900/40">
+  <summary class="cursor-pointer px-5 py-3 text-slate-300 hover:text-white font-semibold">Replace this resume</summary>
+  <div class="px-5 pb-5 pt-2 border-t border-slate-800">
+
+{% else %}
+
+<div class="mt-6 rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
+  <h2 class="font-bold mb-1">No resume yet</h2>
+  <p class="text-slate-400 text-sm">Pick one of the three options below.</p>
+</div>
+
+<div class="mt-6 grid md:grid-cols-2 gap-4">
+
+{% endif %}
+
+  <!-- Upload -->
+  <form method="post" action="/app/resume/upload" enctype="multipart/form-data"
+        class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+    <h3 class="font-bold mb-1">📄 Upload PDF or DOCX</h3>
+    <p class="text-slate-400 text-sm mb-4">We'll read it, structure it, and improve it.</p>
+    <input type="file" name="file" accept=".pdf,.docx,.txt" required
+           class="w-full text-sm text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700">
+    <button class="mt-4 w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-4 py-2.5 rounded-xl">
+      Upload & Structure
+    </button>
+  </form>
+
+  <!-- Paste -->
+  <form method="post" action="/app/resume/paste"
+        class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+    <h3 class="font-bold mb-1">📋 Paste your resume text</h3>
+    <p class="text-slate-400 text-sm mb-4">Paste anything — old resume, LinkedIn, notes.</p>
+    <textarea name="raw_text" rows="6" required minlength="100"
+              placeholder="Paste the full text here..."
+              class="w-full rounded-xl bg-slate-950 border border-slate-800 focus:border-emerald-500 px-3 py-2 text-sm outline-none"></textarea>
+    <button class="mt-4 w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-4 py-2.5 rounded-xl">
+      Structure This
+    </button>
+  </form>
+</div>
+
+<div class="mt-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+  <h3 class="font-bold mb-1">✨ Build from scratch (coming soon)</h3>
+  <p class="text-slate-400 text-sm">Guided questions tailored to your target job. Available next update.</p>
+</div>
+
+{% if resume and resume.structured_data %}
+  </div>
+</details>
+{% endif %}
+
+{% endblock %}
