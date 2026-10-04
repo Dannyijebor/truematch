@@ -1,6 +1,6 @@
 import re
 from datetime import datetime, timezone
-from sqlalchemy import select
+from sqlalchemy import select, desc
 from sqlalchemy.orm import Session
 from app.db.models import Job, Profile, User
 from app.resume_parser import SKILL_DICT
@@ -169,7 +169,13 @@ def find_matches(db: Session, user: User, limit: int = 30, min_score: float = 50
     if not profile:
         return []
 
-    stmt = select(Job).where(Job.is_active == True, Job.confidence >= 80)
+    # Cap the pool — full scan of 10k jobs is too slow on serverless
+    stmt = (
+        select(Job)
+        .where(Job.is_active == True, Job.confidence >= 85)
+        .order_by(desc(Job.posted_at))
+        .limit(500)
+    )
     jobs = db.execute(stmt).scalars().all()
 
     scored = []
