@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+sqlalchemy
+psycopg
+pydantic
+python-dotenv
+httpx
+beautifulsoup4
+python-dateutil
+pypdf
+PyJWT
+jinja2
+python-multipart

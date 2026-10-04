@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · TrueMatch{% endblock %}
+{% block content %}
+
+<div class="flex items-center justify-between mt-2">
+  <div>
+    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">
+      Hi{% if user.full_name %}, {{ user.full_name.split(' ')[0] }}{% endif %} 👋
+    </h1>
+    <p class="text-slate-400 text-sm mt-1">
+      {% if profile and profile.skills %}
+        {{ matches|length }} matches ranked by fit.
+      {% else %}
+        Add your skills below to see matches.
+      {% endif %}
+    </p>
+  </div>
+</div>
+
+<!-- Profile card -->
+<div x-data="{ open: {{ 'true' if not profile or not profile.skills else 'false' }} }" class="mt-6 rounded-2xl border border-slate-800 bg-slate-900/40">
+  <button @click="open = !open" class="w-full flex items-center justify-between px-5 py-4">
+    <span class="font-semibold">Your skills & profile</span>
+    <span x-text="open ? '−' : '+'" class="text-2xl text-slate-500"></span>
+  </button>
+
+  <div x-show="open" x-cloak class="px-5 pb-5 border-t border-slate-800 pt-4">
+    <form method="post" action="/app/profile" class="space-y-4">
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Headline</label>
+          <input name="headline" type="text" value="{{ profile.headline or '' }}"
+                 placeholder="Senior Backend Engineer"
+                 class="w-full rounded-xl bg-slate-950 border border-slate-800 focus:border-emerald-500 px-4 py-2.5 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Seniority</label>
+          <select name="seniority" class="w-full rounded-xl bg-slate-950 border border-slate-800 focus:border-emerald-500 px-4 py-2.5 outline-none">
+            {% for s in ["intern","junior","mid","senior","lead","staff","principal"] %}
+              <option value="{{ s }}" {% if profile.seniority == s %}selected{% endif %}>{{ s|capitalize }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Years experience</label>
+          <input name="years_experience" type="number" min="0" max="50" value="{{ profile.years_experience or '' }}"
+                 class="w-full rounded-xl bg-slate-950 border border-slate-800 focus:border-emerald-500 px-4 py-2.5 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Location</label>
+          <input name="location" type="text" value="{{ profile.location or '' }}"
+                 placeholder="Lagos"
+                 class="w-full rounded-xl bg-slate-950 border border-slate-800 focus:border-emerald-500 px-4 py-2.5 outline-none">
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm text-slate-400 mb-1">Skills (comma separated)</label>
+        <textarea name="skills" rows="2"
+                  placeholder="python, postgresql, docker, aws, fastapi"
+                  class="w-full rounded-xl bg-slate-950 border border-slate-800 focus:border-emerald-500 px-4 py-2.5 outline-none">{{ (profile.skills or [])|join(', ') }}</textarea>
+      </div>
+      <div class="flex items-center gap-3">
+        <label class="flex items-center gap-2 text-sm text-slate-400">
+          <input type="checkbox" name="remote_ok" value="1" {% if profile.remote_ok %}checked{% endif %}
+                 class="rounded bg-slate-950 border border-slate-700">
+          Open to remote
+        </label>
+      </div>
+      <button class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-5 py-2.5 rounded-xl">
+        Save profile
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Matches -->
+<div class="mt-8">
+  <h2 class="text-xl font-bold mb-3">Your matches</h2>
+
+  {% if not matches %}
+    <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-8 text-center text-slate-400">
+      {% if not profile or not profile.skills %}
+        Add your skills above, then refresh.
+      {% else %}
+        No matches yet. Our scheduler is adding jobs every 6 hours.
+      {% endif %}
+    </div>
+  {% else %}
+    <div class="space-y-3">
+      {% for m in matches %}
+        <a href="/app/job/{{ m.job_id }}" class="block rounded-2xl border border-slate-800 bg-slate-900/40 hover:bg-slate-900/70 p-5 transition">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <h3 class="font-semibold truncate">{{ m.title }}</h3>
+              <p class="text-slate-400 text-sm mt-0.5">
+                {{ m.company or "Company" }}{% if m.location %} · {{ m.location }}{% endif %}
+                {% if m.remote %} · <span class="text-emerald-400">Remote</span>{% endif %}
+              </p>
+              {% if m.reason.matched_skills %}
+                <div class="flex flex-wrap gap-1.5 mt-3">
+                  {% for s in m.reason.matched_skills[:5] %}
+                    <span class="text-xs bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 rounded-full px-2.5 py-0.5">{{ s }}</span>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-2xl font-extrabold text-emerald-400">{{ m.score|round|int }}<span class="text-sm">%</span></div>
+              <div class="text-xs text-slate-500 mt-1">match</div>
+            </div>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}

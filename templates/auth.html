@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}{{ mode|capitalize }} · TrueMatch{% endblock %}
+{% block content %}
+
+<div class="max-w-md mx-auto py-8 md:py-16">
+  <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">
+    {% if mode == "signup" %}Create your account{% else %}Welcome back{% endif %}
+  </h1>
+  <p class="text-slate-400 mt-2">
+    {% if mode == "signup" %}Free to start. No credit card.{% else %}Log in to see your matches.{% endif %}
+  </p>
+
+  {% if error %}
+    <div class="mt-6 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 p-3 text-sm">
+      {{ error }}
+    </div>
+  {% endif %}
+
+  <form method="post" action="/{{ mode }}" class="mt-6 space-y-4">
+    <div>
+      <label class="block text-sm text-slate-400 mb-1">Email</label>
+      <input name="email" type="email" required autocomplete="email"
+             class="w-full rounded-xl bg-slate-900 border border-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 px-4 py-3 outline-none">
+    </div>
+    <div>
+      <label class="block text-sm text-slate-400 mb-1">Password</label>
+      <input name="password" type="password" required minlength="6" autocomplete="current-password"
+             class="w-full rounded-xl bg-slate-900 border border-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 px-4 py-3 outline-none">
+    </div>
+
+    {% if mode == "signup" %}
+    <div>
+      <label class="block text-sm text-slate-400 mb-1">Full name (optional)</label>
+      <input name="full_name" type="text"
+             class="w-full rounded-xl bg-slate-900 border border-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 px-4 py-3 outline-none">
+    </div>
+    <div>
+      <label class="block text-sm text-slate-400 mb-1">Country</label>
+      <select name="country" class="w-full rounded-xl bg-slate-900 border border-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 px-4 py-3 outline-none">
+        <option value="NG" selected>Nigeria</option>
+        <option value="KE">Kenya</option>
+        <option value="GH">Ghana</option>
+        <option value="ZA">South Africa</option>
+        <option value="IN">India</option>
+        <option value="PH">Philippines</option>
+        <option value="BR">Brazil</option>
+        <option value="US">United States</option>
+        <option value="GB">United Kingdom</option>
+        <option value="CA">Canada</option>
+        <option value="DE">Germany</option>
+        <option value="OTHER">Other</option>
+      </select>
+    </div>
+    {% endif %}
+
+    <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-6 py-3 rounded-xl text-lg">
+      {% if mode == "signup" %}Create account{% else %}Log in{% endif %}
+    </button>
+  </form>
+
+  <p class="text-center text-slate-500 text-sm mt-6">
+    {% if mode == "signup" %}
+      Already have an account? <a href="/login" class="text-emerald-400 hover:underline">Log in</a>
+    {% else %}
+      New here? <a href="/signup" class="text-emerald-400 hover:underline">Create account</a>
+    {% endif %}
+  </p>
+</div>
+
+{% endblock %}

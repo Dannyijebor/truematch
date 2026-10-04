@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>{% block title %}TrueMatch{% endblock %}</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  [x-cloak] { display: none !important; }
+</style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased">
+
+<nav class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-40">
+  <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+    <a href="/" class="text-xl font-bold tracking-tight">
+      <span class="text-emerald-400">True</span><span class="text-white">Match</span>
+    </a>
+    <div class="flex items-center gap-3 text-sm">
+      {% if user %}
+        <a href="/app" class="text-slate-300 hover:text-white">Dashboard</a>
+        <form method="post" action="/logout" class="inline">
+          <button class="text-slate-400 hover:text-white">Log out</button>
+        </form>
+      {% else %}
+        <a href="/login" class="text-slate-300 hover:text-white">Log in</a>
+        <a href="/signup" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-3 py-1.5 rounded-lg">Sign up</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+<main class="max-w-5xl mx-auto px-4 py-6">
+{% block content %}{% endblock %}
+</main>
+
+<footer class="max-w-5xl mx-auto px-4 py-10 text-slate-500 text-xs">
+  TrueMatch · Built for people who deserve better jobs.
+</footer>
+
+</body>
+</html>

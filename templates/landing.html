@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}TrueMatch — Find work that fits{% endblock %}
+{% block content %}
+
+<section class="text-center py-10 md:py-16">
+  <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
+    Your next job,<br>
+    <span class="text-emerald-400">matched to you.</span>
+  </h1>
+  <p class="mt-6 text-lg text-slate-400 max-w-2xl mx-auto">
+    TrueMatch scans thousands of verified jobs from real companies every 6 hours,
+    learns your skills, and writes your application for you.
+  </p>
+  <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+    <a href="/signup" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-6 py-3 rounded-xl text-lg">
+      Get started free
+    </a>
+    <a href="/login" class="border border-slate-700 hover:border-slate-500 text-slate-200 px-6 py-3 rounded-xl text-lg">
+      I have an account
+    </a>
+  </div>
+</section>
+
+<section class="grid md:grid-cols-3 gap-4 mt-10">
+  <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
+    <div class="text-3xl">🎯</div>
+    <h3 class="font-bold mt-3">Only real jobs</h3>
+    <p class="text-slate-400 mt-2 text-sm">
+      Straight from company career pages and verified ATS boards. No scams, no dead links.
+    </p>
+  </div>
+  <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
+    <div class="text-3xl">🧠</div>
+    <h3 class="font-bold mt-3">Matched to your skills</h3>
+    <p class="text-slate-400 mt-2 text-sm">
+      We read your resume, understand your level, and rank every job by real fit.
+    </p>
+  </div>
+  <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
+    <div class="text-3xl">✍️</div>
+    <h3 class="font-bold mt-3">Apply in 1 tap</h3>
+    <p class="text-slate-400 mt-2 text-sm">
+      Tailored resume bullets and a cover letter written for each job. You just review and send.
+    </p>
+  </div>
+</section>
+
+<section class="mt-16 text-center text-slate-500 text-sm">
+  Free to start. No credit card.
+</section>
+
+{% endblock %}

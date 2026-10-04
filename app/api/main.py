@@ -13,7 +13,20 @@ from app.apply_packet import generate_packet
 from app.notify import send_telegram, notify_match
 
 
-app = FastAPI(title="TrueMatch API", version="0.2.0")
+from app.api.web import router as web_router
+
+app = FastAPI(title="TrueMatch API", version="0.3.0")
+
+from fastapi.middleware.cors import CORSMiddleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_credentials=True,
+    allow_methods=['*'],
+    allow_headers=['*'],
+)
+
+app.include_router(web_router)
 
 
 # ---------- schemas ----------

@@ -9,3 +9,5 @@ packet*.json
 *.log
 uvicorn.log
 scheduler.log
+.vercel
+node_modules
