@@ -5,3 +5,6 @@ __pycache__/
 *.log
 nohup.out
 .DS_Store
+packet*.json
+*.log
+uvicorn.log

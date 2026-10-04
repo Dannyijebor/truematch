@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timezone
 from fastapi import FastAPI, Query, Depends, HTTPException, UploadFile, File, Header, status
 from pydantic import BaseModel, EmailStr
@@ -9,6 +10,7 @@ from app.auth import hash_password, verify_password, create_token, decode_token
 from app.resume_parser import parse_resume
 from app.matching import find_matches, score_job
 from app.apply_packet import generate_packet
+from app.notify import send_telegram, notify_match
 
 
 app = FastAPI(title="TrueMatch API", version="0.2.0")
@@ -288,4 +290,60 @@ def get_packet(
         "gaps": packet.gaps,
         "keywords_hit": packet.keywords_hit,
         "created_at": packet.created_at.isoformat() if packet.created_at else None,
+    }
+
+
+# ---------- notifications ----------
+@app.post("/notify/test")
+def notify_test(user: User = Depends(current_user)):
+    chat = os.getenv("TELEGRAM_CHAT_ID")
+    if not chat:
+        raise HTTPException(500, "TELEGRAM_CHAT_ID not set")
+    try:
+        res = send_telegram(chat, "*TrueMatch is live.*\n\nAPI notifications are working.")
+    except Exception as e:
+        raise HTTPException(500, str(e))
+    return {"ok": True, "message_id": res.get("result", {}).get("message_id")}
+
+
+@app.post("/jobs/{job_id}/notify")
+def notify_job(
+    job_id: str,
+    user: User = Depends(current_user),
+    db: Session = Depends(get_db),
+):
+    chat = os.getenv("TELEGRAM_CHAT_ID")
+    if not chat:
+        raise HTTPException(500, "TELEGRAM_CHAT_ID not set")
+
+    job = db.get(Job, job_id)
+    if not job:
+        raise HTTPException(404, "job not found")
+
+    profile = db.get(Profile, user.id)
+    if not profile or not profile.skills:
+        raise HTTPException(400, "complete your profile first")
+
+    score, reason = score_job(profile, job)
+    if reason is None:
+        reason = {"matched_skills": [], "missing_skills": [], "job_seniority": "mid"}
+
+    try:
+        packet = generate_packet(db, user, job, reason)
+    except Exception as e:
+        raise HTTPException(500, f"packet failed: {e}")
+
+    link = f"http://127.0.0.1:8000/jobs/{job_id}/apply_packet"
+    company = job.company.name if job.company else "Company"
+
+    try:
+        res = notify_match(chat, job.title, company, score or 0, link)
+    except Exception as e:
+        raise HTTPException(500, f"telegram failed: {e}")
+
+    return {
+        "ok": True,
+        "message_id": res.get("result", {}).get("message_id"),
+        "packet_id": str(packet.id),
+        "score": score,
     }
