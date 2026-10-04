@@ -79,7 +79,7 @@ def auto_apply_to_job(db: Session, user: User, job: Job, dry_run: bool = False) 
         "packet_id": str(packet.id),
     }
 
-    if info["type"] == "email" and info["email"]:
+    if False and info["type"] == "email" and info["email"]:  # disabled: no jobs in our DB use email
         result["target_email"] = info["email"]
         if dry_run:
             result["status"] = "dry_run"
@@ -102,7 +102,7 @@ def auto_apply_to_job(db: Session, user: User, job: Job, dry_run: bool = False) 
         result["status"] = "needs_user"
         result["deep_link"] = job.apply_url
         base = os.getenv("PUBLIC_BASE_URL", "https://truematch-plum.vercel.app")
-        link = f"{base}/app/job/{job.id}"
+        link = f"{base}/app/apply/{job.id}"
         _record(db, user, job, "deep_link", "needs_user", None, None)
         try:
             send_telegram(os.getenv("TELEGRAM_CHAT_ID"),

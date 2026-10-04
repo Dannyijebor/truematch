@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Apply · {{ job.title }}{% endblock %}
+{% block content %}
+
+<a href="/app" class="text-slate-400 hover:text-white text-sm">← Back to matches</a>
+
+<div class="mt-4">
+  <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">{{ job.title }}</h1>
+  <p class="text-slate-400 mt-1">
+    {{ job.company.name if job.company else "Company" }}
+    {% if job.location %} · {{ job.location }}{% endif %}
+    {% if job.remote %} · <span class="text-emerald-400">Remote</span>{% endif %}
+  </p>
+</div>
+
+{% if packet %}
+<div class="mt-6 flex flex-wrap gap-3">
+  <a href="{{ job.apply_url }}" target="_blank" rel="noopener"
+     class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-5 py-2.5 rounded-xl">
+    🔗 Open company application
+  </a>
+  <form method="post" action="/app/job/{{ job.id }}/mark_applied">
+    <button class="border border-slate-700 hover:border-slate-500 text-slate-200 px-5 py-2.5 rounded-xl">
+      ✓ Mark as applied
+    </button>
+  </form>
+</div>
+
+<p class="text-slate-500 text-sm mt-3">
+  Tap <b>Open company application</b> in a new tab. Then copy each block below into the form.
+</p>
+
+<!-- Tailored bullets -->
+<div class="mt-8 rounded-2xl border border-slate-800 bg-slate-900/40 p-5" x-data="{ copied: false }">
+  <div class="flex items-center justify-between mb-3">
+    <h2 class="font-bold">✨ Tailored resume bullets</h2>
+    <button @click="navigator.clipboard.writeText($refs.bullets.innerText); copied = true; setTimeout(() => copied = false, 2000)"
+            class="text-sm px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold">
+      <span x-show="!copied">📋 Copy</span>
+      <span x-show="copied" x-cloak>✓ Copied</span>
+    </button>
+  </div>
+  <ul x-ref="bullets" class="space-y-2 text-slate-200">
+    {% for b in packet.tailored_bullets %}
+      <li class="flex gap-2"><span class="text-emerald-400 shrink-0">•</span><span>{{ b }}</span></li>
+    {% endfor %}
+  </ul>
+</div>
+
+<!-- Cover letter -->
+<div class="mt-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-5" x-data="{ copied: false }">
+  <div class="flex items-center justify-between mb-3">
+    <h2 class="font-bold">✉️ Cover letter</h2>
+    <button @click="navigator.clipboard.writeText($refs.cover.innerText); copied = true; setTimeout(() => copied = false, 2000)"
+            class="text-sm px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold">
+      <span x-show="!copied">📋 Copy</span>
+      <span x-show="copied" x-cloak>✓ Copied</span>
+    </button>
+  </div>
+  <div x-ref="cover" class="whitespace-pre-line text-slate-300 leading-relaxed">{{ packet.cover_letter }}</div>
+</div>
+
+<!-- Screening answers -->
+{% if packet.screening_answers %}
+<div class="mt-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+  <h2 class="font-bold mb-3">📝 Screening answers</h2>
+  <dl class="space-y-4">
+    {% for k, v in packet.screening_answers.items() %}
+      <div x-data="{ copied: false }">
+        <dt class="text-slate-400 text-sm mb-1 flex items-center justify-between">
+          <span>{{ k.replace('_',' ')|capitalize }}</span>
+          <button @click="navigator.clipboard.writeText($refs.ans.innerText); copied = true; setTimeout(() => copied = false, 2000)"
+                  class="text-xs px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300">
+            <span x-show="!copied">Copy</span>
+            <span x-show="copied" x-cloak>✓</span>
+          </button>
+        </dt>
+        <dd x-ref="ans" class="text-slate-200">{{ v }}</dd>
+      </div>
+    {% endfor %}
+  </dl>
+</div>
+{% endif %}
+
+{% if packet.gaps %}
+<div class="mt-4 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5">
+  <h2 class="font-bold mb-2 text-amber-300">⚠️ Gaps to know about</h2>
+  <p class="text-slate-300 text-sm">{{ packet.gaps|join(', ') }}</p>
+</div>
+{% endif %}
+
+{% else %}
+<div class="mt-6 rounded-2xl border border-slate-800 bg-slate-900/40 p-8 text-center">
+  <p class="text-slate-400 mb-4">No packet generated yet for this job.</p>
+  <form method="post" action="/app/job/{{ job.id }}/packet">
+    <button class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-5 py-2.5 rounded-xl">
+      ✍️ Generate tailored application
+    </button>
+  </form>
+</div>
+{% endif %}
+
+{% endblock %}

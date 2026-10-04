@@ -107,7 +107,10 @@ def login_post(
             status_code=401,
         )
     token = create_token(str(user.id))
-    resp = RedirectResponse("/app", status_code=302)
+    next_url = request.query_params.get("next", "/app")
+    if not next_url.startswith("/"):
+        next_url = "/app"
+    resp = RedirectResponse(next_url, status_code=302)
     resp.set_cookie(COOKIE_NAME, token, httponly=True, samesite="lax", max_age=60 * 60 * 24 * 30)
     return resp
 
@@ -258,3 +261,46 @@ async def save_full_profile(request: Request, db: Session = Depends(get_db)):
 
 
 
+
+
+@router.get("/app/apply/{job_id}", response_class=HTMLResponse)
+def apply_page(job_id: str, request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        # Preserve the destination so login redirects back here
+        return RedirectResponse(f"/login?next=/app/apply/{job_id}", status_code=302)
+    job = db.get(Job, job_id)
+    if not job:
+        raise HTTPException(404, "not found")
+
+    from app.db.models import ApplyPacket
+    packet = db.execute(
+        select(ApplyPacket).where(ApplyPacket.user_id == user.id, ApplyPacket.job_id == job.id)
+    ).scalar_one_or_none()
+
+    return templates.TemplateResponse(
+        "apply.html",
+        _ctx(request, user=user, job=job, packet=packet),
+    )
+
+
+@router.post("/app/job/{job_id}/mark_applied")
+def mark_applied(job_id: str, request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+    job = db.get(Job, job_id)
+    if not job:
+        raise HTTPException(404, "not found")
+
+    from app.db.models import Application
+    existing = db.query(Application).filter_by(user_id=user.id, job_id=job.id).first()
+    if existing:
+        existing.status = "applied"
+    else:
+        db.add(Application(
+            user_id=user.id, job_id=job.id,
+            apply_type="manual", status="applied",
+        ))
+    db.commit()
+    return RedirectResponse("/app", status_code=302)
