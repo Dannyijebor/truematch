@@ -194,14 +194,148 @@ def find_matches(db: Session, user: User, limit: int = 30, offset: int = 0, min_
 
     page = scored[offset:offset + limit]
 
-    return [{
-        "job_id": str(job.id),
-        "score": score,
-        "reason": reasons,
-        "title": job.title,
-        "company": job.company.name if job.company else None,
-        "location": job.location,
-        "remote": job.remote,
-        "apply_url": job.apply_url,
-        "posted_at": job.posted_at.isoformat() if job.posted_at else None,
-    } for score, reasons, job in page]
+    out = []
+    for score, reasons, job in page:
+        prob = estimate_probability(job, profile, score, reasons)
+        advice = build_advice(job, profile, reasons)
+        out.append({
+            "job_id": str(job.id),
+            "score": score,
+            "probability": prob,
+            "advice": advice,
+            "reason": reasons,
+            "title": job.title,
+            "company": job.company.name if job.company else None,
+            "location": job.location,
+            "remote": job.remote,
+            "apply_url": job.apply_url,
+            "posted_at": job.posted_at.isoformat() if job.posted_at else None,
+        })
+    return out
+
+
+# ============================================================
+# Probability + advice — help users understand their real odds
+# ============================================================
+
+SENIORITY_RANK = {
+    "intern": 0, "junior": 1, "mid": 2,
+    "senior": 3, "lead": 4, "staff": 5, "principal": 6,
+}
+
+# Companies where competition is unusually high → adjust odds
+COMPETITIVE_COMPANIES = {
+    "openai": 0.55, "anthropic": 0.60, "google": 0.60, "meta": 0.65,
+    "apple": 0.65, "amazon": 0.70, "microsoft": 0.70, "nvidia": 0.60,
+    "netflix": 0.65, "tesla": 0.75, "stripe": 0.75, "figma": 0.80,
+    "coinbase": 0.80, "databricks": 0.75, "snowflake": 0.80,
+    "cloudflare": 0.85, "samsara": 0.85,
+}
+
+
+def estimate_probability(job, profile, match_score: float, match_reason: dict) -> float:
+    """Realistic probability (%) that this application leads to an interview."""
+    p = float(match_score or 0)
+
+    # Seniority mismatch penalty
+    js = match_reason.get("job_seniority", "mid")
+    us = match_reason.get("user_seniority", "mid")
+    diff = abs(SENIORITY_RANK.get(js, 2) - SENIORITY_RANK.get(us, 2))
+    if diff >= 2:
+        p *= 0.5
+    elif diff == 1:
+        p *= 0.8
+
+    # Skill gap penalty
+    missing = match_reason.get("missing_skills", [])
+    if len(missing) >= 12:
+        p *= 0.55
+    elif len(missing) >= 6:
+        p *= 0.75
+    elif len(missing) >= 3:
+        p *= 0.9
+
+    # Location penalty
+    if not job.remote and profile.location and job.location:
+        if profile.location.lower() not in job.location.lower():
+            p *= 0.7
+
+    # Salary penalty if below target
+    if profile.min_salary and job.salary_min and job.salary_min < profile.min_salary:
+        p *= 0.75
+
+    # Competition factor by company
+    company_name = (job.company.name if job.company else "").lower()
+    for key, factor in COMPETITIVE_COMPANIES.items():
+        if key in company_name:
+            p *= factor
+            break
+
+    # Freshness bonus
+    if job.posted_at:
+        from datetime import datetime, timezone
+        try:
+            days = (datetime.now(timezone.utc) - job.posted_at).days
+            if days <= 3:
+                p *= 1.1
+            elif days >= 21:
+                p *= 0.85
+        except Exception:
+            pass
+
+    return max(2.0, min(92.0, round(p, 1)))
+
+
+def build_advice(job, profile, match_reason: dict) -> list[str]:
+    """2-3 concrete, actionable tips to raise your odds on this specific job."""
+    tips = []
+    missing = match_reason.get("missing_skills", []) or []
+    matched = match_reason.get("matched_skills", []) or []
+    js = match_reason.get("job_seniority", "mid")
+    us = match_reason.get("user_seniority", "mid")
+
+    # Skill gap
+    if missing:
+        top = missing[:3]
+        tips.append(
+            f"Learn {', '.join(top)} — listed as a requirement and you don't have it yet."
+        )
+
+    # Seniority
+    sd = SENIORITY_RANK.get(js, 2) - SENIORITY_RANK.get(us, 2)
+    if sd >= 2:
+        tips.append(
+            f"This is a {js}-level role — ambitious. Emphasize ownership, scale, and any lead experience you have."
+        )
+    elif sd == 1:
+        tips.append(
+            f"Slightly above your level. Use bullets that show you've already operated at {js} scope."
+        )
+    elif sd <= -2:
+        tips.append(
+            f"You're above this role's level. If you want it, make clear you're happy to stay hands-on."
+        )
+
+    # Location
+    if not job.remote and profile.location and job.location:
+        if profile.location.lower() not in job.location.lower():
+            tips.append(
+                f"On-site in {job.location}. Ask about relocation support or whether the role can go hybrid for your region."
+            )
+
+    # Salary
+    if profile.min_salary and job.salary_min and job.salary_min < profile.min_salary:
+        tips.append(
+            f"Salary starts at {job.salary_min:,}, below your minimum. Only proceed if you'd flex for the mission."
+        )
+
+    # Fallback
+    if not tips:
+        if matched:
+            tips.append(
+                f"Strong fit. Lead your cover letter with: {', '.join(matched[:3])}."
+            )
+        else:
+            tips.append("Focus your cover letter on the top 3 requirements you already meet.")
+
+    return tips[:3]

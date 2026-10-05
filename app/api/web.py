@@ -132,20 +132,27 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse("/login", status_code=302)
 
     profile = db.get(Profile, user.id)
-    page = int(request.query_params.get("page", 1))
-    per_page = 20
-    offset = (page - 1) * per_page
+
+    # Show-more pattern: ?show=N starts at 20, grows by 20 up to 100
+    try:
+        show = int(request.query_params.get("show", 20))
+    except (ValueError, TypeError):
+        show = 20
+    show = max(20, min(100, show))
 
     matches = []
     has_more = False
+    total_found = 0
     if profile and profile.skills:
-        raw = find_matches(db, user, limit=per_page + 1, offset=offset, min_score=40)
-        has_more = len(raw) > per_page
-        matches = raw[:per_page]
+        # fetch one extra to know if there's more beyond what we show
+        raw = find_matches(db, user, limit=show + 1, offset=0, min_score=30)
+        has_more = len(raw) > show and show < 100
+        matches = raw[:show]
+        total_found = len(matches)
 
     return templates.TemplateResponse(request, "dashboard.html", _ctx(
-        request, user=user, profile=profile, matches=matches,
-        page=page, has_more=has_more,
+        request, db=db, user=user, profile=profile, matches=matches,
+        show=show, has_more=has_more, total_found=total_found,
     ))
 
 
