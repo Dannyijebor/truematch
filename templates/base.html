@@ -178,6 +178,190 @@
   .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   [x-cloak] { display: none !important; }
   .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+
+  /* ============================================================
+     MOTION SYSTEM — reusable premium animations
+     ============================================================ */
+
+  /* Ambient background orbs — floating behind everything */
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.35;
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::before {
+    width: 520px; height: 520px;
+    background: radial-gradient(circle, rgba(16,185,129,0.35), transparent 70%);
+    top: -180px; left: -140px;
+    animation: tm-drift-a 22s ease-in-out infinite;
+  }
+  body::after {
+    width: 640px; height: 640px;
+    background: radial-gradient(circle, rgba(99,102,241,0.22), transparent 70%);
+    bottom: -260px; right: -200px;
+    animation: tm-drift-b 26s ease-in-out infinite;
+  }
+  html.light body::before { opacity: 0.5; background: radial-gradient(circle, rgba(16,185,129,0.4), transparent 70%); }
+  html.light body::after { opacity: 0.35; background: radial-gradient(circle, rgba(99,102,241,0.28), transparent 70%); }
+
+  @keyframes tm-drift-a {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%      { transform: translate(60px, 40px) scale(1.08); }
+    66%      { transform: translate(-30px, 80px) scale(0.96); }
+  }
+  @keyframes tm-drift-b {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(-70px, -50px) scale(1.1); }
+  }
+
+  /* Logo */
+  .tm-logo-mark {
+    filter: drop-shadow(0 0 12px rgba(16,185,129,0.35));
+    transition: filter 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .tm-logo:hover .tm-logo-mark {
+    filter: drop-shadow(0 0 20px rgba(16,185,129,0.65));
+    transform: scale(1.06) rotate(-2deg);
+  }
+  .tm-logo-ring {
+    transform-origin: center;
+    animation: tm-pulse-ring 3.6s ease-in-out infinite;
+  }
+  @keyframes tm-pulse-ring {
+    0%, 100% { opacity: 0.15; transform: scale(1); }
+    50%      { opacity: 0.4;  transform: scale(1.08); }
+  }
+  .tm-logo-text {
+    transition: letter-spacing 0.3s ease;
+  }
+  .tm-logo:hover .tm-logo-text { letter-spacing: -0.015em; }
+  .tm-logo-m {
+    background: linear-gradient(90deg, #10b981 0%, #34d399 50%, #10b981 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: tm-text-sheen 4s ease-in-out infinite;
+  }
+  @keyframes tm-text-sheen {
+    0%, 100% { background-position: 100% 0; }
+    50%      { background-position: 0 0; }
+  }
+
+  /* Breathe — for live indicators, active nav */
+  @keyframes tm-breathe {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.7; transform: scale(1.04); }
+  }
+  .tm-breathe { animation: tm-breathe 2.8s ease-in-out infinite; }
+
+  /* Float — for hero elements, cards on hover */
+  @keyframes tm-float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-4px); }
+  }
+  .tm-float { animation: tm-float 4s ease-in-out infinite; }
+
+  /* Shimmer — for skeletons */
+  @keyframes tm-shimmer-x {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* Glow on focus / hover for cards */
+  .tm-card {
+    position: relative;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+                border-color 0.2s ease,
+                box-shadow 0.3s ease,
+                background-color 0.2s ease;
+    will-change: transform;
+  }
+  .tm-card-link:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-border);
+    box-shadow: 0 12px 40px -12px rgba(16,185,129,0.22),
+                0 4px 12px -4px rgba(0,0,0,0.3);
+  }
+  .tm-card-link:active {
+    transform: translateY(0) scale(0.995);
+    transition-duration: 0.08s;
+  }
+
+  /* Primary button — sheen on hover */
+  .tm-btn-primary {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .tm-btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg,
+      transparent 30%,
+      rgba(255,255,255,0.5) 50%,
+      transparent 70%);
+    transform: translateX(-120%);
+    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .tm-btn-primary:hover::after { transform: translateX(120%); }
+
+  /* Live dot — for unread, active */
+  .tm-live-dot {
+    position: relative;
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 0 0 rgba(16,185,129,0.6);
+    animation: tm-live-pulse 1.8s ease-out infinite;
+  }
+  @keyframes tm-live-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(16,185,129,0.6); }
+    70%  { box-shadow: 0 0 0 8px rgba(16,185,129,0); }
+    100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+  }
+
+  /* Stagger-in — apply to any container */
+  .stagger-in > * {
+    opacity: 0;
+    animation: tm-fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .stagger-in > *:nth-child(1) { animation-delay: 0.02s; }
+  .stagger-in > *:nth-child(2) { animation-delay: 0.06s; }
+  .stagger-in > *:nth-child(3) { animation-delay: 0.10s; }
+  .stagger-in > *:nth-child(4) { animation-delay: 0.14s; }
+  .stagger-in > *:nth-child(5) { animation-delay: 0.18s; }
+  .stagger-in > *:nth-child(6) { animation-delay: 0.22s; }
+  .stagger-in > *:nth-child(7) { animation-delay: 0.26s; }
+  .stagger-in > *:nth-child(8) { animation-delay: 0.30s; }
+  .stagger-in > *:nth-child(n+9) { animation-delay: 0.34s; }
+
+  /* Tab bar tap response */
+  .tm-tab { transition: color 0.15s ease, transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .tm-tab:active { transform: scale(0.88); }
+  .tm-tab.active svg { filter: drop-shadow(0 0 8px rgba(16,185,129,0.5)); }
+
+  /* Soft page background gradient behind content */
+  main { position: relative; z-index: 1; }
+  nav, aside, footer { position: relative; z-index: 2; }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
 </style>
 </head>
 <body class="min-h-screen pb-20 md:pb-0">
@@ -197,13 +381,14 @@
         </svg>
       </button>
       {% endif %}
-      <a href="{% if user %}/feed{% else %}/{% endif %}" class="text-xl font-bold tracking-tight">
-        <span class="text-emerald-400">True</span><span class="text-white">Match</span>
-      </a>
+      {% with size='md' %}{% include "_logo.html" %}{% endwith %}
     </div>
 
     <div class="flex items-center gap-2">
       {% if user %}
+        <button onclick="tmOpenCmd()" class="p-2 rounded-lg hover:bg-slate-800 transition-colors hidden md:inline-flex" title="Quick actions (⌘K)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        </button>
         <a href="/notifications" class="relative p-2 rounded-lg hover:bg-slate-800 transition-colors" id="tm-bell" title="Notifications">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5"><path d="M18 8A6 6 0 1 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           <span id="tm-bell-badge" class="hidden absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] text-[10px] font-bold rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center px-1"></span>
@@ -317,23 +502,23 @@
 <nav class="fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 glass border-t border-slate-800 md:hidden safe-bottom">
   <div class="grid grid-cols-5">
     {% set path = request.url.path %}
-    <a href="/feed" class="tm-tab flex flex-col items-center py-2.5 text-xs {% if path == '/feed' %}text-emerald-400{% else %}text-slate-500{% endif %}">
+    <a href="/feed" class="tm-tab flex flex-col items-center py-2.5 text-xs {% if path == '/feed' %}text-emerald-400 active{% else %}text-slate-500{% endif %}">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><path d="M3 12L12 3l9 9v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1v-9z"/></svg>
       <span class="mt-0.5">Home</span>
     </a>
-    <a href="/app" class="tm-tab flex flex-col items-center py-2.5 text-xs {% if path == '/app' %}text-emerald-400{% else %}text-slate-500{% endif %}">
+    <a href="/app" class="tm-tab flex flex-col items-center py-2.5 text-xs {% if path == '/app' %}text-emerald-400 active{% else %}text-slate-500{% endif %}">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/></svg>
       <span class="mt-0.5">Matches</span>
     </a>
-    <a href="/discover" class="tm-tab flex flex-col items-center py-2.5 text-xs {% if path == '/discover' %}text-emerald-400{% else %}text-slate-500{% endif %}">
+    <a href="/discover" class="tm-tab flex flex-col items-center py-2.5 text-xs {% if path == '/discover' %}text-emerald-400 active{% else %}text-slate-500{% endif %}">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
       <span class="mt-0.5">Discover</span>
     </a>
-    <a href="/messages" class="tm-tab flex flex-col items-center py-2.5 text-xs {% if path.startswith('/messages') %}text-emerald-400{% else %}text-slate-500{% endif %}">
+    <a href="/messages" class="tm-tab flex flex-col items-center py-2.5 text-xs {% if path.startswith('/messages') %}text-emerald-400 active{% else %}text-slate-500{% endif %}">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
       <span class="mt-0.5">Messages</span>
     </a>
-    <a href="/app/people" class="tm-tab flex flex-col items-center py-2.5 text-xs {% if path == '/app/people' %}text-emerald-400{% else %}text-slate-500{% endif %}">
+    <a href="/app/people" class="tm-tab flex flex-col items-center py-2.5 text-xs {% if path == '/app/people' %}text-emerald-400 active{% else %}text-slate-500{% endif %}">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.2"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5"/><path d="M15 14c3 0 6 1.5 6 4"/></svg>
       <span class="mt-0.5">People</span>
     </a>
@@ -386,6 +571,125 @@
     setTimeout(pollUnread, 15000);
   }
   pollUnread();
+</script>
+
+
+<!-- Command palette -->
+<div id="tm-cmd" class="hidden fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-start justify-center pt-24 px-4 fade-in">
+  <div class="w-full max-w-lg rounded-2xl border border-slate-800 bg-slate-950 shadow-2xl shadow-black/60 overflow-hidden fade-up">
+    <div class="flex items-center gap-2 px-4 py-3 border-b border-slate-800">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-4 h-4 text-slate-500"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="tm-cmd-input" type="text" placeholder="Jump to… (pages, actions)"
+             class="flex-1 bg-transparent outline-none text-sm text-slate-100 placeholder:text-slate-600">
+      <kbd class="text-[10px] text-slate-600 border border-slate-800 rounded px-1.5 py-0.5">ESC</kbd>
+    </div>
+    <div id="tm-cmd-list" class="max-h-80 overflow-y-auto p-2"></div>
+  </div>
+</div>
+
+<script>
+// ---------- Command palette ----------
+const TM_CMDS = [
+  { label: 'Home feed',        href: '/feed',        icon: 'home' },
+  { label: 'My matches',       href: '/app',         icon: 'target' },
+  { label: 'Discover',         href: '/discover',    icon: 'compass' },
+  { label: 'Messages',         href: '/messages',    icon: 'chat' },
+  { label: 'People',           href: '/app/people',  icon: 'users' },
+  { label: 'Notifications',    href: '/notifications', icon: 'bell' },
+  { label: 'My resume',        href: '/app/resume',  icon: 'doc' },
+  { label: 'Jobs from recruiters', href: '/jobs-posted', icon: 'briefcase' },
+  { label: 'Hiring dashboard', href: '/hire',        icon: 'star' },
+  { label: 'Settings',         href: '/settings',    icon: 'gear' },
+  { label: 'Log out',          action: 'logout',     icon: 'exit' },
+];
+
+const TM_ICONS = {
+  home: '<path d="M3 12L12 3l9 9v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1v-9z"/>',
+  target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/>',
+  compass: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+  chat: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  users: '<circle cx="9" cy="8" r="3"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5"/>',
+  bell: '<path d="M18 8A6 6 0 1 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
+  doc: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>',
+  briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+  star: '<path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/>',
+  gear: '<circle cx="12" cy="12" r="3"/>',
+  exit: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/>',
+};
+
+let tmCmdActive = 0;
+let tmCmdFiltered = [...TM_CMDS];
+
+function tmOpenCmd() {
+  const el = document.getElementById('tm-cmd');
+  el.classList.remove('hidden');
+  const input = document.getElementById('tm-cmd-input');
+  input.value = '';
+  tmCmdFiltered = [...TM_CMDS];
+  tmCmdRender();
+  setTimeout(() => input.focus(), 60);
+}
+function tmCloseCmd() {
+  document.getElementById('tm-cmd').classList.add('hidden');
+}
+function tmCmdRender() {
+  const list = document.getElementById('tm-cmd-list');
+  if (!tmCmdFiltered.length) {
+    list.innerHTML = '<div class="p-4 text-sm text-slate-500 text-center">No matches</div>';
+    return;
+  }
+  list.innerHTML = tmCmdFiltered.map((c, i) => `
+    <button class="tm-cmd-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-slate-900 ${i === tmCmdActive ? 'bg-slate-900 text-white' : ''}"
+            data-i="${i}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-4 h-4 opacity-70">${TM_ICONS[c.icon]||''}</svg>
+      <span>${c.label}</span>
+    </button>
+  `).join('');
+  list.querySelectorAll('.tm-cmd-item').forEach(b => {
+    b.addEventListener('click', () => tmCmdGo(tmCmdFiltered[+b.dataset.i]));
+  });
+}
+function tmCmdGo(cmd) {
+  if (!cmd) return;
+  tmCloseCmd();
+  if (cmd.action === 'logout') {
+    const f = document.createElement('form');
+    f.method = 'POST'; f.action = '/logout';
+    document.body.appendChild(f); f.submit();
+  } else if (cmd.href) {
+    window.location.href = cmd.href;
+  }
+}
+document.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault(); tmOpenCmd();
+  }
+  const el = document.getElementById('tm-cmd');
+  if (!el || el.classList.contains('hidden')) return;
+  if (e.key === 'Escape') { e.preventDefault(); tmCloseCmd(); }
+  else if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    tmCmdActive = Math.min(tmCmdActive + 1, tmCmdFiltered.length - 1);
+    tmCmdRender();
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    tmCmdActive = Math.max(tmCmdActive - 1, 0);
+    tmCmdRender();
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    tmCmdGo(tmCmdFiltered[tmCmdActive]);
+  }
+});
+document.addEventListener('input', (e) => {
+  if (e.target.id !== 'tm-cmd-input') return;
+  const q = e.target.value.toLowerCase().trim();
+  tmCmdFiltered = TM_CMDS.filter(c => c.label.toLowerCase().includes(q));
+  tmCmdActive = 0;
+  tmCmdRender();
+});
+document.getElementById('tm-cmd').addEventListener('click', (e) => {
+  if (e.target.id === 'tm-cmd') tmCloseCmd();
+});
 </script>
 
 </body>

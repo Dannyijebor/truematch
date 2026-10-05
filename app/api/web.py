@@ -1182,6 +1182,9 @@ def notifications_page(request: Request, db: Session = Depends(get_db)):
 
 
 @router.get("/api/notifications/unread")
-def api_notifications_unread(user: User = Depends(current_user), db: Session = Depends(get_db)):
+def api_notifications_unread(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return {"unread": 0}
     from app.notify_inapp import unread_count
     return {"unread": unread_count(db, user.id)}

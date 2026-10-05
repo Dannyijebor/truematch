@@ -73,7 +73,7 @@
     <h2 class="text-lg font-bold">Companies hiring right now</h2>
     <p class="text-slate-500 text-xs mt-0.5">Who has the most open roles this week.</p>
   </div>
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-2 stagger">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-2 stagger-in">
     {% for c in companies %}
       <div class="tm-card p-3">
         <div class="font-semibold text-sm truncate">{{ c.name }}</div>
@@ -124,7 +124,7 @@
     <h2 class="text-lg font-bold">People you should know</h2>
     <p class="text-slate-500 text-xs mt-0.5">Based on your skills and who's hiring.</p>
   </div>
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-2 stagger">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-2 stagger-in">
     {% for p in people %}
     <a href="{% if p.username %}/u/{{ p.username }}{% else %}/app/people{% endif %}" class="tm-card tm-card-link p-3">
       {% if p.avatar_url %}

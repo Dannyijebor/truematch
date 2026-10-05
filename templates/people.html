@@ -19,7 +19,7 @@
   {% if q %}No one matches "{{ q }}".{% else %}No other users yet.{% endif %}
 </div>
 {% else %}
-<div class="grid md:grid-cols-2 gap-3 stagger">
+<div class="grid md:grid-cols-2 gap-3 stagger-in">
   {% for p in people %}
   <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 flex items-start gap-3">
     <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center font-bold text-slate-950 shrink-0">
