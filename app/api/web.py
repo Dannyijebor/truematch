@@ -761,18 +761,23 @@ def message_thread(other_id: str, request: Request, db: Session = Depends(get_db
     from app.social import thread, display_name
     msgs = thread(db, user.id, other_uuid)
     other_profile = db.get(Profile, other_user.id)
+    my_profile = db.get(Profile, user.id) or Profile(user_id=user.id)
 
     return templates.TemplateResponse(request, "thread.html", _ctx(
         request,
+        db=db,
         user=user,
+        profile=my_profile,
         other={
             "user_id": str(other_user.id),
             "name": display_name(other_user, other_profile),
             "username": other_profile.username if other_profile else None,
             "title": other_profile.title if other_profile else None,
             "company": other_profile.company_name if other_profile else None,
+            "avatar_url": other_profile.avatar_url if other_profile else None,
         },
         msgs=msgs,
+        chat_theme=my_profile.chat_theme or "classic",
     ))
 
 
@@ -1086,3 +1091,23 @@ async def save_chat_theme(request: Request, db: Session = Depends(get_db)):
     db.commit()
     referer = request.headers.get("referer", "/messages")
     return RedirectResponse(referer, status_code=302)
+
+
+@router.post("/api/settings/chat_theme")
+async def api_save_chat_theme(request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    user = current_user_web(request, db)
+    if not user:
+        return JSONResponse({"ok": False}, status_code=401)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    t = (body.get("theme") or "classic").strip()
+    if t not in ("classic", "ocean", "forest", "sunset", "midnight", "rose", "paper"):
+        t = "classic"
+    profile = db.get(Profile, user.id) or Profile(user_id=user.id)
+    profile.chat_theme = t
+    db.add(profile)
+    db.commit()
+    return JSONResponse({"ok": True, "theme": t})
