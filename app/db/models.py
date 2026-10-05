@@ -73,6 +73,8 @@ class Profile(Base):
     company_name: Mapped[str | None] = mapped_column(String, nullable=True)
     avatar_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     theme: Mapped[str] = mapped_column(String, default="dark")
+    chat_theme: Mapped[str] = mapped_column(String, default="classic")
+    bubble_style: Mapped[str] = mapped_column(String, default="rounded")
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 
