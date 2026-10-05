@@ -26,23 +26,18 @@ def current_user_web(request: Request, db: Session) -> User | None:
     return db.get(User, uid)
 
 
-def _ctx(request, **extra):
-    from app.db.models import Profile, User as _User
+def _ctx(request, db=None, **extra):
+    """Build template context. Reuses the caller's DB session if provided."""
     base = {"request": request, "user": None, "user_profile": None}
     base.update(extra)
 
-    if base.get("user"):
-        # ensure profile exists so hamburger menu can render avatar
-        from app.db.session import SessionLocal
-        db = SessionLocal()
-        try:
-            p = db.get(Profile, base["user"].id)
-            if not p:
-                p = Profile(user_id=base["user"].id)
-                db.add(p); db.commit(); db.refresh(p)
-            base["user_profile"] = p
-        finally:
-            db.close()
+    if base.get("user") and db is not None:
+        from app.db.models import Profile
+        p = db.get(Profile, base["user"].id)
+        if not p:
+            p = Profile(user_id=base["user"].id)
+            db.add(p); db.commit(); db.refresh(p)
+        base["user_profile"] = p
 
     return base
 
@@ -64,7 +59,7 @@ def logout():
 
 @router.get("/signup", response_class=HTMLResponse)
 def signup_get(request: Request, db: Session = Depends(get_db)):
-    return templates.TemplateResponse(request, "auth.html", _ctx(request, mode="signup"))
+    return templates.TemplateResponse(request, "auth.html", _ctx(request, db=db, mode="signup"))
 
 
 @router.post("/signup")
@@ -78,12 +73,12 @@ def signup_post(
 ):
     email = email.strip().lower()
     if len(password) < 6:
-        return templates.TemplateResponse(request, "auth.html", _ctx(request, mode="signup", error="Password must be at least 6 characters."),
+        return templates.TemplateResponse(request, "auth.html", _ctx(request, db=db, mode="signup", error="Password must be at least 6 characters."),
             status_code=400,
         )
     existing = db.execute(select(User).where(User.email == email)).scalar_one_or_none()
     if existing:
-        return templates.TemplateResponse(request, "auth.html", _ctx(request, mode="signup", error="That email is already registered."),
+        return templates.TemplateResponse(request, "auth.html", _ctx(request, db=db, mode="signup", error="That email is already registered."),
             status_code=400,
         )
     user = User(
@@ -105,7 +100,7 @@ def signup_post(
 
 @router.get("/login", response_class=HTMLResponse)
 def login_get(request: Request, db: Session = Depends(get_db)):
-    return templates.TemplateResponse(request, "auth.html", _ctx(request, mode="login"))
+    return templates.TemplateResponse(request, "auth.html", _ctx(request, db=db, mode="login"))
 
 
 @router.post("/login")
@@ -118,7 +113,7 @@ def login_post(
     email = email.strip().lower()
     user = db.execute(select(User).where(User.email == email)).scalar_one_or_none()
     if not user or not verify_password(password, user.password_hash):
-        return templates.TemplateResponse(request, "auth.html", _ctx(request, mode="login", error="Wrong email or password."),
+        return templates.TemplateResponse(request, "auth.html", _ctx(request, db=db, mode="login", error="Wrong email or password."),
             status_code=401,
         )
     token = create_token(str(user.id))
@@ -200,7 +195,7 @@ def job_detail(job_id: str, request: Request, db: Session = Depends(get_db)):
         select(ApplyPacket).where(ApplyPacket.user_id == user.id, ApplyPacket.job_id == job.id)
     ).scalar_one_or_none()
 
-    return templates.TemplateResponse(request, "job.html", _ctx(request, user=user, job=job, packet=packet),
+    return templates.TemplateResponse(request, "job.html", _ctx(request, db=db, user=user, job=job, packet=packet),
     )
 
 
@@ -295,7 +290,7 @@ def apply_page(job_id: str, request: Request, db: Session = Depends(get_db)):
 
     return templates.TemplateResponse(
         "apply.html",
-        _ctx(request, user=user, job=job, packet=packet),
+        _ctx(request, db=db, user=user, job=job, packet=packet),
     )
 
 

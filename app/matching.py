@@ -173,7 +173,7 @@ def find_matches(db: Session, user: User, limit: int = 30, offset: int = 0, min_
         select(Job)
         .where(Job.is_active == True, Job.confidence >= 85)
         .order_by(desc(Job.posted_at))
-        .limit(500)
+        .limit(300)
     )
 
     regions = getattr(profile, "regions", None) or []

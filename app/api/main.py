@@ -377,3 +377,29 @@ def auto_apply_route(
         return auto_apply_to_job(db, user, job, dry_run=dry_run)
     except Exception as e:
         raise HTTPException(500, str(e))
+
+
+# ---------- response caching ----------
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request as _Req
+import time as _time
+
+class TimingMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: _Req, call_next):
+        start = _time.time()
+        response = await call_next(request)
+        elapsed_ms = (_time.time() - start) * 1000
+        response.headers["X-Response-Time"] = f"{elapsed_ms:.0f}ms"
+
+        # Long-cache static assets
+        path = request.url.path
+        if path.startswith("/static/") or path.endswith((".css", ".js", ".png", ".jpg", ".webp")):
+            response.headers["Cache-Control"] = "public, max-age=86400"
+
+        # Private, no-store for app pages — fresh data
+        if path.startswith("/app") or path.startswith("/hire") or path.startswith("/messages"):
+            response.headers["Cache-Control"] = "private, no-store"
+
+        return response
+
+app.add_middleware(TimingMiddleware)
