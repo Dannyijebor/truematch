@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ other.name }} · Messages{% endblock %}
+{% block content %}
+
+<a href="/messages" class="text-slate-400 hover:text-white text-sm">← Messages</a>
+
+<div class="mt-4 flex items-center gap-3">
+  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center font-bold text-slate-950 shrink-0">
+    {{ (other.name or "?")[0]|upper }}
+  </div>
+  <div class="min-w-0 flex-1">
+    {% if other.username %}
+      <a href="/u/{{ other.username }}" class="font-semibold hover:underline">{{ other.name }}</a>
+    {% else %}
+      <span class="font-semibold">{{ other.name }}</span>
+    {% endif %}
+    {% if other.title or other.company %}
+      <div class="text-xs text-slate-500">
+        {{ other.title or '' }}{% if other.title and other.company %} · {% endif %}{{ other.company or '' }}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="mt-6 space-y-2">
+  {% for m in msgs %}
+    <div class="flex {% if m.from_me %}justify-end{% else %}justify-start{% endif %}">
+      <div class="max-w-[80%] rounded-2xl px-4 py-2.5 text-sm
+                  {% if m.from_me %}bg-emerald-500 text-slate-950{% else %}bg-slate-800 text-slate-100{% endif %}">
+        <div class="whitespace-pre-line">{{ m.body }}</div>
+        <div class="text-[10px] mt-1 {% if m.from_me %}text-slate-800{% else %}text-slate-500{% endif %}">
+          {{ m.created_at[:16].replace('T',' ') }}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<form method="post" action="/messages/{{ other.user_id }}" class="fixed bottom-20 md:bottom-4 inset-x-0 md:inset-x-auto md:right-6 md:w-[600px] bg-slate-950/95 backdrop-blur border-t border-slate-800 md:border md:rounded-2xl p-3">
+  <div class="max-w-5xl mx-auto flex items-end gap-2">
+    <textarea name="body" rows="1" required maxlength="4000"
+              placeholder="Message {{ other.name }}…"
+              class="flex-1 rounded-xl bg-slate-900 border border-slate-800 focus:border-emerald-500 px-3 py-2.5 text-sm outline-none resize-none"></textarea>
+    <button class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-4 py-2.5 rounded-xl text-sm shrink-0">
+      Send
+    </button>
+  </div>
+</form>
+
+<div class="h-40"></div>
+
+{% endblock %}

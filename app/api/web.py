@@ -704,3 +704,77 @@ def public_profile(username: str, request: Request, db: Session = Depends(get_db
         is_following=(is_following(db, viewer.id, target_user.id) if viewer else False),
         is_me=(viewer is not None and viewer.id == target_user.id),
     ))
+
+
+# ---------- messages ----------
+@router.get("/messages", response_class=HTMLResponse)
+def messages_inbox(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login?next=/messages", status_code=302)
+
+    from app.social import inbox, unread_messages_count
+    convos = inbox(db, user.id)
+    unread = unread_messages_count(db, user.id)
+
+    return templates.TemplateResponse(request, "messages.html", _ctx(
+        request, user=user, convos=convos, unread=unread,
+    ))
+
+
+@router.get("/messages/{other_id}", response_class=HTMLResponse)
+def message_thread(other_id: str, request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse(f"/login?next=/messages/{other_id}", status_code=302)
+
+    from uuid import UUID
+    try:
+        other_uuid = UUID(other_id)
+    except ValueError:
+        raise HTTPException(404, "invalid user id")
+
+    other_user = db.get(User, other_uuid)
+    if not other_user:
+        raise HTTPException(404, "user not found")
+
+    from app.social import thread, display_name
+    msgs = thread(db, user.id, other_uuid)
+    other_profile = db.get(Profile, other_user.id)
+
+    return templates.TemplateResponse(request, "thread.html", _ctx(
+        request,
+        user=user,
+        other={
+            "user_id": str(other_user.id),
+            "name": display_name(other_user, other_profile),
+            "username": other_profile.username if other_profile else None,
+            "title": other_profile.title if other_profile else None,
+            "company": other_profile.company_name if other_profile else None,
+        },
+        msgs=msgs,
+    ))
+
+
+@router.post("/messages/{other_id}")
+async def send_dm(other_id: str, request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    from uuid import UUID
+    try:
+        other_uuid = UUID(other_id)
+    except ValueError:
+        raise HTTPException(404, "invalid user id")
+
+    form = await request.form()
+    body = (form.get("body") or "").strip()
+    if body:
+        from app.social import send_message
+        try:
+            send_message(db, user.id, other_uuid, body)
+        except Exception as e:
+            print("dm send error:", e)
+
+    return RedirectResponse(f"/messages/{other_id}", status_code=302)

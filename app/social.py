@@ -147,3 +147,112 @@ def search_people(db: Session, q: str, limit: int = 30) -> list[dict]:
             "bio": profile.bio if profile else None,
         })
     return out
+
+
+# ---------- direct messages ----------
+from app.db.models import DirectMessage
+
+
+def send_message(db: Session, from_id, to_id, body: str) -> DirectMessage:
+    body = (body or "").strip()
+    if not body or len(body) > 4000:
+        raise ValueError("message must be 1-4000 chars")
+    if from_id == to_id:
+        raise ValueError("cannot message yourself")
+    msg = DirectMessage(from_user_id=from_id, to_user_id=to_id, body=body)
+    db.add(msg)
+    db.commit()
+    db.refresh(msg)
+    return msg
+
+
+def inbox(db: Session, user_id) -> list[dict]:
+    """Return list of conversations, most recent first, with unread counts."""
+    # All users we've exchanged messages with
+    q1 = db.execute(
+        select(DirectMessage.to_user_id).where(DirectMessage.from_user_id == user_id)
+    ).scalars().all()
+    q2 = db.execute(
+        select(DirectMessage.from_user_id).where(DirectMessage.to_user_id == user_id)
+    ).scalars().all()
+    others = set(q1) | set(q2)
+
+    out = []
+    for other_id in others:
+        # Last message between the two
+        last = db.execute(
+            select(DirectMessage)
+            .where(
+                or_(
+                    (DirectMessage.from_user_id == user_id) & (DirectMessage.to_user_id == other_id),
+                    (DirectMessage.from_user_id == other_id) & (DirectMessage.to_user_id == user_id),
+                )
+            )
+            .order_by(desc(DirectMessage.created_at))
+            .limit(1)
+        ).scalar_one_or_none()
+
+        unread = db.execute(
+            select(func.count()).select_from(DirectMessage).where(
+                DirectMessage.from_user_id == other_id,
+                DirectMessage.to_user_id == user_id,
+                DirectMessage.read_at.is_(None),
+            )
+        ).scalar() or 0
+
+        other_user = db.get(User, other_id)
+        other_profile = db.get(Profile, other_id)
+        out.append({
+            "other_user_id": str(other_id),
+            "name": display_name(other_user, other_profile),
+            "username": other_profile.username if other_profile else None,
+            "title": other_profile.title if other_profile else None,
+            "company": other_profile.company_name if other_profile else None,
+            "last_body": (last.body[:80] + "…") if last and len(last.body) > 80 else (last.body if last else ""),
+            "last_at": last.created_at.isoformat() if last else None,
+            "last_from_me": (last.from_user_id == user_id) if last else False,
+            "unread": unread,
+        })
+
+    out.sort(key=lambda r: r["last_at"] or "", reverse=True)
+    return out
+
+
+def thread(db: Session, user_id, other_id, limit: int = 200) -> list[dict]:
+    """Return messages between user_id and other_id, mark incoming as read."""
+    rows = db.execute(
+        select(DirectMessage)
+        .where(
+            or_(
+                (DirectMessage.from_user_id == user_id) & (DirectMessage.to_user_id == other_id),
+                (DirectMessage.from_user_id == other_id) & (DirectMessage.to_user_id == user_id),
+            )
+        )
+        .order_by(DirectMessage.created_at)
+        .limit(limit)
+    ).scalars().all()
+
+    # Mark unread as read
+    now_dirty = False
+    for m in rows:
+        if m.to_user_id == user_id and m.read_at is None:
+            m.read_at = func.now()
+            now_dirty = True
+    if now_dirty:
+        db.commit()
+
+    return [{
+        "id": str(m.id),
+        "body": m.body,
+        "from_me": m.from_user_id == user_id,
+        "created_at": m.created_at.isoformat() if m.created_at else None,
+    } for m in rows]
+
+
+def unread_messages_count(db: Session, user_id) -> int:
+    return db.execute(
+        select(func.count()).select_from(DirectMessage).where(
+            DirectMessage.to_user_id == user_id,
+            DirectMessage.read_at.is_(None),
+        )
+    ).scalar() or 0

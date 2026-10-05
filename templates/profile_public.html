@@ -21,6 +21,7 @@
     {% if is_me %}
       <a href="/app/resume" class="text-sm bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-xl">Edit profile</a>
     {% elif user %}
+      <a href="/messages/{{ target.user_id }}" class="text-sm border border-slate-700 hover:border-slate-500 px-3 py-2 rounded-xl mr-2">Message</a>
       {% if is_following %}
         <form method="post" action="/app/unfollow/{{ target.user_id }}">
           <button class="text-sm border border-slate-700 hover:border-slate-500 px-3 py-2 rounded-xl">Following</button>

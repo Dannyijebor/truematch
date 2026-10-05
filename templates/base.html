@@ -23,6 +23,7 @@
 
     <div class="flex items-center gap-2">
       {% if user %}
+        <a href="/messages" class="hidden md:inline text-sm text-slate-300 hover:text-white px-3 py-1.5">Messages</a>
         <a href="/app/resume" class="hidden md:inline text-sm text-slate-300 hover:text-white px-3 py-1.5">Resume</a>
         <a href="/logout" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
            class="text-sm text-slate-400 hover:text-white">Log out</a>
@@ -79,12 +80,11 @@
       <span class="mt-0.5">People</span>
     </a>
 
-    <a href="/app/resume" class="flex flex-col items-center py-2.5 text-xs {% if path.startswith('/app/resume') %}text-emerald-400{% else %}text-slate-500{% endif %}">
+    <a href="/messages" class="flex flex-col items-center py-2.5 text-xs {% if path.startswith('/messages') %}text-emerald-400{% else %}text-slate-500{% endif %}">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
-        <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>
-        <path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/>
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
       </svg>
-      <span class="mt-0.5">Resume</span>
+      <span class="mt-0.5">Messages</span>
     </a>
   </div>
 </nav>

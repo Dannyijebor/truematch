@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Messages · TrueMatch{% endblock %}
+{% block content %}
+
+<div class="mt-2 mb-6">
+  <h1 class="text-2xl font-extrabold tracking-tight">Messages</h1>
+  {% if unread %}<p class="text-emerald-400 text-sm mt-1">{{ unread }} unread</p>{% endif %}
+</div>
+
+{% if not convos %}
+<div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-8 text-center text-slate-400">
+  No messages yet. Open someone's profile and tap <b>Message</b> to start a conversation.
+</div>
+{% else %}
+<div class="divide-y divide-slate-800 rounded-2xl border border-slate-800 bg-slate-900/40 overflow-hidden">
+  {% for c in convos %}
+  <a href="/messages/{{ c.other_user_id }}" class="flex items-center gap-3 p-4 hover:bg-slate-900/70">
+    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center font-bold text-slate-950 shrink-0">
+      {{ (c.name or "?")[0]|upper }}
+    </div>
+    <div class="min-w-0 flex-1">
+      <div class="flex items-center gap-2">
+        <span class="font-semibold truncate">{{ c.name }}</span>
+        {% if c.unread %}
+          <span class="text-xs bg-emerald-500 text-slate-950 font-bold rounded-full px-2 py-0.5">{{ c.unread }}</span>
+        {% endif %}
+      </div>
+      {% if c.title or c.company %}
+        <div class="text-xs text-slate-500 truncate">{{ c.title or '' }}{% if c.title and c.company %} · {% endif %}{{ c.company or '' }}</div>
+      {% endif %}
+      <div class="text-sm text-slate-400 truncate mt-0.5">
+        {% if c.last_from_me %}<span class="text-slate-500">You: </span>{% endif %}{{ c.last_body }}
+      </div>
+    </div>
+    <div class="text-xs text-slate-600 shrink-0">{{ c.last_at[:10] if c.last_at else '' }}</div>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}
