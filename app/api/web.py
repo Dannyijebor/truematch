@@ -565,12 +565,22 @@ def discover_page(request: Request, db: Session = Depends(get_db)):
     if not user:
         return RedirectResponse("/login?next=/discover", status_code=302)
 
-    from app.social import discover_feed
-    posts = discover_feed(db, user.id, limit=60)
+    from app.discover import (
+        top_skills_in_demand, companies_hiring, recruiters_hiring_now,
+        people_to_know, platform_pulse, jobs_matching_you,
+    )
 
-    return templates.TemplateResponse(request, "feed.html", _ctx(
-        request, user=user, posts=posts, suggestions=[], profile=db.get(Profile, user.id),
-        discover=True,
+    pulse = platform_pulse(db)
+    skills = top_skills_in_demand(db, limit=20, sample=1200)
+    companies = companies_hiring(db, limit=8)
+    recruiters = recruiters_hiring_now(db, limit=6)
+    matches = jobs_matching_you(db, user, limit=3)
+    people = people_to_know(db, user.id, limit=8)
+
+    return templates.TemplateResponse(request, "discover.html", _ctx(
+        request, db=db, user=user,
+        pulse=pulse, skills=skills, companies=companies,
+        recruiters=recruiters, matches=matches, people=people,
     ))
 
 

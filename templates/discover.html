@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Discover · TrueMatch{% endblock %}
+{% block content %}
+
+<!-- Hero -->
+<div class="mt-2 mb-8 fade-up">
+  <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">Discover</h1>
+  <p class="text-slate-400 mt-2">The pulse of the job market — and who to talk to.</p>
+
+  <div class="mt-4 flex flex-wrap gap-3 text-sm">
+    <span class="tm-card px-3 py-1.5">
+      <b class="text-emerald-400">{{ "{:,}".format(pulse.jobs) }}</b> <span class="text-slate-400">live jobs</span>
+    </span>
+    <span class="tm-card px-3 py-1.5">
+      <b class="text-emerald-400">{{ "{:,}".format(pulse.users) }}</b> <span class="text-slate-400">people</span>
+    </span>
+    {% if pulse.posted_jobs %}
+    <span class="tm-card px-3 py-1.5">
+      <b class="text-emerald-400">{{ pulse.posted_jobs }}</b> <span class="text-slate-400">recruiter-posted</span>
+    </span>
+    {% endif %}
+  </div>
+</div>
+
+<!-- 1. Jobs matching you -->
+{% if matches %}
+<section class="mb-8 fade-up">
+  <div class="flex items-center justify-between mb-3">
+    <h2 class="text-lg font-bold">🎯 Top matches for you</h2>
+    <a href="/app" class="text-sm text-emerald-400 hover:underline">See all →</a>
+  </div>
+  <div class="space-y-2 stagger">
+    {% for m in matches %}
+    <a href="/app/job/{{ m.job_id }}" class="tm-card tm-card-link block p-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <div class="font-semibold truncate">{{ m.title }}</div>
+          <div class="text-slate-400 text-sm truncate">
+            {{ m.company or "—" }}{% if m.location %} · {{ m.location }}{% endif %}
+            {% if m.remote %} · <span class="text-emerald-400">Remote</span>{% endif %}
+          </div>
+        </div>
+        <div class="text-emerald-400 font-bold shrink-0">{{ m.score|round|int }}%</div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- 2. Top skills in demand -->
+{% if skills %}
+<section class="mb-8 fade-up">
+  <div class="mb-3">
+    <h2 class="text-lg font-bold">🔥 Top skills in demand</h2>
+    <p class="text-slate-500 text-xs mt-0.5">Across the {{ "{:,}".format(pulse.jobs) }} live jobs on TrueMatch. Learn what pays.</p>
+  </div>
+  <div class="flex flex-wrap gap-2">
+    {% for s in skills %}
+      <span class="tm-card px-3 py-1.5 text-sm flex items-center gap-2">
+        <span>{{ s.skill }}</span>
+        <span class="text-xs text-slate-500">{{ s.count }}</span>
+      </span>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- 3. Companies hiring -->
+{% if companies %}
+<section class="mb-8 fade-up">
+  <div class="mb-3">
+    <h2 class="text-lg font-bold">🏢 Companies hiring right now</h2>
+    <p class="text-slate-500 text-xs mt-0.5">Who has the most open roles this week.</p>
+  </div>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-2 stagger">
+    {% for c in companies %}
+      <div class="tm-card p-3">
+        <div class="font-semibold text-sm truncate">{{ c.name }}</div>
+        <div class="text-emerald-400 text-xs mt-1">{{ c.open }} open role{{ 's' if c.open != 1 else '' }}</div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- 4. Recruiters hiring -->
+{% if recruiters %}
+<section class="mb-8 fade-up">
+  <div class="mb-3">
+    <h2 class="text-lg font-bold">👥 Recruiters hiring on TrueMatch</h2>
+    <p class="text-slate-500 text-xs mt-0.5">Real people who posted roles. Message them directly.</p>
+  </div>
+  <div class="grid md:grid-cols-2 gap-2 stagger">
+    {% for r in recruiters %}
+    <div class="tm-card p-4 flex items-center gap-3">
+      {% if r.username %}<a href="/u/{{ r.username }}">{% endif %}
+      {% if r.avatar_url %}
+        <img src="{{ r.avatar_url }}" class="w-11 h-11 rounded-full object-cover shrink-0">
+      {% else %}
+        <div class="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center font-bold text-slate-950 shrink-0">
+          {{ (r.name or "?")[0]|upper }}
+        </div>
+      {% endif %}
+      {% if r.username %}</a>{% endif %}
+      <div class="min-w-0 flex-1">
+        <div class="font-semibold truncate text-sm">{{ r.name }}</div>
+        <div class="text-xs text-slate-500 truncate">
+          {{ r.title or '' }}{% if r.title and r.company %} · {% endif %}{{ r.company or '' }}
+        </div>
+        <div class="text-xs text-emerald-400 mt-0.5">{{ r.open_roles }} open role{{ 's' if r.open_roles != 1 else '' }}</div>
+      </div>
+      <a href="/messages/{{ r.user_id }}" class="tm-btn tm-btn-ghost text-xs px-3 py-1.5 shrink-0">Message</a>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- 5. People you should know -->
+{% if people %}
+<section class="mb-8 fade-up">
+  <div class="mb-3">
+    <h2 class="text-lg font-bold">🌐 People you should know</h2>
+    <p class="text-slate-500 text-xs mt-0.5">Based on your skills and who's hiring.</p>
+  </div>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-2 stagger">
+    {% for p in people %}
+    <a href="{% if p.username %}/u/{{ p.username }}{% else %}/app/people{% endif %}" class="tm-card tm-card-link p-3">
+      {% if p.avatar_url %}
+        <img src="{{ p.avatar_url }}" class="w-9 h-9 rounded-full object-cover">
+      {% else %}
+        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-xs font-bold text-slate-950">
+          {{ (p.name or "?")[0]|upper }}
+        </div>
+      {% endif %}
+      <div class="font-semibold text-sm mt-2 truncate">{{ p.name }}</div>
+      <div class="text-xs text-slate-500 truncate">{{ p.title or p.company or '—' }}</div>
+      {% if p.shared_skills %}
+        <div class="flex flex-wrap gap-1 mt-2">
+          {% for s in p.shared_skills[:2] %}
+            <span class="text-[10px] bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 rounded-full px-1.5 py-0.5">{{ s }}</span>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- Empty state -->
+{% if not matches and not skills and not companies %}
+<div class="tm-card p-8 text-center text-slate-400 fade-up">
+  Data is still warming up. Check back in a few minutes.
+</div>
+{% endif %}
+
+{% endblock %}
