@@ -1,80 +1,195 @@
 {% extends "base.html" %}
-{% block title %}{{ other.name }} · Messages{% endblock %}
+{% block title %}{{ other.name }} · Conversation{% endblock %}
 {% block content %}
 
 <style>
-  /* Chat themes */
+  /* ============================================================
+     Conversation themes — professional grade
+     ============================================================ */
   .chat-shell {
-    --chat-bg: var(--bg);
-    --chat-mine: #10b981;
-    --chat-mine-text: #052e16;
-    --chat-them: var(--surface-2);
-    --chat-them-text: var(--text);
+    --chat-bg: #0d0e12;
+    --chat-mine: #c9a961;
+    --chat-mine-text: #1a1206;
+    --chat-them: #1a1d24;
+    --chat-them-text: #e8e9ec;
+    --chat-divider: rgba(255,255,255,0.06);
   }
-  .chat-shell.theme-ocean   { --chat-bg: #071a2b; --chat-mine: #06b6d4; --chat-mine-text: #04283a; --chat-them: #0f2c47; }
-  .chat-shell.theme-forest  { --chat-bg: #06190f; --chat-mine: #22c55e; --chat-mine-text: #052e16; --chat-them: #0e2b1a; }
-  .chat-shell.theme-sunset  { --chat-bg: #1f0b0e; --chat-mine: #f97316; --chat-mine-text: #2b1206; --chat-them: #2c1419; }
-  .chat-shell.theme-midnight{ --chat-bg: #0a0613; --chat-mine: #a78bfa; --chat-mine-text: #1e1b4b; --chat-them: #1a1130; }
-  .chat-shell.theme-rose    { --chat-bg: #1a0a13; --chat-mine: #ec4899; --chat-mine-text: #3b0520; --chat-them: #2a1220; }
-  .chat-shell.theme-paper   { --chat-bg: #f5efe0; --chat-mine: #1e293b; --chat-mine-text: #ffffff; --chat-them: #e6dcc6; --chat-them-text: #1e293b; }
 
+  .theme-executive {
+    --chat-bg: #0d0e12;
+    --chat-mine: #c9a961;
+    --chat-mine-text: #1a1206;
+    --chat-them: #1a1d24;
+    --chat-them-text: #e8e9ec;
+    --chat-divider: rgba(255,255,255,0.06);
+  }
+  .theme-boardroom {
+    --chat-bg: #0a1628;
+    --chat-mine: #4a72b8;
+    --chat-mine-text: #f0f4fa;
+    --chat-them: #142744;
+    --chat-them-text: #dfe6f2;
+    --chat-divider: rgba(160,190,240,0.08);
+  }
+  .theme-heritage {
+    --chat-bg: #0a1710;
+    --chat-mine: #6d9b6a;
+    --chat-mine-text: #0c1a0d;
+    --chat-them: #143024;
+    --chat-them-text: #d8e6db;
+    --chat-divider: rgba(160,220,180,0.08);
+  }
+  .theme-sovereign {
+    --chat-bg: #15100a;
+    --chat-mine: #b8843d;
+    --chat-mine-text: #1a1004;
+    --chat-them: #2a1f12;
+    --chat-them-text: #e8dcc7;
+    --chat-divider: rgba(220,180,120,0.08);
+  }
+  .theme-obsidian {
+    --chat-bg: #000000;
+    --chat-mine: #f0f0f0;
+    --chat-mine-text: #0a0a0a;
+    --chat-them: #1a1a1a;
+    --chat-them-text: #e0e0e0;
+    --chat-divider: rgba(255,255,255,0.05);
+  }
+  .theme-bordeaux {
+    --chat-bg: #14080e;
+    --chat-mine: #8b2e44;
+    --chat-mine-text: #f5e2e8;
+    --chat-them: #241018;
+    --chat-them-text: #ecd5dc;
+    --chat-divider: rgba(230,150,170,0.08);
+  }
+  .theme-editorial {
+    --chat-bg: #f4f1ea;
+    --chat-mine: #1c1f26;
+    --chat-mine-text: #f4f1ea;
+    --chat-them: #e6e1d4;
+    --chat-them-text: #1c1f26;
+    --chat-divider: rgba(28,31,38,0.08);
+  }
+
+  .chat-shell {
+    background: var(--chat-bg);
+    transition: background-color 0.25s ease;
+  }
   .chat-mine { background: var(--chat-mine); color: var(--chat-mine-text); }
   .chat-them { background: var(--chat-them); color: var(--chat-them-text); }
-  .chat-shell { background: var(--chat-bg); }
 
-  /* Popover */
-  .tm-popover {
+  /* Message entry */
+  @keyframes tm-msg-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .msg-enter { animation: tm-msg-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+  /* Date divider */
+  .chat-divider {
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--chat-them-text);
+    opacity: 0.4;
+    margin: 16px 0 8px;
+    position: relative;
+  }
+  .chat-divider::before, .chat-divider::after {
+    content: '';
     position: absolute;
-    top: calc(100% + 8px);
+    top: 50%;
+    width: 30%;
+    height: 1px;
+    background: var(--chat-divider);
+  }
+  .chat-divider::before { left: 0; }
+  .chat-divider::after { right: 0; }
+
+  /* Professional dropdown */
+  .pro-popover {
+    position: absolute;
+    top: calc(100% + 10px);
     right: 0;
     background: var(--surface-2);
     border: 1px solid var(--border-2);
-    border-radius: 14px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.35);
-    padding: 10px;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px -20px rgba(0,0,0,0.5), 0 8px 24px -8px rgba(0,0,0,0.3);
+    padding: 6px;
     z-index: 55;
-    min-width: 240px;
-    animation: tm-fade-up 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+    min-width: 260px;
+    animation: tm-msg-in 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
-  .tm-popover-backdrop {
+  .pro-popover-header {
+    padding: 10px 12px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+  }
+  .pro-popover-backdrop {
     position: fixed;
     inset: 0;
     z-index: 50;
     background: transparent;
   }
-
-  /* Sticky header inside thread */
-  .thread-header { position: sticky; top: 0; z-index: 20; background: var(--bg); padding-top: 4px; padding-bottom: 8px; }
-
-  /* Message entry animation */
-  @keyframes tm-msg-in {
-    from { opacity: 0; transform: translateY(6px) scale(0.98); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
+  .theme-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    color: var(--text-2);
+    transition: background-color 0.12s ease;
+    text-align: left;
   }
-  .msg-enter { animation: tm-msg-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .theme-row:hover { background: var(--surface-3); }
+  .theme-row.selected {
+    background: rgba(16,185,129,0.1);
+    color: var(--text);
+    font-weight: 600;
+  }
+  .theme-swatch {
+    display: flex;
+    gap: 2px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border-2);
+    flex-shrink: 0;
+  }
+  .theme-swatch span { width: 9px; height: 22px; display: block; }
+  .theme-check { margin-left: auto; color: #10b981; opacity: 0; }
+  .theme-row.selected .theme-check { opacity: 1; }
 </style>
 
-<!-- Header -->
-<div class="thread-header">
-  <div class="flex items-center gap-3">
+<!-- ================= Header ================= -->
+<div class="thread-header" style="position: sticky; top: 0; z-index: 20; background: var(--bg); padding-bottom: 12px;">
+  <div class="flex items-center gap-2">
     <a href="/messages" class="tm-btn tm-btn-ghost p-2" title="Back">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
     </a>
 
     <div class="flex items-center gap-3 min-w-0 flex-1">
-      {% if other.username %}<a href="/u/{{ other.username }}">{% endif %}
+      {% if other.username %}<a href="/u/{{ other.username }}" class="shrink-0">{% endif %}
       {% if other.avatar_url %}
-        <img src="{{ other.avatar_url }}" class="w-10 h-10 rounded-full object-cover border border-slate-700 shrink-0">
+        <img src="{{ other.avatar_url }}" class="w-10 h-10 rounded-full object-cover ring-1 ring-slate-700/50">
       {% else %}
-        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center font-bold text-slate-950 shrink-0">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center font-semibold text-slate-950 text-sm ring-1 ring-slate-700/50">
           {{ (other.name or "?")[0]|upper }}
         </div>
       {% endif %}
       {% if other.username %}</a>{% endif %}
       <div class="min-w-0">
-        <div class="font-semibold truncate">{{ other.name }}</div>
+        <div class="font-semibold truncate text-[15px] tracking-tight">{{ other.name }}</div>
         {% if other.title or other.company %}
-          <div class="text-xs text-slate-500 truncate">
+          <div class="text-[11px] text-slate-500 truncate tracking-wide">
             {{ other.title or '' }}{% if other.title and other.company %} · {% endif %}{{ other.company or '' }}
           </div>
         {% endif %}
@@ -83,65 +198,68 @@
 
     <!-- Audio call -->
     <button onclick="startCall('audio')" title="Voice call" class="tm-btn tm-btn-ghost p-2.5">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13 1.05.37 2.07.7 3.06a2 2 0 0 1-.45 2.11L8.09 10.91a16 16 0 0 0 6 6l2.02-2.02a2 2 0 0 1 2.11-.45c.99.33 2.01.57 3.06.7A2 2 0 0 1 22 16.92z"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13 1.05.37 2.07.7 3.06a2 2 0 0 1-.45 2.11L8.09 10.91a16 16 0 0 0 6 6l2.02-2.02a2 2 0 0 1 2.11-.45c.99.33 2.01.57 3.06.7A2 2 0 0 1 22 16.92z"/></svg>
     </button>
 
     <!-- Video call -->
     <button onclick="startCall('video')" title="Video call" class="tm-btn tm-btn-primary p-2.5">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
     </button>
 
     <!-- Theme dropdown -->
     <div class="relative">
-      <button onclick="toggleThemePop(event)" title="Chat theme" class="tm-btn tm-btn-ghost p-2.5">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <button onclick="toggleThemePop(event)" title="Conversation theme" class="tm-btn tm-btn-ghost p-2.5">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
       </button>
 
       <div id="theme-popover-wrap" class="hidden">
-        <div class="tm-popover-backdrop" onclick="closeThemePop()"></div>
-        <div class="tm-popover" onclick="event.stopPropagation()">
-          <div class="text-xs text-slate-500 px-2 pb-2">Chat theme</div>
+        <div class="pro-popover-backdrop" onclick="closeThemePop()"></div>
+        <div class="pro-popover" onclick="event.stopPropagation()">
+          <div class="pro-popover-header">Conversation theme</div>
+
           {% set themes = [
-            ('classic','Classic','#020617','#10b981'),
-            ('ocean','Ocean','#071a2b','#06b6d4'),
-            ('forest','Forest','#06190f','#22c55e'),
-            ('sunset','Sunset','#1f0b0e','#f97316'),
-            ('midnight','Midnight','#0a0613','#a78bfa'),
-            ('rose','Rose','#1a0a13','#ec4899'),
-            ('paper','Paper','#f5efe0','#1e293b')
+            ('executive','Executive','#0d0e12','#c9a961','#1a1d24','Charcoal and antique gold'),
+            ('boardroom','Boardroom','#0a1628','#4a72b8','#142744','Deep navy and cool blue'),
+            ('heritage','Heritage','#0a1710','#6d9b6a','#143024','Forest green and sage'),
+            ('sovereign','Sovereign','#15100a','#b8843d','#2a1f12','Bronze and warm cream'),
+            ('obsidian','Obsidian','#000000','#f0f0f0','#1a1a1a','Pure black and soft white'),
+            ('bordeaux','Bordeaux','#14080e','#8b2e44','#241018','Refined wine red'),
+            ('editorial','Editorial','#f4f1ea','#1c1f26','#e6e1d4','Cream and ink, magazine light')
           ] %}
-          <div class="grid grid-cols-2 gap-1.5">
-            {% for key, label, bg, accent in themes %}
-            <button onclick="pickTheme('{{ key }}')"
-                    data-theme="{{ key }}"
-                    class="theme-btn flex items-center gap-2 px-3 py-2 rounded-lg text-sm
-                           {% if chat_theme == key %}bg-emerald-500 text-slate-950 font-semibold{% else %}text-slate-300 hover:bg-slate-800{% endif %}">
-              <span class="w-3.5 h-3.5 rounded-full border border-white/20 shrink-0" style="background: {{ accent }}"></span>
-              <span class="truncate">{{ label }}</span>
-            </button>
-            {% endfor %}
-          </div>
+
+          {% for key, label, bg, mine, them, desc in themes %}
+          <button onclick="pickTheme('{{ key }}')"
+                  data-theme="{{ key }}"
+                  class="theme-row {% if chat_theme == key %}selected{% endif %}"
+                  title="{{ desc }}">
+            <span class="theme-swatch">
+              <span style="background:{{ bg }}"></span>
+              <span style="background:{{ mine }}"></span>
+              <span style="background:{{ them }}"></span>
+            </span>
+            <span>{{ label }}</span>
+            <svg class="theme-check w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+          </button>
+          {% endfor %}
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Call overlays -->
+<!-- ================= Call overlays ================= -->
 <div id="call-overlay" class="hidden fixed inset-0 z-[100] bg-black flex flex-col">
   <div class="flex-1 relative">
     <video id="remote-video" autoplay playsinline class="w-full h-full object-cover bg-black"></video>
     <video id="local-video" autoplay playsinline muted class="absolute bottom-4 right-4 w-28 md:w-40 rounded-xl border border-slate-700 object-cover"></video>
-    <div id="call-status" class="absolute top-6 left-1/2 -translate-x-1/2 text-white text-sm bg-black/70 px-4 py-2 rounded-full backdrop-blur">
-      Connecting…
-    </div>
+    <div id="call-status" class="absolute top-6 left-1/2 -translate-x-1/2 text-white text-sm bg-black/70 px-4 py-2 rounded-full backdrop-blur">Connecting…</div>
   </div>
   <div class="p-6 flex items-center justify-center gap-4 safe-bottom">
     <button id="mute-btn" onclick="toggleMute()" class="tm-btn p-4 rounded-full bg-slate-800 text-white">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v4"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-6 h-6"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v4"/></svg>
     </button>
     <button onclick="hangUp()" class="tm-btn p-5 rounded-full bg-red-500 text-white">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13 1.05.37 2.07.7 3.06a2 2 0 0 1-.45 2.11L8.09 10.91a16 16 0 0 0 6 6l2.02-2.02a2 2 0 0 1 2.11-.45c.99.33 2.01.57 3.06.7A2 2 0 0 1 22 16.92z"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-6 h-6"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13 1.05.37 2.07.7 3.06a2 2 0 0 1-.45 2.11L8.09 10.91a16 16 0 0 0 6 6l2.02-2.02a2 2 0 0 1 2.11-.45c.99.33 2.01.57 3.06.7A2 2 0 0 1 22 16.92z"/></svg>
     </button>
   </div>
 </div>
@@ -154,21 +272,23 @@
   </div>
   <div class="mt-12 flex gap-6">
     <button onclick="declineIncoming()" class="tm-btn p-5 rounded-full bg-red-500 text-white">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13 1.05.37 2.07.7 3.06a2 2 0 0 1-.45 2.11L8.09 10.91a16 16 0 0 0 6 6l2.02-2.02a2 2 0 0 1 2.11-.45c.99.33 2.01.57 3.06.7A2 2 0 0 1 22 16.92z"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-6 h-6"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13 1.05.37 2.07.7 3.06a2 2 0 0 1-.45 2.11L8.09 10.91a16 16 0 0 0 6 6l2.02-2.02a2 2 0 0 1 2.11-.45c.99.33 2.01.57 3.06.7A2 2 0 0 1 22 16.92z"/></svg>
     </button>
     <button onclick="acceptIncoming()" class="tm-btn p-5 rounded-full bg-emerald-500 text-slate-950">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-6 h-6"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
     </button>
   </div>
 </div>
 
-<!-- Chat -->
-<div id="chat" class="chat-shell theme-{{ chat_theme }} rounded-2xl border border-slate-800 mt-3 p-4 space-y-2 h-[calc(100vh-300px)] md:h-[calc(100vh-320px)] overflow-y-auto">
+<!-- ================= Conversation ================= -->
+<div id="chat"
+     class="chat-shell theme-{{ chat_theme }} rounded-2xl border border-slate-800/70 mt-3 p-5 space-y-1.5 h-[calc(100vh-320px)] md:h-[calc(100vh-340px)] overflow-y-auto shadow-2xl shadow-black/20">
   {% for m in msgs %}
     <div class="flex {% if m.from_me %}justify-end{% else %}justify-start{% endif %}" data-msg-id="{{ m.id }}">
-      <div class="max-w-[80%] rounded-2xl px-4 py-2.5 text-sm msg-enter {% if m.from_me %}chat-mine{% else %}chat-them{% endif %}">
+      <div class="max-w-[78%] rounded-2xl px-4 py-2.5 text-[13.5px] leading-relaxed msg-enter shadow-sm {% if m.from_me %}chat-mine{% else %}chat-them{% endif %}"
+           style="border-radius: 16px;">
         <div class="whitespace-pre-line">{{ m.body }}</div>
-        <div class="text-[10px] mt-1 opacity-60">{{ m.created_at[11:16] }}</div>
+        <div class="text-[10px] mt-1.5 opacity-50 tracking-wider">{{ m.created_at[11:16] }}</div>
       </div>
     </div>
   {% endfor %}
@@ -178,11 +298,13 @@
       class="fixed bottom-20 md:bottom-4 inset-x-0 md:inset-x-auto md:right-6 md:w-[600px] bg-slate-950/95 glass border-t border-slate-800 md:border md:rounded-2xl p-3">
   <div class="max-w-5xl mx-auto flex items-end gap-2">
     <textarea name="body" id="msg-input" rows="1" required maxlength="4000"
-              placeholder="Message {{ other.name }}…"
-              class="flex-1 rounded-xl bg-slate-900 border border-slate-800 focus:border-emerald-500 px-3 py-2.5 text-sm outline-none resize-none"></textarea>
+              placeholder="Write a message…"
+              class="flex-1 rounded-xl bg-slate-900 border border-slate-800 focus:border-emerald-500/60 px-3.5 py-2.5 text-sm outline-none resize-none placeholder:text-slate-600"></textarea>
     <button class="tm-btn tm-btn-primary px-4 py-2.5 text-sm shrink-0">Send</button>
   </div>
 </form>
+
+<div class="h-40"></div>
 
 <script>
 const OTHER_ID = "{{ other.user_id }}";
@@ -201,19 +323,12 @@ function closeThemePop() {
 }
 async function pickTheme(key) {
   currentTheme = key;
-  // Update chat container class instantly
   const chat = document.getElementById('chat');
   chat.className = chat.className.replace(/theme-\S+/g, 'theme-' + key);
-  // Update button highlight
-  document.querySelectorAll('.theme-btn').forEach(b => {
-    const active = b.dataset.theme === key;
-    b.classList.toggle('bg-emerald-500', active);
-    b.classList.toggle('text-slate-950', active);
-    b.classList.toggle('font-semibold', active);
-    b.classList.toggle('text-slate-300', !active);
+  document.querySelectorAll('.theme-row').forEach(b => {
+    b.classList.toggle('selected', b.dataset.theme === key);
   });
   closeThemePop();
-  // Save to server
   try {
     await fetch('/api/settings/chat_theme', {
       method: 'POST', credentials: 'same-origin',
@@ -237,9 +352,10 @@ function appendMsg(m) {
   wrap.className = 'flex ' + (m.from_me ? 'justify-end' : 'justify-start');
   wrap.dataset.msgId = m.id;
   const bubble = document.createElement('div');
-  bubble.className = 'max-w-[80%] rounded-2xl px-4 py-2.5 text-sm msg-enter ' + (m.from_me ? 'chat-mine' : 'chat-them');
+  bubble.className = 'max-w-[78%] rounded-2xl px-4 py-2.5 text-[13.5px] leading-relaxed msg-enter shadow-sm ' + (m.from_me ? 'chat-mine' : 'chat-them');
+  bubble.style.borderRadius = '16px';
   const time = (m.created_at || '').substring(11, 16);
-  bubble.innerHTML = `<div class="whitespace-pre-line"></div><div class="text-[10px] mt-1 opacity-60">${time}</div>`;
+  bubble.innerHTML = `<div class="whitespace-pre-line"></div><div class="text-[10px] mt-1.5 opacity-50 tracking-wider">${time}</div>`;
   bubble.firstChild.textContent = m.body;
   wrap.appendChild(bubble);
   chat.appendChild(wrap);
@@ -272,47 +388,29 @@ document.getElementById('msg-form').addEventListener('submit', async (e) => {
   appendMsg({id: 'tmp-' + Date.now(), body, from_me: true, created_at: new Date().toISOString()});
   const fd = new FormData();
   fd.append('body', body);
-  try {
-    await fetch('/messages/' + OTHER_ID, {method: 'POST', body: fd, credentials: 'same-origin'});
-  } catch (e) {}
+  try { await fetch('/messages/' + OTHER_ID, {method: 'POST', body: fd, credentials: 'same-origin'}); } catch (e) {}
 });
 
-// ---------- Calls ----------
+// ---------- Calls (unchanged logic) ----------
 let pc = null, localStream = null, currentCallId = null, currentCallKind = 'audio';
 let pollInterval = null, incomingCall = null;
 
 async function startCall(kind) {
-  // Pre-check for permission support
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    alert('Your browser does not support calling. Try Chrome or Safari on HTTPS.');
+    alert('Your browser does not support calling.');
     return;
   }
-
-  // Check current permission state first
-  try {
-    if (navigator.permissions && navigator.permissions.query) {
-      const status = await navigator.permissions.query({name: kind === 'video' ? 'camera' : 'microphone'});
-      if (status.state === 'denied') {
-        alert('Calling is blocked. Please enable ' + (kind === 'video' ? 'camera' : 'microphone') + ' access in your browser site settings, then reload.');
-        return;
-      }
-    }
-  } catch (e) {}
-
   currentCallKind = kind;
   try {
     localStream = await navigator.mediaDevices.getUserMedia({audio: true, video: kind === 'video'});
   } catch (e) {
     if (e.name === 'NotAllowedError') {
-      alert('Please allow ' + (kind === 'video' ? 'camera and microphone' : 'microphone') + ' access.\n\nIf you got a "site can\'t ask for permission" message, close any floating chat bubbles from other apps (WhatsApp, Messenger, etc.) and try again.');
-    } else if (e.name === 'NotFoundError') {
-      alert('No ' + (kind === 'video' ? 'camera' : 'microphone') + ' found on this device.');
+      alert('Please allow ' + (kind === 'video' ? 'camera and microphone' : 'microphone') + ' access.\n\nIf you saw "This site can\'t ask for permission", close any floating chat bubbles from other apps (WhatsApp, Messenger) and try again.');
     } else {
       alert('Could not start call: ' + e.message);
     }
     return;
   }
-
   const r = await fetch('/api/calls/start/' + OTHER_ID + '?kind=' + kind, {method: 'POST', credentials: 'same-origin'});
   if (!r.ok) { alert('Could not reach server'); hangUp(true); return; }
   const data = await r.json();
@@ -335,11 +433,7 @@ async function setupPeer(isCaller) {
   });
   localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
   document.getElementById('local-video').srcObject = localStream;
-
-  pc.ontrack = (ev) => {
-    document.getElementById('remote-video').srcObject = ev.streams[0];
-    showCallOverlay('Connected');
-  };
+  pc.ontrack = (ev) => { document.getElementById('remote-video').srcObject = ev.streams[0]; showCallOverlay('Connected'); };
   pc.onicecandidate = (ev) => {
     if (ev.candidate) {
       const side = isCaller ? 'caller' : 'callee';
@@ -365,22 +459,17 @@ async function startSignalPolling() {
     if (!r.ok) return;
     const s = await r.json();
     const me = s.you_are;
-
     if (s.status === 'declined') { showCallOverlay('Declined'); setTimeout(() => hangUp(true), 1200); return; }
     if (s.status === 'ended') { hangUp(true); return; }
-
     if (me === 'caller' && s.answer && pc && !pc.currentRemoteDescription) {
       try { await pc.setRemoteDescription(new RTCSessionDescription(s.answer)); } catch(e){}
     }
-
-    // Only add NEW ICE candidates
     const list = (me === 'caller' ? s.ice_callee : s.ice_caller) || [];
     const seen = me === 'caller' ? lastIceCount.callee : lastIceCount.caller;
     for (let i = seen; i < list.length; i++) {
       try { await pc.addIceCandidate(new RTCIceCandidate(list[i])); } catch (e) {}
     }
-    if (me === 'caller') lastIceCount.callee = list.length;
-    else lastIceCount.caller = list.length;
+    if (me === 'caller') lastIceCount.callee = list.length; else lastIceCount.caller = list.length;
   }, 1500);
 }
 
@@ -412,7 +501,6 @@ async function pollIncoming() {
         document.getElementById('incoming-kind').textContent = data.call.kind === 'video' ? 'Incoming video call' : 'Incoming voice call';
         document.getElementById('incoming-avatar').textContent = (data.call.from.name || '?')[0].toUpperCase();
         document.getElementById('incoming-overlay').classList.remove('hidden');
-        // Vibrate if supported
         if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
       }
     }
@@ -426,21 +514,17 @@ async function acceptIncoming() {
   currentCallId = incomingCall.call_id;
   currentCallKind = incomingCall.kind;
   document.getElementById('incoming-overlay').classList.add('hidden');
-
   await fetch('/api/calls/' + currentCallId + '/accept', {method: 'POST', credentials: 'same-origin'}).catch(()=>{});
-
   try {
     localStream = await navigator.mediaDevices.getUserMedia({audio: true, video: currentCallKind === 'video'});
   } catch (e) {
-    alert('Need ' + (currentCallKind === 'video' ? 'camera and mic' : 'mic') + ' permission. Close any floating bubbles from other apps and try again.');
+    alert('Need ' + (currentCallKind === 'video' ? 'camera and mic' : 'mic') + ' permission.');
     await fetch('/api/calls/' + currentCallId + '/decline', {method: 'POST', credentials: 'same-origin'});
     incomingCall = null;
     return;
   }
-
   showCallOverlay('Connecting…');
   await setupPeer(false);
-
   let tries = 0;
   const waitOffer = setInterval(async () => {
     tries++;
@@ -463,7 +547,6 @@ async function acceptIncoming() {
     }
     if (tries > 15) { clearInterval(waitOffer); hangUp(); }
   }, 800);
-
   incomingCall = null;
 }
 

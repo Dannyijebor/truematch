@@ -777,7 +777,7 @@ def message_thread(other_id: str, request: Request, db: Session = Depends(get_db
             "avatar_url": other_profile.avatar_url if other_profile else None,
         },
         msgs=msgs,
-        chat_theme=my_profile.chat_theme or "classic",
+        chat_theme=normalize_theme(my_profile.chat_theme),
     ))
 
 
@@ -1093,6 +1093,19 @@ async def save_chat_theme(request: Request, db: Session = Depends(get_db)):
     return RedirectResponse(referer, status_code=302)
 
 
+CHAT_THEMES = ("executive", "boardroom", "heritage", "sovereign", "obsidian", "bordeaux", "editorial")
+LEGACY_THEME_MAP = {
+    "classic": "executive", "ocean": "boardroom", "forest": "heritage",
+    "sunset": "sovereign", "midnight": "obsidian", "rose": "bordeaux", "paper": "editorial",
+}
+
+
+def normalize_theme(t: str | None) -> str:
+    t = (t or "executive").strip().lower()
+    t = LEGACY_THEME_MAP.get(t, t)
+    return t if t in CHAT_THEMES else "executive"
+
+
 @router.post("/api/settings/chat_theme")
 async def api_save_chat_theme(request: Request, db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
@@ -1103,9 +1116,7 @@ async def api_save_chat_theme(request: Request, db: Session = Depends(get_db)):
         body = await request.json()
     except Exception:
         body = {}
-    t = (body.get("theme") or "classic").strip()
-    if t not in ("classic", "ocean", "forest", "sunset", "midnight", "rose", "paper"):
-        t = "classic"
+    t = normalize_theme(body.get("theme"))
     profile = db.get(Profile, user.id) or Profile(user_id=user.id)
     profile.chat_theme = t
     db.add(profile)
