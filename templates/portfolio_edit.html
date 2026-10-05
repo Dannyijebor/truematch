@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block title %}Portfolio · TrueMatch{% endblock %}
+{% block content %}
+
+<div class="mt-2 mb-6 flex items-start justify-between gap-4 flex-wrap">
+  <div>
+    <h1 class="text-2xl font-extrabold tracking-tight">Your Portfolio</h1>
+    <p class="text-slate-400 text-sm mt-1">A living page for your work. One link to share everywhere.</p>
+  </div>
+  {% if profile and profile.username %}
+    <a href="/p/{{ profile.username }}" target="_blank" class="tm-btn tm-btn-ghost px-4 py-2.5 text-sm">View live</a>
+  {% else %}
+    <a href="/settings" class="tm-btn tm-btn-ghost px-4 py-2.5 text-sm">Set username first</a>
+  {% endif %}
+</div>
+
+{% if request.query_params.get('saved') %}
+<div class="mb-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 p-3 text-sm">Saved</div>
+{% endif %}
+{% if request.query_params.get('error') %}
+<div class="mb-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 p-3 text-sm">
+  {{ request.query_params.get('error') }}
+</div>
+{% endif %}
+
+<form method="post" action="/portfolio/settings" enctype="multipart/form-data" class="tm-card p-5 mb-4">
+  <h2 class="font-bold mb-4">Identity</h2>
+
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="md:col-span-2">
+      <label class="block text-sm text-slate-400 mb-1">Tagline</label>
+      <input name="tagline" type="text" maxlength="200" value="{{ settings.tagline or '' }}"
+             placeholder="Backend engineer building systems for millions"
+             class="w-full rounded-xl bg-slate-950 border border-slate-800 focus:border-emerald-500 px-3 py-2.5 outline-none text-sm">
+    </div>
+
+    <div class="md:col-span-2">
+      <label class="block text-sm text-slate-400 mb-1">About</label>
+      <textarea name="about" rows="4" maxlength="3000"
+                placeholder="A short paragraph about your work."
+                class="w-full rounded-xl bg-slate-950 border border-slate-800 focus:border-emerald-500 px-3 py-2.5 outline-none text-sm resize-none">{{ settings.about or '' }}</textarea>
+    </div>
+
+    <div class="md:col-span-2">
+      <label class="block text-sm text-slate-400 mb-1">Hero image (optional)</label>
+      {% if settings.hero_image %}
+        <img src="{{ settings.hero_image }}" class="w-full h-40 object-cover rounded-xl mb-2 border border-slate-800">
+      {% endif %}
+      <input type="file" name="hero_image" accept="image/*"
+             class="text-xs text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-slate-800 file:text-slate-200">
+    </div>
+  </div>
+
+  <div class="mt-6">
+    <label class="block text-sm text-slate-400 mb-2">Theme</label>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+      {% for t in themes %}
+        <label class="cursor-pointer">
+          <input type="radio" name="theme" value="{{ t }}" class="hidden peer" {% if settings.theme == t %}checked{% endif %}>
+          <div class="peer-checked:border-emerald-500 peer-checked:bg-emerald-500/5 border border-slate-800 rounded-xl p-3 text-center text-sm hover:border-slate-600 transition-colors">
+            <div class="font-semibold">{{ t|capitalize }}</div>
+          </div>
+        </label>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="mt-6">
+    <label class="block text-sm text-slate-400 mb-2">Accent color</label>
+    <div class="flex flex-wrap gap-2">
+      {% for a in accents %}
+        <label class="cursor-pointer">
+          <input type="radio" name="accent" value="{{ a }}" class="hidden peer" {% if settings.accent == a %}checked{% endif %}>
+          <div class="w-10 h-10 rounded-full border-2 border-transparent peer-checked:border-white" style="background: {{ a }};"></div>
+        </label>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="mt-6">
+    <label class="flex items-center gap-2 text-sm text-slate-400">
+      <input type="checkbox" name="is_public" value="1" {% if settings.is_public %}checked{% endif %}
+             class="rounded bg-slate-950 border border-slate-700">
+      Public at <span class="text-emerald-400 font-mono">/p/{{ profile.username if profile else 'username' }}</span>
+    </label>
+  </div>
+
+  <div class="mt-6">
+    <button class="tm-btn tm-btn-primary px-6 py-2.5">Save identity</button>
+  </div>
+</form>
+
+<div class="tm-card p-5 mb-4">
+  <h2 class="font-bold mb-4">Work and history ({{ items|length }})</h2>
+
+  {% if items %}
+  <div class="space-y-3 mb-6">
+    {% for it in items %}
+    <div class="flex items-start gap-3 p-3 rounded-xl border border-slate-800 bg-slate-900/40">
+      {% if it.image_url %}
+        <img src="{{ it.image_url }}" class="w-14 h-14 rounded-lg object-cover shrink-0">
+      {% else %}
+        <div class="w-14 h-14 rounded-lg bg-slate-800 flex items-center justify-center text-xs text-slate-500 font-mono shrink-0">
+          {{ it.kind[:4] }}
+        </div>
+      {% endif %}
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-2">
+          <span class="font-semibold truncate">{{ it.title }}</span>
+          <span class="text-[10px] uppercase tracking-wider text-slate-500 border border-slate-700 rounded-full px-1.5 py-0.5">{{ it.kind }}</span>
+          {% if not it.visible %}<span class="text-[10px] text-slate-500">hidden</span>{% endif %}
+        </div>
+        {% if it.subtitle %}<div class="text-slate-500 text-xs mt-0.5">{{ it.subtitle }}</div>{% endif %}
+        {% if it.description %}<div class="text-slate-400 text-sm mt-1 line-clamp-2">{{ it.description }}</div>{% endif %}
+      </div>
+      <div class="flex flex-col gap-1 shrink-0">
+        <form method="post" action="/portfolio/items/{{ it.id }}/move">
+          <input type="hidden" name="direction" value="up">
+          <button class="text-slate-500 hover:text-white text-xs px-2 py-0.5">↑</button>
+        </form>
+        <form method="post" action="/portfolio/items/{{ it.id }}/move">
+          <input type="hidden" name="direction" value="down">
+          <button class="text-slate-500 hover:text-white text-xs px-2 py-0.5">↓</button>
+        </form>
+        <form method="post" action="/portfolio/items/{{ it.id }}/toggle">
+          <button class="text-slate-500 hover:text-emerald-400 text-xs px-2 py-0.5">{{ '○' if it.visible else '●' }}</button>
+        </form>
+        <form method="post" action="/portfolio/items/{{ it.id }}/delete" onsubmit="return confirm('Delete this item?');">
+          <button class="text-slate-500 hover:text-red-400 text-xs px-2 py-0.5">×</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-slate-500 text-sm mb-6">No items yet. Add your first project below.</p>
+  {% endif %}
+
+  <details class="border-t border-slate-800 pt-4">
+    <summary class="cursor-pointer text-sm font-semibold text-slate-300 hover:text-white">Add an item</summary>
+    <form method="post" action="/portfolio/items/add" enctype="multipart/form-data" class="mt-4 space-y-4">
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Kind</label>
+          <select name="kind" class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2.5 outline-none text-sm">
+            {% for k in kinds %}<option value="{{ k }}">{{ k|capitalize }}</option>{% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Title</label>
+          <input name="title" type="text" required maxlength="200"
+                 class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2.5 outline-none text-sm">
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm text-slate-400 mb-1">Subtitle (company, role, school)</label>
+          <input name="subtitle" type="text" maxlength="200"
+                 class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2.5 outline-none text-sm">
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm text-slate-400 mb-1">Description</label>
+          <textarea name="description" rows="3" maxlength="3000"
+                    class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2.5 outline-none text-sm resize-none"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Start (e.g. 2023-06)</label>
+          <input name="start_date" type="text" maxlength="20"
+                 class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2.5 outline-none text-sm">
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">End (blank = present)</label>
+          <input name="end_date" type="text" maxlength="20"
+                 class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2.5 outline-none text-sm">
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm text-slate-400 mb-1">Link URL (optional)</label>
+          <input name="link_url" type="url" maxlength="500"
+                 class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2.5 outline-none text-sm">
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm text-slate-400 mb-1">Tags (comma separated)</label>
+          <input name="tags" type="text" maxlength="300"
+                 placeholder="python, kubernetes, fastapi"
+                 class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2.5 outline-none text-sm">
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm text-slate-400 mb-1">Image (optional)</label>
+          <input type="file" name="image" accept="image/*"
+                 class="text-xs text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-slate-800 file:text-slate-200">
+        </div>
+      </div>
+      <button class="tm-btn tm-btn-primary px-6 py-2.5">Add item</button>
+    </form>
+  </details>
+</div>
+
+{% endblock %}

@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ user.name }}{% if portfolio.tagline %} — {{ portfolio.tagline }}{% endif %}</title>
+<link rel="preconnect" href="https://rsms.me/">
+<link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+<style>
+  :root {
+    --accent: {{ portfolio.accent }};
+    --bg: #ffffff; --fg: #0f172a; --muted: #64748b; --border: #e2e8f0; --surface: #f8fafc;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+         background: var(--bg); color: var(--fg); -webkit-font-smoothing: antialiased;
+         letter-spacing: -0.011em; line-height: 1.55; }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 64px 24px 96px; }
+
+  .theme-editorial { --bg: #fefdf9; --fg: #1a1a1a; --muted: #6b6b6b; --border: #e8e3d6; --surface: #f4efe3; }
+  .theme-editorial h1, .theme-editorial h2 { font-family: Georgia, 'Times New Roman', serif; font-weight: 400; letter-spacing: -0.02em; }
+  .theme-editorial h1 { font-size: 56px; line-height: 1.05; margin: 0 0 16px; }
+  .theme-editorial .tagline { font-size: 20px; color: var(--muted); font-style: italic; }
+  .theme-editorial h2 { font-size: 26px; margin: 56px 0 24px; }
+  .theme-editorial .item { padding: 24px 0; border-top: 1px solid var(--border); }
+  .theme-editorial .item h3 { font-family: Georgia, serif; font-weight: 400; font-size: 22px; margin: 0 0 4px; }
+
+  .theme-minimal { --bg: #ffffff; --fg: #111111; --muted: #737373; --border: #eaeaea; --surface: #fafafa; }
+  .theme-minimal h1 { font-size: 40px; font-weight: 700; letter-spacing: -0.035em; margin: 0 0 12px; }
+  .theme-minimal h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.16em; color: var(--muted); margin: 56px 0 20px; }
+  .theme-minimal .tagline { font-size: 16px; color: var(--muted); }
+  .theme-minimal .item { padding: 20px 0; border-bottom: 1px solid var(--border); }
+  .theme-minimal .item h3 { font-size: 17px; font-weight: 600; margin: 0 0 4px; }
+
+  .theme-executive { --bg: #0d0e12; --fg: #f1f5f9; --muted: #94a3b8; --border: rgba(255,255,255,0.08); --surface: #1a1d24; }
+  .theme-executive h1 { font-size: 48px; font-weight: 700; letter-spacing: -0.03em; margin: 0 0 12px; }
+  .theme-executive h2 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin: 56px 0 20px; }
+  .theme-executive .tagline { font-size: 18px; color: var(--muted); }
+  .theme-executive .item { padding: 22px 0; border-top: 1px solid var(--border); }
+  .theme-executive .item h3 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+
+  .theme-chronicle { --bg: #fbfbf8; --fg: #1c1f26; --muted: #6b7280; --border: #d6d3c9; --surface: #efeee8; }
+  .theme-chronicle h1 { font-size: 44px; font-weight: 700; letter-spacing: -0.03em; margin: 0 0 12px; }
+  .theme-chronicle h2 { font-size: 14px; font-weight: 700; margin: 56px 0 20px; }
+  .theme-chronicle .tagline { font-size: 18px; color: var(--muted); }
+  .theme-chronicle .item { position: relative; padding: 20px 0 20px 32px; }
+  .theme-chronicle .item::before {
+    content: ''; position: absolute; left: 6px; top: 28px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 0 3px var(--bg), 0 0 0 4px var(--accent);
+  }
+  .theme-chronicle .item::after {
+    content: ''; position: absolute; left: 10px; top: 42px; bottom: -8px;
+    width: 2px; background: var(--border);
+  }
+  .theme-chronicle .item:last-child::after { display: none; }
+  .theme-chronicle .item h3 { font-size: 18px; font-weight: 600; margin: 0 0 4px; }
+
+  .avatar { width: 88px; height: 88px; border-radius: 50%; object-fit: cover; margin-bottom: 24px; background: var(--surface); }
+  .meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .tag { font-size: 12px; padding: 3px 10px; border-radius: 999px;
+         background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+  .desc { color: var(--muted); margin: 8px 0 0; font-size: 15px; }
+  .link-cta { display: inline-flex; align-items: center; gap: 6px;
+              margin-top: 10px; font-size: 13px; font-weight: 500; color: var(--accent); }
+  .hero-img { width: 100%; max-height: 320px; object-fit: cover; border-radius: 12px; margin-bottom: 40px; }
+  .skills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 20px; }
+  .footer { margin-top: 96px; padding-top: 24px; border-top: 1px solid var(--border);
+            font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; }
+  .footer a { color: var(--accent); }
+  @media (max-width: 600px) {
+    h1 { font-size: 34px !important; }
+    .wrap { padding: 40px 20px 64px; }
+  }
+</style>
+</head>
+<body class="theme-{{ portfolio.theme }}">
+<div class="wrap">
+
+  {% if portfolio.hero_image %}<img src="{{ portfolio.hero_image }}" class="hero-img" alt="">{% endif %}
+
+  <div>
+    {% if user.avatar_url %}<img src="{{ user.avatar_url }}" class="avatar" alt="">{% endif %}
+    <h1>{{ user.name }}</h1>
+    {% if portfolio.tagline %}
+      <div class="tagline">{{ portfolio.tagline }}</div>
+    {% elif user.headline %}
+      <div class="tagline">{{ user.headline }}</div>
+    {% endif %}
+    <div class="meta">
+      {% if user.title %}{{ user.title }}{% endif %}
+      {% if user.title and user.company %} · {% endif %}
+      {% if user.company %}{{ user.company }}{% endif %}
+      {% if user.location %} · {{ user.location }}{% endif %}
+    </div>
+    {% if user.skills %}
+      <div class="skills">
+        {% for s in user.skills[:20] %}<span class="tag">{{ s }}</span>{% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  {% if portfolio.about %}
+    <section>
+      <h2>About</h2>
+      <p class="desc" style="white-space: pre-line;">{{ portfolio.about }}</p>
+    </section>
+  {% endif %}
+
+  {% if by_kind.experience %}
+    <section>
+      <h2>Experience</h2>
+      {% for it in by_kind.experience %}
+        <div class="item">
+          <h3>{{ it.title }}</h3>
+          {% if it.subtitle %}<div class="meta">{{ it.subtitle }}{% if it.start_date or it.end_date %} · {{ it.start_date or '' }}–{{ it.end_date or 'Present' }}{% endif %}</div>{% endif %}
+          {% if it.description %}<p class="desc">{{ it.description }}</p>{% endif %}
+          {% if it.tags %}<div class="tags">{% for t in it.tags %}<span class="tag">{{ t }}</span>{% endfor %}</div>{% endif %}
+          {% if it.link_url %}<a href="{{ it.link_url }}" target="_blank" rel="noopener" class="link-cta">Learn more →</a>{% endif %}
+        </div>
+      {% endfor %}
+    </section>
+  {% endif %}
+
+  {% if by_kind.project %}
+    <section>
+      <h2>Projects</h2>
+      {% for it in by_kind.project %}
+        <div class="item">
+          {% if it.image_url %}<img src="{{ it.image_url }}" style="width:100%; max-height:240px; object-fit:cover; border-radius:10px; margin-bottom:12px;" alt="">{% endif %}
+          <h3>{{ it.title }}</h3>
+          {% if it.subtitle %}<div class="meta">{{ it.subtitle }}</div>{% endif %}
+          {% if it.description %}<p class="desc">{{ it.description }}</p>{% endif %}
+          {% if it.tags %}<div class="tags">{% for t in it.tags %}<span class="tag">{{ t }}</span>{% endfor %}</div>{% endif %}
+          {% if it.link_url %}<a href="{{ it.link_url }}" target="_blank" rel="noopener" class="link-cta">View project →</a>{% endif %}
+        </div>
+      {% endfor %}
+    </section>
+  {% endif %}
+
+  {% if by_kind.education %}
+    <section>
+      <h2>Education</h2>
+      {% for it in by_kind.education %}
+        <div class="item">
+          <h3>{{ it.title }}</h3>
+          {% if it.subtitle %}<div class="meta">{{ it.subtitle }}{% if it.start_date or it.end_date %} · {{ it.start_date or '' }}–{{ it.end_date or 'Present' }}{% endif %}</div>{% endif %}
+          {% if it.description %}<p class="desc">{{ it.description }}</p>{% endif %}
+        </div>
+      {% endfor %}
+    </section>
+  {% endif %}
+
+  {% if by_kind.certification %}
+    <section>
+      <h2>Certifications</h2>
+      {% for it in by_kind.certification %}
+        <div class="item">
+          <h3>{{ it.title }}</h3>
+          {% if it.subtitle %}<div class="meta">{{ it.subtitle }}</div>{% endif %}
+        </div>
+      {% endfor %}
+    </section>
+  {% endif %}
+
+  {% if by_kind.link %}
+    <section>
+      <h2>Links</h2>
+      <div class="tags">
+        {% for it in by_kind.link %}
+          <a href="{{ it.link_url or '#' }}" target="_blank" rel="noopener" class="tag">{{ it.title }}</a>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  <div class="footer">
+    <span>Built with <a href="https://truematch-plum.vercel.app">TrueMatch</a></span>
+    <span>{{ user.email }}</span>
+  </div>
+
+</div>
+</body>
+</html>

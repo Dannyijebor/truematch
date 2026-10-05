@@ -1281,3 +1281,156 @@ def admin_reset(experiment: str, request: Request, db: Session = Depends(get_db)
     db.commit()
     referer = request.headers.get("referer", "/admin/experiments")
     return RedirectResponse(referer, status_code=302)
+
+
+# ---------- portfolio ----------
+@router.get("/portfolio", response_class=HTMLResponse)
+def portfolio_home(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login?next=/portfolio", status_code=302)
+    return RedirectResponse("/portfolio/edit", status_code=302)
+
+
+@router.get("/portfolio/edit", response_class=HTMLResponse)
+def portfolio_edit(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login?next=/portfolio/edit", status_code=302)
+
+    from app.portfolio import get_portfolio_settings, list_items, THEMES, KINDS, ACCENTS
+    settings = get_portfolio_settings(db, user.id)
+    items = list_items(db, user.id)
+
+    return templates.TemplateResponse(request, "portfolio_edit.html", _ctx(
+        request, db=db, user=user, settings=settings, items=items,
+        themes=THEMES, kinds=KINDS, accents=ACCENTS,
+        profile=db.get(Profile, user.id),
+    ))
+
+
+@router.post("/portfolio/settings")
+async def portfolio_save_settings(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    form = await request.form()
+    data = {
+        "theme": form.get("theme"),
+        "tagline": form.get("tagline"),
+        "about": form.get("about"),
+        "accent": form.get("accent"),
+        "is_public": form.get("is_public") is not None,
+    }
+    hero = form.get("hero_image")
+    if hero and hasattr(hero, "read"):
+        raw = await hero.read()
+        if raw and len(raw) <= 800 * 1024:
+            import base64
+            mime = "image/jpeg"
+            if raw[:8] == b"\x89PNG\r\n\x1a\n":
+                mime = "image/png"
+            elif raw[:4] == b"RIFF" and raw[8:12] == b"WEBP":
+                mime = "image/webp"
+            data["hero_image"] = f"data:{mime};base64,{base64.b64encode(raw).decode()}"
+
+    from app.portfolio import save_portfolio_settings
+    save_portfolio_settings(db, user.id, data)
+    return RedirectResponse("/portfolio/edit?saved=1", status_code=302)
+
+
+@router.post("/portfolio/items/add")
+async def portfolio_add_item(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    form = await request.form()
+    data = {
+        "kind": form.get("kind"),
+        "title": form.get("title"),
+        "subtitle": form.get("subtitle"),
+        "description": form.get("description"),
+        "link_url": form.get("link_url"),
+        "tags": form.get("tags"),
+        "start_date": form.get("start_date"),
+        "end_date": form.get("end_date"),
+    }
+
+    img = form.get("image")
+    if img and hasattr(img, "read"):
+        raw = await img.read()
+        if raw and len(raw) <= 800 * 1024:
+            import base64
+            mime = "image/jpeg"
+            if raw[:8] == b"\x89PNG\r\n\x1a\n":
+                mime = "image/png"
+            elif raw[:4] == b"RIFF" and raw[8:12] == b"WEBP":
+                mime = "image/webp"
+            data["image_url"] = f"data:{mime};base64,{base64.b64encode(raw).decode()}"
+
+    from app.portfolio import add_item
+    try:
+        add_item(db, user.id, data)
+    except Exception as e:
+        return RedirectResponse(f"/portfolio/edit?error={str(e)[:60]}", status_code=302)
+
+    return RedirectResponse("/portfolio/edit?saved=item", status_code=302)
+
+
+@router.post("/portfolio/items/{item_id}/delete")
+def portfolio_delete_item(item_id: str, request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+    from uuid import UUID
+    from app.portfolio import delete_item
+    try:
+        delete_item(db, user.id, UUID(item_id))
+    except Exception:
+        pass
+    return RedirectResponse("/portfolio/edit", status_code=302)
+
+
+@router.post("/portfolio/items/{item_id}/toggle")
+def portfolio_toggle_item(item_id: str, request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+    from uuid import UUID
+    from app.portfolio import toggle_item_visibility
+    try:
+        toggle_item_visibility(db, user.id, UUID(item_id))
+    except Exception:
+        pass
+    return RedirectResponse("/portfolio/edit", status_code=302)
+
+
+@router.post("/portfolio/items/{item_id}/move")
+async def portfolio_move_item(item_id: str, request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+    form = await request.form()
+    direction = form.get("direction") or "up"
+    from uuid import UUID
+    from app.portfolio import move_item
+    try:
+        move_item(db, user.id, UUID(item_id), direction)
+    except Exception:
+        pass
+    return RedirectResponse("/portfolio/edit", status_code=302)
+
+
+@router.get("/p/{username}", response_class=HTMLResponse)
+def portfolio_public_view(username: str, request: Request, db: Session = Depends(get_db)):
+    from app.portfolio import public_portfolio
+    data = public_portfolio(db, username)
+    if not data:
+        raise HTTPException(404, "Portfolio not found or not public")
+
+    viewer = current_user_web(request, db)
+    return templates.TemplateResponse(request, "portfolio_public.html", _ctx(
+        request, db=db, user=viewer, **data,
+    ))
