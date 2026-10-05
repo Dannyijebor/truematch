@@ -218,40 +218,6 @@
     50%      { transform: translate(-70px, -50px) scale(1.1); }
   }
 
-  /* Logo */
-  .tm-logo-mark {
-    filter: drop-shadow(0 0 12px rgba(16,185,129,0.35));
-    transition: filter 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  .tm-logo:hover .tm-logo-mark {
-    filter: drop-shadow(0 0 20px rgba(16,185,129,0.65));
-    transform: scale(1.06) rotate(-2deg);
-  }
-  .tm-logo-ring {
-    transform-origin: center;
-    animation: tm-pulse-ring 3.6s ease-in-out infinite;
-  }
-  @keyframes tm-pulse-ring {
-    0%, 100% { opacity: 0.15; transform: scale(1); }
-    50%      { opacity: 0.4;  transform: scale(1.08); }
-  }
-  .tm-logo-text {
-    transition: letter-spacing 0.3s ease;
-  }
-  .tm-logo:hover .tm-logo-text { letter-spacing: -0.015em; }
-  .tm-logo-m {
-    background: linear-gradient(90deg, #10b981 0%, #34d399 50%, #10b981 100%);
-    background-size: 200% 100%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: tm-text-sheen 4s ease-in-out infinite;
-  }
-  @keyframes tm-text-sheen {
-    0%, 100% { background-position: 100% 0; }
-    50%      { background-position: 0 0; }
-  }
-
   /* Breathe — for live indicators, active nav */
   @keyframes tm-breathe {
     0%, 100% { opacity: 1; transform: scale(1); }
@@ -360,6 +326,92 @@
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
     }
+  }
+
+
+  /* ============================================================
+     LOGO — animated TrueMatch wordmark
+     ============================================================ */
+  .tm-logo {
+    position: relative;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    filter: drop-shadow(0 0 0 rgba(16,185,129,0));
+  }
+  .tm-logo:hover {
+    transform: translateY(-0.5px);
+    filter: drop-shadow(0 0 14px rgba(16,185,129,0.35));
+  }
+  .tm-logo:active { transform: translateY(0) scale(0.985); }
+
+  .tm-logo-word {
+    position: relative;
+    display: inline-block;
+    /* Text itself is a gradient so we can animate the light sweep across it */
+    background: linear-gradient(
+      100deg,
+      #f1f5f9 0%,
+      #f1f5f9 38%,
+      #ffffff 45%,
+      #a7f3d0 50%,
+      #ffffff 55%,
+      #f1f5f9 62%,
+      #f1f5f9 100%
+    );
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: tm-logo-sweep 4.2s ease-in-out infinite;
+    letter-spacing: -0.02em;
+  }
+
+  /* Light theme */
+  html.light .tm-logo-word {
+    background: linear-gradient(
+      100deg,
+      #0f172a 0%,
+      #0f172a 38%,
+      #1f2937 45%,
+      #059669 50%,
+      #1f2937 55%,
+      #0f172a 62%,
+      #0f172a 100%
+    );
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  @keyframes tm-logo-sweep {
+    0%   { background-position: 130% 0; }
+    55%  { background-position: -40% 0; }
+    100% { background-position: -40% 0; }
+  }
+
+  /* The dot — subtle living accent that pulses */
+  .tm-logo-dot {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #10b981;
+    position: relative;
+    top: -0.35em;
+    margin-left: 1px;
+    box-shadow:
+      0 0 0 0 rgba(16,185,129,0.7),
+      0 0 8px rgba(16,185,129,0.5);
+    animation: tm-logo-dot 2.6s ease-in-out infinite;
+  }
+  @keyframes tm-logo-dot {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.7), 0 0 8px rgba(16,185,129,0.5); }
+    50%      { box-shadow: 0 0 0 6px rgba(16,185,129,0), 0 0 14px rgba(16,185,129,0.8); }
+  }
+
+  /* Slight scale breathing on the whole mark for that "alive" feeling */
+  .tm-logo .tm-logo-word {
+    animation: tm-logo-sweep 4.2s ease-in-out infinite;
   }
 
 </style>
