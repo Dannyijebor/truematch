@@ -1434,3 +1434,65 @@ def portfolio_public_view(username: str, request: Request, db: Session = Depends
     return templates.TemplateResponse(request, "portfolio_public.html", _ctx(
         request, db=db, user=viewer, **data,
     ))
+
+
+# ---------- stories ----------
+@router.post("/stories/create")
+async def story_create(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    form = await request.form()
+    kind = (form.get("kind") or "text").lower()
+    body = form.get("body") or ""
+    background = (form.get("background") or "aurora").strip()
+
+    image_url = None
+    img = form.get("image")
+    if kind == "image" and img and hasattr(img, "read"):
+        raw = await img.read()
+        if raw and len(raw) <= 900 * 1024:
+            import base64
+            mime = "image/jpeg"
+            if raw[:8] == b"\x89PNG\r\n\x1a\n":
+                mime = "image/png"
+            elif raw[:4] == b"RIFF" and raw[8:12] == b"WEBP":
+                mime = "image/webp"
+            image_url = f"data:{mime};base64,{base64.b64encode(raw).decode()}"
+
+    from app.stories import create_story
+    try:
+        create_story(db, user.id, kind, body=body, image_url=image_url, background=background)
+    except Exception as e:
+        return RedirectResponse(f"/feed?error={str(e)[:60]}", status_code=302)
+
+    return RedirectResponse("/feed?posted=story", status_code=302)
+
+
+@router.post("/stories/{story_id}/delete")
+def story_delete(story_id: str, request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+    from uuid import UUID
+    from app.stories import delete_story
+    try:
+        delete_story(db, user.id, UUID(story_id))
+    except Exception:
+        pass
+    return RedirectResponse("/feed", status_code=302)
+
+
+@router.post("/api/stories/{story_id}/seen")
+def story_seen(story_id: str, request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return {"ok": False}
+    from uuid import UUID
+    from app.stories import mark_seen
+    try:
+        mark_seen(db, user.id, UUID(story_id))
+    except Exception:
+        pass
+    return {"ok": True}
