@@ -552,34 +552,17 @@ def feed_page(request: Request, db: Session = Depends(get_db)):
     if not user:
         return RedirectResponse("/login?next=/feed", status_code=302)
 
-    from app.social import feed_for, display_name
-    from app.db.models import Follow
+    from app.social import feed_for
+    from app.stories import story_groups
 
     posts = feed_for(db, user.id, limit=50)
-    following_ids = [r.following_id for r in db.execute(select(Follow).where(Follow.follower_id == user.id)).scalars()]
     profile = db.get(Profile, user.id)
-
-    # Suggested people (not followed, not self, limit 8)
-    from app.social import search_people
-    suggestions = []
-    if not following_ids:
-        # cold start — suggest 8 recent users
-        recent = db.execute(
-            select(User, Profile).join(Profile, Profile.user_id == User.id, isouter=True)
-            .where(User.id != user.id).limit(8)
-        ).all()
-        for u, p in recent:
-            suggestions.append({
-                "user_id": str(u.id),
-                "name": display_name(u, p),
-                "title": p.title if p else None,
-                "company": p.company_name if p else None,
-            })
+    groups = story_groups(db, user.id)
 
     return templates.TemplateResponse(request, "feed.html", _ctx(
-        request, user=user, posts=posts, suggestions=suggestions, profile=profile,
+        request, db=db, user=user, posts=posts, profile=profile,
+        story_groups=groups,
     ))
-
 
 @router.get("/discover", response_class=HTMLResponse)
 def discover_page(request: Request, db: Session = Depends(get_db)):
