@@ -403,3 +403,128 @@ class TimingMiddleware(BaseHTTPMiddleware):
         return response
 
 app.add_middleware(TimingMiddleware)
+
+
+# ---------- messaging ----------
+from fastapi import Body
+from app.calls import (
+    messages_since, active_incoming, start_call, accept_call,
+    decline_call, end_call, set_offer, set_answer, add_ice, get_call,
+)
+
+
+@app.get("/api/messages/{other_id}/poll")
+def poll_messages(other_id: str, since: str | None = None,
+                  user: User = Depends(current_user),
+                  db: Session = Depends(get_db)):
+    from uuid import UUID
+    try:
+        other_uuid = UUID(other_id)
+    except ValueError:
+        raise HTTPException(400, "bad id")
+    return {"messages": messages_since(db, user.id, other_uuid, since)}
+
+
+@app.get("/api/calls/incoming")
+def incoming_call(user: User = Depends(current_user), db: Session = Depends(get_db)):
+    return {"call": active_incoming(db, user.id)}
+
+
+@app.post("/api/calls/start/{other_id}")
+def api_start_call(other_id: str, kind: str = "audio",
+                   user: User = Depends(current_user),
+                   db: Session = Depends(get_db)):
+    from uuid import UUID
+    try:
+        c = start_call(db, user, UUID(other_id), kind)
+    except Exception as e:
+        raise HTTPException(400, str(e))
+    return {"call_id": str(c.id), "kind": c.kind, "status": c.status}
+
+
+@app.get("/api/calls/{call_id}/state")
+def api_call_state(call_id: str, user: User = Depends(current_user),
+                   db: Session = Depends(get_db)):
+    from uuid import UUID
+    c = get_call(db, UUID(call_id))
+    if not c or user.id not in (c.caller_id, c.callee_id):
+        raise HTTPException(404, "not found")
+    return {
+        "call_id": str(c.id),
+        "status": c.status,
+        "kind": c.kind,
+        "offer": c.offer,
+        "answer": c.answer,
+        "ice_caller": c.ice_caller or [],
+        "ice_callee": c.ice_callee or [],
+        "you_are": "caller" if c.caller_id == user.id else "callee",
+    }
+
+
+@app.post("/api/calls/{call_id}/offer")
+def api_set_offer(call_id: str, payload: dict = Body(...),
+                  user: User = Depends(current_user),
+                  db: Session = Depends(get_db)):
+    from uuid import UUID
+    try:
+        set_offer(db, UUID(call_id), user.id, payload)
+    except Exception as e:
+        raise HTTPException(400, str(e))
+    return {"ok": True}
+
+
+@app.post("/api/calls/{call_id}/answer")
+def api_set_answer(call_id: str, payload: dict = Body(...),
+                   user: User = Depends(current_user),
+                   db: Session = Depends(get_db)):
+    from uuid import UUID
+    try:
+        set_answer(db, UUID(call_id), user.id, payload)
+    except Exception as e:
+        raise HTTPException(400, str(e))
+    return {"ok": True}
+
+
+@app.post("/api/calls/{call_id}/ice")
+def api_add_ice(call_id: str, side: str = "caller", payload: dict = Body(...),
+                user: User = Depends(current_user),
+                db: Session = Depends(get_db)):
+    from uuid import UUID
+    try:
+        add_ice(db, UUID(call_id), user.id, payload, side)
+    except Exception as e:
+        raise HTTPException(400, str(e))
+    return {"ok": True}
+
+
+@app.post("/api/calls/{call_id}/accept")
+def api_accept(call_id: str, user: User = Depends(current_user),
+               db: Session = Depends(get_db)):
+    from uuid import UUID
+    try:
+        accept_call(db, UUID(call_id), user.id)
+    except Exception as e:
+        raise HTTPException(400, str(e))
+    return {"ok": True}
+
+
+@app.post("/api/calls/{call_id}/decline")
+def api_decline(call_id: str, user: User = Depends(current_user),
+                db: Session = Depends(get_db)):
+    from uuid import UUID
+    try:
+        decline_call(db, UUID(call_id), user.id)
+    except Exception as e:
+        raise HTTPException(400, str(e))
+    return {"ok": True}
+
+
+@app.post("/api/calls/{call_id}/end")
+def api_end(call_id: str, user: User = Depends(current_user),
+            db: Session = Depends(get_db)):
+    from uuid import UUID
+    try:
+        end_call(db, UUID(call_id), user.id)
+    except Exception as e:
+        raise HTTPException(400, str(e))
+    return {"ok": True}

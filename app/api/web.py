@@ -1069,3 +1069,20 @@ def public_posted_jobs(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse(request, "posted_jobs.html", _ctx(
         request, user=user, jobs=jobs,
     ))
+
+
+@router.post("/app/settings/chat_theme")
+async def save_chat_theme(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+    form = await request.form()
+    t = (form.get("chat_theme") or "classic").strip()
+    if t not in ("classic", "ocean", "forest", "sunset", "midnight", "rose", "paper"):
+        t = "classic"
+    profile = db.get(Profile, user.id) or Profile(user_id=user.id)
+    profile.chat_theme = t
+    db.add(profile)
+    db.commit()
+    referer = request.headers.get("referer", "/messages")
+    return RedirectResponse(referer, status_code=302)

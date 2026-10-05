@@ -2,51 +2,386 @@
 {% block title %}{{ other.name }} · Messages{% endblock %}
 {% block content %}
 
+<!-- Chat theme vars -->
+{% set theme = (profile.chat_theme if profile else 'classic') or 'classic' %}
+<style>
+  .chat-shell { --chat-bg: var(--bg); --chat-mine: #10b981; --chat-mine-text: #052e16; --chat-them: var(--surface-2); --chat-them-text: var(--text); }
+  .chat-shell.theme-classic { }
+  .chat-shell.theme-ocean { --chat-bg: #071a2b; --chat-mine: #06b6d4; --chat-mine-text: #04283a; --chat-them: #0f2c47; }
+  .chat-shell.theme-forest { --chat-bg: #06190f; --chat-mine: #22c55e; --chat-mine-text: #052e16; --chat-them: #0e2b1a; }
+  .chat-shell.theme-sunset { --chat-bg: #1f0b0e; --chat-mine: #f97316; --chat-mine-text: #2b1206; --chat-them: #2c1419; }
+  .chat-shell.theme-midnight { --chat-bg: #0a0613; --chat-mine: #a78bfa; --chat-mine-text: #1e1b4b; --chat-them: #1a1130; }
+  .chat-shell.theme-rose { --chat-bg: #1a0a13; --chat-mine: #ec4899; --chat-mine-text: #3b0520; --chat-them: #2a1220; }
+  .chat-shell.theme-paper { --chat-bg: #f5efe0; --chat-mine: #1e293b; --chat-mine-text: #ffffff; --chat-them: #e6dcc6; --chat-them-text: #1e293b; }
+  .chat-mine { background: var(--chat-mine) !important; color: var(--chat-mine-text) !important; }
+  .chat-them { background: var(--chat-them) !important; color: var(--chat-them-text) !important; }
+  .chat-shell { background: var(--chat-bg); }
+</style>
+
 <a href="/messages" class="text-slate-400 hover:text-white text-sm">← Messages</a>
 
-<div class="mt-4 flex items-center gap-3">
-  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center font-bold text-slate-950 shrink-0">
-    {{ (other.name or "?")[0]|upper }}
-  </div>
-  <div class="min-w-0 flex-1">
-    {% if other.username %}
-      <a href="/u/{{ other.username }}" class="font-semibold hover:underline">{{ other.name }}</a>
+<div class="mt-4 flex items-center justify-between gap-3 flex-wrap">
+  <div class="flex items-center gap-3 min-w-0">
+    {% if other.username %}<a href="/u/{{ other.username }}">{% endif %}
+    {% if other.avatar_url %}
+      <img src="{{ other.avatar_url }}" class="w-11 h-11 rounded-full object-cover border border-slate-700">
     {% else %}
-      <span class="font-semibold">{{ other.name }}</span>
-    {% endif %}
-    {% if other.title or other.company %}
-      <div class="text-xs text-slate-500">
-        {{ other.title or '' }}{% if other.title and other.company %} · {% endif %}{{ other.company or '' }}
+      <div class="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center font-bold text-slate-950 shrink-0">
+        {{ (other.name or "?")[0]|upper }}
       </div>
     {% endif %}
+    {% if other.username %}</a>{% endif %}
+    <div class="min-w-0">
+      <div class="font-semibold truncate">{{ other.name }}</div>
+      {% if other.title or other.company %}
+        <div class="text-xs text-slate-500 truncate">
+          {{ other.title or '' }}{% if other.title and other.company %} · {% endif %}{{ other.company or '' }}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="flex items-center gap-2">
+    <button onclick="startCall('audio')" title="Voice call"
+            class="tm-btn tm-btn-ghost p-2.5">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13 1.05.37 2.07.7 3.06a2 2 0 0 1-.45 2.11L8.09 10.91a16 16 0 0 0 6 6l2.02-2.02a2 2 0 0 1 2.11-.45c.99.33 2.01.57 3.06.7A2 2 0 0 1 22 16.92z"/></svg>
+    </button>
+    <button onclick="startCall('video')" title="Video call"
+            class="tm-btn tm-btn-primary p-2.5">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+    </button>
+    <button onclick="document.getElementById('theme-picker').classList.toggle('hidden')" title="Chat theme"
+            class="tm-btn tm-btn-ghost p-2.5">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
   </div>
 </div>
 
-<div class="mt-6 space-y-2">
+<!-- Theme picker -->
+<div id="theme-picker" class="hidden mt-3 tm-card p-3 fade-in">
+  <div class="text-xs text-slate-500 mb-2">Chat theme</div>
+  <form method="post" action="/app/settings/chat_theme" class="flex flex-wrap gap-2">
+    {% for t, label, bg, accent in [
+      ('classic','Classic','#020617','#10b981'),
+      ('ocean','Ocean','#071a2b','#06b6d4'),
+      ('forest','Forest','#06190f','#22c55e'),
+      ('sunset','Sunset','#1f0b0e','#f97316'),
+      ('midnight','Midnight','#0a0613','#a78bfa'),
+      ('rose','Rose','#1a0a13','#ec4899'),
+      ('paper','Paper (light)','#f5efe0','#1e293b')
+    ] %}
+      <button name="chat_theme" value="{{ t }}"
+              class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs border
+                     {% if theme == t %}border-emerald-500 bg-emerald-500/10 text-emerald-300{% else %}border-slate-700 text-slate-300 hover:border-slate-500{% endif %}">
+        <span class="w-3 h-3 rounded-full" style="background: {{ accent }}"></span>
+        {{ label }}
+      </button>
+    {% endfor %}
+  </form>
+</div>
+
+<!-- Call overlay -->
+<div id="call-overlay" class="hidden fixed inset-0 z-[100] bg-black/95 flex flex-col">
+  <div class="flex-1 relative">
+    <video id="remote-video" autoplay playsinline class="w-full h-full object-cover bg-black"></video>
+    <video id="local-video" autoplay playsinline muted class="absolute bottom-4 right-4 w-28 md:w-40 rounded-xl border border-slate-700 object-cover"></video>
+
+    <div id="call-status" class="absolute top-6 left-6 text-white text-sm bg-black/60 px-3 py-1.5 rounded-full">
+      Connecting…
+    </div>
+  </div>
+
+  <div class="p-4 flex items-center justify-center gap-3 safe-bottom">
+    <button id="mute-btn" onclick="toggleMute()" class="tm-btn p-4 rounded-full bg-slate-800 text-white">
+      <svg id="mute-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v4"/></svg>
+    </button>
+    <button onclick="hangUp()" class="tm-btn p-5 rounded-full bg-red-500 text-white">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13 1.05.37 2.07.7 3.06a2 2 0 0 1-.45 2.11L8.09 10.91a16 16 0 0 0 6 6l2.02-2.02a2 2 0 0 1 2.11-.45c.99.33 2.01.57 3.06.7A2 2 0 0 1 22 16.92z"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- Incoming call overlay -->
+<div id="incoming-overlay" class="hidden fixed inset-0 z-[100] bg-black/95 flex flex-col items-center justify-center px-6">
+  <div class="text-center">
+    <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-3xl font-bold text-slate-950 mb-4" id="incoming-avatar">
+      ?
+    </div>
+    <div class="text-white text-xl font-bold" id="incoming-name">Someone</div>
+    <div class="text-slate-400 text-sm mt-1" id="incoming-kind">Incoming call</div>
+  </div>
+  <div class="mt-12 flex gap-6">
+    <button onclick="declineIncoming()" class="tm-btn p-5 rounded-full bg-red-500 text-white">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13 1.05.37 2.07.7 3.06a2 2 0 0 1-.45 2.11L8.09 10.91a16 16 0 0 0 6 6l2.02-2.02a2 2 0 0 1 2.11-.45c.99.33 2.01.57 3.06.7A2 2 0 0 1 22 16.92z"/></svg>
+    </button>
+    <button onclick="acceptIncoming()" class="tm-btn p-5 rounded-full bg-emerald-500 text-slate-950">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- Messages -->
+<div id="chat" class="chat-shell theme-{{ theme }} rounded-2xl border border-slate-800 mt-6 p-4 space-y-2 max-h-[55vh] overflow-y-auto">
   {% for m in msgs %}
-    <div class="flex {% if m.from_me %}justify-end{% else %}justify-start{% endif %}">
-      <div class="max-w-[80%] rounded-2xl px-4 py-2.5 text-sm
-                  {% if m.from_me %}bg-emerald-500 text-slate-950{% else %}bg-slate-800 text-slate-100{% endif %}">
+    <div class="flex {% if m.from_me %}justify-end{% else %}justify-start{% endif %}" data-msg-id="{{ m.id }}">
+      <div class="max-w-[80%] rounded-2xl px-4 py-2.5 text-sm {% if m.from_me %}chat-mine{% else %}chat-them{% endif %}">
         <div class="whitespace-pre-line">{{ m.body }}</div>
-        <div class="text-[10px] mt-1 {% if m.from_me %}text-slate-800{% else %}text-slate-500{% endif %}">
-          {{ m.created_at[:16].replace('T',' ') }}
-        </div>
+        <div class="text-[10px] mt-1 opacity-60">{{ m.created_at[11:16] }}</div>
       </div>
     </div>
   {% endfor %}
 </div>
 
-<form method="post" action="/messages/{{ other.user_id }}" class="fixed bottom-20 md:bottom-4 inset-x-0 md:inset-x-auto md:right-6 md:w-[600px] bg-slate-950/95 backdrop-blur border-t border-slate-800 md:border md:rounded-2xl p-3">
+<form id="msg-form" method="post" action="/messages/{{ other.user_id }}" class="fixed bottom-20 md:bottom-4 inset-x-0 md:inset-x-auto md:right-6 md:w-[600px] bg-slate-950/95 glass border-t border-slate-800 md:border md:rounded-2xl p-3">
   <div class="max-w-5xl mx-auto flex items-end gap-2">
-    <textarea name="body" rows="1" required maxlength="4000"
+    <textarea name="body" id="msg-input" rows="1" required maxlength="4000"
               placeholder="Message {{ other.name }}…"
               class="flex-1 rounded-xl bg-slate-900 border border-slate-800 focus:border-emerald-500 px-3 py-2.5 text-sm outline-none resize-none"></textarea>
-    <button class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-4 py-2.5 rounded-xl text-sm shrink-0">
-      Send
-    </button>
+    <button class="tm-btn tm-btn-primary px-4 py-2.5 text-sm shrink-0">Send</button>
   </div>
 </form>
 
 <div class="h-40"></div>
+
+<script>
+const OTHER_ID = "{{ other.user_id }}";
+const ME_ID = "{{ user.id }}";
+let lastTs = "{{ msgs[-1].created_at if msgs else '' }}";
+let polling = true;
+
+function scrollBottom() {
+  const c = document.getElementById('chat');
+  c.scrollTop = c.scrollHeight;
+}
+scrollBottom();
+
+function appendMsg(m) {
+  const chat = document.getElementById('chat');
+  if (document.querySelector(`[data-msg-id="${m.id}"]`)) return;
+  const wrap = document.createElement('div');
+  wrap.className = 'flex ' + (m.from_me ? 'justify-end' : 'justify-start');
+  wrap.dataset.msgId = m.id;
+  const bubble = document.createElement('div');
+  bubble.className = 'max-w-[80%] rounded-2xl px-4 py-2.5 text-sm fade-up ' + (m.from_me ? 'chat-mine' : 'chat-them');
+  const time = (m.created_at || '').substring(11, 16);
+  bubble.innerHTML = `<div class="whitespace-pre-line"></div><div class="text-[10px] mt-1 opacity-60">${time}</div>`;
+  bubble.firstChild.textContent = m.body;
+  wrap.appendChild(bubble);
+  chat.appendChild(wrap);
+  scrollBottom();
+}
+
+async function pollMessages() {
+  if (!polling) return;
+  try {
+    const url = '/api/messages/' + OTHER_ID + '/poll' + (lastTs ? '?since=' + encodeURIComponent(lastTs) : '');
+    const r = await fetch(url, {credentials: 'same-origin'});
+    if (r.ok) {
+      const data = await r.json();
+      for (const m of data.messages || []) {
+        appendMsg(m);
+        if (m.created_at) lastTs = m.created_at;
+      }
+    }
+  } catch (e) {}
+  setTimeout(pollMessages, 2000);
+}
+pollMessages();
+
+// Send form via fetch for smoother UX
+document.getElementById('msg-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const input = document.getElementById('msg-input');
+  const body = input.value.trim();
+  if (!body) return;
+  input.value = '';
+  const fd = new FormData();
+  fd.append('body', body);
+  try {
+    await fetch('/messages/' + OTHER_ID, {method: 'POST', body: fd, credentials: 'same-origin'});
+    // immediate optimistic append
+    appendMsg({id: 'tmp-' + Date.now(), body, from_me: true, created_at: new Date().toISOString()});
+  } catch (e) {}
+});
+
+// ---------- WebRTC calls ----------
+let pc = null;
+let localStream = null;
+let currentCallId = null;
+let currentCallKind = 'audio';
+let pollInterval = null;
+let incomingCall = null;
+let lastSentIce = 0;
+
+async function startCall(kind) {
+  currentCallKind = kind;
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({audio: true, video: kind === 'video'});
+  } catch (e) {
+    alert('Microphone/camera access denied');
+    return;
+  }
+  const r = await fetch('/api/calls/start/' + OTHER_ID + '?kind=' + kind, {method: 'POST', credentials: 'same-origin'});
+  if (!r.ok) { alert('Could not start call'); return; }
+  const data = await r.json();
+  currentCallId = data.call_id;
+  showCallOverlay('Calling…');
+  await setupPeer(true);
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+  await fetch('/api/calls/' + currentCallId + '/offer', {
+    method: 'POST', credentials: 'same-origin',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({sdp: offer.sdp, type: offer.type})
+  });
+  startSignalPolling();
+}
+
+async function setupPeer(isCaller) {
+  pc = new RTCPeerConnection({
+    iceServers: [{urls: 'stun:stun.l.google.com:19302'}, {urls: 'stun:stun1.l.google.com:19302'}]
+  });
+  localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+  document.getElementById('local-video').srcObject = localStream;
+
+  pc.ontrack = (ev) => {
+    document.getElementById('remote-video').srcObject = ev.streams[0];
+    showCallOverlay('Connected');
+  };
+  pc.onicecandidate = (ev) => {
+    if (ev.candidate) {
+      const side = isCaller ? 'caller' : 'callee';
+      fetch('/api/calls/' + currentCallId + '/ice?side=' + side, {
+        method: 'POST', credentials: 'same-origin',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({candidate: ev.candidate.toJSON()})
+      });
+    }
+  };
+  pc.onconnectionstatechange = () => {
+    if (pc.connectionState === 'connected') showCallOverlay('Connected');
+    if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') hangUp();
+  };
+}
+
+async function startSignalPolling() {
+  pollInterval = setInterval(async () => {
+    if (!currentCallId) return;
+    const r = await fetch('/api/calls/' + currentCallId + '/state', {credentials: 'same-origin'});
+    if (!r.ok) return;
+    const s = await r.json();
+    const me = s.you_are;
+
+    if (s.status === 'declined' || s.status === 'ended') {
+      hangUp(true);
+      return;
+    }
+
+    if (me === 'caller' && s.answer && pc && !pc.currentRemoteDescription) {
+      await pc.setRemoteDescription(new RTCSessionDescription(s.answer));
+    }
+
+    // Add any ICE candidates we haven't yet
+    const remoteIce = (me === 'caller' ? s.ice_callee : s.ice_caller) || [];
+    for (const c of remoteIce) {
+      try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch (e) {}
+    }
+  }, 1500);
+}
+
+function showCallOverlay(status) {
+  document.getElementById('call-overlay').classList.remove('hidden');
+  document.getElementById('call-status').textContent = status;
+}
+
+function hideCallOverlay() {
+  document.getElementById('call-overlay').classList.add('hidden');
+}
+
+async function hangUp(silent) {
+  if (pollInterval) clearInterval(pollInterval);
+  if (pc) { try { pc.close(); } catch(e){} pc = null; }
+  if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+  if (currentCallId && !silent) {
+    await fetch('/api/calls/' + currentCallId + '/end', {method: 'POST', credentials: 'same-origin'});
+  }
+  currentCallId = null;
+  hideCallOverlay();
+}
+
+// ---------- Incoming call polling ----------
+async function pollIncoming() {
+  try {
+    const r = await fetch('/api/calls/incoming', {credentials: 'same-origin'});
+    if (r.ok) {
+      const data = await r.json();
+      if (data.call && !currentCallId) {
+        incomingCall = data.call;
+        document.getElementById('incoming-name').textContent = data.call.from.name;
+        document.getElementById('incoming-kind').textContent = (data.call.kind === 'video' ? 'Incoming video call' : 'Incoming voice call');
+        document.getElementById('incoming-avatar').textContent = (data.call.from.name || '?')[0].toUpperCase();
+        document.getElementById('incoming-overlay').classList.remove('hidden');
+      } else if (!data.call) {
+        document.getElementById('incoming-overlay').classList.add('hidden');
+      }
+    }
+  } catch (e) {}
+  setTimeout(pollIncoming, 3000);
+}
+pollIncoming();
+
+async function acceptIncoming() {
+  if (!incomingCall) return;
+  currentCallId = incomingCall.call_id;
+  currentCallKind = incomingCall.kind;
+  document.getElementById('incoming-overlay').classList.add('hidden');
+
+  await fetch('/api/calls/' + currentCallId + '/accept', {method: 'POST', credentials: 'same-origin'});
+
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({audio: true, video: currentCallKind === 'video'});
+  } catch (e) { alert('Camera/mic denied'); return; }
+
+  showCallOverlay('Connecting…');
+  await setupPeer(false);
+
+  // Wait for offer to arrive
+  let tries = 0;
+  const waitOffer = setInterval(async () => {
+    tries++;
+    const r = await fetch('/api/calls/' + currentCallId + '/state', {credentials: 'same-origin'});
+    if (!r.ok) return;
+    const s = await r.json();
+    if (s.offer) {
+      clearInterval(waitOffer);
+      await pc.setRemoteDescription(new RTCSessionDescription(s.offer));
+      const ans = await pc.createAnswer();
+      await pc.setLocalDescription(ans);
+      await fetch('/api/calls/' + currentCallId + '/answer', {
+        method: 'POST', credentials: 'same-origin',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({sdp: ans.sdp, type: ans.type})
+      });
+      startSignalPolling();
+    }
+    if (tries > 15) { clearInterval(waitOffer); hangUp(); }
+  }, 800);
+}
+
+async function declineIncoming() {
+  if (!incomingCall) return;
+  await fetch('/api/calls/' + incomingCall.call_id + '/decline', {method: 'POST', credentials: 'same-origin'});
+  document.getElementById('incoming-overlay').classList.add('hidden');
+  incomingCall = null;
+}
+
+let muted = false;
+function toggleMute() {
+  if (!localStream) return;
+  muted = !muted;
+  localStream.getAudioTracks().forEach(t => t.enabled = !muted);
+  document.getElementById('mute-btn').style.opacity = muted ? '0.4' : '1';
+}
+</script>
 
 {% endblock %}

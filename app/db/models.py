@@ -160,3 +160,18 @@ class DirectMessage(Base):
     body: Mapped[str] = mapped_column(Text, nullable=False)
     read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)
+
+
+class Call(Base):
+    __tablename__ = "calls"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    caller_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    callee_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    kind: Mapped[str] = mapped_column(String, default="audio")  # audio | video
+    status: Mapped[str] = mapped_column(String, default="ringing")  # ringing | accepted | declined | ended
+    offer: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    answer: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    ice_caller: Mapped[list] = mapped_column(JSON, default=list)
+    ice_callee: Mapped[list] = mapped_column(JSON, default=list)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
