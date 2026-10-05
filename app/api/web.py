@@ -905,3 +905,162 @@ async def save_theme(request: Request, db: Session = Depends(get_db)):
             db.commit()
 
     return resp
+
+
+# ---------- HR / recruiter ----------
+def _is_recruiter(db, user):
+    profile = db.get(Profile, user.id)
+    return bool(profile and profile.company_name)
+
+
+@router.get("/hire", response_class=HTMLResponse)
+def hr_dashboard(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login?next=/hire", status_code=302)
+
+    from app.hr import list_my_posted_jobs
+    jobs = list_my_posted_jobs(db, user.id)
+    profile = db.get(Profile, user.id)
+
+    return templates.TemplateResponse(request, "hr_dashboard.html", _ctx(
+        request, user=user, profile=profile, jobs=jobs,
+    ))
+
+
+@router.get("/hire/new", response_class=HTMLResponse)
+def hr_new_job(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login?next=/hire/new", status_code=302)
+    profile = db.get(Profile, user.id)
+    return templates.TemplateResponse(request, "hr_post_job.html", _ctx(
+        request, user=user, profile=profile, job=None,
+    ))
+
+
+@router.post("/hire/new")
+async def hr_create_job(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    form = await request.form()
+    data = {
+        "title": form.get("title"),
+        "company_name": form.get("company_name"),
+        "location": form.get("location"),
+        "remote": form.get("remote") is not None,
+        "salary_min": form.get("salary_min"),
+        "salary_max": form.get("salary_max"),
+        "description": form.get("description"),
+        "requirements": form.get("requirements"),
+    }
+
+    from app.hr import create_posted_job
+    try:
+        job = create_posted_job(db, user, data)
+    except Exception as e:
+        return RedirectResponse(f"/hire/new?error={str(e)[:80]}", status_code=302)
+
+    # Auto-populate profile company if missing
+    profile = db.get(Profile, user.id) or Profile(user_id=user.id)
+    if not profile.company_name and data.get("company_name"):
+        profile.company_name = data["company_name"]
+        db.add(profile)
+        db.commit()
+
+    return RedirectResponse(f"/hire/jobs/{job.id}", status_code=302)
+
+
+@router.get("/hire/jobs/{job_id}", response_class=HTMLResponse)
+def hr_job_detail(job_id: str, request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    job = db.get(Job, job_id)
+    if not job or job.posted_by_user_id != user.id:
+        raise HTTPException(404, "job not found")
+
+    from app.hr import list_applicants
+    applicants = list_applicants(db, user.id, job.id)
+
+    return templates.TemplateResponse(request, "hr_applicants.html", _ctx(
+        request, user=user, job=job, applicants=applicants,
+    ))
+
+
+@router.post("/hire/jobs/{job_id}/close")
+def hr_close_job(job_id: str, request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+    from app.hr import close_job
+    try:
+        close_job(db, user.id, job_id)
+    except Exception:
+        pass
+    return RedirectResponse(f"/hire/jobs/{job_id}", status_code=302)
+
+
+@router.post("/hire/applications/{app_id}/status")
+async def hr_update_status(app_id: str, request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    form = await request.form()
+    status = (form.get("status") or "").strip()
+
+    from app.hr import update_application_status
+    try:
+        a = update_application_status(db, user.id, app_id, status)
+        referer = request.headers.get("referer", "/hire")
+        return RedirectResponse(referer, status_code=302)
+    except Exception as e:
+        raise HTTPException(400, str(e))
+
+
+@router.get("/hire/applications/{app_id}/screen", response_class=HTMLResponse)
+def hr_screen_applicant(app_id: str, request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    from app.hr import ai_screen_applicant
+    from app.db.models import Application
+    a = db.get(Application, app_id)
+    if not a:
+        raise HTTPException(404, "application not found")
+
+    job = db.get(Job, a.job_id)
+    if not job or job.posted_by_user_id != user.id:
+        raise HTTPException(403, "not yours")
+
+    applicant = db.get(User, a.user_id)
+    profile = db.get(Profile, a.user_id)
+    from app.social import display_name
+    name = display_name(applicant, profile) if applicant else "Applicant"
+
+    try:
+        result = ai_screen_applicant(db, user.id, app_id)
+        error = None
+    except Exception as e:
+        result = None
+        error = str(e)
+
+    return templates.TemplateResponse(request, "hr_screen.html", _ctx(
+        request, user=user, job=job, applicant_id=str(a.user_id),
+        applicant_name=name, result=result, error=error, app_id=app_id,
+    ))
+
+
+@router.get("/jobs-posted", response_class=HTMLResponse)
+def public_posted_jobs(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    from app.hr import list_posted_jobs_public
+    jobs = list_posted_jobs_public(db, limit=200)
+    return templates.TemplateResponse(request, "posted_jobs.html", _ctx(
+        request, user=user, jobs=jobs,
+    ))

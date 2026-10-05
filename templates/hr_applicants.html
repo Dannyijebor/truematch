@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}{{ job.title }} · Applicants{% endblock %}
+{% block content %}
+
+<a href="/hire" class="text-slate-400 hover:text-white text-sm">← Back to hiring</a>
+
+<div class="mt-4 flex items-start justify-between gap-3 flex-wrap">
+  <div>
+    <h1 class="text-2xl font-extrabold tracking-tight">{{ job.title }}</h1>
+    <p class="text-slate-400 text-sm mt-1">
+      {{ job.company.name if job.company else '—' }}{% if job.location %} · {{ job.location }}{% endif %}
+      {% if not job.is_active %} · <span class="text-slate-500">Closed</span>{% endif %}
+    </p>
+  </div>
+  {% if job.is_active %}
+  <form method="post" action="/hire/jobs/{{ job.id }}/close">
+    <button class="text-sm border border-slate-700 hover:border-slate-500 text-slate-300 px-4 py-2 rounded-xl">
+      Close role
+    </button>
+  </form>
+  {% endif %}
+</div>
+
+<h2 class="text-sm uppercase tracking-wider text-slate-500 mt-8 mb-3">Applicants ({{ applicants|length }})</h2>
+
+{% if not applicants %}
+<div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-8 text-center text-slate-400">
+  No applicants yet. Share the role at <span class="text-emerald-400">/jobs-posted</span>.
+</div>
+{% else %}
+<div class="space-y-3">
+  {% for a in applicants %}
+  <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+    <div class="flex items-start justify-between gap-3 flex-wrap">
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-2 flex-wrap">
+          {% if a.username %}
+            <a href="/u/{{ a.username }}" class="font-semibold hover:underline">{{ a.name }}</a>
+          {% else %}
+            <span class="font-semibold">{{ a.name }}</span>
+          {% endif %}
+          {% if a.match_score is not none %}
+            <span class="text-xs bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 rounded-full px-2 py-0.5">{{ a.match_score|round|int }}% match</span>
+          {% endif %}
+          <span class="text-xs rounded-full px-2 py-0.5 border
+            {% if a.status in ('shortlisted','interviewing') %}border-emerald-500/40 text-emerald-300
+            {% elif a.status == 'hired' %}border-emerald-500/60 bg-emerald-500/10 text-emerald-300
+            {% elif a.status == 'rejected' %}border-red-500/40 text-red-300
+            {% else %}border-slate-700 text-slate-400{% endif %}">
+            {{ a.status }}
+          </span>
+        </div>
+        {% if a.title or a.location %}
+          <p class="text-slate-400 text-sm mt-1">{{ a.title or '' }}{% if a.title and a.location %} · {% endif %}{{ a.location or '' }}</p>
+        {% endif %}
+        {% if a.skills %}
+          <div class="flex flex-wrap gap-1.5 mt-2">
+            {% for s in a.skills[:8] %}
+              <span class="text-xs bg-slate-800 text-slate-300 border border-slate-700 rounded-full px-2 py-0.5">{{ s }}</span>
+            {% endfor %}
+          </div>
+        {% endif %}
+        {% if a.summary %}
+          <p class="text-slate-400 text-sm mt-2 line-clamp-2">{{ a.summary[:200] }}</p>
+        {% endif %}
+      </div>
+
+      <div class="flex flex-col gap-2 shrink-0">
+        <a href="/hire/applications/{{ a.application_id }}/screen"
+           class="text-xs bg-indigo-500 hover:bg-indigo-400 text-white font-semibold px-3 py-2 rounded-lg text-center">
+          ✨ AI screen
+        </a>
+        {% if a.username %}
+        <a href="/messages/{{ a.user_id }}"
+           class="text-xs border border-slate-700 hover:border-slate-500 text-slate-200 px-3 py-2 rounded-lg text-center">
+          Message
+        </a>
+        {% endif %}
+        <form method="post" action="/hire/applications/{{ a.application_id }}/status" class="flex flex-col gap-1">
+          <select name="status" onchange="this.form.submit()"
+                  class="text-xs bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200">
+            <option value="">Move to…</option>
+            <option value="reviewing">Reviewing</option>
+            <option value="shortlisted">Shortlist</option>
+            <option value="interviewing">Interview</option>
+            <option value="hired">Hired</option>
+            <option value="rejected">Reject</option>
+          </select>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

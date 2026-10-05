@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}AI screen · {{ applicant_name }}{% endblock %}
+{% block content %}
+
+<a href="/hire/jobs/{{ job.id }}" class="text-slate-400 hover:text-white text-sm">← Back to applicants</a>
+
+<h1 class="text-2xl font-extrabold tracking-tight mt-4">AI screen</h1>
+<p class="text-slate-400 text-sm mt-1">{{ applicant_name }} · {{ job.title }}</p>
+
+{% if error %}
+<div class="mt-6 rounded-2xl border border-red-500/30 bg-red-500/5 p-5 text-sm text-red-300">
+  Screening failed: {{ error }}
+</div>
+{% elif result %}
+<div class="mt-6 grid md:grid-cols-3 gap-4">
+
+  <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5 text-center md:col-span-1">
+    <div class="text-xs uppercase tracking-wider text-slate-500">Fit score</div>
+    <div class="text-5xl font-extrabold mt-2
+      {% if result.fit_score >= 75 %}text-emerald-400
+      {% elif result.fit_score >= 50 %}text-amber-400
+      {% else %}text-red-400{% endif %}">
+      {{ result.fit_score }}
+    </div>
+    <div class="mt-3 text-sm
+      {% if result.recommendation == 'strong_yes' %}text-emerald-300
+      {% elif result.recommendation == 'yes' %}text-emerald-300
+      {% elif result.recommendation == 'maybe' %}text-amber-300
+      {% else %}text-red-300{% endif %}">
+      {{ result.recommendation|replace('_',' ')|upper }}
+    </div>
+  </div>
+
+  <div class="md:col-span-2 rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+    <h2 class="font-bold mb-2">Summary</h2>
+    <p class="text-slate-300 text-sm">{{ result.summary }}</p>
+  </div>
+
+  {% if result.strengths %}
+  <div class="md:col-span-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5">
+    <h2 class="font-bold text-emerald-300 mb-2">Strengths</h2>
+    <ul class="space-y-1.5 text-sm text-slate-200">
+      {% for s in result.strengths %}<li class="flex gap-2"><span class="text-emerald-400 shrink-0">+</span><span>{{ s }}</span></li>{% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if result.concerns %}
+  <div class="md:col-span-3 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5">
+    <h2 class="font-bold text-amber-300 mb-2">Concerns</h2>
+    <ul class="space-y-1.5 text-sm text-slate-200">
+      {% for c in result.concerns %}<li class="flex gap-2"><span class="text-amber-400 shrink-0">!</span><span>{{ c }}</span></li>{% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if result.suggested_interview_questions %}
+  <div class="md:col-span-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+    <h2 class="font-bold mb-2">Suggested interview questions</h2>
+    <ol class="space-y-2 text-sm text-slate-200 list-decimal list-inside">
+      {% for q in result.suggested_interview_questions %}<li>{{ q }}</li>{% endfor %}
+    </ol>
+  </div>
+  {% endif %}
+</div>
+
+<div class="mt-6 flex flex-wrap gap-3">
+  <form method="post" action="/hire/applications/{{ app_id }}/status">
+    <input type="hidden" name="status" value="shortlisted">
+    <button class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-5 py-2.5 rounded-xl">✓ Shortlist</button>
+  </form>
+  <form method="post" action="/hire/applications/{{ app_id }}/status">
+    <input type="hidden" name="status" value="interviewing">
+    <button class="border border-slate-700 hover:border-slate-500 text-slate-200 px-5 py-2.5 rounded-xl">📅 Move to interview</button>
+  </form>
+  <form method="post" action="/hire/applications/{{ app_id }}/status">
+    <input type="hidden" name="status" value="rejected">
+    <button class="border border-red-500/40 hover:border-red-500 text-red-300 px-5 py-2.5 rounded-xl">Reject</button>
+  </form>
+</div>
+{% endif %}
+
+{% endblock %}

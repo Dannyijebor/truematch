@@ -37,6 +37,11 @@ class Job(Base):
     verify_reasons: Mapped[list] = mapped_column(JSON, default=list)
     dedupe_key: Mapped[str] = mapped_column(Text, nullable=False)
     raw: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    posted_by_user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
+    salary_min: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    salary_max: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    requirements: Mapped[str | None] = mapped_column(Text, nullable=True)
+    job_type: Mapped[str] = mapped_column(String, default="scraped")
     company: Mapped[Company | None] = relationship(lazy="joined")
 
 

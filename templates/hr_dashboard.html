@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Hiring · TrueMatch{% endblock %}
+{% block content %}
+
+<div class="flex items-center justify-between mt-2 mb-6">
+  <div>
+    <h1 class="text-2xl font-extrabold tracking-tight">Hiring</h1>
+    <p class="text-slate-400 text-sm mt-1">Post roles and screen applicants with AI.</p>
+  </div>
+  <a href="/hire/new" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-4 py-2.5 rounded-xl text-sm">
+    + Post a job
+  </a>
+</div>
+
+{% if not profile or not profile.company_name %}
+<div class="mb-6 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm">
+  <p class="text-amber-300">Add your <b>company name</b> in <a href="/settings" class="underline">Settings</a> first so applicants know who you are.</p>
+</div>
+{% endif %}
+
+{% if not jobs %}
+<div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-8 text-center text-slate-400">
+  No jobs posted yet. <a href="/hire/new" class="text-emerald-400 hover:underline">Post your first role</a>.
+</div>
+{% else %}
+<div class="grid md:grid-cols-2 gap-3">
+  {% for j in jobs %}
+  <a href="/hire/jobs/{{ j.id }}" class="block rounded-2xl border border-slate-800 bg-slate-900/40 hover:bg-slate-900/70 p-5">
+    <div class="flex items-start justify-between gap-3">
+      <div class="min-w-0">
+        <h3 class="font-semibold truncate">{{ j.title }}</h3>
+        <p class="text-slate-400 text-sm mt-0.5">
+          {{ j.company }}{% if j.location %} · {{ j.location }}{% endif %}
+          {% if j.remote %} · <span class="text-emerald-400">Remote</span>{% endif %}
+        </p>
+        {% if j.salary_min or j.salary_max %}
+          <p class="text-slate-500 text-xs mt-1">
+            {{ j.salary_min or '?' }}{% if j.salary_max %} – {{ j.salary_max }}{% endif %}
+          </p>
+        {% endif %}
+      </div>
+      <div class="text-right shrink-0">
+        <div class="text-2xl font-extrabold {% if j.is_active %}text-emerald-400{% else %}text-slate-600{% endif %}">{{ j.applicants }}</div>
+        <div class="text-xs text-slate-500">{{ 'applicant' if j.applicants == 1 else 'applicants' }}</div>
+        {% if not j.is_active %}<div class="text-xs text-slate-500 mt-1">Closed</div>{% endif %}
+      </div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

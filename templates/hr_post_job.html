@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Post a job · TrueMatch{% endblock %}
+{% block content %}
+
+<a href="/hire" class="text-slate-400 hover:text-white text-sm">← Back to hiring</a>
+
+<h1 class="text-2xl font-extrabold tracking-tight mt-4 mb-6">Post a job</h1>
+
+{% if request.query_params.get('error') %}
+<div class="mb-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 p-3 text-sm">
+  {{ request.query_params.get('error') }}
+</div>
+{% endif %}
+
+<form method="post" action="/hire/new" class="space-y-4 max-w-3xl">
+
+  <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5 space-y-4">
+    <h2 class="font-bold">Role</h2>
+
+    <div>
+      <label class="block text-sm text-slate-400 mb-1">Job title *</label>
+      <input name="title" required minlength="4" placeholder="Senior Backend Engineer"
+             class="w-full rounded-xl bg-slate-950 border border-slate-800 focus:border-emerald-500 px-3 py-2.5 outline-none">
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm text-slate-400 mb-1">Company *</label>
+        <input name="company_name" required value="{{ profile.company_name or '' }}"
+               class="w-full rounded-xl bg-slate-950 border border-slate-800 focus:border-emerald-500 px-3 py-2.5 outline-none">
+      </div>
+      <div>
+        <label class="block text-sm text-slate-400 mb-1">Location</label>
+        <input name="location" placeholder="Lagos, Nigeria"
+               class="w-full rounded-xl bg-slate-950 border border-slate-800 focus:border-emerald-500 px-3 py-2.5 outline-none">
+      </div>
+    </div>
+
+    <label class="flex items-center gap-2 text-sm text-slate-400">
+      <input type="checkbox" name="remote" value="1" class="rounded bg-slate-950 border border-slate-700">
+      Open to remote
+    </label>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm text-slate-400 mb-1">Salary min (USD/year)</label>
+        <input name="salary_min" type="number" min="0" placeholder="60000"
+               class="w-full rounded-xl bg-slate-950 border border-slate-800 focus:border-emerald-500 px-3 py-2.5 outline-none">
+      </div>
+      <div>
+        <label class="block text-sm text-slate-400 mb-1">Salary max (USD/year)</label>
+        <input name="salary_max" type="number" min="0" placeholder="120000"
+               class="w-full rounded-xl bg-slate-950 border border-slate-800 focus:border-emerald-500 px-3 py-2.5 outline-none">
+      </div>
+    </div>
+  </div>
+
+  <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5 space-y-4">
+    <h2 class="font-bold">Details</h2>
+
+    <div>
+      <label class="block text-sm text-slate-400 mb-1">Description * (min 50 chars)</label>
+      <textarea name="description" rows="6" required minlength="50"
+                placeholder="What the role involves, the team, the mission…"
+                class="w-full rounded-xl bg-slate-950 border border-slate-800 focus:border-emerald-500 px-3 py-2.5 outline-none"></textarea>
+    </div>
+
+    <div>
+      <label class="block text-sm text-slate-400 mb-1">Requirements</label>
+      <textarea name="requirements" rows="5"
+                placeholder="Skills, experience, must-haves…"
+                class="w-full rounded-xl bg-slate-950 border border-slate-800 focus:border-emerald-500 px-3 py-2.5 outline-none"></textarea>
+    </div>
+  </div>
+
+  <div class="flex gap-3">
+    <button class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-6 py-2.5 rounded-xl">
+      Publish role
+    </button>
+    <a href="/hire" class="border border-slate-700 hover:border-slate-500 text-slate-300 px-6 py-2.5 rounded-xl">
+      Cancel
+    </a>
+  </div>
+</form>
+
+{% endblock %}
