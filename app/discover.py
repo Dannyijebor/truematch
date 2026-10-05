@@ -6,6 +6,10 @@ from app.db.models import Job, User, Profile, Company, Post
 from app.resume_parser import SKILL_DICT
 
 
+# Skills that are too short / too generic to count reliably
+SKILL_BLOCKLIST = {"c", "r", "go", "ai", "ml", "c++", "c#", ".net", "rest", "sql"}
+
+
 def top_skills_in_demand(db: Session, limit: int = 20, sample: int = 1500) -> list[dict]:
     """Scan the most recent jobs and count how often each known skill appears."""
     rows = db.execute(
@@ -15,11 +19,22 @@ def top_skills_in_demand(db: Session, limit: int = 20, sample: int = 1500) -> li
         .limit(sample)
     ).all()
 
+    # Pre-compile word-boundary regexes so "go" doesn't match "cargo"
+    compiled = []
+    for skill in SKILL_DICT:
+        if skill in SKILL_BLOCKLIST or len(skill) < 3:
+            continue
+        try:
+            pattern = re.compile(r"\b" + re.escape(skill) + r"\b", re.IGNORECASE)
+        except re.error:
+            continue
+        compiled.append((skill, pattern))
+
     counter = Counter()
-    for title, desc in rows:
-        text = ((title or "") + " " + ((desc or "")[:2500])).lower()
-        for skill in SKILL_DICT:
-            if skill in text:
+    for title, body in rows:
+        blob = ((title or "") + " " + ((body or "")[:3000]))
+        for skill, pattern in compiled:
+            if pattern.search(blob):
                 counter[skill] += 1
 
     return [{"skill": s, "count": n} for s, n in counter.most_common(limit)]
