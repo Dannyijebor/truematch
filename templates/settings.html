@@ -106,10 +106,10 @@
   {% set t = request.cookies.get('tm_theme', 'dark') %}
   <form method="post" action="/app/settings/theme" class="flex gap-2">
     <button name="theme" value="dark" class="flex-1 py-3 rounded-xl {% if t == 'dark' %}bg-emerald-500 text-slate-950 font-semibold{% else %}bg-slate-950 border border-slate-800 text-slate-300{% endif %}">
-      🌙 Dark
+      Dark
     </button>
     <button name="theme" value="light" class="flex-1 py-3 rounded-xl {% if t == 'light' %}bg-emerald-500 text-slate-950 font-semibold{% else %}bg-slate-950 border border-slate-800 text-slate-300{% endif %}">
-      ☀️ Light
+      Light
     </button>
   </form>
 </div>

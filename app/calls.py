@@ -37,6 +37,7 @@ def messages_since(db: Session, user_id, other_id, since_iso: str | None) -> lis
         "body": m.body,
         "from_me": m.from_user_id == user_id,
         "created_at": m.created_at.isoformat() if m.created_at else None,
+        "read": m.read_at is not None,
     } for m in rows]
 
 

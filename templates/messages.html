@@ -2,40 +2,94 @@
 {% block title %}Messages · TrueMatch{% endblock %}
 {% block content %}
 
-<div class="mt-2 mb-6">
-  <h1 class="text-2xl font-extrabold tracking-tight">Messages</h1>
-  {% if unread %}<p class="text-emerald-400 text-sm mt-1">{{ unread }} unread</p>{% endif %}
+<div class="mt-2 mb-6 flex items-center justify-between">
+  <div>
+    <h1 class="text-2xl font-extrabold tracking-tight">Messages</h1>
+    {% if unread %}<p class="text-emerald-400 text-sm mt-1">{{ unread }} unread</p>{% endif %}
+  </div>
+
+  <div class="relative">
+    <button onclick="toggleNewChat(event)" class="tm-btn tm-btn-primary px-4 py-2 text-sm">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="w-4 h-4">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+      New
+    </button>
+
+    <div id="new-chat-pop" class="hidden">
+      <div class="pro-popover-backdrop" onclick="closeNewChat()"></div>
+      <div class="pro-popover" onclick="event.stopPropagation()" style="min-width:280px; max-height:400px; overflow-y:auto;">
+        <div class="pro-popover-header">Start a new chat</div>
+        {% if candidates %}
+          {% for p in candidates %}
+          <a href="/messages/{{ p.user_id }}" class="theme-row" style="display:flex;">
+            {% if p.avatar_url %}
+              <img src="{{ p.avatar_url }}" class="w-8 h-8 rounded-full object-cover">
+            {% else %}
+              <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-xs font-bold text-slate-950">
+                {{ (p.name or "?")[0]|upper }}
+              </div>
+            {% endif %}
+            <div style="min-width:0; flex:1;">
+              <div style="font-weight:500; font-size:13px;" class="truncate">{{ p.name }}</div>
+              {% if p.title or p.company %}
+                <div style="font-size:11px; color:var(--muted);" class="truncate">
+                  {{ p.title or '' }}{% if p.title and p.company %} · {% endif %}{{ p.company or '' }}
+                </div>
+              {% endif %}
+            </div>
+          </a>
+          {% endfor %}
+        {% else %}
+          <div style="padding:16px; font-size:13px; color:var(--muted); text-align:center;">
+            Follow people to message them.<br><a href="/app/people" style="color:var(--accent);">Find people →</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
 </div>
 
 {% if not convos %}
-<div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-8 text-center text-slate-400">
-  No messages yet. Open someone's profile and tap <b>Message</b> to start a conversation.
+<div class="tm-card p-8 text-center text-slate-400">
+  No conversations yet. Tap <b>New</b> to message someone.
 </div>
 {% else %}
-<div class="divide-y divide-slate-800 rounded-2xl border border-slate-800 bg-slate-900/40 overflow-hidden">
+<div class="divide-y divide-slate-800 rounded-2xl border border-slate-800 bg-slate-900/40 overflow-hidden stagger">
   {% for c in convos %}
-  <a href="/messages/{{ c.other_user_id }}" class="flex items-center gap-3 p-4 hover:bg-slate-900/70">
-    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center font-bold text-slate-950 shrink-0">
-      {{ (c.name or "?")[0]|upper }}
-    </div>
+  <a href="/messages/{{ c.other_user_id }}" class="flex items-center gap-3 p-4 hover:bg-slate-900/70 transition-colors">
+    {% if c.avatar_url %}
+      <img src="{{ c.avatar_url }}" class="w-11 h-11 rounded-full object-cover shrink-0 ring-1 ring-slate-700/50">
+    {% else %}
+      <div class="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center font-semibold text-slate-950 shrink-0 text-sm ring-1 ring-slate-700/50">
+        {{ (c.name or "?")[0]|upper }}
+      </div>
+    {% endif %}
     <div class="min-w-0 flex-1">
       <div class="flex items-center gap-2">
-        <span class="font-semibold truncate">{{ c.name }}</span>
+        <span class="font-semibold truncate text-[14px]">{{ c.name }}</span>
         {% if c.unread %}
-          <span class="text-xs bg-emerald-500 text-slate-950 font-bold rounded-full px-2 py-0.5">{{ c.unread }}</span>
+          <span class="text-[10px] bg-emerald-500 text-slate-950 font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center">{{ c.unread }}</span>
         {% endif %}
+        <span class="ml-auto text-[11px] text-slate-600 shrink-0">{{ c.last_at[11:16] if c.last_at else '' }}</span>
       </div>
-      {% if c.title or c.company %}
-        <div class="text-xs text-slate-500 truncate">{{ c.title or '' }}{% if c.title and c.company %} · {% endif %}{{ c.company or '' }}</div>
-      {% endif %}
-      <div class="text-sm text-slate-400 truncate mt-0.5">
+      <div class="text-[13px] text-slate-400 truncate mt-0.5">
         {% if c.last_from_me %}<span class="text-slate-500">You: </span>{% endif %}{{ c.last_body }}
       </div>
     </div>
-    <div class="text-xs text-slate-600 shrink-0">{{ c.last_at[:10] if c.last_at else '' }}</div>
   </a>
   {% endfor %}
 </div>
 {% endif %}
+
+<script>
+function toggleNewChat(e) {
+  e.stopPropagation();
+  document.getElementById('new-chat-pop').classList.toggle('hidden');
+}
+function closeNewChat() {
+  document.getElementById('new-chat-pop').classList.add('hidden');
+}
+</script>
 
 {% endblock %}

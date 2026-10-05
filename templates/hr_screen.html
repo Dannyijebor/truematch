@@ -67,11 +67,11 @@
 <div class="mt-6 flex flex-wrap gap-3">
   <form method="post" action="/hire/applications/{{ app_id }}/status">
     <input type="hidden" name="status" value="shortlisted">
-    <button class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-5 py-2.5 rounded-xl">✓ Shortlist</button>
+    <button class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-5 py-2.5 rounded-xl">Shortlist</button>
   </form>
   <form method="post" action="/hire/applications/{{ app_id }}/status">
     <input type="hidden" name="status" value="interviewing">
-    <button class="border border-slate-700 hover:border-slate-500 text-slate-200 px-5 py-2.5 rounded-xl">📅 Move to interview</button>
+    <button class="border border-slate-700 hover:border-slate-500 text-slate-200 px-5 py-2.5 rounded-xl">Move to interview</button>
   </form>
   <form method="post" action="/hire/applications/{{ app_id }}/status">
     <input type="hidden" name="status" value="rejected">

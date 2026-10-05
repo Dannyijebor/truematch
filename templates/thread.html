@@ -166,7 +166,190 @@
   }
   .theme-swatch span { width: 9px; height: 22px; display: block; }
   .theme-check { margin-left: auto; color: #10b981; opacity: 0; }
+
+  /* Read receipts */
+  .tick[data-read="0"] { color: rgba(255,255,255,0.4); }
+  .chat-mine .tick[data-read="0"] { color: rgba(0,0,0,0.35); }
+  .tick[data-read="1"] { color: #60a5fa !important; }
+
+  /* Swipe-to-reply visual */
+  .msg-bubble { touch-action: pan-y; position: relative; transition: transform 0.15s ease; }
+  .msg-bubble.swiping { transition: none; }
+  .msg-bubble.reply-quote::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    border-radius: 2px;
+    background: currentColor;
+    opacity: 0.5;
+  }
+
+  /* Long-press menu */
+  .msg-menu {
+    position: fixed;
+    z-index: 80;
+    background: var(--surface-2);
+    border: 1px solid var(--border-2);
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 20px 60px -20px rgba(0,0,0,0.6);
+    animation: tm-msg-in 0.16s cubic-bezier(0.16, 1, 0.3, 1) both;
+    min-width: 170px;
+  }
+  .msg-menu button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-2);
+    text-align: left;
+  }
+  .msg-menu button:hover { background: var(--surface-3); }
+  .msg-menu button.danger { color: #f87171; }
+
+  /* Reply preview bar */
+  #reply-bar {
+    display: none;
+    padding: 8px 12px;
+    border-left: 3px solid var(--accent);
+    background: var(--surface);
+    border-radius: 8px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: var(--text-2);
+  }
+  #reply-bar.active { display: block; }
+  #reply-bar .cancel { float: right; color: var(--muted); cursor: pointer; }
+
   .theme-row.selected .theme-check { opacity: 1; }
+
+  /* Read receipts */
+  .tick[data-read="0"] { color: rgba(255,255,255,0.4); }
+  .chat-mine .tick[data-read="0"] { color: rgba(0,0,0,0.35); }
+  .tick[data-read="1"] { color: #60a5fa !important; }
+
+  /* Swipe-to-reply visual */
+  .msg-bubble { touch-action: pan-y; position: relative; transition: transform 0.15s ease; }
+  .msg-bubble.swiping { transition: none; }
+  .msg-bubble.reply-quote::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    border-radius: 2px;
+    background: currentColor;
+    opacity: 0.5;
+  }
+
+  /* Long-press menu */
+  .msg-menu {
+    position: fixed;
+    z-index: 80;
+    background: var(--surface-2);
+    border: 1px solid var(--border-2);
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 20px 60px -20px rgba(0,0,0,0.6);
+    animation: tm-msg-in 0.16s cubic-bezier(0.16, 1, 0.3, 1) both;
+    min-width: 170px;
+  }
+  .msg-menu button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-2);
+    text-align: left;
+  }
+  .msg-menu button:hover { background: var(--surface-3); }
+  .msg-menu button.danger { color: #f87171; }
+
+  /* Reply preview bar */
+  #reply-bar {
+    display: none;
+    padding: 8px 12px;
+    border-left: 3px solid var(--accent);
+    background: var(--surface);
+    border-radius: 8px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: var(--text-2);
+  }
+  #reply-bar.active { display: block; }
+  #reply-bar .cancel { float: right; color: var(--muted); cursor: pointer; }
+
+
+  /* Read receipts */
+  .tick[data-read="0"] { color: rgba(255,255,255,0.4); }
+  .chat-mine .tick[data-read="0"] { color: rgba(0,0,0,0.35); }
+  .tick[data-read="1"] { color: #60a5fa !important; }
+
+  /* Swipe-to-reply visual */
+  .msg-bubble { touch-action: pan-y; position: relative; transition: transform 0.15s ease; }
+  .msg-bubble.swiping { transition: none; }
+  .msg-bubble.reply-quote::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    border-radius: 2px;
+    background: currentColor;
+    opacity: 0.5;
+  }
+
+  /* Long-press menu */
+  .msg-menu {
+    position: fixed;
+    z-index: 80;
+    background: var(--surface-2);
+    border: 1px solid var(--border-2);
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 20px 60px -20px rgba(0,0,0,0.6);
+    animation: tm-msg-in 0.16s cubic-bezier(0.16, 1, 0.3, 1) both;
+    min-width: 170px;
+  }
+  .msg-menu button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-2);
+    text-align: left;
+  }
+  .msg-menu button:hover { background: var(--surface-3); }
+  .msg-menu button.danger { color: #f87171; }
+
+  /* Reply preview bar */
+  #reply-bar {
+    display: none;
+    padding: 8px 12px;
+    border-left: 3px solid var(--accent);
+    background: var(--surface);
+    border-radius: 8px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: var(--text-2);
+  }
+  #reply-bar.active { display: block; }
+  #reply-bar .cancel { float: right; color: var(--muted); cursor: pointer; }
+
 </style>
 
 <!-- ================= Header ================= -->
@@ -285,10 +468,23 @@
      class="chat-shell theme-{{ chat_theme }} rounded-2xl border border-slate-800/70 mt-3 p-5 space-y-1.5 h-[calc(100vh-320px)] md:h-[calc(100vh-340px)] overflow-y-auto shadow-2xl shadow-black/20">
   {% for m in msgs %}
     <div class="flex {% if m.from_me %}justify-end{% else %}justify-start{% endif %}" data-msg-id="{{ m.id }}">
-      <div class="max-w-[78%] rounded-2xl px-4 py-2.5 text-[13.5px] leading-relaxed msg-enter shadow-sm {% if m.from_me %}chat-mine{% else %}chat-them{% endif %}"
-           style="border-radius: 16px;">
-        <div class="whitespace-pre-line">{{ m.body }}</div>
-        <div class="text-[10px] mt-1.5 opacity-50 tracking-wider">{{ m.created_at[11:16] }}</div>
+      <div class="msg-bubble max-w-[78%] rounded-2xl px-4 py-2.5 text-[13.5px] leading-relaxed msg-enter shadow-sm {% if m.from_me %}chat-mine{% else %}chat-them{% endif %}"
+           style="border-radius: 16px;" data-mine="{{ '1' if m.from_me else '0' }}" data-body="{{ m.body|e }}">
+        <div class="whitespace-pre-line msg-text">{{ m.body }}</div>
+        <div class="text-[10px] mt-1.5 opacity-50 tracking-wider flex items-center gap-1.5 {% if m.from_me %}justify-end{% endif %}">
+          <span>{{ m.created_at[11:16] }}</span>
+          {% if m.from_me %}
+            <span class="tick" data-read="{{ '1' if m.read else '0' }}" style="font-size:11px; line-height:1; letter-spacing:-3px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="w-3 h-3 inline-block tick-icon">
+                <path d="M1 12l4 4L13 8"/>
+              </svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="w-3 h-3 inline-block tick-icon -ml-1.5">
+                <path d="M1 12l4 4L13 8"/>
+                <path d="M9 12l4 4L21 8"/>
+              </svg>
+            </span>
+          {% endif %}
+        </div>
       </div>
     </div>
   {% endfor %}

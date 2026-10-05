@@ -21,12 +21,12 @@
   </a>
   <form method="post" action="/app/resume/tailor/{{ job.id }}">
     <button class="bg-indigo-500 hover:bg-indigo-400 text-white font-semibold px-5 py-2.5 rounded-xl">
-      🎯 Tailor my resume for this job
+      Tailor resume for this job
     </button>
   </form>
   <a href="/app/resume/download-tailored/{{ job.id }}"
      class="border border-slate-700 hover:border-slate-500 text-slate-200 px-5 py-2.5 rounded-xl">
-    ⬇ Tailored DOCX
+    Download tailored
   </a>
   <form method="post" action="/app/job/{{ job.id }}/mark_applied">
     <button class="border border-slate-700 hover:border-slate-500 text-slate-200 px-5 py-2.5 rounded-xl">
@@ -42,7 +42,7 @@
 <!-- Tailored bullets -->
 <div class="mt-8 rounded-2xl border border-slate-800 bg-slate-900/40 p-5" x-data="{ copied: false }">
   <div class="flex items-center justify-between mb-3">
-    <h2 class="font-bold">✨ Tailored resume bullets</h2>
+    <h2 class="font-bold">Tailored resume bullets</h2>
     <button @click="navigator.clipboard.writeText($refs.bullets.innerText); copied = true; setTimeout(() => copied = false, 2000)"
             class="text-sm px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold">
       <span x-show="!copied">📋 Copy</span>
@@ -59,7 +59,7 @@
 <!-- Cover letter -->
 <div class="mt-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-5" x-data="{ copied: false }">
   <div class="flex items-center justify-between mb-3">
-    <h2 class="font-bold">✉️ Cover letter</h2>
+    <h2 class="font-bold">Cover letter</h2>
     <button @click="navigator.clipboard.writeText($refs.cover.innerText); copied = true; setTimeout(() => copied = false, 2000)"
             class="text-sm px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold">
       <span x-show="!copied">📋 Copy</span>
@@ -72,7 +72,7 @@
 <!-- Screening answers -->
 {% if packet.screening_answers %}
 <div class="mt-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
-  <h2 class="font-bold mb-3">📝 Screening answers</h2>
+  <h2 class="font-bold mb-3">Screening answers</h2>
   <dl class="space-y-4">
     {% for k, v in packet.screening_answers.items() %}
       <div x-data="{ copied: false }">
@@ -93,7 +93,7 @@
 
 {% if packet.gaps %}
 <div class="mt-4 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5">
-  <h2 class="font-bold mb-2 text-amber-300">⚠️ Gaps to know about</h2>
+  <h2 class="font-bold mb-2 text-amber-300">Gaps to know about</h2>
   <p class="text-slate-300 text-sm">{{ packet.gaps|join(', ') }}</p>
 </div>
 {% endif %}

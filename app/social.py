@@ -208,6 +208,7 @@ def inbox(db: Session, user_id) -> list[dict]:
             "username": other_profile.username if other_profile else None,
             "title": other_profile.title if other_profile else None,
             "company": other_profile.company_name if other_profile else None,
+            "avatar_url": other_profile.avatar_url if other_profile else None,
             "last_body": (last.body[:80] + "…") if last and len(last.body) > 80 else (last.body if last else ""),
             "last_at": last.created_at.isoformat() if last else None,
             "last_from_me": (last.from_user_id == user_id) if last else False,
@@ -246,6 +247,7 @@ def thread(db: Session, user_id, other_id, limit: int = 200) -> list[dict]:
         "body": m.body,
         "from_me": m.from_user_id == user_id,
         "created_at": m.created_at.isoformat() if m.created_at else None,
+        "read": m.read_at is not None,
     } for m in rows]
 
 

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Notifications · TrueMatch{% endblock %}
+{% block content %}
+
+<div class="mt-2 mb-6">
+  <h1 class="text-2xl font-extrabold tracking-tight">Notifications</h1>
+</div>
+
+{% if not items %}
+<div class="tm-card p-8 text-center text-slate-400">
+  You're all caught up.
+</div>
+{% else %}
+<div class="divide-y divide-slate-800 rounded-2xl border border-slate-800 bg-slate-900/40 overflow-hidden stagger">
+  {% for n in items %}
+  <a href="{{ n.link or '#' }}" class="block p-4 hover:bg-slate-900/70 transition-colors">
+    <div class="flex items-start gap-3">
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0
+        {% if n.kind == 'message' %}bg-blue-500/15 text-blue-400
+        {% elif n.kind == 'call' %}bg-emerald-500/15 text-emerald-400
+        {% elif n.kind == 'job' %}bg-emerald-500/15 text-emerald-400
+        {% elif n.kind == 'application' %}bg-amber-500/15 text-amber-400
+        {% elif n.kind == 'follow' %}bg-violet-500/15 text-violet-400
+        {% else %}bg-slate-700/40 text-slate-400{% endif %}">
+        {% if n.kind == 'message' %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        {% elif n.kind == 'call' %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13 1.05.37 2.07.7 3.06a2 2 0 0 1-.45 2.11L8.09 10.91a16 16 0 0 0 6 6l2.02-2.02a2 2 0 0 1 2.11-.45c.99.33 2.01.57 3.06.7A2 2 0 0 1 22 16.92z"/></svg>
+        {% elif n.kind == 'follow' %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
+        {% else %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><circle cx="12" cy="12" r="3"/></svg>
+        {% endif %}
+      </div>
+      <div class="min-w-0 flex-1">
+        <div class="font-medium text-[14px] {% if not n.read %}text-white{% else %}text-slate-300{% endif %}">{{ n.title }}</div>
+        {% if n.body %}<div class="text-slate-400 text-sm mt-0.5 line-clamp-2">{{ n.body }}</div>{% endif %}
+        <div class="text-slate-600 text-xs mt-1">{{ n.created_at[:16].replace('T',' ') }}</div>
+      </div>
+      {% if not n.read %}
+        <div class="w-2 h-2 rounded-full bg-emerald-400 shrink-0 mt-2"></div>
+      {% endif %}
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

@@ -733,12 +733,29 @@ def messages_inbox(request: Request, db: Session = Depends(get_db)):
     if not user:
         return RedirectResponse("/login?next=/messages", status_code=302)
 
-    from app.social import inbox, unread_messages_count
+    from app.social import inbox, unread_messages_count, display_name
+    from app.db.models import Follow, User as _U, Profile as _P
     convos = inbox(db, user.id)
     unread = unread_messages_count(db, user.id)
 
+    # candidates for new chat: people I follow + recent posters
+    following_ids = [r.following_id for r in db.execute(select(Follow).where(Follow.follower_id == user.id)).scalars()]
+    candidates = []
+    if following_ids:
+        rows = db.execute(
+            select(_U, _P).join(_P, _P.user_id == _U.id, isouter=True).where(_U.id.in_(following_ids)).limit(30)
+        ).all()
+        for u, p in rows:
+            candidates.append({
+                "user_id": str(u.id),
+                "name": display_name(u, p),
+                "title": p.title if p else None,
+                "company": p.company_name if p else None,
+                "avatar_url": p.avatar_url if p else None,
+            })
+
     return templates.TemplateResponse(request, "messages.html", _ctx(
-        request, user=user, convos=convos, unread=unread,
+        request, db=db, user=user, convos=convos, unread=unread, candidates=candidates,
     ))
 
 
@@ -783,26 +800,51 @@ def message_thread(other_id: str, request: Request, db: Session = Depends(get_db
 
 @router.post("/messages/{other_id}")
 async def send_dm(other_id: str, request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
     user = current_user_web(request, db)
     if not user:
-        return RedirectResponse("/login", status_code=302)
+        return JSONResponse({"ok": False, "error": "auth"}, status_code=401)
 
     from uuid import UUID
     try:
         other_uuid = UUID(other_id)
     except ValueError:
-        raise HTTPException(404, "invalid user id")
+        return JSONResponse({"ok": False, "error": "bad id"}, status_code=400)
 
     form = await request.form()
     body = (form.get("body") or "").strip()
-    if body:
-        from app.social import send_message
-        try:
-            send_message(db, user.id, other_uuid, body)
-        except Exception as e:
-            print("dm send error:", e)
+    if not body:
+        return JSONResponse({"ok": False, "error": "empty"}, status_code=400)
 
-    return RedirectResponse(f"/messages/{other_id}", status_code=302)
+    from app.social import send_message
+    try:
+        msg = send_message(db, user.id, other_uuid, body)
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=400)
+
+    # Create a notification for the recipient
+    try:
+        from app.notify_inapp import create_notification
+        sender = db.get(User, user.id)
+        sender_name = sender.full_name or (sender.email.split("@")[0]) if sender else "Someone"
+        create_notification(
+            db, user_id=other_uuid, kind="message",
+            title=f"New message from {sender_name}",
+            body=body[:120],
+            link=f"/messages/{user.id}",
+        )
+    except Exception as e:
+        print("notify error:", e)
+
+    return JSONResponse({
+        "ok": True,
+        "message": {
+            "id": str(msg.id),
+            "body": msg.body,
+            "from_me": True,
+            "created_at": msg.created_at.isoformat() if msg.created_at else None,
+        }
+    })
 
 
 # ---------- settings / profile / avatar ----------
@@ -1122,3 +1164,24 @@ async def api_save_chat_theme(request: Request, db: Session = Depends(get_db)):
     db.add(profile)
     db.commit()
     return JSONResponse({"ok": True, "theme": t})
+
+
+@router.get("/notifications", response_class=HTMLResponse)
+def notifications_page(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login?next=/notifications", status_code=302)
+
+    from app.notify_inapp import list_notifications, mark_all_read
+    items = list_notifications(db, user.id, limit=100)
+    mark_all_read(db, user.id)
+
+    return templates.TemplateResponse(request, "notifications.html", _ctx(
+        request, db=db, user=user, items=items,
+    ))
+
+
+@router.get("/api/notifications/unread")
+def api_notifications_unread(user: User = Depends(current_user), db: Session = Depends(get_db)):
+    from app.notify_inapp import unread_count
+    return {"unread": unread_count(db, user.id)}
