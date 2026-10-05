@@ -57,9 +57,15 @@
   {% for p in posts %}
   <article class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
     <header class="flex items-start gap-3">
-      <div class="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center font-bold text-slate-950 shrink-0">
-        {{ (p.author.name or "?")[0]|upper }}
-      </div>
+      {% if p.author.username %}<a href="/u/{{ p.author.username }}">{% endif %}
+      {% if p.author.avatar_url %}
+        <img src="{{ p.author.avatar_url }}" alt="" class="w-9 h-9 rounded-full object-cover shrink-0 border border-slate-700">
+      {% else %}
+        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center font-bold text-slate-950 shrink-0">
+          {{ (p.author.name or "?")[0]|upper }}
+        </div>
+      {% endif %}
+      {% if p.author.username %}</a>{% endif %}
       <div class="min-w-0 flex-1">
         <div class="flex items-center gap-2 flex-wrap">
           {% if p.author.username %}

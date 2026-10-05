@@ -66,7 +66,8 @@ class Profile(Base):
     bio: Mapped[str | None] = mapped_column(Text, nullable=True)
     title: Mapped[str | None] = mapped_column(String, nullable=True)
     company_name: Mapped[str | None] = mapped_column(String, nullable=True)
-    avatar_url: Mapped[str | None] = mapped_column(String, nullable=True)
+    avatar_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    theme: Mapped[str] = mapped_column(String, default="dark")
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 

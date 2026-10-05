@@ -27,8 +27,23 @@ def current_user_web(request: Request, db: Session) -> User | None:
 
 
 def _ctx(request, **extra):
-    base = {"request": request, "user": None}
+    from app.db.models import Profile, User as _User
+    base = {"request": request, "user": None, "user_profile": None}
     base.update(extra)
+
+    if base.get("user"):
+        # ensure profile exists so hamburger menu can render avatar
+        from app.db.session import SessionLocal
+        db = SessionLocal()
+        try:
+            p = db.get(Profile, base["user"].id)
+            if not p:
+                p = Profile(user_id=base["user"].id)
+                db.add(p); db.commit(); db.refresh(p)
+            base["user_profile"] = p
+        finally:
+            db.close()
+
     return base
 
 
@@ -778,3 +793,115 @@ async def send_dm(other_id: str, request: Request, db: Session = Depends(get_db)
             print("dm send error:", e)
 
     return RedirectResponse(f"/messages/{other_id}", status_code=302)
+
+
+# ---------- settings / profile / avatar ----------
+@router.get("/settings", response_class=HTMLResponse)
+def settings_page(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login?next=/settings", status_code=302)
+
+    profile = db.get(Profile, user.id) or Profile(user_id=user.id)
+    return templates.TemplateResponse(request, "settings.html", _ctx(
+        request, user=user, profile=profile,
+    ))
+
+
+@router.post("/app/settings/profile")
+async def save_settings_profile(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    form = await request.form()
+    profile = db.get(Profile, user.id) or Profile(user_id=user.id)
+
+    # Username — lowercase, alphanumeric + underscore only
+    raw_username = (form.get("username") or "").strip().lower()
+    if raw_username:
+        import re
+        if not re.match(r"^[a-z0-9_]{3,30}$", raw_username):
+            return RedirectResponse("/settings?error=username-format", status_code=302)
+        # Check uniqueness
+        existing = db.query(Profile).filter(Profile.username == raw_username, Profile.user_id != user.id).first()
+        if existing:
+            return RedirectResponse("/settings?error=username-taken", status_code=302)
+        profile.username = raw_username
+
+    profile.bio = (form.get("bio") or "").strip() or None
+    profile.title = (form.get("title") or "").strip() or None
+    profile.company_name = (form.get("company_name") or "").strip() or None
+    profile.headline = (form.get("headline") or "").strip() or None
+    profile.location = (form.get("location") or "").strip() or None
+
+    db.add(profile)
+    db.commit()
+    return RedirectResponse("/settings?saved=profile", status_code=302)
+
+
+@router.post("/app/settings/avatar")
+async def save_avatar(request: Request, db: Session = Depends(get_db)):
+    import base64
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    form = await request.form()
+    file = form.get("avatar")
+    if not file or not file.filename:
+        return RedirectResponse("/settings?error=no-file", status_code=302)
+
+    data = await file.read()
+    if len(data) > 500 * 1024:
+        return RedirectResponse("/settings?error=too-large", status_code=302)
+
+    # Detect mime
+    mime = "image/jpeg"
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        mime = "image/png"
+    elif data[:6] in (b"GIF87a", b"GIF89a"):
+        mime = "image/gif"
+    elif data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        mime = "image/webp"
+
+    b64 = base64.b64encode(data).decode()
+    data_url = f"data:{mime};base64,{b64}"
+
+    profile = db.get(Profile, user.id) or Profile(user_id=user.id)
+    profile.avatar_url = data_url
+    db.add(profile)
+    db.commit()
+    return RedirectResponse("/settings?saved=avatar", status_code=302)
+
+
+@router.post("/app/settings/avatar/remove")
+def remove_avatar(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+    profile = db.get(Profile, user.id)
+    if profile:
+        profile.avatar_url = None
+        db.commit()
+    return RedirectResponse("/settings?saved=avatar-removed", status_code=302)
+
+
+@router.post("/app/settings/theme")
+async def save_theme(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    form = await request.form()
+    theme = (form.get("theme") or "dark").strip()
+    if theme not in ("dark", "light", "system"):
+        theme = "dark"
+
+    resp = RedirectResponse(request.headers.get("referer", "/settings"), status_code=302)
+    resp.set_cookie("tm_theme", theme, max_age=60 * 60 * 24 * 365, httponly=False, samesite="lax")
+
+    if user:
+        profile = db.get(Profile, user.id)
+        if profile:
+            profile.theme = theme
+            db.commit()
+
+    return resp
