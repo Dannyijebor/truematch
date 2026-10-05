@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}People · TrueMatch{% endblock %}
+{% block content %}
+
+<div class="flex items-center justify-between mt-2 mb-6">
+  <h1 class="text-2xl font-extrabold tracking-tight">People</h1>
+  <div class="flex items-center gap-2">
+    <a href="/feed" class="text-sm px-3 py-2 rounded-xl border border-slate-700 text-slate-300">Feed</a>
+    <a href="/discover" class="text-sm px-3 py-2 rounded-xl border border-slate-700 text-slate-300">Discover</a>
+    <a href="/app/people" class="text-sm px-3 py-2 rounded-xl bg-emerald-500 text-slate-950 font-semibold">People</a>
+  </div>
+</div>
+
+<form method="get" action="/app/people" class="mb-6">
+  <div class="flex gap-2">
+    <input name="q" type="text" value="{{ q }}" placeholder="Search by name, username, title, or headline"
+           class="flex-1 rounded-xl bg-slate-950 border border-slate-800 focus:border-emerald-500 px-4 py-2.5 outline-none">
+    <button class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-5 py-2.5 rounded-xl">Search</button>
+  </div>
+</form>
+
+{% if not people %}
+<div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-8 text-center text-slate-400">
+  {% if q %}No one matches "{{ q }}".{% else %}No other users yet.{% endif %}
+</div>
+{% else %}
+<div class="grid md:grid-cols-2 gap-3">
+  {% for p in people %}
+  <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 flex items-start gap-3">
+    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center font-bold text-slate-950 shrink-0">
+      {{ (p.name or "?")[0]|upper }}
+    </div>
+    <div class="min-w-0 flex-1">
+      {% if p.username %}
+        <a href="/u/{{ p.username }}" class="font-semibold hover:underline truncate block">{{ p.name }}</a>
+      {% else %}
+        <div class="font-semibold truncate">{{ p.name }}</div>
+      {% endif %}
+      {% if p.title or p.company %}
+        <div class="text-xs text-slate-500 truncate">
+          {{ p.title or '' }}{% if p.title and p.company %} · {% endif %}{{ p.company or '' }}
+        </div>
+      {% endif %}
+      {% if p.bio %}
+        <div class="text-xs text-slate-400 mt-1 line-clamp-2">{{ p.bio[:120] }}</div>
+      {% endif %}
+      <div class="mt-2">
+        {% if p.following %}
+          <form method="post" action="/app/unfollow/{{ p.user_id }}">
+            <button class="text-xs border border-slate-700 hover:border-slate-500 text-slate-300 px-3 py-1.5 rounded-lg">Following</button>
+          </form>
+        {% else %}
+          <form method="post" action="/app/follow/{{ p.user_id }}">
+            <button class="text-xs bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-3 py-1.5 rounded-lg">Follow</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

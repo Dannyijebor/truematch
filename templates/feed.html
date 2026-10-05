@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Feed · TrueMatch{% endblock %}
+{% block content %}
+
+<div class="flex items-center justify-between mt-2 mb-6">
+  <h1 class="text-2xl font-extrabold tracking-tight">
+    {% if discover %}Discover{% else %}Your Feed{% endif %}
+  </h1>
+  <div class="flex items-center gap-2">
+    <a href="/feed" class="text-sm px-3 py-2 rounded-xl {% if not discover %}bg-emerald-500 text-slate-950 font-semibold{% else %}border border-slate-700 text-slate-300{% endif %}">Feed</a>
+    <a href="/discover" class="text-sm px-3 py-2 rounded-xl {% if discover %}bg-emerald-500 text-slate-950 font-semibold{% else %}border border-slate-700 text-slate-300{% endif %}">Discover</a>
+    <a href="/app/people" class="text-sm px-3 py-2 rounded-xl border border-slate-700 text-slate-300">People</a>
+  </div>
+</div>
+
+<!-- Composer -->
+<form method="post" action="/app/post" class="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 mb-6">
+  <textarea name="body" rows="3" maxlength="3000" required
+            placeholder="Share something — a win, a question, a lesson…"
+            class="w-full rounded-xl bg-slate-950 border border-slate-800 focus:border-emerald-500 px-3 py-2 text-sm outline-none"></textarea>
+  <div class="mt-3 flex items-center gap-2">
+    <input name="link_url" type="url" placeholder="Optional link URL"
+           class="flex-1 text-xs rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 outline-none">
+    <button class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-4 py-2 rounded-xl text-sm">
+      Post
+    </button>
+  </div>
+</form>
+
+{% if suggestions %}
+<div class="mb-6">
+  <h2 class="text-sm uppercase tracking-wider text-slate-500 mb-2">Suggested people to follow</h2>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+    {% for s in suggestions %}
+    <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-3">
+      <div class="font-semibold text-sm truncate">{{ s.name }}</div>
+      <div class="text-xs text-slate-500 truncate">
+        {{ s.title or '' }}{% if s.title and s.company %} · {% endif %}{{ s.company or '' }}
+      </div>
+      <form method="post" action="/app/follow/{{ s.user_id }}" class="mt-2">
+        <button class="w-full text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg">
+          Follow
+        </button>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Posts -->
+{% if not posts %}
+<div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-8 text-center text-slate-400">
+  {% if discover %}
+    No posts yet. Be the first to write one.
+  {% else %}
+    Your feed is empty. Follow some people, or <a href="/discover" class="text-emerald-400 hover:underline">discover posts</a>.
+  {% endif %}
+</div>
+{% else %}
+<div class="space-y-3">
+  {% for p in posts %}
+  <article class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+    <header class="flex items-start gap-3">
+      <div class="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center font-bold text-slate-950 shrink-0">
+        {{ (p.author.name or "?")[0]|upper }}
+      </div>
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-2 flex-wrap">
+          {% if p.author.username %}
+            <a href="/u/{{ p.author.username }}" class="font-semibold hover:underline truncate">{{ p.author.name }}</a>
+          {% else %}
+            <span class="font-semibold truncate">{{ p.author.name }}</span>
+          {% endif %}
+          {% if p.author.title or p.author.company %}
+            <span class="text-slate-500 text-xs truncate">
+              {% if p.author.title %}· {{ p.author.title }}{% endif %}
+              {% if p.author.company %}· {{ p.author.company }}{% endif %}
+            </span>
+          {% endif %}
+          <span class="text-slate-600 text-xs">· {{ p.created_at[:16].replace('T',' ') }}</span>
+        </div>
+        <p class="mt-2 text-slate-200 whitespace-pre-line text-sm leading-relaxed">{{ p.body }}</p>
+        {% if p.link_url %}
+          <a href="{{ p.link_url }}" target="_blank" rel="noopener" class="mt-2 inline-block text-emerald-400 hover:underline text-xs truncate max-w-full">{{ p.link_url }}</a>
+        {% endif %}
+        <div class="mt-3 flex items-center gap-4 text-sm">
+          <button onclick="toggleLike('{{ p.id }}', this)" data-liked="{{ '1' if p.liked else '0' }}"
+                  class="flex items-center gap-1 {% if p.liked %}text-emerald-400{% else %}text-slate-500 hover:text-slate-300{% endif %}">
+            <span class="like-icon">{{ '♥' if p.liked else '♡' }}</span>
+            <span class="like-count">{{ p.likes }}</span>
+          </button>
+        </div>
+      </div>
+    </header>
+  </article>
+  {% endfor %}
+</div>
+{% endif %}
+
+<script>
+async function toggleLike(id, btn) {
+  const r = await fetch('/api/posts/' + id + '/like', {method: 'POST', credentials: 'same-origin'});
+  if (!r.ok) return;
+  const data = await r.json();
+  if (data.ok) {
+    btn.querySelector('.like-count').textContent = data.likes;
+    btn.querySelector('.like-icon').textContent = data.liked ? '♥' : '♡';
+    btn.dataset.liked = data.liked ? '1' : '0';
+    btn.classList.toggle('text-emerald-400', data.liked);
+    btn.classList.toggle('text-slate-500', !data.liked);
+  }
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}{{ target.name }} · TrueMatch{% endblock %}
+{% block content %}
+
+<div class="mt-2 flex items-start gap-4">
+  <div class="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-2xl font-bold text-slate-950 shrink-0">
+    {{ (target.name or "?")[0]|upper }}
+  </div>
+  <div class="flex-1 min-w-0">
+    <h1 class="text-2xl font-extrabold tracking-tight truncate">{{ target.name }}</h1>
+    {% if target.title or target.company %}
+      <p class="text-slate-400 text-sm">
+        {{ target.title or '' }}{% if target.title and target.company %} · {% endif %}{{ target.company or '' }}
+      </p>
+    {% endif %}
+    <p class="text-slate-500 text-xs mt-1">
+      <span>{{ followers }} followers</span> · <span>{{ following }} following</span>
+    </p>
+  </div>
+  <div class="shrink-0">
+    {% if is_me %}
+      <a href="/app/resume" class="text-sm bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-xl">Edit profile</a>
+    {% elif user %}
+      {% if is_following %}
+        <form method="post" action="/app/unfollow/{{ target.user_id }}">
+          <button class="text-sm border border-slate-700 hover:border-slate-500 px-3 py-2 rounded-xl">Following</button>
+        </form>
+      {% else %}
+        <form method="post" action="/app/follow/{{ target.user_id }}">
+          <button class="text-sm bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-3 py-2 rounded-xl">Follow</button>
+        </form>
+      {% endif %}
+    {% else %}
+      <a href="/signup" class="text-sm bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-3 py-2 rounded-xl">Join TrueMatch</a>
+    {% endif %}
+  </div>
+</div>
+
+{% if target.bio %}
+<div class="mt-4 text-slate-300 text-sm whitespace-pre-line">{{ target.bio }}</div>
+{% endif %}
+
+{% if target.skills %}
+<div class="mt-4 flex flex-wrap gap-1.5">
+  {% for s in target.skills[:20] %}
+    <span class="text-xs bg-slate-800 text-slate-300 border border-slate-700 rounded-full px-2.5 py-0.5">{{ s }}</span>
+  {% endfor %}
+</div>
+{% endif %}
+
+<h2 class="text-sm uppercase tracking-wider text-slate-500 mt-8 mb-3">Posts ({{ posts|length }})</h2>
+
+{% if not posts %}
+<div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 text-center text-slate-400 text-sm">
+  No posts yet.
+</div>
+{% else %}
+<div class="space-y-3">
+  {% for p in posts %}
+  <article class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+    <p class="text-slate-200 whitespace-pre-line text-sm leading-relaxed">{{ p.body }}</p>
+    {% if p.link_url %}
+      <a href="{{ p.link_url }}" target="_blank" rel="noopener" class="mt-2 inline-block text-emerald-400 hover:underline text-xs">{{ p.link_url }}</a>
+    {% endif %}
+    <div class="mt-3 text-xs text-slate-500">{{ p.created_at[:16].replace('T',' ') }} · ♥ {{ p.likes }}</div>
+  </article>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

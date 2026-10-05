@@ -504,3 +504,203 @@ def resume_download_tailored(job_id: str, request: Request, db: Session = Depend
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         headers={"Content-Disposition": f'attachment; filename="{name}_{company}_tailored.docx"'},
     )
+
+
+# ---------- social ----------
+def _require_user(request, db):
+    user = current_user_web(request, db)
+    if not user:
+        return None, RedirectResponse("/login", status_code=302)
+    return user, None
+
+
+@router.get("/feed", response_class=HTMLResponse)
+def feed_page(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login?next=/feed", status_code=302)
+
+    from app.social import feed_for, display_name
+    from app.db.models import Follow
+
+    posts = feed_for(db, user.id, limit=50)
+    following_ids = [r.following_id for r in db.execute(select(Follow).where(Follow.follower_id == user.id)).scalars()]
+    profile = db.get(Profile, user.id)
+
+    # Suggested people (not followed, not self, limit 8)
+    from app.social import search_people
+    suggestions = []
+    if not following_ids:
+        # cold start — suggest 8 recent users
+        recent = db.execute(
+            select(User, Profile).join(Profile, Profile.user_id == User.id, isouter=True)
+            .where(User.id != user.id).limit(8)
+        ).all()
+        for u, p in recent:
+            suggestions.append({
+                "user_id": str(u.id),
+                "name": display_name(u, p),
+                "title": p.title if p else None,
+                "company": p.company_name if p else None,
+            })
+
+    return templates.TemplateResponse(request, "feed.html", _ctx(
+        request, user=user, posts=posts, suggestions=suggestions, profile=profile,
+    ))
+
+
+@router.get("/discover", response_class=HTMLResponse)
+def discover_page(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login?next=/discover", status_code=302)
+
+    from app.social import discover_feed
+    posts = discover_feed(db, user.id, limit=60)
+
+    return templates.TemplateResponse(request, "feed.html", _ctx(
+        request, user=user, posts=posts, suggestions=[], profile=db.get(Profile, user.id),
+        discover=True,
+    ))
+
+
+@router.get("/app/people", response_class=HTMLResponse)
+def people_page(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login?next=/app/people", status_code=302)
+
+    from app.social import search_people, is_following, display_name
+
+    q = request.query_params.get("q", "").strip()
+    if q:
+        people = search_people(db, q, limit=40)
+    else:
+        # Default: recent users
+        rows = db.execute(
+            select(User, Profile).join(Profile, Profile.user_id == User.id, isouter=True)
+            .where(User.id != user.id).limit(40)
+        ).all()
+        people = [{
+            "user_id": str(u.id),
+            "name": display_name(u, p),
+            "username": p.username if p else None,
+            "title": p.title if p else None,
+            "company": p.company_name if p else None,
+            "avatar_url": p.avatar_url if p else None,
+            "bio": p.bio if p else None,
+        } for u, p in rows]
+
+    # Mark follow state
+    for person in people:
+        from uuid import UUID
+        person["following"] = is_following(db, user.id, UUID(person["user_id"]))
+
+    return templates.TemplateResponse(request, "people.html", _ctx(
+        request, user=user, people=people, q=q,
+    ))
+
+
+@router.post("/app/post")
+async def create_post_route(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    form = await request.form()
+    body = (form.get("body") or "").strip()
+    image_url = (form.get("image_url") or "").strip() or None
+    link_url = (form.get("link_url") or "").strip() or None
+
+    if not body:
+        return RedirectResponse("/app?error=empty", status_code=302)
+
+    from app.social import create_post
+    try:
+        create_post(db, user.id, body, image_url=image_url, link_url=link_url)
+    except Exception as e:
+        return RedirectResponse(f"/app?error={e}", status_code=302)
+
+    return RedirectResponse("/feed", status_code=302)
+
+
+@router.post("/app/follow/{target_id}")
+def follow_route(target_id: str, request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+    from app.social import follow
+    from uuid import UUID
+    try:
+        follow(db, user.id, UUID(target_id))
+    except Exception:
+        pass
+    referer = request.headers.get("referer", "/app/people")
+    return RedirectResponse(referer, status_code=302)
+
+
+@router.post("/app/unfollow/{target_id}")
+def unfollow_route(target_id: str, request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+    from app.social import unfollow
+    from uuid import UUID
+    try:
+        unfollow(db, user.id, UUID(target_id))
+    except Exception:
+        pass
+    referer = request.headers.get("referer", "/app/people")
+    return RedirectResponse(referer, status_code=302)
+
+
+@router.post("/api/posts/{post_id}/like")
+def like_route(post_id: str, request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        raise HTTPException(401, "auth required")
+    from app.social import toggle_like
+    from uuid import UUID
+    return toggle_like(db, user.id, UUID(post_id))
+
+
+@router.get("/u/{username}", response_class=HTMLResponse)
+def public_profile(username: str, request: Request, db: Session = Depends(get_db)):
+    viewer = current_user_web(request, db)
+
+    target_user = db.execute(select(User).join(Profile).where(Profile.username == username)).scalar_one_or_none()
+    if not target_user:
+        raise HTTPException(404, "user not found")
+
+    profile = db.get(Profile, target_user.id)
+
+    from app.social import is_following, followers_count, following_count, display_name, _serialize_post
+    from app.db.models import Post
+
+    posts = db.execute(
+        select(Post).where(Post.user_id == target_user.id).order_by(desc(Post.created_at)).limit(50)
+    ).scalars().all()
+
+    posts_data = [_serialize_post(db, p, viewer.id if viewer else target_user.id) for p in posts]
+
+    return templates.TemplateResponse(request, "profile_public.html", _ctx(
+        request,
+        user=viewer,
+        target={
+            "user_id": str(target_user.id),
+            "name": display_name(target_user, profile),
+            "username": profile.username if profile else None,
+            "title": profile.title if profile else None,
+            "company": profile.company_name if profile else None,
+            "bio": profile.bio if profile else None,
+            "avatar_url": profile.avatar_url if profile else None,
+            "headline": profile.headline if profile else None,
+            "location": profile.location if profile else None,
+            "skills": (profile.skills or []) if profile else [],
+        },
+        posts=posts_data,
+        followers=followers_count(db, target_user.id),
+        following=following_count(db, target_user.id),
+        is_following=(is_following(db, viewer.id, target_user.id) if viewer else False),
+        is_me=(viewer is not None and viewer.id == target_user.id),
+    ))

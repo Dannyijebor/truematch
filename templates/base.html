@@ -20,7 +20,9 @@
     </a>
     <div class="flex items-center gap-3 text-sm">
       {% if user %}
-        <a href="/app" class="text-slate-300 hover:text-white">Dashboard</a>
+        <a href="/app" class="text-slate-300 hover:text-white">Matches</a>
+        <a href="/feed" class="text-slate-300 hover:text-white">Feed</a>
+        <a href="/app/people" class="text-slate-300 hover:text-white">People</a>
         <form method="post" action="/logout" class="inline">
           <button class="text-slate-400 hover:text-white">Log out</button>
         </form>
