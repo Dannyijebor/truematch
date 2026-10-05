@@ -1,6 +1,6 @@
 import os
 from datetime import datetime, timezone
-from fastapi import FastAPI, Query, Depends, HTTPException, UploadFile, File, Header, status
+from fastapi import FastAPI, Query, Depends, HTTPException, UploadFile, File, Header, status, Request, Body
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import select, desc, func
 from sqlalchemy.orm import Session
@@ -527,4 +527,132 @@ def api_end(call_id: str, user: User = Depends(current_user),
         end_call(db, UUID(call_id), user.id)
     except Exception as e:
         raise HTTPException(400, str(e))
+    return {"ok": True}
+
+
+# ---------- experiments ----------
+from pydantic import BaseModel as _BM
+
+class TrackIn(_BM):
+    experiment: str
+    variant: str
+    event: str
+    meta: dict = {}
+
+
+@app.post("/api/track")
+def api_track(payload: TrackIn, request: Request,
+              db: Session = Depends(get_db)):
+    """Anonymous-safe event tracking."""
+    from app.experiments import track
+    uid = None
+    try:
+        # try to identify user via cookie without forcing auth
+        from app.auth import decode_token
+        tok = request.cookies.get("tm_token")
+        if tok:
+            uid_str = decode_token(tok)
+            if uid_str:
+                from uuid import UUID
+                uid = UUID(uid_str)
+    except Exception:
+        pass
+
+    if payload.event not in ("impression", "click", "convert"):
+        raise HTTPException(400, "bad event")
+
+    track(db, payload.experiment, payload.variant, payload.event, user_id=uid, meta=payload.meta)
+    return {"ok": True}
+
+
+class FeedbackIn(_BM):
+    page: str
+    sentiment: str  # up | down
+    comment: str | None = None
+    experiment: str | None = None
+    variant: str | None = None
+
+
+@app.post("/api/feedback")
+def api_feedback(payload: FeedbackIn, request: Request, db: Session = Depends(get_db)):
+    if payload.sentiment not in ("up", "down"):
+        raise HTTPException(400, "bad sentiment")
+    from app.experiments import record_feedback
+    uid = None
+    try:
+        from app.auth import decode_token
+        tok = request.cookies.get("tm_token")
+        if tok:
+            uid_str = decode_token(tok)
+            if uid_str:
+                from uuid import UUID
+                uid = UUID(uid_str)
+    except Exception:
+        pass
+    record_feedback(db, uid, payload.page[:80], payload.sentiment,
+                    payload.comment, payload.experiment, payload.variant)
+    return {"ok": True}
+
+
+# ---------- experiments ----------
+from pydantic import BaseModel as _BM
+
+class TrackIn(_BM):
+    experiment: str
+    variant: str
+    event: str
+    meta: dict = {}
+
+
+@app.post("/api/track")
+def api_track(payload: TrackIn, request: Request,
+              db: Session = Depends(get_db)):
+    """Anonymous-safe event tracking."""
+    from app.experiments import track
+    uid = None
+    try:
+        # try to identify user via cookie without forcing auth
+        from app.auth import decode_token
+        tok = request.cookies.get("tm_token")
+        if tok:
+            uid_str = decode_token(tok)
+            if uid_str:
+                from uuid import UUID
+                uid = UUID(uid_str)
+    except Exception:
+        pass
+
+    if payload.event not in ("impression", "click", "convert"):
+        raise HTTPException(400, "bad event")
+
+    track(db, payload.experiment, payload.variant, payload.event, user_id=uid, meta=payload.meta)
+    return {"ok": True}
+
+
+class FeedbackIn(_BM):
+    page: str
+    sentiment: str  # up | down
+    comment: str | None = None
+    experiment: str | None = None
+    variant: str | None = None
+
+
+@app.post("/api/feedback")
+def api_feedback(payload: FeedbackIn, request: Request, db: Session = Depends(get_db)):
+    if payload.sentiment not in ("up", "down"):
+        raise HTTPException(400, "bad sentiment")
+    from app.experiments import record_feedback
+    uid = None
+    try:
+        from app.auth import decode_token
+        tok = request.cookies.get("tm_token")
+        if tok:
+            uid_str = decode_token(tok)
+            if uid_str:
+                from uuid import UUID
+                uid = UUID(uid_str)
+    except Exception:
+        pass
+    record_feedback(db, uid, payload.page[:80], payload.sentiment,
+                    payload.comment, payload.experiment, payload.variant)
     return {"ok": True}

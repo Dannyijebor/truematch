@@ -150,9 +150,24 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         matches = raw[:show]
         total_found = len(matches)
 
+    from app.experiments import variant_config, track
+    cta = variant_config(db, user.id, "dashboard_cta_label", default={"label": "Generate tailored application"})
+    if cta.get("variant"):
+        try: track(db, "dashboard_cta_label", cta["variant"], "impression", user_id=user.id)
+        except Exception: pass
+
+    layout = variant_config(db, user.id, "match_card_layout", default={"show_advice": False})
+    if layout.get("variant"):
+        try: track(db, "match_card_layout", layout["variant"], "impression", user_id=user.id)
+        except Exception: pass
+
     return templates.TemplateResponse(request, "dashboard.html", _ctx(
         request, db=db, user=user, profile=profile, matches=matches,
         show=show, has_more=has_more, total_found=total_found,
+        cta_label=cta["config"].get("label", "Generate tailored application"),
+        cta_variant=cta.get("variant"),
+        show_advice=bool(layout["config"].get("show_advice", False)),
+        layout_variant=layout.get("variant"),
     ))
 
 
@@ -1195,3 +1210,74 @@ def api_notifications_unread(request: Request, db: Session = Depends(get_db)):
         return {"unread": 0}
     from app.notify_inapp import unread_count
     return {"unread": unread_count(db, user.id)}
+
+
+# ---------- experiments admin ----------
+def _is_admin(user: User) -> bool:
+    return bool(user and user.email and user.email.lower() in {
+        "dannyijebor@gmail.com",
+    })
+
+
+@router.get("/admin/experiments", response_class=HTMLResponse)
+def admin_experiments(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user or not _is_admin(user):
+        raise HTTPException(403, "not allowed")
+
+    from app.experiments import stats, feedback_summary, recent_feedback
+    from app.db.models import ExperimentVariant
+    from sqlalchemy import select as _sel
+
+    experiments = [r.experiment for r in db.execute(
+        _sel(ExperimentVariant.experiment).distinct()
+    ).scalars().all()]
+
+    exp_data = []
+    for e in experiments:
+        exp_data.append({
+            "name": e,
+            "stats": stats(db, e, days=30),
+            "variants": [
+                {
+                    "variant": v.variant,
+                    "weight": v.weight,
+                    "is_control": v.is_control,
+                    "config": v.config or {},
+                }
+                for v in db.execute(
+                    _sel(ExperimentVariant).where(ExperimentVariant.experiment == e)
+                ).scalars().all()
+            ],
+        })
+
+    fb = feedback_summary(db, days=30)
+    recent = recent_feedback(db, limit=30)
+
+    return templates.TemplateResponse(request, "admin_experiments.html", _ctx(
+        request, db=db, user=user,
+        experiments=exp_data, feedback=fb, recent=recent,
+    ))
+
+
+@router.post("/admin/experiments/{experiment}/promote")
+def admin_promote(experiment: str, request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user or not _is_admin(user):
+        raise HTTPException(403, "not allowed")
+    from app.experiments import auto_promote_if_winner
+    auto_promote_if_winner(db, experiment)
+    referer = request.headers.get("referer", "/admin/experiments")
+    return RedirectResponse(referer, status_code=302)
+
+
+@router.post("/admin/experiments/{experiment}/reset")
+def admin_reset(experiment: str, request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user or not _is_admin(user):
+        raise HTTPException(403, "not allowed")
+    from app.db.models import ExperimentStat
+    db.query(ExperimentStat).filter(ExperimentStat.experiment == experiment).delete()
+    db.commit()
+    referer = request.headers.get("referer", "/admin/experiments")
+    return RedirectResponse(referer, status_code=302)

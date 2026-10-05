@@ -189,3 +189,39 @@ class Notification(Base):
     link: Mapped[str | None] = mapped_column(String, nullable=True)
     read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)
+
+
+class ExperimentVariant(Base):
+    __tablename__ = "experiment_variants"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    experiment: Mapped[str] = mapped_column(String, index=True)
+    variant: Mapped[str] = mapped_column(String)
+    weight: Mapped[int] = mapped_column(Integer, default=50)  # 0-100, must sum to 100 per experiment
+    config: Mapped[dict] = mapped_column(JSON, default=dict)  # {label, color, size, ...}
+    is_control: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    __table_args__ = (UniqueConstraint("experiment", "variant", name="uq_exp_var"),)
+
+
+class ExperimentStat(Base):
+    __tablename__ = "experiment_stats"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    experiment: Mapped[str] = mapped_column(String, index=True)
+    variant: Mapped[str] = mapped_column(String)
+    user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    event: Mapped[str] = mapped_column(String, index=True)  # impression | click | convert
+    meta: Mapped[dict] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)
+
+
+class Feedback(Base):
+    __tablename__ = "feedback"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    page: Mapped[str] = mapped_column(String, index=True)
+    sentiment: Mapped[str] = mapped_column(String)  # up | down
+    comment: Mapped[str | None] = mapped_column(Text, nullable=True)
+    experiment: Mapped[str | None] = mapped_column(String, nullable=True)
+    variant: Mapped[str | None] = mapped_column(String, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)
