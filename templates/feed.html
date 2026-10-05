@@ -2,15 +2,10 @@
 {% block title %}Feed · TrueMatch{% endblock %}
 {% block content %}
 
-<div class="flex items-center justify-between mt-2 mb-6">
+<div class="mt-2 mb-6">
   <h1 class="text-2xl font-extrabold tracking-tight">
     {% if discover %}Discover{% else %}Your Feed{% endif %}
   </h1>
-  <div class="flex items-center gap-2">
-    <a href="/feed" class="text-sm px-3 py-2 rounded-xl {% if not discover %}bg-emerald-500 text-slate-950 font-semibold{% else %}border border-slate-700 text-slate-300{% endif %}">Feed</a>
-    <a href="/discover" class="text-sm px-3 py-2 rounded-xl {% if discover %}bg-emerald-500 text-slate-950 font-semibold{% else %}border border-slate-700 text-slate-300{% endif %}">Discover</a>
-    <a href="/app/people" class="text-sm px-3 py-2 rounded-xl border border-slate-700 text-slate-300">People</a>
-  </div>
 </div>
 
 <!-- Composer -->

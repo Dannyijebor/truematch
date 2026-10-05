@@ -9,26 +9,27 @@
 <style>
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
   [x-cloak] { display: none !important; }
+  .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen antialiased">
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased pb-20 md:pb-0">
 
-<nav class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-40">
+<!-- Top bar -->
+<nav class="border-b border-slate-800 bg-slate-950/90 backdrop-blur sticky top-0 z-40">
   <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-    <a href="/" class="text-xl font-bold tracking-tight">
+    <a href="{% if user %}/feed{% else %}/{% endif %}" class="text-xl font-bold tracking-tight">
       <span class="text-emerald-400">True</span><span class="text-white">Match</span>
     </a>
-    <div class="flex items-center gap-3 text-sm">
+
+    <div class="flex items-center gap-2">
       {% if user %}
-        <a href="/app" class="text-slate-300 hover:text-white">Matches</a>
-        <a href="/feed" class="text-slate-300 hover:text-white">Feed</a>
-        <a href="/app/people" class="text-slate-300 hover:text-white">People</a>
-        <form method="post" action="/logout" class="inline">
-          <button class="text-slate-400 hover:text-white">Log out</button>
-        </form>
+        <a href="/app/resume" class="hidden md:inline text-sm text-slate-300 hover:text-white px-3 py-1.5">Resume</a>
+        <a href="/logout" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+           class="text-sm text-slate-400 hover:text-white">Log out</a>
+        <form id="logout-form" method="post" action="/logout" class="hidden"></form>
       {% else %}
-        <a href="/login" class="text-slate-300 hover:text-white">Log in</a>
-        <a href="/signup" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-3 py-1.5 rounded-lg">Sign up</a>
+        <a href="/login" class="text-sm text-slate-300 hover:text-white">Log in</a>
+        <a href="/signup" class="text-sm bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-3 py-1.5 rounded-lg">Sign up</a>
       {% endif %}
     </div>
   </div>
@@ -38,9 +39,56 @@
 {% block content %}{% endblock %}
 </main>
 
-<footer class="max-w-5xl mx-auto px-4 py-10 text-slate-500 text-xs">
+<footer class="max-w-5xl mx-auto px-4 py-10 text-slate-500 text-xs hidden md:block">
   TrueMatch · Built for people who deserve better jobs.
 </footer>
+
+<!-- Bottom tab bar (mobile) -->
+{% if user %}
+<nav class="fixed bottom-0 inset-x-0 z-50 bg-slate-950/95 backdrop-blur border-t border-slate-800 md:hidden">
+  <div class="grid grid-cols-5">
+    {% set path = request.url.path %}
+
+    <a href="/feed" class="flex flex-col items-center py-2.5 text-xs {% if path == '/feed' %}text-emerald-400{% else %}text-slate-500{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
+        <path d="M3 12L12 3l9 9v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1v-9z"/>
+      </svg>
+      <span class="mt-0.5">Home</span>
+    </a>
+
+    <a href="/app" class="flex flex-col items-center py-2.5 text-xs {% if path == '/app' %}text-emerald-400{% else %}text-slate-500{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
+        <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+      </svg>
+      <span class="mt-0.5">Matches</span>
+    </a>
+
+    <a href="/discover" class="flex flex-col items-center py-2.5 text-xs {% if path == '/discover' %}text-emerald-400{% else %}text-slate-500{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
+        <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
+      </svg>
+      <span class="mt-0.5">Discover</span>
+    </a>
+
+    <a href="/app/people" class="flex flex-col items-center py-2.5 text-xs {% if path == '/app/people' %}text-emerald-400{% else %}text-slate-500{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
+        <circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.2"/>
+        <path d="M3 19c0-3 3-5 6-5s6 2 6 5"/>
+        <path d="M15 14c3 0 6 1.5 6 4"/>
+      </svg>
+      <span class="mt-0.5">People</span>
+    </a>
+
+    <a href="/app/resume" class="flex flex-col items-center py-2.5 text-xs {% if path.startswith('/app/resume') %}text-emerald-400{% else %}text-slate-500{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
+        <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>
+        <path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/>
+      </svg>
+      <span class="mt-0.5">Resume</span>
+    </a>
+  </div>
+</nav>
+{% endif %}
 
 </body>
 </html>
