@@ -559,9 +559,11 @@ def feed_page(request: Request, db: Session = Depends(get_db)):
     profile = db.get(Profile, user.id)
     groups = story_groups(db, user.id)
 
+    from datetime import datetime, timezone
     return templates.TemplateResponse(request, "feed.html", _ctx(
         request, db=db, user=user, posts=posts, profile=profile,
         story_groups=groups,
+        now_hour=datetime.now(timezone.utc).hour,
     ))
 
 @router.get("/discover", response_class=HTMLResponse)
