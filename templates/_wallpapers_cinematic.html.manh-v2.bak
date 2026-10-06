@@ -310,35 +310,26 @@
   <defs>
     <linearGradient id="man-sky" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="var(--man-sky-1)"/>
-      <stop offset="55%" stop-color="var(--man-sky-2)"/>
-      <stop offset="100%" stop-color="var(--man-sky-3)"/>
+      <stop offset="100%" stop-color="var(--man-sky-2)"/>
     </linearGradient>
     <radialGradient id="man-moonhalo" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="var(--man-moon)" stop-opacity="0.7"/>
-      <stop offset="45%" stop-color="var(--man-moon)" stop-opacity="0.15"/>
+      <stop offset="0%" stop-color="var(--man-moon)" stop-opacity="0.55"/>
       <stop offset="100%" stop-color="var(--man-moon)" stop-opacity="0"/>
     </radialGradient>
-    <linearGradient id="man-cityglow" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="var(--man-cityglow)" stop-opacity="0"/>
-      <stop offset="55%" stop-color="var(--man-cityglow)" stop-opacity="0.3"/>
-      <stop offset="100%" stop-color="var(--man-cityglow)" stop-opacity="0.55"/>
-    </linearGradient>
+    <radialGradient id="man-cityglow" cx="50%" cy="100%" r="75%">
+      <stop offset="0%" stop-color="var(--man-cityglow)" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="var(--man-cityglow)" stop-opacity="0"/>
+    </radialGradient>
     <linearGradient id="man-road" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="var(--man-road-1)"/>
       <stop offset="100%" stop-color="var(--man-road-2)"/>
     </linearGradient>
-    <radialGradient id="man-hemi" cx="30%" cy="90%" r="70%">
-      <stop offset="0%" stop-color="var(--man-cityglow)" stop-opacity="0.5"/>
-      <stop offset="100%" stop-color="var(--man-cityglow)" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="man-blur-xs"><feGaussianBlur stdDeviation="0.5"/></filter>
-    <filter id="man-blur-sm"><feGaussianBlur stdDeviation="1.2"/></filter>
-    <filter id="man-blur-md"><feGaussianBlur stdDeviation="2.8"/></filter>
-    <filter id="man-blur-lg"><feGaussianBlur stdDeviation="6.5"/></filter>
-    <filter id="man-blur-xl"><feGaussianBlur stdDeviation="12"/></filter>
+    <filter id="man-blur-sm"><feGaussianBlur stdDeviation="1"/></filter>
+    <filter id="man-blur-md"><feGaussianBlur stdDeviation="3"/></filter>
+    <filter id="man-blur-lg"><feGaussianBlur stdDeviation="7"/></filter>
     <radialGradient id="man-fade" cx="50%" cy="50%" r="80%">
       <stop offset="0%" stop-color="#fff" stop-opacity="1"/>
-      <stop offset="62%" stop-color="#fff" stop-opacity="0.94"/>
+      <stop offset="60%" stop-color="#fff" stop-opacity="0.92"/>
       <stop offset="88%" stop-color="#fff" stop-opacity="0.35"/>
       <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
     </radialGradient>
@@ -347,348 +338,146 @@
 
   <g mask="url(#man-mask)">
     <rect width="500" height="500" fill="url(#man-sky)"/>
+    <rect y="330" width="500" height="170" fill="url(#man-cityglow)" style="mix-blend-mode:screen"/>
 
-    <!-- Distant stars, very faint -->
-    <g fill="var(--man-moon)">
-      <circle cx="42" cy="42" r="0.6" opacity="0.55"/>
-      <circle cx="128" cy="28" r="0.5" opacity="0.4"/>
-      <circle cx="198" cy="58" r="0.7" opacity="0.5"/>
-      <circle cx="270" cy="34" r="0.5" opacity="0.35"/>
-      <circle cx="72" cy="102" r="0.5" opacity="0.4"/>
-      <circle cx="155" cy="88" r="0.6" opacity="0.45"/>
-      <circle cx="325" cy="48" r="0.5" opacity="0.4"/>
+    <circle cx="390" cy="92" r="46" fill="url(#man-moonhalo)"/>
+    <circle cx="390" cy="92" r="22" fill="var(--man-moon)"/>
+    <circle cx="382" cy="86" r="4" fill="var(--man-moon-shade)" opacity="0.35"/>
+    <circle cx="398" cy="98" r="3" fill="var(--man-moon-shade)" opacity="0.3"/>
+
+    <g fill="var(--man-bld-back)" opacity="0.55">
+      <rect x="10" y="240" width="42" height="120"/>
+      <rect x="58" y="215" width="38" height="145"/>
+      <rect x="102" y="255" width="30" height="105"/>
+      <rect x="138" y="195" width="34" height="165"/>
+      <rect x="178" y="230" width="40" height="130"/>
+      <rect x="224" y="205" width="30" height="155"/>
+      <rect x="260" y="245" width="36" height="115"/>
+      <rect x="302" y="220" width="42" height="140"/>
+      <rect x="350" y="255" width="34" height="105"/>
+      <rect x="390" y="235" width="46" height="125"/>
+      <rect x="442" y="215" width="48" height="145"/>
     </g>
 
-    <!-- Moon crescent with halo -->
-    <circle cx="392" cy="88" r="60" fill="url(#man-moonhalo)"/>
-    <circle cx="392" cy="88" r="22" fill="var(--man-moon)"/>
-    <circle cx="382" cy="80" r="20" fill="var(--man-sky-1)" opacity="0.9"/>
-    <circle cx="386" cy="88" r="1.2" fill="var(--man-moon-shade)" opacity="0.4"/>
-    <circle cx="392" cy="94" r="0.9" fill="var(--man-moon-shade)" opacity="0.35"/>
-    <circle cx="398" cy="84" r="0.7" fill="var(--man-moon-shade)" opacity="0.3"/>
-
-    <!-- ============ FAR BACKGROUND: silhouette merged with haze ============ -->
-    <g fill="var(--man-bld-back)" filter="url(#man-blur-sm)" opacity="0.75">
-      <polygon points="0,250 18,250 18,300 26,300 26,270 40,270 40,320 0,320"/>
-      <polygon points="52,240 62,240 62,255 74,255 74,235 86,235 86,255 96,255 96,250 110,250 110,320 52,320"/>
-      <polygon points="118,225 138,225 138,245 148,245 148,225 162,225 162,240 172,240 172,320 118,320"/>
-      <polygon points="178,258 190,258 190,320 178,320"/>
-      <polygon points="200,240 214,240 214,255 228,255 228,240 246,240 246,260 262,260 262,320 200,320"/>
-      <polygon points="270,230 282,230 282,248 296,248 296,228 314,228 314,248 326,248 326,320 270,320"/>
-      <polygon points="334,255 344,255 344,320 334,320"/>
-      <polygon points="352,240 366,240 366,258 382,258 382,242 396,242 396,262 412,262 412,320 352,320"/>
-      <polygon points="420,235 432,235 432,255 446,255 446,240 462,240 462,262 480,262 480,320 420,320"/>
-      <polygon points="486,252 500,252 500,320 486,320"/>
-    </g>
-
-    <!-- ============ MID BACKGROUND: detailed buildings with window grids ============ -->
     <g fill="var(--man-bld-mid)">
-      <!-- Building 1: tall, setback spire -->
-      <polygon points="18,205 68,205 68,240 76,240 76,268 66,268 66,410 18,410"/>
-      <!-- Building 2: flat top, antenna -->
-      <polygon points="82,225 132,225 132,410 82,410"/>
-      <line x1="98" y1="225" x2="98" y2="205" stroke="var(--man-bld-mid)" stroke-width="1.5"/>
-      <line x1="116" y1="225" x2="116" y2="212" stroke="var(--man-bld-mid)" stroke-width="1"/>
-      <!-- Building 3: stepped crown -->
-      <polygon points="142,195 192,195 192,225 200,225 200,255 190,255 190,410 142,410"/>
-      <!-- Building 4: shorter -->
-      <polygon points="206,240 244,240 244,410 206,410"/>
-      <!-- Building 5: very tall, spire -->
-      <polygon points="256,175 300,175 300,210 310,210 310,245 298,245 298,410 256,410"/>
-      <line x1="278" y1="175" x2="278" y2="145" stroke="var(--man-bld-mid)" stroke-width="1.8"/>
-      <circle cx="278" cy="145" r="1.5" fill="var(--man-win-warm)">
-        <animate attributeName="opacity" values="1;0.2;1" dur="2s" repeatCount="indefinite"/>
-      </circle>
-      <!-- Building 6: tiered -->
-      <polygon points="318,215 372,215 372,240 380,240 380,265 368,265 368,410 318,410"/>
-      <!-- Building 7: with water tower -->
-      <polygon points="388,235 448,235 448,410 388,410"/>
-      <ellipse cx="410" cy="228" rx="7" ry="5" fill="var(--man-bld-mid)"/>
-      <line x1="404" y1="233" x2="404" y2="245" stroke="var(--man-bld-mid)" stroke-width="0.8"/>
-      <line x1="416" y1="233" x2="416" y2="245" stroke="var(--man-bld-mid)" stroke-width="0.8"/>
-      <!-- Building 8: right edge frame -->
-      <polygon points="458,220 500,220 500,410 458,410"/>
+      <rect x="20" y="270" width="58" height="110"/>
+      <rect x="86" y="245" width="52" height="135"/>
+      <rect x="146" y="225" width="66" height="155"/>
+      <rect x="220" y="255" width="48" height="125"/>
+      <rect x="276" y="215" width="62" height="165"/>
+      <rect x="346" y="250" width="54" height="130"/>
+      <rect x="408" y="235" width="82" height="145"/>
     </g>
 
-    <!-- Window grids — cool white/warm mixed, varied -->
-    <g>
-      <!-- B1 -->
-      <g fill="var(--man-win)">
-        <rect x="24" y="216" width="3" height="4"/><rect x="34" y="216" width="3" height="4"/>
-        <rect x="44" y="216" width="3" height="4"/><rect x="54" y="216" width="3" height="4"/>
-        <rect x="24" y="230" width="3" height="4"/><rect x="44" y="230" width="3" height="4"/>
-        <rect x="24" y="248" width="3" height="4"/><rect x="34" y="248" width="3" height="4"/>
-        <rect x="54" y="248" width="3" height="4"/>
-        <rect x="24" y="266" width="3" height="4"/><rect x="44" y="266" width="3" height="4"/>
-        <rect x="24" y="284" width="3" height="4"/><rect x="34" y="284" width="3" height="4"/>
-        <rect x="54" y="284" width="3" height="4"/>
-        <rect x="24" y="302" width="3" height="4"/><rect x="44" y="302" width="3" height="4"/>
-        <rect x="34" y="320" width="3" height="4"/><rect x="54" y="320" width="3" height="4"/>
-        <rect x="24" y="338" width="3" height="4"/><rect x="44" y="338" width="3" height="4"/>
-        <rect x="24" y="356" width="3" height="4"/><rect x="54" y="356" width="3" height="4"/>
-        <rect x="34" y="374" width="3" height="4"/><rect x="44" y="392" width="3" height="4"/>
-      </g>
-      <!-- B2 -->
-      <g fill="var(--man-win)">
-        <rect x="88" y="236" width="3" height="4"/><rect x="100" y="236" width="3" height="4"/>
-        <rect x="112" y="236" width="3" height="4"/><rect x="124" y="236" width="3" height="4"/>
-        <rect x="88" y="252" width="3" height="4"/><rect x="112" y="252" width="3" height="4"/>
-        <rect x="100" y="268" width="3" height="4"/><rect x="124" y="268" width="3" height="4"/>
-        <rect x="88" y="284" width="3" height="4"/><rect x="112" y="284" width="3" height="4"/>
-        <rect x="88" y="300" width="3" height="4"/><rect x="100" y="300" width="3" height="4"/>
-        <rect x="124" y="300" width="3" height="4"/>
-        <rect x="100" y="316" width="3" height="4"/><rect x="112" y="316" width="3" height="4"/>
-        <rect x="88" y="332" width="3" height="4"/><rect x="124" y="332" width="3" height="4"/>
-        <rect x="88" y="348" width="3" height="4"/><rect x="112" y="348" width="3" height="4"/>
-        <rect x="100" y="364" width="3" height="4"/><rect x="124" y="364" width="3" height="4"/>
-        <rect x="88" y="380" width="3" height="4"/><rect x="112" y="396" width="3" height="4"/>
-      </g>
-      <!-- B3 -->
-      <g fill="var(--man-win)">
-        <rect x="148" y="205" width="3" height="4"/><rect x="160" y="205" width="3" height="4"/>
-        <rect x="172" y="205" width="3" height="4"/><rect x="184" y="205" width="3" height="4"/>
-        <rect x="148" y="222" width="3" height="4"/><rect x="172" y="222" width="3" height="4"/>
-        <rect x="160" y="240" width="3" height="4"/><rect x="184" y="240" width="3" height="4"/>
-        <rect x="148" y="258" width="3" height="4"/><rect x="172" y="258" width="3" height="4"/>
-        <rect x="148" y="276" width="3" height="4"/><rect x="160" y="276" width="3" height="4"/>
-        <rect x="184" y="276" width="3" height="4"/>
-        <rect x="160" y="294" width="3" height="4"/><rect x="172" y="294" width="3" height="4"/>
-        <rect x="148" y="312" width="3" height="4"/><rect x="184" y="312" width="3" height="4"/>
-        <rect x="148" y="330" width="3" height="4"/><rect x="172" y="330" width="3" height="4"/>
-        <rect x="160" y="348" width="3" height="4"/><rect x="184" y="348" width="3" height="4"/>
-        <rect x="148" y="366" width="3" height="4"/><rect x="172" y="366" width="3" height="4"/>
-        <rect x="160" y="384" width="3" height="4"/><rect x="184" y="384" width="3" height="4"/>
-      </g>
-      <!-- B4 -->
-      <g fill="var(--man-win)">
-        <rect x="212" y="252" width="3" height="4"/><rect x="224" y="252" width="3" height="4"/>
-        <rect x="236" y="252" width="3" height="4"/>
-        <rect x="212" y="270" width="3" height="4"/><rect x="236" y="270" width="3" height="4"/>
-        <rect x="224" y="288" width="3" height="4"/>
-        <rect x="212" y="306" width="3" height="4"/><rect x="224" y="306" width="3" height="4"/>
-        <rect x="236" y="324" width="3" height="4"/>
-        <rect x="212" y="342" width="3" height="4"/><rect x="236" y="342" width="3" height="4"/>
-        <rect x="224" y="360" width="3" height="4"/>
-        <rect x="212" y="378" width="3" height="4"/><rect x="236" y="378" width="3" height="4"/>
-      </g>
-      <!-- B5 -->
-      <g fill="var(--man-win)">
-        <rect x="262" y="186" width="3" height="4"/><rect x="274" y="186" width="3" height="4"/>
-        <rect x="286" y="186" width="3" height="4"/>
-        <rect x="262" y="204" width="3" height="4"/><rect x="286" y="204" width="3" height="4"/>
-        <rect x="274" y="222" width="3" height="4"/>
-        <rect x="262" y="240" width="3" height="4"/><rect x="286" y="240" width="3" height="4"/>
-        <rect x="262" y="258" width="3" height="4"/><rect x="274" y="258" width="3" height="4"/>
-        <rect x="286" y="276" width="3" height="4"/>
-        <rect x="262" y="294" width="3" height="4"/><rect x="286" y="294" width="3" height="4"/>
-        <rect x="274" y="312" width="3" height="4"/>
-        <rect x="262" y="330" width="3" height="4"/><rect x="286" y="330" width="3" height="4"/>
-        <rect x="262" y="348" width="3" height="4"/><rect x="274" y="348" width="3" height="4"/>
-        <rect x="286" y="366" width="3" height="4"/>
-        <rect x="262" y="384" width="3" height="4"/><rect x="286" y="384" width="3" height="4"/>
-      </g>
-      <!-- B6 -->
-      <g fill="var(--man-win)">
-        <rect x="324" y="226" width="3" height="4"/><rect x="336" y="226" width="3" height="4"/>
-        <rect x="348" y="226" width="3" height="4"/><rect x="360" y="226" width="3" height="4"/>
-        <rect x="324" y="244" width="3" height="4"/><rect x="348" y="244" width="3" height="4"/>
-        <rect x="336" y="262" width="3" height="4"/><rect x="360" y="262" width="3" height="4"/>
-        <rect x="324" y="280" width="3" height="4"/><rect x="348" y="280" width="3" height="4"/>
-        <rect x="324" y="298" width="3" height="4"/><rect x="336" y="298" width="3" height="4"/>
-        <rect x="360" y="298" width="3" height="4"/>
-        <rect x="348" y="316" width="3" height="4"/><rect x="360" y="316" width="3" height="4"/>
-        <rect x="324" y="334" width="3" height="4"/><rect x="348" y="334" width="3" height="4"/>
-        <rect x="336" y="352" width="3" height="4"/><rect x="360" y="352" width="3" height="4"/>
-        <rect x="324" y="370" width="3" height="4"/><rect x="348" y="370" width="3" height="4"/>
-        <rect x="336" y="388" width="3" height="4"/><rect x="360" y="388" width="3" height="4"/>
-      </g>
-      <!-- B7 -->
-      <g fill="var(--man-win)">
-        <rect x="394" y="246" width="3" height="4"/><rect x="406" y="246" width="3" height="4"/>
-        <rect x="418" y="246" width="3" height="4"/><rect x="430" y="246" width="3" height="4"/>
-        <rect x="442" y="246" width="3" height="4"/>
-        <rect x="394" y="264" width="3" height="4"/><rect x="418" y="264" width="3" height="4"/>
-        <rect x="442" y="264" width="3" height="4"/>
-        <rect x="406" y="282" width="3" height="4"/><rect x="430" y="282" width="3" height="4"/>
-        <rect x="394" y="300" width="3" height="4"/><rect x="418" y="300" width="3" height="4"/>
-        <rect x="442" y="300" width="3" height="4"/>
-        <rect x="394" y="318" width="3" height="4"/><rect x="406" y="318" width="3" height="4"/>
-        <rect x="430" y="318" width="3" height="4"/>
-        <rect x="418" y="336" width="3" height="4"/><rect x="442" y="336" width="3" height="4"/>
-        <rect x="394" y="354" width="3" height="4"/><rect x="418" y="354" width="3" height="4"/>
-        <rect x="406" y="372" width="3" height="4"/><rect x="430" y="372" width="3" height="4"/>
-        <rect x="394" y="390" width="3" height="4"/><rect x="442" y="390" width="3" height="4"/>
-      </g>
-      <!-- B8 -->
-      <g fill="var(--man-win)">
-        <rect x="464" y="232" width="3" height="4"/><rect x="476" y="232" width="3" height="4"/>
-        <rect x="488" y="232" width="3" height="4"/>
-        <rect x="464" y="250" width="3" height="4"/><rect x="488" y="250" width="3" height="4"/>
-        <rect x="476" y="268" width="3" height="4"/>
-        <rect x="464" y="286" width="3" height="4"/><rect x="488" y="286" width="3" height="4"/>
-        <rect x="464" y="304" width="3" height="4"/><rect x="476" y="304" width="3" height="4"/>
-        <rect x="488" y="322" width="3" height="4"/>
-        <rect x="464" y="340" width="3" height="4"/><rect x="488" y="340" width="3" height="4"/>
-        <rect x="476" y="358" width="3" height="4"/>
-        <rect x="464" y="376" width="3" height="4"/><rect x="488" y="376" width="3" height="4"/>
-      </g>
+    <g fill="var(--man-win)">
+      <rect x="30" y="280" width="3" height="4"/><rect x="40" y="280" width="3" height="4"/>
+      <rect x="30" y="295" width="3" height="4"/><rect x="50" y="295" width="3" height="4"/>
+      <rect x="30" y="310" width="3" height="4"/><rect x="40" y="325" width="3" height="4"/>
+      <rect x="60" y="280" width="3" height="4"/><rect x="60" y="310" width="3" height="4"/>
+      <rect x="96" y="255" width="3" height="4"/><rect x="106" y="255" width="3" height="4"/>
+      <rect x="116" y="255" width="3" height="4"/><rect x="96" y="275" width="3" height="4"/>
+      <rect x="116" y="275" width="3" height="4"/><rect x="106" y="295" width="3" height="4"/>
+      <rect x="96" y="315" width="3" height="4"/><rect x="116" y="335" width="3" height="4"/>
+      <rect x="156" y="235" width="3" height="4"/><rect x="168" y="235" width="3" height="4"/>
+      <rect x="180" y="235" width="3" height="4"/><rect x="192" y="235" width="3" height="4"/>
+      <rect x="156" y="255" width="3" height="4"/><rect x="180" y="255" width="3" height="4"/>
+      <rect x="168" y="275" width="3" height="4"/><rect x="192" y="275" width="3" height="4"/>
+      <rect x="156" y="295" width="3" height="4"/><rect x="180" y="315" width="3" height="4"/>
+      <rect x="230" y="265" width="3" height="4"/><rect x="242" y="265" width="3" height="4"/>
+      <rect x="254" y="265" width="3" height="4"/><rect x="230" y="285" width="3" height="4"/>
+      <rect x="254" y="285" width="3" height="4"/><rect x="242" y="305" width="3" height="4"/>
+      <rect x="230" y="325" width="3" height="4"/><rect x="254" y="345" width="3" height="4"/>
+      <rect x="286" y="225" width="3" height="4"/><rect x="298" y="225" width="3" height="4"/>
+      <rect x="310" y="225" width="3" height="4"/><rect x="322" y="225" width="3" height="4"/>
+      <rect x="286" y="245" width="3" height="4"/><rect x="310" y="245" width="3" height="4"/>
+      <rect x="322" y="265" width="3" height="4"/><rect x="298" y="285" width="3" height="4"/>
+      <rect x="286" y="305" width="3" height="4"/><rect x="310" y="325" width="3" height="4"/>
+      <rect x="356" y="260" width="3" height="4"/><rect x="368" y="260" width="3" height="4"/>
+      <rect x="380" y="260" width="3" height="4"/><rect x="356" y="280" width="3" height="4"/>
+      <rect x="380" y="280" width="3" height="4"/><rect x="368" y="300" width="3" height="4"/>
+      <rect x="356" y="320" width="3" height="4"/><rect x="380" y="340" width="3" height="4"/>
+      <rect x="418" y="245" width="3" height="4"/><rect x="430" y="245" width="3" height="4"/>
+      <rect x="442" y="245" width="3" height="4"/><rect x="454" y="245" width="3" height="4"/>
+      <rect x="466" y="245" width="3" height="4"/><rect x="418" y="265" width="3" height="4"/>
+      <rect x="442" y="265" width="3" height="4"/><rect x="466" y="265" width="3" height="4"/>
+      <rect x="430" y="285" width="3" height="4"/><rect x="454" y="285" width="3" height="4"/>
+      <rect x="418" y="305" width="3" height="4"/><rect x="442" y="325" width="3" height="4"/>
     </g>
 
-    <!-- Warm windows — living rooms, offices with warm lights, some flickering -->
-    <g fill="var(--man-win-warm)" opacity="0.85">
-      <rect x="34" y="302" width="3" height="4"><animate attributeName="opacity" values="0.85;0.15;0.85" dur="8s" repeatCount="indefinite"/></rect>
-      <rect x="100" y="284" width="3" height="4"><animate attributeName="opacity" values="0.85;0.15;0.85" dur="11s" begin="1s" repeatCount="indefinite"/></rect>
-      <rect x="160" y="258" width="3" height="4"><animate attributeName="opacity" values="0.85;0.15;0.85" dur="9s" begin="2s" repeatCount="indefinite"/></rect>
-      <rect x="224" y="306" width="3" height="4"><animate attributeName="opacity" values="0.85;0.15;0.85" dur="7s" begin="3s" repeatCount="indefinite"/></rect>
-      <rect x="274" y="258" width="3" height="4"><animate attributeName="opacity" values="0.85;0.15;0.85" dur="10s" begin="4s" repeatCount="indefinite"/></rect>
-      <rect x="336" y="226" width="3" height="4"><animate attributeName="opacity" values="0.85;0.15;0.85" dur="12s" begin="5s" repeatCount="indefinite"/></rect>
-      <rect x="418" y="300" width="3" height="4"><animate attributeName="opacity" values="0.85;0.15;0.85" dur="9.5s" begin="2.5s" repeatCount="indefinite"/></rect>
+    <g fill="var(--man-win-warm)" opacity="0.9">
+      <rect x="46" y="340" width="3" height="4"><animate attributeName="opacity" values="0.9;0.1;0.9" dur="7s" begin="0s" repeatCount="indefinite"/></rect>
+      <rect x="106" y="315" width="3" height="4"><animate attributeName="opacity" values="0.9;0.1;0.9" dur="9s" begin="2s" repeatCount="indefinite"/></rect>
+      <rect x="168" y="295" width="3" height="4"><animate attributeName="opacity" values="0.9;0.1;0.9" dur="6s" begin="4s" repeatCount="indefinite"/></rect>
+      <rect x="242" y="305" width="3" height="4"><animate attributeName="opacity" values="0.9;0.1;0.9" dur="8s" begin="1s" repeatCount="indefinite"/></rect>
+      <rect x="310" y="245" width="3" height="4"><animate attributeName="opacity" values="0.9;0.1;0.9" dur="10s" begin="3s" repeatCount="indefinite"/></rect>
+      <rect x="380" y="280" width="3" height="4"><animate attributeName="opacity" values="0.9;0.1;0.9" dur="7.5s" begin="5s" repeatCount="indefinite"/></rect>
+      <rect x="442" y="265" width="3" height="4"><animate attributeName="opacity" values="0.9;0.1;0.9" dur="6.5s" begin="2.5s" repeatCount="indefinite"/></rect>
     </g>
 
-    <!-- A couple of very bright windows (offices) that stay on -->
-    <g fill="#fff8d0" opacity="0.95">
-      <rect x="54" y="216" width="3" height="4"/>
-      <rect x="124" y="236" width="3" height="4"/>
-      <rect x="184" y="205" width="3" height="4"/>
-      <rect x="286" y="204" width="3" height="4"/>
-      <rect x="360" y="262" width="3" height="4"/>
-      <rect x="430" y="282" width="3" height="4"/>
-      <rect x="488" y="250" width="3" height="4"/>
+    <g fill="var(--man-bld-front)">
+      <polygon points="0,180 62,180 62,500 0,500"/>
+      <polygon points="438,150 500,150 500,500 438,500"/>
+      <rect x="18" y="200" width="4" height="6"/><rect x="30" y="200" width="4" height="6"/>
+      <rect x="18" y="220" width="4" height="6"/><rect x="42" y="240" width="4" height="6"/>
+      <rect x="30" y="260" width="4" height="6"/><rect x="18" y="280" width="4" height="6"/>
+      <rect x="460" y="180" width="4" height="6"/><rect x="472" y="180" width="4" height="6"/>
+      <rect x="484" y="180" width="4" height="6"/><rect x="460" y="200" width="4" height="6"/>
+      <rect x="484" y="200" width="4" height="6"/><rect x="472" y="220" width="4" height="6"/>
+      <rect x="460" y="240" width="4" height="6"/><rect x="484" y="260" width="4" height="6"/>
     </g>
 
-    <!-- City ambient glow behind buildings -->
-    <rect y="200" width="500" height="210" fill="url(#man-cityglow)" style="mix-blend-mode:screen" opacity="0.75"/>
-
-    <!-- ============ FOREGROUND FRAME BUILDINGS (dark, out-of-focus) ============ -->
-    <g fill="var(--man-bld-front)" filter="url(#man-blur-xs)">
-      <polygon points="0,150 42,150 42,175 58,175 58,410 0,410"/>
-      <polygon points="452,140 500,140 500,410 452,410"/>
-    </g>
-    <g fill="var(--man-win)" opacity="0.7">
-      <rect x="14" y="165" width="4" height="5"/><rect x="28" y="165" width="4" height="5"/>
-      <rect x="14" y="185" width="4" height="5"/><rect x="42" y="195" width="4" height="5"/>
-      <rect x="28" y="210" width="4" height="5"/><rect x="14" y="230" width="4" height="5"/>
-      <rect x="42" y="250" width="4" height="5"/><rect x="28" y="270" width="4" height="5"/>
-      <rect x="14" y="290" width="4" height="5"/><rect x="42" y="310" width="4" height="5"/>
-      <rect x="464" y="160" width="4" height="5"/><rect x="478" y="160" width="4" height="5"/>
-      <rect x="492" y="160" width="4" height="5"/>
-      <rect x="464" y="185" width="4" height="5"/><rect x="492" y="185" width="4" height="5"/>
-      <rect x="478" y="210" width="4" height="5"/>
-      <rect x="464" y="235" width="4" height="5"/><rect x="492" y="235" width="4" height="5"/>
-      <rect x="478" y="260" width="4" height="5"/>
-      <rect x="464" y="285" width="4" height="5"/><rect x="492" y="285" width="4" height="5"/>
-      <rect x="478" y="310" width="4" height="5"/>
+    <g stroke="var(--man-rain)" stroke-width="0.6" opacity="0.35" stroke-linecap="round">
+      <line x1="30" y1="20" x2="20" y2="70"><animate attributeName="y1" values="-30;550" dur="1.6s" repeatCount="indefinite"/><animate attributeName="y2" values="20;600" dur="1.6s" repeatCount="indefinite"/></line>
+      <line x1="90" y1="60" x2="80" y2="110"><animate attributeName="y1" values="-30;550" dur="1.9s" begin="0.3s" repeatCount="indefinite"/><animate attributeName="y2" values="20;600" dur="1.9s" begin="0.3s" repeatCount="indefinite"/></line>
+      <line x1="150" y1="30" x2="140" y2="80"><animate attributeName="y1" values="-30;550" dur="1.7s" begin="0.6s" repeatCount="indefinite"/><animate attributeName="y2" values="20;600" dur="1.7s" begin="0.6s" repeatCount="indefinite"/></line>
+      <line x1="210" y1="70" x2="200" y2="120"><animate attributeName="y1" values="-30;550" dur="2s" begin="0.9s" repeatCount="indefinite"/><animate attributeName="y2" values="20;600" dur="2s" begin="0.9s" repeatCount="indefinite"/></line>
+      <line x1="270" y1="40" x2="260" y2="90"><animate attributeName="y1" values="-30;550" dur="1.8s" begin="1.2s" repeatCount="indefinite"/><animate attributeName="y2" values="20;600" dur="1.8s" begin="1.2s" repeatCount="indefinite"/></line>
+      <line x1="330" y1="80" x2="320" y2="130"><animate attributeName="y1" values="-30;550" dur="1.5s" begin="1.5s" repeatCount="indefinite"/><animate attributeName="y2" values="20;600" dur="1.5s" begin="1.5s" repeatCount="indefinite"/></line>
+      <line x1="395" y1="50" x2="385" y2="100"><animate attributeName="y1" values="-30;550" dur="2.1s" begin="0.4s" repeatCount="indefinite"/><animate attributeName="y2" values="20;600" dur="2.1s" begin="0.4s" repeatCount="indefinite"/></line>
+      <line x1="460" y1="25" x2="450" y2="75"><animate attributeName="y1" values="-30;550" dur="1.7s" begin="0.8s" repeatCount="indefinite"/><animate attributeName="y2" values="20;600" dur="1.7s" begin="0.8s" repeatCount="indefinite"/></line>
     </g>
 
-    <!-- ============ RAIN (angled, varied speed) ============ -->
-    <g stroke="var(--man-rain)" stroke-linecap="round" opacity="0.4">
-      <line x1="40" y1="20" x2="28" y2="80" stroke-width="0.7">
-        <animate attributeName="y1" values="-40;560" dur="1.7s" repeatCount="indefinite"/>
-        <animate attributeName="y2" values="20;620" dur="1.7s" repeatCount="indefinite"/>
-      </line>
-      <line x1="110" y1="60" x2="98" y2="120" stroke-width="0.8">
-        <animate attributeName="y1" values="-40;560" dur="2s" begin="0.2s" repeatCount="indefinite"/>
-        <animate attributeName="y2" values="20;620" dur="2s" begin="0.2s" repeatCount="indefinite"/>
-      </line>
-      <line x1="180" y1="40" x2="168" y2="100" stroke-width="0.6">
-        <animate attributeName="y1" values="-40;560" dur="1.6s" begin="0.5s" repeatCount="indefinite"/>
-        <animate attributeName="y2" values="20;620" dur="1.6s" begin="0.5s" repeatCount="indefinite"/>
-      </line>
-      <line x1="250" y1="70" x2="238" y2="130" stroke-width="0.8">
-        <animate attributeName="y1" values="-40;560" dur="2.1s" begin="0.8s" repeatCount="indefinite"/>
-        <animate attributeName="y2" values="20;620" dur="2.1s" begin="0.8s" repeatCount="indefinite"/>
-      </line>
-      <line x1="320" y1="30" x2="308" y2="90" stroke-width="0.7">
-        <animate attributeName="y1" values="-40;560" dur="1.9s" begin="1.1s" repeatCount="indefinite"/>
-        <animate attributeName="y2" values="20;620" dur="1.9s" begin="1.1s" repeatCount="indefinite"/>
-      </line>
-      <line x1="390" y1="50" x2="378" y2="110" stroke-width="0.6">
-        <animate attributeName="y1" values="-40;560" dur="1.5s" begin="1.4s" repeatCount="indefinite"/>
-        <animate attributeName="y2" values="20;620" dur="1.5s" begin="1.4s" repeatCount="indefinite"/>
-      </line>
-      <line x1="460" y1="25" x2="448" y2="85" stroke-width="0.8">
-        <animate attributeName="y1" values="-40;560" dur="2.2s" begin="0.4s" repeatCount="indefinite"/>
-        <animate attributeName="y2" values="20;620" dur="2.2s" begin="0.4s" repeatCount="indefinite"/>
-      </line>
-    </g>
-
-    <!-- ============ HELICOPTER with blinking beacon ============ -->
-    <g opacity="0.75">
-      <ellipse cx="0" cy="0" rx="7" ry="2" fill="var(--man-bld-front)"/>
+    <g transform="translate(0,0)">
       <circle cx="0" cy="0" r="1.2" fill="var(--man-heli)"/>
-      <circle cx="0" cy="0" r="3.5" fill="var(--man-heli)" opacity="0.5">
-        <animate attributeName="opacity" values="0.6;0;0.6" dur="1.3s" repeatCount="indefinite"/>
+      <circle cx="0" cy="0" r="4" fill="var(--man-heli)" opacity="0.5">
+        <animate attributeName="opacity" values="0.5;0;0.5" dur="1.6s" repeatCount="indefinite"/>
       </circle>
-      <animateTransform attributeName="transform" type="translate" values="-30 62; 530 92" dur="34s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" values="-40 60; 560 90" dur="32s" repeatCount="indefinite"/>
     </g>
 
-    <!-- ============ ROAD + WET REFLECTIONS ============ -->
     <rect y="410" width="500" height="90" fill="url(#man-road)"/>
-    <line x1="0" y1="410" x2="500" y2="410" stroke="var(--man-road-edge)" stroke-width="0.8" opacity="0.6"/>
+    <line x1="0" y1="410" x2="500" y2="410" stroke="var(--man-road-edge)" stroke-width="1"/>
 
-    <!-- Diffuse reflection of city lights, stretching down -->
-    <g opacity="0.4" filter="url(#man-blur-md)">
-      <rect x="22" y="415" width="6" height="80" fill="var(--man-reflect)"/>
-      <rect x="96" y="415" width="5" height="82" fill="var(--man-reflect)"/>
-      <rect x="155" y="415" width="7" height="85" fill="var(--man-reflect)"/>
-      <rect x="222" y="415" width="5" height="80" fill="var(--man-reflect)"/>
-      <rect x="272" y="415" width="7" height="85" fill="var(--man-reflect)"/>
-      <rect x="340" y="415" width="5" height="80" fill="var(--man-reflect)"/>
-      <rect x="412" y="415" width="6" height="82" fill="var(--man-reflect)"/>
-      <rect x="470" y="415" width="5" height="80" fill="var(--man-reflect)"/>
+    <g opacity="0.35">
+      <rect x="150" y="418" width="4" height="55" fill="var(--man-reflect)"/>
+      <rect x="180" y="418" width="4" height="55" fill="var(--man-reflect)"/>
+      <rect x="220" y="418" width="4" height="55" fill="var(--man-reflect)"/>
+      <rect x="270" y="418" width="4" height="55" fill="var(--man-reflect)"/>
+      <rect x="320" y="418" width="4" height="55" fill="var(--man-reflect)"/>
+      <rect x="360" y="418" width="4" height="55" fill="var(--man-reflect)"/>
     </g>
-    <!-- Crisp puddle highlights -->
+
+    <g class="man-taxi">
+      <ellipse cx="0" cy="440" rx="12" ry="3" fill="var(--man-taxi-glow)" opacity="0.65" filter="url(#man-blur-md)"/>
+      <circle cx="-4" cy="440" r="1.6" fill="var(--man-taxi)"/>
+      <circle cx="4" cy="440" r="1.6" fill="var(--man-taxi)"/>
+      <animateTransform attributeName="transform" type="translate" values="-40 0; 540 0" dur="14s" repeatCount="indefinite"/>
+    </g>
+
     <g opacity="0.6">
-      <ellipse cx="40" cy="452" rx="14" ry="1.2" fill="var(--man-moon)" filter="url(#man-blur-xs)"/>
-      <ellipse cx="180" cy="470" rx="20" ry="1" fill="var(--man-moon)" filter="url(#man-blur-xs)"/>
-      <ellipse cx="330" cy="458" rx="16" ry="1.1" fill="var(--man-moon)" filter="url(#man-blur-xs)"/>
-      <ellipse cx="450" cy="480" rx="18" ry="1.2" fill="var(--man-moon)" filter="url(#man-blur-xs)"/>
-    </g>
-
-    <!-- ============ TAXI with body + cabin + headlight beam ============ -->
-    <g>
-      <g>
-        <!-- Headlight beam (cone projected forward) -->
-        <polygon points="8,442 55,432 55,452 8,442" fill="var(--man-taxi-glow)" opacity="0.35" filter="url(#man-blur-md)"/>
-        <!-- Body -->
-        <rect x="-10" y="437" width="20" height="6" rx="1.5" fill="var(--man-bld-front)"/>
-        <rect x="-6" y="433" width="12" height="5" rx="1.5" fill="var(--man-bld-front)"/>
-        <!-- Warm tail light -->
-        <circle cx="-9" cy="440" r="1.2" fill="#ff4040" opacity="0.9"/>
-        <!-- Headlights -->
-        <circle cx="10" cy="440" r="1.5" fill="var(--man-taxi)"/>
-        <!-- Wheels -->
-        <circle cx="-5" cy="444" r="1.5" fill="#000"/>
-        <circle cx="5" cy="444" r="1.5" fill="#000"/>
-        <!-- Ground glow -->
-        <ellipse cx="0" cy="447" rx="14" ry="2.5" fill="var(--man-taxi-glow)" opacity="0.5" filter="url(#man-blur-md)"/>
-        <animateTransform attributeName="transform" type="translate" values="-40 0; 540 0" dur="15s" repeatCount="indefinite"/>
-      </g>
-    </g>
-    <!-- Second car, going the other direction, later -->
-    <g opacity="0.85">
-      <polygon points="-55,448 -8,455 -8,442 -55,448" fill="var(--man-cityglow)" opacity="0.3" filter="url(#man-blur-md)"/>
-      <rect x="-20" y="445" width="18" height="5" rx="1.5" fill="var(--man-bld-front)"/>
-      <rect x="-15" y="442" width="10" height="4" rx="1.5" fill="var(--man-bld-front)"/>
-      <circle cx="-19" cy="447" r="1.1" fill="var(--man-cityglow)"/>
-      <circle cx="-1" cy="447" r="1.1" fill="#ff3030" opacity="0.85"/>
-      <circle cx="-14" cy="450" r="1.4" fill="#000"/>
-      <circle cx="-4" cy="450" r="1.4" fill="#000"/>
-      <animateTransform attributeName="transform" type="translate" values="540 0; -60 0" dur="26s" begin="7s" repeatCount="indefinite"/>
-    </g>
-
-    <!-- ============ FOG / MIST ============ -->
-    <g fill="var(--man-fog)" filter="url(#man-blur-xl)" opacity="0.28">
-      <ellipse cx="120" cy="408" rx="180" ry="18">
-        <animate attributeName="cx" values="120;150;120" dur="20s" repeatCount="indefinite"/>
-      </ellipse>
-      <ellipse cx="380" cy="415" rx="200" ry="20">
-        <animate attributeName="cx" values="380;340;380" dur="24s" repeatCount="indefinite"/>
+      <ellipse cx="0" cy="0" rx="14" ry="3" fill="var(--man-taxi-glow)" filter="url(#man-blur-md)">
+        <animateTransform attributeName="transform" type="translate" values="540 0; -40 0" dur="22s" begin="6s" repeatCount="indefinite"/>
       </ellipse>
     </g>
 
-    <!-- Vignette on top -->
-    <rect width="500" height="500" fill="url(#man-hemi)" style="mix-blend-mode:multiply" opacity="0.4"/>
+    <g fill="var(--man-fog)" filter="url(#man-blur-lg)" opacity="0.35">
+      <ellipse cx="100" cy="395" rx="120" ry="20">
+        <animate attributeName="cx" values="100;130;100" dur="18s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="380" cy="400" rx="140" ry="22">
+        <animate attributeName="cx" values="380;350;380" dur="22s" repeatCount="indefinite"/>
+      </ellipse>
+    </g>
   </g>
 </svg>
 
