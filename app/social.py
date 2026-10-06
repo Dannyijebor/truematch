@@ -288,12 +288,16 @@ def thread(db: Session, user_id, other_id, limit: int = 200) -> list[dict]:
         .limit(limit)
     ).scalars().all()
 
-    # Mark unread as read
+    # Mark incoming as delivered AND read (opening the thread = seen)
     now_dirty = False
     for m in rows:
-        if m.to_user_id == user_id and m.read_at is None:
-            m.read_at = func.now()
-            now_dirty = True
+        if m.to_user_id == user_id:
+            if m.delivered_at is None:
+                m.delivered_at = func.now()
+                now_dirty = True
+            if m.read_at is None:
+                m.read_at = func.now()
+                now_dirty = True
     if now_dirty:
         db.commit()
 
@@ -320,6 +324,7 @@ def thread(db: Session, user_id, other_id, limit: int = 200) -> list[dict]:
             "from_me": m.from_user_id == user_id,
             "created_at": m.created_at.isoformat() if m.created_at else None,
             "read": m.read_at is not None,
+                "delivered": m.delivered_at is not None,
             "reply": reply,
         })
     return out
