@@ -97,7 +97,7 @@
   <div class="tp-opacity">
     <div class="tp-opacity-label">Wallpaper intensity</div>
     <div class="tp-opacity-row">
-      {% set opacity_map = [('off','Off','0'),('soft','Soft','0.08'),('medium','Medium','0.15'),('bold','Bold','0.25')] %}
+      {% set opacity_map = [('off','Off','0'),('soft','Soft','0.15'),('medium','Medium','0.30'),('bold','Bold','0.55')] %}
       {% for key, label, val in opacity_map %}
       <button type="button" class="tp-op-btn" data-opacity="{{ key }}" onclick="tmSetWallpaperOpacity('{{ key }}', {{ val }})">
         <span class="tp-op-dot" style="opacity: {{ (val|float + 0.05) * 3.5 }};"></span>
