@@ -1367,8 +1367,10 @@ html.light .chat-screen.theme-editorial {
   .rec-lock-field {
     position: fixed;
     left: 50%;
-    bottom: 130px;
+    right: 12px;
+  bottom: 190px;
   top: auto;
+  left: auto;
     transform: translate(-50%, -30px) scale(0.7);
     opacity: 0;
     pointer-events: none;
@@ -1401,7 +1403,7 @@ html.light .chat-screen.theme-editorial {
   }
   .rec-lock-field.visible {
     opacity: 1;
-    transform: translate(-50%, 0) scale(1);
+    transform: translate(0, 0) scale(1);
   }
   .rec-lock-field.armed {
     background: rgba(60, 46, 20, 0.96);
@@ -1417,9 +1419,9 @@ html.light .chat-screen.theme-editorial {
     animation: rec-lock-pop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   @keyframes rec-lock-pop {
-    0%   { transform: translate(-50%, 0) scale(1);    }
-    45%  { transform: translate(-50%, 0) scale(1.18); }
-    100% { transform: translate(-50%, 0) scale(1);    }
+    0%   { transform: translate(0, 0) scale(1);    }
+    45%  { transform: translate(0, 0) scale(1.18); }
+    100% { transform: translate(0, 0) scale(1);    }
   }
   .rec-lock-field-icon {
     width: 22px;
@@ -2041,9 +2043,11 @@ function tmMicDown(e) {
   recLockPending = false;
 
   const cur = document.getElementById('rec-cursor');
-  if (cur) {
-    cur.style.left = p.x + 'px';
-    cur.style.top = p.y + 'px';
+  const micEl0 = document.getElementById('mic-btn');
+  if (cur && micEl0) {
+    const mr0 = micEl0.getBoundingClientRect();
+    cur.style.left = (mr0.left + mr0.width / 2) + 'px';
+    cur.style.top = (mr0.top + mr0.height / 2) + 'px';
     cur.classList.remove('locked');
   }
 
@@ -2065,8 +2069,11 @@ function tmMicMove(e) {
 
   const p = tmPointerPoint(e);
   const cur = document.getElementById('rec-cursor');
-  if (cur) {
-    cur.style.left = p.x + 'px';
+  const micEl = document.getElementById('mic-btn');
+  if (cur && micEl) {
+    // Cursor moves VERTICALLY only — X stays fixed at the mic's centre
+    const mr = micEl.getBoundingClientRect();
+    cur.style.left = (mr.left + mr.width / 2) + 'px';
     cur.style.top = p.y + 'px';
   }
 
@@ -2160,24 +2167,23 @@ function tmRecLock() {
   const rail = document.getElementById('rec-rail');
   if (rail) { rail.classList.add('locked'); rail.classList.remove('armed'); }
 
-  // Fly the cursor back DOWN to the bar with a snap
+  // Return cursor to MIC position and back to normal colour
   const cur = document.getElementById('rec-cursor');
-  const barEl = document.getElementById('rec-bar');
-  if (cur && barEl) {
-    const r = barEl.getBoundingClientRect();
-    cur.style.transition = 'transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1), left 0.42s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.42s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease 0.15s';
-    cur.style.left = (r.left + 34) + 'px';
-    cur.style.top = (r.top + r.height / 2) + 'px';
-    cur.classList.add('locked');
+  const micEl = document.getElementById('mic-btn');
+  if (cur && micEl) {
+    const mr = micEl.getBoundingClientRect();
+    cur.style.transition = 'left 0.42s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.42s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.28s ease 0.18s';
+    cur.style.left = (mr.left + mr.width / 2) + 'px';
+    cur.style.top = (mr.top + mr.height / 2) + 'px';
+    cur.classList.remove('locked');   // back to red first, so the snap reads
     setTimeout(() => {
-      cur.classList.remove('visible');
+      cur.classList.remove('visible'); // then fade out at the mic
       setTimeout(() => {
         cur.style.transition = '';
         cur.style.left = '';
         cur.style.top = '';
-        cur.classList.remove('locked');
-      }, 350);
-    }, 320);
+      }, 340);
+    }, 300);
   }
 
   setTimeout(() => {
