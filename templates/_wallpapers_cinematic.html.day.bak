@@ -327,11 +327,6 @@
       <stop offset="0%" stop-color="var(--man-road-1)"/>
       <stop offset="100%" stop-color="var(--man-road-2)"/>
     </linearGradient>
-    <radialGradient id="man-sunhalo" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="var(--man-sun)" stop-opacity="0.75"/>
-      <stop offset="45%" stop-color="var(--man-sun)" stop-opacity="0.18"/>
-      <stop offset="100%" stop-color="var(--man-sun)" stop-opacity="0"/>
-    </radialGradient>
     <radialGradient id="man-hemi" cx="30%" cy="90%" r="70%">
       <stop offset="0%" stop-color="var(--man-cityglow)" stop-opacity="0.5"/>
       <stop offset="100%" stop-color="var(--man-cityglow)" stop-opacity="0"/>
@@ -354,7 +349,7 @@
     <rect width="500" height="500" fill="url(#man-sky)"/>
 
     <!-- Distant stars, very faint -->
-    <g class="man-night-only" fill="var(--man-moon)">
+    <g fill="var(--man-moon)">
       <circle cx="42" cy="42" r="0.6" opacity="0.55"/>
       <circle cx="128" cy="28" r="0.5" opacity="0.4"/>
       <circle cx="198" cy="58" r="0.7" opacity="0.5"/>
@@ -365,75 +360,12 @@
     </g>
 
     <!-- Moon crescent with halo -->
-    <g class="man-night-only">
     <circle cx="392" cy="88" r="60" fill="url(#man-moonhalo)"/>
     <circle cx="392" cy="88" r="22" fill="var(--man-moon)"/>
     <circle cx="382" cy="80" r="20" fill="var(--man-sky-1)" opacity="0.9"/>
     <circle cx="386" cy="88" r="1.2" fill="var(--man-moon-shade)" opacity="0.4"/>
     <circle cx="392" cy="94" r="0.9" fill="var(--man-moon-shade)" opacity="0.35"/>
     <circle cx="398" cy="84" r="0.7" fill="var(--man-moon-shade)" opacity="0.3"/>
-    </g>
-
-    <!-- ============ DAY SCENE: sun + clouds ============ -->
-    <g class="man-day-only">
-      <!-- Sun upper-left with soft rays -->
-      <circle cx="92" cy="98" r="72" fill="url(#man-sunhalo)"/>
-      <circle cx="92" cy="98" r="30" fill="var(--man-sun)"/>
-      <circle cx="92" cy="98" r="30" fill="none" stroke="var(--man-sun-edge)" stroke-width="0.5" opacity="0.6"/>
-      <circle cx="84" cy="92" r="6" fill="#fff" opacity="0.4"/>
-
-      <!-- Sun rays (soft) -->
-      <g stroke="var(--man-sun-ray)" stroke-width="1.2" stroke-linecap="round" opacity="0.35">
-        <line x1="92" y1="52" x2="92" y2="40"/>
-        <line x1="92" y1="144" x2="92" y2="156"/>
-        <line x1="46" y1="98" x2="34" y2="98"/>
-        <line x1="138" y1="98" x2="150" y2="98"/>
-        <line x1="59" y1="65" x2="50" y2="56"/>
-        <line x1="125" y1="131" x2="134" y2="140"/>
-        <line x1="125" y1="65" x2="134" y2="56"/>
-        <line x1="59" y1="131" x2="50" y2="140"/>
-      </g>
-
-      <!-- Cloud 1: large, drifting right -->
-      <g fill="var(--man-cloud)" opacity="0.9">
-        <animateTransform attributeName="transform" type="translate" values="0 0; 30 0; 0 0" dur="60s" repeatCount="indefinite"/>
-        <ellipse cx="180" cy="80" rx="42" ry="14"/>
-        <ellipse cx="158" cy="78" rx="22" ry="12"/>
-        <ellipse cx="204" cy="78" rx="26" ry="13"/>
-        <ellipse cx="180" cy="72" rx="20" ry="11"/>
-      </g>
-      <!-- Cloud 2: medium, higher, drifting left -->
-      <g fill="var(--man-cloud-2)" opacity="0.85">
-        <animateTransform attributeName="transform" type="translate" values="0 0; -25 0; 0 0" dur="75s" repeatCount="indefinite"/>
-        <ellipse cx="330" cy="46" rx="34" ry="11"/>
-        <ellipse cx="314" cy="44" rx="18" ry="9"/>
-        <ellipse cx="348" cy="44" rx="20" ry="10"/>
-        <ellipse cx="330" cy="38" rx="16" ry="8"/>
-      </g>
-      <!-- Cloud 3: low near horizon, right side -->
-      <g fill="var(--man-cloud-3)" opacity="0.7">
-        <animateTransform attributeName="transform" type="translate" values="0 0; 20 0; 0 0" dur="90s" repeatCount="indefinite"/>
-        <ellipse cx="430" cy="140" rx="46" ry="13"/>
-        <ellipse cx="406" cy="138" rx="22" ry="11"/>
-        <ellipse cx="456" cy="138" rx="26" ry="12"/>
-      </g>
-      <!-- Cloud 4: small, mid-sky -->
-      <g fill="var(--man-cloud-2)" opacity="0.6">
-        <animateTransform attributeName="transform" type="translate" values="0 0; -18 0; 0 0" dur="68s" repeatCount="indefinite"/>
-        <ellipse cx="240" cy="120" rx="26" ry="8"/>
-        <ellipse cx="224" cy="118" rx="13" ry="7"/>
-        <ellipse cx="256" cy="118" rx="15" ry="7"/>
-      </g>
-
-      <!-- Distant birds in V formation, slowly drifting -->
-      <g stroke="var(--man-bird)" stroke-width="0.9" fill="none" opacity="0.55">
-        <animateTransform attributeName="transform" type="translate" values="0 0; 60 -10; 0 0" dur="45s" repeatCount="indefinite"/>
-        <path d="M 290 92 q 3 -3 6 0 q 3 -3 6 0"/>
-        <path d="M 305 100 q 3 -3 6 0 q 3 -3 6 0"/>
-        <path d="M 296 108 q 3 -3 6 0 q 3 -3 6 0"/>
-        <path d="M 282 100 q 3 -3 6 0 q 3 -3 6 0"/>
-      </g>
-    </g>
 
     <!-- ============ FAR BACKGROUND: silhouette merged with haze ============ -->
     <g fill="var(--man-bld-back)" filter="url(#man-blur-sm)" opacity="0.75">
@@ -648,8 +580,7 @@
       <rect x="478" y="310" width="4" height="5"/>
     </g>
 
-    <!-- ============ RAIN ============ -->
-    <g class="man-night-only">
+    <!-- ============ RAIN (angled, varied speed) ============ -->
     <g stroke="var(--man-rain)" stroke-linecap="round" opacity="0.4">
       <line x1="40" y1="20" x2="28" y2="80" stroke-width="0.7">
         <animate attributeName="y1" values="-40;560" dur="1.7s" repeatCount="indefinite"/>
@@ -680,10 +611,9 @@
         <animate attributeName="y2" values="20;620" dur="2.2s" begin="0.4s" repeatCount="indefinite"/>
       </line>
     </g>
-</g>
 
     <!-- ============ HELICOPTER with blinking beacon ============ -->
-    <g class="man-night-only" opacity="0.75">
+    <g opacity="0.75">
       <ellipse cx="0" cy="0" rx="7" ry="2" fill="var(--man-bld-front)"/>
       <circle cx="0" cy="0" r="1.2" fill="var(--man-heli)"/>
       <circle cx="0" cy="0" r="3.5" fill="var(--man-heli)" opacity="0.5">

@@ -453,6 +453,12 @@ html.light .chat-screen.theme-editorial {
   }
 
   /* ---------- Manhattan — DARK palette ---------- */
+  /* ---------- Manhattan — DAY/NIGHT toggle ---------- */
+  .man-day-only { display: none; }
+  html.light .man-day-only { display: inline; }
+  .man-night-only { display: inline; }
+  html.light .man-night-only { display: none; }
+
   .chat-wallpaper[data-wallpaper="boardroom"] {
     --man-sky-1: #050a18; --man-sky-2: #0f1c34; --man-sky-3: #2a2438;
     --man-moon: #e8eef5; --man-moon-shade: #8fa8c4;
@@ -465,6 +471,9 @@ html.light .chat-screen.theme-editorial {
     --man-taxi: #ffe090; --man-taxi-glow: #ffb84a;
     --man-heli: #ff5a4a;
     --man-fog: #7a98b8;
+    --man-sun: #ffe8b0; --man-sun-edge: #ffd080; --man-sun-ray: #ffd080;
+    --man-cloud: #ffffff; --man-cloud-2: #e8eef5; --man-cloud-3: #d8e0ea;
+    --man-bird: #4a4038;
   }
 
   /* ---------- Manhattan — LIGHT palette (dawn) ---------- */
@@ -480,6 +489,9 @@ html.light .chat-screen.theme-editorial {
     --man-taxi: #fff0b0; --man-taxi-glow: #ffc060;
     --man-heli: #c04030;
     --man-fog: #e8d8c0;
+    --man-sun: #fff0b0; --man-sun-edge: #ffd060; --man-sun-ray: #ffe070;
+    --man-cloud: #ffffff; --man-cloud-2: #f0f4f8; --man-cloud-3: #e0e8f0;
+    --man-bird: #2a2420;
   }
 
   /* ---------- Savile Study — LIGHT palette (daytime) ---------- */
