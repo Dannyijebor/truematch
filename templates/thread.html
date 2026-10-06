@@ -2044,7 +2044,7 @@ async function tmRecSend(e) {
   if (!currentBlob || currentBlob.size < 100) { alert('Recording was too short.'); return; }
   if (currentBlob.size > 15 * 1024 * 1024) { alert('Voice too large.'); return; }
   try {
-    const presign = await fetch('/api/media/presign', {method: 'POST', credentials: 'same-origin', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({filename: 'voice.webm', content_type: 'audio/webm', size: currentBlob.size, kind: 'video'})});
+    const presign = await fetch('/api/media/presign', {method: 'POST', credentials: 'same-origin', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({filename: 'voice.webm', content_type: 'audio/webm', size: currentBlob.size, kind: 'audio'})});
     const pdata = await presign.json();
     if (!pdata.ok) throw new Error(pdata.error || 'presign failed');
     await new Promise((resolve, reject) => {

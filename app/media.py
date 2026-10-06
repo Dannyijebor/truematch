@@ -8,9 +8,11 @@ from botocore.config import Config
 
 ALLOWED_IMAGE = {"image/jpeg", "image/png", "image/webp", "image/gif"}
 ALLOWED_VIDEO = {"video/mp4", "video/webm", "video/quicktime"}
+ALLOWED_AUDIO = {"audio/webm", "audio/ogg", "audio/mp4", "audio/mpeg", "audio/m4a", "audio/x-m4a"}
 
 MAX_IMAGE_BYTES = 15 * 1024 * 1024        # 15 MB
 MAX_VIDEO_BYTES = 70 * 1024 * 1024        # 70 MB
+MAX_AUDIO_BYTES = 20 * 1024 * 1024        # 20 MB
 
 
 def _client():
@@ -33,6 +35,8 @@ def _ext_from_mime(mime: str) -> str:
     return {
         "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif",
         "video/mp4": "mp4", "video/webm": "webm", "video/quicktime": "mov",
+        "audio/webm": "webm", "audio/ogg": "ogg", "audio/mp4": "m4a",
+        "audio/mpeg": "mp3", "audio/m4a": "m4a", "audio/x-m4a": "m4a",
     }.get(mime, "bin")
 
 
@@ -48,8 +52,13 @@ def presign_upload(user_id, filename: str, content_type: str, size: int, kind: s
             raise ValueError("unsupported video type")
         if size > MAX_VIDEO_BYTES:
             raise ValueError(f"video too large (max {MAX_VIDEO_BYTES // 1024 // 1024} MB)")
+    elif kind == "audio":
+        if content_type not in ALLOWED_AUDIO:
+            raise ValueError("unsupported audio type")
+        if size > MAX_AUDIO_BYTES:
+            raise ValueError(f"audio too large (max {MAX_AUDIO_BYTES // 1024 // 1024} MB)")
     else:
-        raise ValueError("kind must be image or video")
+        raise ValueError("kind must be image, video, or audio")
 
     ext = _ext_from_mime(content_type)
     year_month = datetime.now(timezone.utc).strftime("%Y/%m")
