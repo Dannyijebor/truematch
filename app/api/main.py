@@ -656,3 +656,42 @@ def api_feedback(payload: FeedbackIn, request: Request, db: Session = Depends(ge
     record_feedback(db, uid, payload.page[:80], payload.sentiment,
                     payload.comment, payload.experiment, payload.variant)
     return {"ok": True}
+
+
+@app.get("/debug-crash")
+def debug_crash():
+    """TEMPORARY: return the exact exception."""
+    import sys, traceback
+    info = {"python": sys.version}
+    try:
+        import starlette; info["starlette"] = starlette.__version__
+    except Exception as e: info["starlette"] = f"ERR: {e}"
+    try:
+        import fastapi; info["fastapi"] = fastapi.__version__
+    except Exception as e: info["fastapi"] = f"ERR: {e}"
+    try:
+        import jinja2; info["jinja2"] = jinja2.__version__
+    except Exception as e: info["jinja2"] = f"ERR: {e}"
+
+    # Try to actually render landing.html
+    try:
+        from app.api.web import templates, _ctx
+        from starlette.requests import Request as R
+        scope = {"type":"http","method":"GET","path":"/","headers":[],"query_string":b"",
+                 "server":("x",80),"client":("x",0),"scheme":"https"}
+        req = R(scope)
+        ctx = _ctx(req)
+        try:
+            t = templates.TemplateResponse("landing.html", ctx)
+            info["render_old_sig"] = "OK"
+        except Exception as e:
+            info["render_old_sig"] = f"{type(e).__name__}: {e}"
+        try:
+            t = templates.TemplateResponse(req, "landing.html", ctx)
+            info["render_new_sig"] = "OK"
+        except Exception as e:
+            info["render_new_sig"] = f"{type(e).__name__}: {e}"
+    except Exception as e:
+        info["setup_error"] = f"{type(e).__name__}: {e}"
+        info["traceback"] = traceback.format_exc()
+    return info
