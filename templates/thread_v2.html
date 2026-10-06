@@ -1367,7 +1367,8 @@ html.light .chat-screen.theme-editorial {
   .rec-lock-field {
     position: fixed;
     left: 50%;
-    top: 70px;
+    bottom: 130px;
+  top: auto;
     transform: translate(-50%, -30px) scale(0.7);
     opacity: 0;
     pointer-events: none;
@@ -2083,7 +2084,7 @@ function tmMicMove(e) {
   const dyFromLock = p.y - lockCenterY; // negative when finger is ABOVE lock
 
   // Reached lock?
-  if (Math.abs(dyFromLock) < 45 && recording) {
+  if (Math.abs(dyFromLock) < 40 && recording) {
     tmRecLock();
     return;
   }
@@ -2301,20 +2302,6 @@ async function tmStartRecording() {
     const t = document.getElementById('rec-lock-field-text');
     if (t) t.textContent = 'Slide up to lock';
   }
-  // Position the gradient rail from bar top to lock field bottom
-  requestAnimationFrame(() => {
-    const rail = document.getElementById('rec-rail');
-    const barEl = document.getElementById('rec-bar');
-    const lf = document.getElementById('rec-lock-field');
-    if (rail && barEl && lf) {
-      const bRect = barEl.getBoundingClientRect();
-      const lRect = lf.getBoundingClientRect();
-      rail.style.top = (lRect.bottom + 8) + 'px';
-      rail.style.height = Math.max(0, bRect.top - lRect.bottom - 24) + 'px';
-      rail.classList.add('visible');
-      rail.classList.remove('armed', 'locked');
-    }
-  });
   const cur = document.getElementById('rec-cursor');
   if (cur) {
     cur.classList.add('visible');
