@@ -2122,6 +2122,7 @@ async function tmSend(payload) {
 }
 function tmOnSendBtn(e) {
   e.preventDefault();
+  try { if (window.tmSound && window.tmSound._unlock) window.tmSound._unlock(); } catch(_){}
   const input = document.getElementById('msg-input');
   const body = input.value.trim();
   if (!body) return;
@@ -2226,6 +2227,7 @@ function tmDetachDocListeners() {
 
 function tmMicDown(e) {
   e.preventDefault(); e.stopPropagation();
+  try { if (window.tmSound && window.tmSound._unlock) window.tmSound._unlock(); } catch(_){}
   if (recording && recLocked) return;
   if (recording) { tmRecSend(e); return; }
 
@@ -2538,6 +2540,17 @@ async function tmStartRecording() {
   audioChunks = []; currentBlob = null;
   mediaRecorder.ondataavailable = ev => { if (ev.data && ev.data.size > 0) audioChunks.push(ev.data); };
   mediaRecorder.onstop = () => {
+      // --- Reset mic button and all recorder UI ---
+      const _mStop = document.getElementById('mic-btn');
+      if (_mStop) _mStop.classList.remove('recording');
+      const _cStop = document.getElementById('rec-cursor');
+      if (_cStop) _cStop.classList.remove('visible', 'locked');
+      const _lkStop = document.getElementById('rec-lock-field');
+      if (_lkStop) _lkStop.classList.remove('visible', 'armed', 'locked');
+      const _bStop = document.getElementById('rec-bar');
+      if (_bStop) _bStop.classList.remove('active', 'locked', 'paused', 'cancelling');
+      recLocked = false;
+      recPaused = false;
       const _dim = document.getElementById('rec-dim');
       if (_dim) _dim.classList.remove('visible');
       recPaused = false;
@@ -3051,39 +3064,39 @@ console.log('[TrueMatch] chat loaded');
     },
     send: function() {
       // Subtle two-note upward chirp — "message sent"
-      tmTone(880, 0.06, 0.035, 'sine', 0);
-      tmTone(1320, 0.08, 0.028, 'sine', 0.045);
+      tmTone(880, 0.06, 0.12, 'sine', 0);
+      tmTone(1320, 0.08, 0.10, 'sine', 0.045);
     },
     receive: function() {
       // Soft downward — "message received"
-      tmTone(1175, 0.07, 0.04, 'sine', 0);
-      tmTone(784, 0.1, 0.032, 'sine', 0.05);
+      tmTone(1175, 0.07, 0.12, 'sine', 0);
+      tmTone(784, 0.1, 0.10, 'sine', 0.05);
     },
     lock: function() {
       // Deep click for lock
-      tmTone(420, 0.05, 0.05, 'triangle', 0);
-      tmTone(620, 0.09, 0.04, 'triangle', 0.04);
+      tmTone(420, 0.15, 0.05, 'triangle', 0);
+      tmTone(620, 0.09, 0.12, 'triangle', 0.04);
     },
     cancel: function() {
       // Low thud for discard
-      tmTone(300, 0.12, 0.035, 'sine', 0);
+      tmTone(300, 0.12, 0.12, 'sine', 0);
     },
     recStart: function() {
-      tmTone(660, 0.05, 0.03, 'sine', 0);
+      tmTone(660, 0.15, 0.10, 'sine', 0);
     },
     recStop: function() {
-      tmTone(520, 0.06, 0.03, 'sine', 0);
+      tmTone(520, 0.06, 0.10, 'sine', 0);
     },
     error: function() {
-      tmTone(220, 0.15, 0.05, 'square', 0);
+      tmTone(220, 0.15, 0.15, 'square', 0);
     },
   };
 
   window.tmHaptic = {
-    tap: function() { try { navigator.vibrate && navigator.vibrate(8); } catch(_){} },
-    double: function() { try { navigator.vibrate && navigator.vibrate([10, 25, 10]); } catch(_){} },
-    lock: function() { try { navigator.vibrate && navigator.vibrate([15, 30, 40]); } catch(_){} },
-    long: function() { try { navigator.vibrate && navigator.vibrate(30); } catch(_){} },
+    tap: function() { try { navigator.vibrate && navigator.vibrate(15); } catch(_){} },
+    double: function() { try { navigator.vibrate && navigator.vibrate([20, 30, 20]); } catch(_){} },
+    lock: function() { try { navigator.vibrate && navigator.vibrate([25, 40, 50]); } catch(_){} },
+    long: function() { try { navigator.vibrate && navigator.vibrate(40); } catch(_){} },
     error: function() { try { navigator.vibrate && navigator.vibrate([60, 40, 60]); } catch(_){} },
   };
 })();
