@@ -1718,3 +1718,51 @@ def api_delete_sticker(sticker_id: str, request: Request, db: Session = Depends(
         return JSONResponse({"ok": True})
     except Exception as e:
         return JSONResponse({"ok": False, "error": str(e)}, status_code=400)
+
+
+@router.post("/api/chat/clear/{other_id}")
+def api_chat_clear(other_id: str, request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    user = current_user_web(request, db)
+    if not user:
+        return JSONResponse({"ok": False, "error": "auth"}, status_code=401)
+    from uuid import UUID
+    from app.db.models import DirectMessage
+    from sqlalchemy import or_, and_
+    try:
+        other_uuid = UUID(other_id)
+    except Exception:
+        return JSONResponse({"ok": False, "error": "bad id"}, status_code=400)
+
+    db.query(DirectMessage).filter(
+        or_(
+            and_(DirectMessage.from_user_id == user.id, DirectMessage.to_user_id == other_uuid),
+            and_(DirectMessage.from_user_id == other_uuid, DirectMessage.to_user_id == user.id),
+        )
+    ).delete(synchronize_session=False)
+    db.commit()
+    return JSONResponse({"ok": True})
+
+
+@router.post("/api/chat/report")
+async def api_chat_report(request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    user = current_user_web(request, db)
+    if not user:
+        return JSONResponse({"ok": False}, status_code=401)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    # Log to Telegram (best effort)
+    try:
+        import os, httpx
+        token = os.getenv("TELEGRAM_BOT_TOKEN")
+        chat_id = os.getenv("TELEGRAM_CHAT_ID")
+        if token and chat_id:
+            text = f"⚠️ Report from {user.email}\\nTarget: {body.get('name','?')} ({body.get('user_id','?')})\\nReason: {body.get('reason','')[:400]}"
+            httpx.post(f"https://api.telegram.org/bot{token}/sendMessage",
+                       json={"chat_id": chat_id, "text": text}, timeout=10)
+    except Exception:
+        pass
+    return JSONResponse({"ok": True})
