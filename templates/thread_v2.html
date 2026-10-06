@@ -1698,6 +1698,91 @@ html.light .rec-pause {
   .rec-bar.paused .rec-pause-btn .rec-pause-label::before { content: 'Resume'; }
   .rec-bar.paused .rec-pause-btn .rec-pause-label { font-size: 0; }
   .rec-bar.paused .rec-pause-btn .rec-pause-label::before { font-size: 14px; }
+
+  /* ---------- Premium polish ---------- */
+  @keyframes tm-lock-glow {
+    0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--chat-accent, #00a884) 55%, transparent); }
+    50%  { box-shadow: 0 0 0 16px color-mix(in srgb, var(--chat-accent, #00a884) 0%, transparent); }
+    100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--chat-accent, #00a884) 0%, transparent); }
+  }
+  .rec-bar.locked {
+    animation: tm-lock-glow 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Smooth button hover/active everywhere */
+  .rec-trash, .rec-pause, .rec-send {
+    transition:
+      transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1),
+      background-color 0.2s ease,
+      box-shadow 0.24s ease,
+      filter 0.2s ease;
+  }
+  .rec-send:hover,
+  .rec-trash:hover,
+  .rec-pause:hover {
+    filter: brightness(1.08);
+  }
+  .rec-send:active {
+    transform: scale(0.9) !important;
+    box-shadow:
+      0 3px 12px color-mix(in srgb, var(--chat-accent, #00a884) 55%, transparent),
+      inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+
+  /* Mic button pulse when held for recording */
+  #mic-btn.recording {
+    background: #ff4a4a !important;
+    transform: scale(1.24) !important;
+    box-shadow: 0 0 0 0 rgba(255,74,74,0.55);
+    animation: mic-pulse 1.3s ease-in-out infinite;
+  }
+  @keyframes mic-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,74,74,0.55); }
+    50%      { box-shadow: 0 0 0 14px rgba(255,74,74,0); }
+  }
+
+  /* Toast — nicer */
+  .tm-toast-pro {
+    position: fixed;
+    bottom: 130px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    padding: 12px 22px;
+    background: rgba(22, 28, 32, 0.96);
+    color: #f2f6f8;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    box-shadow: 0 12px 36px rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.08);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 99999;
+    transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  html.light .tm-toast-pro {
+    background: rgba(255,255,255,0.99);
+    color: #0f1720;
+    border-color: rgba(0,0,0,0.06);
+    box-shadow: 0 12px 36px rgba(0,0,0,0.14);
+  }
+  .tm-toast-pro.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Smooth message bubble entrance */
+  .msg-row.just-sent .bubble,
+  .msg-row.just-received .bubble {
+    animation: tm-bubble-in 0.34s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  @keyframes tm-bubble-in {
+    from { transform: translateY(6px) scale(0.96); opacity: 0; }
+    to   { transform: translateY(0) scale(1);     opacity: 1; }
+  }
 </style>
 
 <div class="chat-screen theme-{{ chat_theme }}">
@@ -2042,6 +2127,7 @@ function tmOnSendBtn(e) {
   if (!body) return;
   input.value = ''; input.style.height = 'auto'; tmToggleSendMic();
   tmSend({ kind: 'text', body });
+  try { tmSound.send(); tmHaptic.tap(); } catch(_){}
 }
 document.getElementById('msg-input').addEventListener('keydown', function(e) {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); tmOnSendBtn(e); }
@@ -2290,6 +2376,7 @@ async function tmMicUp(e) {
 function tmRecLock() {
   if (!recording || recLocked) return;
   recLocked = true;
+  try { tmSound.lock(); tmHaptic.lock(); } catch(_){}
 
   const bar = document.getElementById('rec-bar');
   if (bar) bar.classList.add('locked');
@@ -2420,6 +2507,7 @@ function tmRecCancelFromLock(e) {
 
 function tmRecCancelInternal() {
   if (!recording) return;
+  try { tmSound.cancel(); tmHaptic.double(); } catch(_){}
   recLocked = false;
   recPaused = false;
   recPausedTotal = 0;
@@ -2462,6 +2550,7 @@ async function tmStartRecording() {
   };
   try { mediaRecorder.start(100); } catch (err) { try { activeStream.getTracks().forEach(t => t.stop()); } catch(e){} activeStream = null; alert('Recorder failed: ' + err.message); return; }
   recStart = Date.now(); recPausedTotal = 0; recording = true;
+  try { tmSound.recStart(); tmHaptic.tap(); } catch(_){}
   const _mBtn = document.getElementById('mic-btn');
   if (_mBtn) _mBtn.classList.add('recording');
   document.getElementById('rec-time').textContent = '0:00';
@@ -2512,7 +2601,29 @@ async function tmRecSend(e) {
   if (_railSend) _railSend.classList.remove('visible', 'armed', 'locked');
   const _bar0 = document.getElementById('rec-bar');
   if (_bar0) _bar0.classList.remove('paused', 'locked');
-  const duration = (Date.now() - recStart) / 1000;
+  const duration = (Date.now() - recStart - (recPausedTotal || 0)) / 1000;
+
+  // Reject sub-3s voice notes — too noisy to send
+  if (duration < 3) {
+    // Discard silently
+    recLocked = false;
+    recPaused = false;
+    recPausedTotal = 0;
+    audioChunks = [];
+    currentBlob = null;
+    const _dimS = document.getElementById('rec-dim');
+    if (_dimS) _dimS.classList.remove('visible');
+    const _barS = document.getElementById('rec-bar');
+    if (_barS) _barS.classList.remove('active', 'locked', 'paused', 'cancelling');
+    const _curS = document.getElementById('rec-cursor');
+    if (_curS) _curS.classList.remove('visible', 'locked');
+    const _lockS = document.getElementById('rec-lock-field');
+    if (_lockS) _lockS.classList.remove('visible', 'armed', 'locked');
+    try { mediaRecorder.stop(); } catch(err){}
+    tmToast('Hold for at least 3 seconds');
+    return;
+  }
+
   try { mediaRecorder.stop(); } catch(err){}
   const startedAt = Date.now();
   while (!currentBlob && Date.now() - startedAt < 3000) await new Promise(r => setTimeout(r, 20));
@@ -2532,6 +2643,7 @@ async function tmRecSend(e) {
         throw new Error('Upload failed (' + upRes.status + '): ' + txt.slice(0, 200));
       }
     await tmSend({ kind: 'voice', media_url: pdata.public_url, media_duration: duration });
+          try { tmSound.send(); tmHaptic.tap(); } catch(_){}
   } catch (err) { alert('Could not send voice: ' + err.message); }
   finally { currentBlob = null; audioChunks = []; }
 }
@@ -2584,19 +2696,19 @@ function tmCloseMsgMenu() { document.getElementById('msg-menu-holder').innerHTML
 function tmReplyAction(msgId) { const row = document.querySelector('[data-msg-id="' + msgId + '"]'); if (!row) return; tmSetReply(msgId, row.dataset.body || '[media]', row.classList.contains('mine')); tmCloseMsgMenu(); }
 function tmCopyAction(text) { if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => tmToast('Copied')); tmCloseMsgMenu(); }
 async function tmDeleteAction(msgId) { tmCloseMsgMenu(); if (!confirm('Delete this message?')) return; const r = await fetch('/api/chat/messages/' + msgId + '/delete', {method: 'POST', credentials: 'same-origin'}); const data = await r.json(); if (data.ok) { const row = document.querySelector('[data-msg-id="' + msgId + '"]'); if (row) row.remove(); } }
-function tmToast(msg) { const t = document.createElement('div'); t.textContent = msg; t.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;z-index:9999;backdrop-filter:blur(12px);'; document.body.appendChild(t); setTimeout(() => t.remove(), 1800); }
-
-let currentAudio = null, currentAudioBtn = null;
-function tmToggleVoice(btn, url) {
-  if (currentAudio && currentAudioBtn === btn) {
-    if (currentAudio.paused) { currentAudio.play(); btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>'; }
-    else { currentAudio.pause(); btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'; }
-    return;
-  }
-  if (currentAudio) { currentAudio.pause(); if (currentAudioBtn) currentAudioBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'; }
-  currentAudio = new Audio(url); currentAudioBtn = btn;
-  currentAudio.play(); btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
-  currentAudio.onended = () => { btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'; };
+function tmToast(msg) {
+  var old = document.querySelector('.tm-toast-pro');
+  if (old) old.remove();
+  var t = document.createElement('div');
+  t.className = 'tm-toast-pro';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  void t.offsetWidth;
+  t.classList.add('show');
+  setTimeout(function () {
+    t.classList.remove('show');
+    setTimeout(function () { t.remove(); }, 300);
+  }, 2000);
 }
 function tmLightbox(url) { document.getElementById('lightbox-img').src = url; document.getElementById('lightbox').classList.remove('hidden'); }
 
@@ -2901,4 +3013,91 @@ console.log('[TrueMatch] chat loaded');
   } catch (e) {}
 })();
 </script>
+
+// ============================================================
+// SOUND + HAPTICS — premium feedback engine
+// ============================================================
+(function(){
+  var _tmAudioCtx = null;
+  function _ctx() {
+    if (_tmAudioCtx) return _tmAudioCtx;
+    try { _tmAudioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch(_) { _tmAudioCtx = null; }
+    return _tmAudioCtx;
+  }
+
+  // Soft, warm chirp — no asset needed
+  function tmTone(freq, dur, vol, type, delay) {
+    var c = _ctx(); if (!c) return;
+    if (c.state === 'suspended') { try { c.resume(); } catch(_){} }
+    var t0 = c.currentTime + (delay || 0);
+    var osc = c.createOscillator();
+    var gain = c.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.setValueAtTime(freq, t0);
+    gain.gain.setValueAtTime(0, t0);
+    gain.gain.linearRampToValueAtTime(vol, t0 + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.connect(gain);
+    gain.connect(c.destination);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.02);
+  }
+
+  window.tmSound = {
+    _unlock: function() {
+      var c = _ctx();
+      if (c && c.state === 'suspended') { try { c.resume(); } catch(_){} }
+    },
+    send: function() {
+      // Subtle two-note upward chirp — "message sent"
+      tmTone(880, 0.06, 0.035, 'sine', 0);
+      tmTone(1320, 0.08, 0.028, 'sine', 0.045);
+    },
+    receive: function() {
+      // Soft downward — "message received"
+      tmTone(1175, 0.07, 0.04, 'sine', 0);
+      tmTone(784, 0.1, 0.032, 'sine', 0.05);
+    },
+    lock: function() {
+      // Deep click for lock
+      tmTone(420, 0.05, 0.05, 'triangle', 0);
+      tmTone(620, 0.09, 0.04, 'triangle', 0.04);
+    },
+    cancel: function() {
+      // Low thud for discard
+      tmTone(300, 0.12, 0.035, 'sine', 0);
+    },
+    recStart: function() {
+      tmTone(660, 0.05, 0.03, 'sine', 0);
+    },
+    recStop: function() {
+      tmTone(520, 0.06, 0.03, 'sine', 0);
+    },
+    error: function() {
+      tmTone(220, 0.15, 0.05, 'square', 0);
+    },
+  };
+
+  window.tmHaptic = {
+    tap: function() { try { navigator.vibrate && navigator.vibrate(8); } catch(_){} },
+    double: function() { try { navigator.vibrate && navigator.vibrate([10, 25, 10]); } catch(_){} },
+    lock: function() { try { navigator.vibrate && navigator.vibrate([15, 30, 40]); } catch(_){} },
+    long: function() { try { navigator.vibrate && navigator.vibrate(30); } catch(_){} },
+    error: function() { try { navigator.vibrate && navigator.vibrate([60, 40, 60]); } catch(_){} },
+  };
+})();
+
+// Unlock the main audio context on first user interaction
+// Unlock audio context on first user interaction
+(function(){
+  function unlock() {
+    try { if (window.tmSound && window.tmSound._unlock) window.tmSound._unlock(); } catch(_){}
+    document.removeEventListener('touchstart', unlock);
+    document.removeEventListener('click', unlock);
+  }
+  document.addEventListener('touchstart', unlock, { passive: true });
+  document.addEventListener('click', unlock);
+})();
+
 {% endblock %}
