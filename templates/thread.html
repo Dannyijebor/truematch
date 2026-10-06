@@ -19,7 +19,8 @@
   .chat-topbar {
     display: flex; align-items: center; gap: 10px;
     padding: 10px 12px;
-    background: rgba(11,20,26,0.95);
+    padding-top: calc(10px + env(safe-area-inset-top, 0px));
+    background: rgba(11,20,26,0.98);
     backdrop-filter: blur(16px);
     border-bottom: 1px solid rgba(255,255,255,0.06);
     position: sticky; top: 0; z-index: 20;
@@ -135,7 +136,7 @@
 
   .chat-composer {
     display: flex; align-items: flex-end; gap: 6px;
-    padding: 8px 8px 10px;
+    padding: 8px 8px calc(10px + env(safe-area-inset-bottom, 0px)) 8px;
     background: rgba(11,20,26,0.95);
     backdrop-filter: blur(16px);
     border-top: 1px solid rgba(255,255,255,0.06);
@@ -322,6 +323,25 @@
   #call-overlay.hidden,
   #incoming-overlay.hidden {
     display: none !important;
+  }
+
+
+  /* ============================================================
+     IMMERSIVE CHAT — hide global nav so chat fills the screen
+     ============================================================ */
+  body.tm-mode-immersive > nav,
+  body.tm-mode-immersive > footer,
+  body.tm-mode-immersive #tm-feedback-trigger,
+  body.tm-mode-immersive #tm-feedback,
+  body.tm-mode-immersive main {
+    display: none !important;
+  }
+
+  /* Chat screen goes full bleed */
+  body.chat-page .chat-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
   }
 
 </style>
@@ -540,6 +560,8 @@
 
 <script>
 document.body.classList.add('chat-page');
+document.body.classList.add('tm-mode-immersive');
+document.body.style.overflow = 'hidden';
 
 const OTHER_ID = "{{ other.user_id }}";
 const OTHER_NAME = {{ other.name|tojson }};
