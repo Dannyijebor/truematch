@@ -1452,7 +1452,7 @@ async def story_create(request: Request, db: Session = Depends(get_db)):
     except Exception as e:
         return RedirectResponse(f"/feed?error={str(e)[:60]}", status_code=302)
 
-    return RedirectResponse("/feed?posted=story", status_code=302)
+    return RedirectResponse("/feed?posted=story#experiences", status_code=302)
 
 
 @router.post("/stories/{story_id}/delete")

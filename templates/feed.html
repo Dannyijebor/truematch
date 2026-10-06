@@ -39,19 +39,47 @@
 <section class="tm-stories-wrap mt-5">
   <div class="tm-stories">
 
-    <button type="button" onclick="tmOpenComposer()" class="tm-fb-story tm-fb-story-create">
-      <div class="tm-fb-story-top">
-        {% if profile and profile.avatar_url %}
-          <img src="{{ profile.avatar_url }}" alt="" class="tm-fb-story-avatar-big">
+    {% set me_group = story_groups[0] if story_groups and story_groups[0].is_me else None %}
+    {% if me_group and me_group.stories %}
+      {# User has active story — show preview card with tap to view + small add button #}
+      {% set latest = me_group.stories[-1] %}
+      <div class="tm-fb-story tm-fb-story-mine" style="background: {{ latest.background_css if latest.kind != 'image' else 'linear-gradient(135deg,#1e293b,#0f172a)' }};">
+        {% if latest.kind == 'image' and latest.image_url %}
+          <img src="{{ latest.image_url }}" alt="" class="tm-fb-story-bg">
         {% else %}
-          <div class="tm-fb-story-avatar-big tm-fb-story-init">{{ (user.full_name or user.email)[0]|upper }}</div>
+          <div class="tm-fb-story-text-preview">{{ latest.body[:60] }}{% if latest.body and latest.body|length > 60 %}…{% endif %}</div>
         {% endif %}
+
+        <button type="button" onclick="tmOpenMyStory()" class="tm-fb-story-open" aria-label="View your experience">
+          <div class="tm-fb-story-ring {% if me_group.has_unseen %}tm-fb-story-ring-unseen{% endif %}">
+            {% if profile and profile.avatar_url %}
+              <img src="{{ profile.avatar_url }}" alt="">
+            {% else %}
+              <span class="tm-fb-story-init-sm">{{ (user.full_name or user.email)[0]|upper }}</span>
+            {% endif %}
+          </div>
+          <div class="tm-fb-story-label-bottom">Your experience</div>
+        </button>
+
+        <button type="button" onclick="tmOpenComposer()" class="tm-fb-story-add-sm" aria-label="Add another">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="w-4 h-4"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
       </div>
-      <div class="tm-fb-story-bottom">
-        <div class="tm-fb-story-plus">+</div>
-        <div class="tm-fb-story-label">New experience</div>
-      </div>
-    </button>
+    {% else %}
+      <button type="button" onclick="tmOpenComposer()" class="tm-fb-story tm-fb-story-create">
+        <div class="tm-fb-story-top">
+          {% if profile and profile.avatar_url %}
+            <img src="{{ profile.avatar_url }}" alt="" class="tm-fb-story-avatar-big">
+          {% else %}
+            <div class="tm-fb-story-avatar-big tm-fb-story-init">{{ (user.full_name or user.email)[0]|upper }}</div>
+          {% endif %}
+        </div>
+        <div class="tm-fb-story-bottom">
+          <div class="tm-fb-story-plus">+</div>
+          <div class="tm-fb-story-label">New experience</div>
+        </div>
+      </button>
+    {% endif %}
 
     {% if story_groups %}
       {% for g in story_groups if not g.is_me %}

@@ -1028,6 +1028,65 @@
   }
   body.tm-mode-immersive main { display: none !important; }
 
+
+  /* Preview card for user's own story */
+  .tm-fb-story-mine {
+    position: relative;
+    padding: 0;
+    border: none;
+    background: var(--surface-2);
+  }
+  .tm-fb-story-text-preview {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    text-align: center;
+    line-height: 1.35;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    word-break: break-word;
+    overflow: hidden;
+  }
+  .tm-fb-story-mine::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.7) 100%);
+    pointer-events: none;
+  }
+  .tm-fb-story-open {
+    position: absolute;
+    inset: 0;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    z-index: 2;
+  }
+  .tm-fb-story-add-sm {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #052e16;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(255,255,255,0.85);
+    z-index: 3;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+  .tm-fb-story-add-sm:active { transform: scale(0.88); }
+
 </style>
 </head>
 <body class="min-h-screen pb-20 md:pb-0">
