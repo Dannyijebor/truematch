@@ -1264,7 +1264,7 @@ html.light .chat-screen.theme-editorial {
     border-radius: 28px;
     display: flex; align-items: center; gap: 12px;
     padding: 0 20px 0 16px;
-    z-index: 250;
+    z-index: 9100;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
     backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
     transform: translateY(28px) scale(0.96);
@@ -1326,8 +1326,9 @@ html.light .chat-screen.theme-editorial {
   .rec-bar.locked .rec-lock-send   { display: flex !important; }
 
   .rec-lock-cancel,
-  .rec-lock-send {
-    width: 36px; height: 36px;
+.rec-lock-send {
+  display: none;
+  width: 36px; height: 36px;
     border-radius: 50%;
     border: none;
     cursor: pointer;
@@ -1369,7 +1370,7 @@ html.light .chat-screen.theme-editorial {
     transform: translate(-50%, -30px) scale(0.7);
     opacity: 0;
     pointer-events: none;
-    z-index: 255;
+    z-index: 9200;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -1448,7 +1449,7 @@ html.light .chat-screen.theme-editorial {
     justify-content: center;
     opacity: 0;
     pointer-events: none;
-    z-index: 256;
+    z-index: 9300;
     transform: translate(-50%, -50%);
     transition: opacity 0.14s ease, background-color 0.2s ease, box-shadow 0.2s ease;
     will-change: transform;
@@ -1486,7 +1487,7 @@ html.light .chat-screen.theme-editorial {
     border-radius: 2px;
     opacity: 0;
     pointer-events: none;
-    z-index: 254;
+    z-index: 9050;
     transition: opacity 0.28s ease, background 0.28s ease;
   }
   .rec-rail.visible { opacity: 1; }
@@ -1511,16 +1512,17 @@ html.light .chat-screen.theme-editorial {
 
   /* ---------- Recorder: dim overlay + locked layout ---------- */
   .rec-dim {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.55);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    opacity: 0;
-    pointer-events: none;
-    z-index: 248;
-    transition: opacity 0.28s ease;
-  }
+  position: fixed !important;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.62);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9000 !important;
+  transition: opacity 0.28s ease;
+}
+.rec-dim.visible { opacity: 1 !important; }
   .rec-dim.visible { opacity: 1; }
   html.light .rec-dim { background: rgba(245,245,242,0.55); }
 
