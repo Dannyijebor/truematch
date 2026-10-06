@@ -370,7 +370,7 @@ html.light .chat-screen.theme-bordeaux {
   --bubble-mine-text: #2a1f12;
   --bubble-them: #faf7f2;
   --bubble-them-text: #2a2018;
-  --chat-bg: #0e0c08;
+  --chat-bg: #efe9dd;
   --chat-accent: #b89968;
   --wallpaper-accent: #b89968;
 }
@@ -379,7 +379,7 @@ html.light .chat-screen.theme-editorial {
   --bubble-mine-text: #ffffff;
   --bubble-them: #ffffff;
   --bubble-them-text: #2a2018;
-  --chat-bg: #faf6ec;
+  --chat-bg: #f5efe2;
   --chat-accent: #96754a;
   --wallpaper-accent: #96754a;
 }
