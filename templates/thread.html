@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ other.name }} · Chat{% endblock %}
 
+{% from "_wallpapers.html" import wallpaper %}
 {% block overlays %}
 <style>
 body.chat-page { background: #0b141a; }
@@ -363,6 +364,122 @@ html.light .tp-row-label { color: #111b21; }
     box-shadow: 0 2px 12px rgba(0,168,132,0.15);
   }
 
+
+  /* ============================================================
+     CHAT WALLPAPER — animated scene behind messages
+     ============================================================ */
+  .chat-messages { position: relative; }
+  .chat-wallpaper {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+    opacity: var(--wallpaper-opacity, 0.10);
+    transition: opacity 0.35s ease;
+  }
+  .wp-svg {
+    width: 130%;
+    height: 130%;
+    max-width: none;
+    max-height: none;
+  }
+  .chat-messages > .msg-row { position: relative; z-index: 2; }
+
+  /* Wallpaper animation keyframes */
+  .wp-savile-hour { animation: wp-savile-sweep 60s linear infinite; transform-origin: 200px 200px; }
+  .wp-savile-minute { animation: wp-savile-sweep 12s linear infinite; transform-origin: 200px 200px; }
+  @keyframes wp-savile-sweep {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  .wp-manh-windows rect { animation: wp-manh-flicker 5s ease-in-out infinite; }
+  .wp-manh-windows rect:nth-child(2n) { animation-delay: 0.8s; }
+  .wp-manh-windows rect:nth-child(3n) { animation-delay: 1.7s; }
+  .wp-manh-windows rect:nth-child(4n) { animation-delay: 2.5s; }
+  @keyframes wp-manh-flicker {
+    0%, 100% { opacity: 0.75; }
+    40%      { opacity: 0.15; }
+    70%      { opacity: 0.55; }
+  }
+
+  .wp-kyoto-petals ellipse { animation: wp-kyoto-fall 12s ease-in-out infinite; }
+  .wp-kyoto-petals ellipse:nth-child(1) { animation-delay: 0.0s; }
+  .wp-kyoto-petals ellipse:nth-child(2) { animation-delay: 1.4s; }
+  .wp-kyoto-petals ellipse:nth-child(3) { animation-delay: 2.8s; }
+  .wp-kyoto-petals ellipse:nth-child(4) { animation-delay: 4.2s; }
+  .wp-kyoto-petals ellipse:nth-child(5) { animation-delay: 5.6s; }
+  .wp-kyoto-petals ellipse:nth-child(6) { animation-delay: 7.0s; }
+  .wp-kyoto-petals ellipse:nth-child(7) { animation-delay: 8.4s; }
+  @keyframes wp-kyoto-fall {
+    0%   { transform: translate(0, 0) rotate(0deg); opacity: 0.7; }
+    50%  { transform: translate(-30px, 90px) rotate(180deg); opacity: 0.5; }
+    100% { transform: translate(0, 180px) rotate(360deg); opacity: 0.1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wp-savile-hour, .wp-savile-minute,
+    .wp-manh-windows rect,
+    .wp-kyoto-petals ellipse { animation: none !important; }
+  }
+
+
+  /* Opacity control */
+  .tp-opacity {
+    margin-top: 14px;
+    padding: 12px 8px 4px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  html.light .tp-opacity { border-top-color: rgba(0,0,0,0.06); }
+  .tp-opacity-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #8696a0;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .tp-opacity-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .tp-op-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 4px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.03);
+    border: 1.5px solid transparent;
+    color: #8696a0;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.16s ease;
+  }
+  html.light .tp-op-btn { background: rgba(0,0,0,0.03); }
+  .tp-op-btn:hover { background: rgba(255,255,255,0.06); }
+  html.light .tp-op-btn:hover { background: rgba(0,0,0,0.05); }
+  .tp-op-btn.tp-op-active {
+    background: rgba(0,168,132,0.12);
+    border-color: rgba(0,168,132,0.5);
+    color: #e9edef;
+  }
+  html.light .tp-op-btn.tp-op-active { color: #111b21; }
+  .tp-op-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: currentColor;
+    transition: opacity 0.2s;
+  }
+
 </style>
 
 <div class="chat-screen theme-{{ chat_theme }}">
@@ -395,6 +512,17 @@ html.light .tp-row-label { color: #111b21; }
   </div>
 
   <div class="chat-messages" id="chat-messages">
+    {# Animated wallpaper behind messages #}
+    {% set theme_accents = {
+      'executive': '#c9a961',
+      'boardroom': '#3b6ba5',
+      'heritage': '#8b7355',
+      'sovereign': '#b87333',
+      'obsidian': '#4a5568',
+      'bordeaux': '#b8563a',
+      'editorial': '#d4b896'
+    } %}
+    {{ wallpaper(chat_theme, theme_accents.get(chat_theme, '#00a884')) }}
     {% for m in msgs %}
     <div class="msg-row {% if m.from_me %}mine{% else %}theirs{% endif %}" data-msg-id="{{ m.id }}" data-kind="{{ m.kind or 'text' }}" data-body="{{ m.body|e }}">
       <div class="bubble {% if m.from_me %}mine{% else %}theirs{% endif %}" data-bubble-id="{{ m.id }}">
@@ -1026,6 +1154,45 @@ document.addEventListener('click', function(e) {
     document.getElementById('attach-menu').classList.add('hidden');
   }
 });
+
+
+// ============================================================
+// Wallpaper opacity control
+// ============================================================
+var WP_KEY = 'tm_wallpaper_opacity_' + OTHER_ID;
+
+function tmApplyWallpaperOpacity(val) {
+  var el = document.getElementById('chat-messages');
+  if (!el) return;
+  el.style.setProperty('--wallpaper-opacity', val);
+}
+
+function tmSetWallpaperOpacity(key, val) {
+  try { localStorage.setItem(WP_KEY, String(val)); } catch(e) {}
+  tmApplyWallpaperOpacity(val);
+  // Mark button active
+  document.querySelectorAll('.tp-op-btn').forEach(function(b) {
+    b.classList.toggle('tp-op-active', b.dataset.opacity === key);
+  });
+  tmToast('Wallpaper ' + (val === '0' ? 'off' : key));
+}
+
+// Restore on load
+(function() {
+  var stored = '0.10';
+  try { stored = localStorage.getItem(WP_KEY) || '0.10'; } catch(e) {}
+  tmApplyWallpaperOpacity(stored);
+  // Highlight the matching button
+  setTimeout(function() {
+    var matchKey = 'soft';
+    if (stored === '0') matchKey = 'off';
+    else if (stored === '0.15') matchKey = 'medium';
+    else if (stored === '0.25') matchKey = 'bold';
+    document.querySelectorAll('.tp-op-btn').forEach(function(b) {
+      b.classList.toggle('tp-op-active', b.dataset.opacity === matchKey);
+    });
+  }, 300);
+})();
 
 console.log('[TrueMatch] chat loaded');
 </script>
