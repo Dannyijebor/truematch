@@ -434,6 +434,298 @@
   .composer-send { background: var(--chat-accent) !important; }
   .bubble-reply-name { color: var(--chat-accent) !important; }
 
+
+  /* ============================================================
+     THEME PICKER — luxury panel
+     ============================================================ */
+  .tp-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 480;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    animation: msg-slide-in 0.18s ease-out both;
+  }
+  .tp-panel {
+    position: fixed;
+    top: 60px;
+    right: 12px;
+    left: 12px;
+    max-width: 400px;
+    margin-left: auto;
+    z-index: 481;
+    background: #1f2c33;
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: 0 30px 80px -20px rgba(0,0,0,0.7),
+                0 8px 24px -8px rgba(0,0,0,0.4);
+    animation: tp-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+  }
+  html.light .tp-panel { background: #ffffff; }
+
+  @keyframes tp-in {
+    from { opacity: 0; transform: translateY(-12px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .tp-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding: 0 4px;
+  }
+  .tp-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #e9edef;
+    letter-spacing: -0.02em;
+  }
+  html.light .tp-title { color: #111b21; }
+  .tp-sub {
+    font-size: 12px;
+    color: #8696a0;
+    margin-top: 2px;
+    letter-spacing: -0.005em;
+  }
+  .tp-close {
+    color: #8696a0;
+    padding: 6px;
+    border-radius: 50%;
+    transition: background 0.15s;
+  }
+  .tp-close:hover { background: rgba(255,255,255,0.08); }
+  html.light .tp-close:hover { background: rgba(0,0,0,0.05); }
+
+  .tp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .tp-tile {
+    position: relative;
+    text-align: left;
+    border-radius: 14px;
+    padding: 0;
+    border: 1.5px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+                border-color 0.15s ease;
+    overflow: hidden;
+  }
+  .tp-tile:hover { transform: translateY(-2px); }
+  .tp-tile:active { transform: scale(0.97); }
+  .tp-tile-active {
+    border-color: #00a884;
+    box-shadow: 0 0 0 3px rgba(0,168,132,0.2);
+  }
+
+  .tp-preview {
+    height: 76px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-radius: 12px 12px 0 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .tp-preview::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(255,255,255,0.06), transparent 60%),
+      radial-gradient(circle at 80% 70%, rgba(255,255,255,0.04), transparent 60%);
+    pointer-events: none;
+  }
+  .tp-bubble {
+    max-width: 68%;
+    padding: 4px 9px;
+    border-radius: 10px;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    align-self: flex-start;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    position: relative;
+    z-index: 1;
+  }
+  .tp-bubble-mine {
+    align-self: flex-end;
+    color: inherit;
+  }
+  /* Auto text color for mine bubble based on bg brightness */
+  .tp-tile[data-theme-key="executive"] .tp-bubble-mine { color: #1a1206; }
+  .tp-tile[data-theme-key="boardroom"] .tp-bubble-mine { color: #f0f4fa; }
+  .tp-tile[data-theme-key="heritage"] .tp-bubble-mine { color: #f5efe0; }
+  .tp-tile[data-theme-key="sovereign"] .tp-bubble-mine { color: #1a0e04; }
+  .tp-tile[data-theme-key="obsidian"] .tp-bubble-mine { color: #f7fafc; }
+  .tp-tile[data-theme-key="bordeaux"] .tp-bubble-mine { color: #fbf2ed; }
+  .tp-tile[data-theme-key="editorial"] .tp-bubble-mine { color: #2a1f12; }
+
+  .tp-meta {
+    padding: 10px 12px 12px;
+    background: #233138;
+    border-radius: 0 0 12px 12px;
+  }
+  html.light .tp-meta { background: #f6f7f8; }
+  .tp-tile-active .tp-meta { background: #2a3a44; }
+  html.light .tp-tile-active .tp-meta { background: #e8f5f0; }
+
+  .tp-label {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #e9edef;
+    letter-spacing: -0.01em;
+  }
+  html.light .tp-label { color: #111b21; }
+  .tp-tag {
+    font-size: 10.5px;
+    color: #8696a0;
+    margin-top: 2px;
+    letter-spacing: 0.02em;
+  }
+
+  .tp-check {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #00a884;
+    color: #fff;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,168,132,0.5);
+    animation: tp-check-in 0.24s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  .tp-tile-active .tp-check { display: flex; }
+  .tp-check svg { width: 12px; height: 12px; }
+  @keyframes tp-check-in {
+    from { transform: scale(0); }
+    to   { transform: scale(1); }
+  }
+
+
+  /* ============================================================
+     MESSAGE ANIMATIONS — luxury, playful, professional
+     ============================================================ */
+
+  /* Bubbles smoothly transition color when theme changes */
+  .bubble {
+    transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .bubble::before {
+    transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Send: my message pops in with a soft spring */
+  @keyframes bubble-send {
+    0%   { opacity: 0; transform: translateY(12px) scale(0.85); }
+    55%  { opacity: 1; transform: translateY(0) scale(1.04); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .msg-row.mine.just-sent .bubble {
+    animation: bubble-send 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    transform-origin: bottom right;
+  }
+
+  /* Receive: their message slides in from the left with a soft ease */
+  @keyframes bubble-receive {
+    0%   { opacity: 0; transform: translateX(-14px); }
+    100% { opacity: 1; transform: translateX(0); }
+  }
+  .msg-row.theirs.just-received .bubble {
+    animation: bubble-receive 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+    transform-origin: bottom left;
+  }
+
+  /* Sparkle burst — a soft glow behind newly sent bubble */
+  @keyframes sparkle-burst {
+    0%   { opacity: 0; transform: scale(0.4); }
+    40%  { opacity: 0.75; }
+    100% { opacity: 0; transform: scale(1.6); }
+  }
+  .msg-row.mine.just-sent::after {
+    content: '';
+    position: absolute;
+    right: 12px;
+    bottom: 8px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,169,97,0.6) 0%, transparent 70%);
+    pointer-events: none;
+    animation: sparkle-burst 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+    z-index: -1;
+  }
+  .msg-row { position: relative; }
+
+  /* Tick pulses blue when read just happened */
+  @keyframes tick-read {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.4); color: #53bdeb; }
+    100% { transform: scale(1); color: #53bdeb; }
+  }
+  .tick.read.tick-fresh {
+    animation: tick-read 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  /* Bubble tap feedback — very subtle */
+  .bubble:active {
+    transform: scale(0.985);
+    transition: transform 0.08s ease;
+  }
+
+  /* Theme transitions on background */
+  .chat-screen {
+    transition: background-color 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                background-image 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Typing dots (their side typing indicator) */
+  .typing-dots {
+    display: inline-flex;
+    gap: 3px;
+    align-items: center;
+    padding: 4px 0;
+  }
+  .typing-dots span {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor; opacity: 0.4;
+    animation: typing-bounce 1.4s ease-in-out infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes typing-bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30%           { transform: translateY(-3px); opacity: 0.9; }
+  }
+
+  /* Composer subtle glow when focused */
+  .composer-input-wrap:focus-within {
+    box-shadow: 0 0 0 2px rgba(0,168,132,0.35);
+    transition: box-shadow 0.2s ease;
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .msg-row.mine.just-sent .bubble,
+    .msg-row.theirs.just-received .bubble,
+    .msg-row.mine.just-sent::after,
+    .tick.read.tick-fresh,
+    .tp-check { animation: none !important; }
+  }
+
 </style>
 
 <div class="chat-screen theme-{{ chat_theme }}">
@@ -465,121 +757,51 @@
     </button>
   </div>
 
-  <div id="theme-popover-wrap" class="hidden" style="position:fixed;top:60px;right:12px;z-index:60;">
-    <div class="pro-popover-backdrop" onclick="closeThemePop()"></div>
-    <div class="pro-popover" onclick="event.stopPropagation()" style="min-width:240px;">
-      <div class="pro-popover-header">Conversation theme</div>
+  <!-- ============ THEME PICKER ============ -->
+<div id="theme-popover-wrap" class="hidden">
+  <div class="tp-backdrop" onclick="closeThemePop()"></div>
+  <div class="tp-panel" onclick="event.stopPropagation()">
+    <div class="tp-header">
+      <div>
+        <div class="tp-title">Conversation</div>
+        <div class="tp-sub">Choose the atmosphere of your chat</div>
+      </div>
+      <button class="tp-close" onclick="closeThemePop()" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </button>
+    </div>
+
+    <div class="tp-grid">
       {% set themes = [
-        ('executive','Savile','#0d0e12','#c9a961','#1e2028'),
-        ('boardroom','Manhattan','#0a0f18','#3b6ba5','#1a1f2b'),
-        ('heritage','Mayfair','#0b1410','#8b7355','#1c2420'),
-        ('sovereign','Soho','#100a06','#b87333','#221814'),
-        ('obsidian','Zurich','#0c0e12','#4a5568','#1a1d24'),
-        ('bordeaux','Kyoto','#13100d','#b8563a','#241a16'),
-        ('editorial','Aspen','#efe9dd','#d4b896','#faf7f2')
+        ('executive','Savile','Ink & Champagne','#0d0e12','#c9a961','#1e2028','#f0ede5'),
+        ('boardroom','Manhattan','Steel & Cobalt','#0a0f18','#3b6ba5','#1a1f2b','#e2e8f0'),
+        ('heritage','Mayfair','Forest & Brass','#0b1410','#8b7355','#1c2420','#e6ede8'),
+        ('sovereign','Soho','Midnight & Copper','#100a06','#b87333','#221814','#f0e5d8'),
+        ('obsidian','Zurich','Graphite & Ice','#0c0e12','#4a5568','#1a1d24','#e2e8f0'),
+        ('bordeaux','Kyoto','Charcoal & Persimmon','#13100d','#b8563a','#241a16','#ede4de'),
+        ('editorial','Aspen','Cream & Camel','#efe9dd','#d4b896','#faf7f2','#2a2018')
       ] %}
-      {% for key, label, bg, mine, them in themes %}
-      <button onclick="pickTheme('{{ key }}')" data-theme="{{ key }}"
-              class="theme-row {% if chat_theme == key %}selected{% endif %}">
-        <span class="theme-swatch">
-          <span style="background:{{ bg }}"></span>
-          <span style="background:{{ mine }}"></span>
-          <span style="background:{{ them }}"></span>
-        </span>
-        <span>{{ label }}</span>
-        <svg class="theme-check w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+      {% for key, label, tag, bg, mine, them, them_text in themes %}
+      <button type="button"
+              class="tp-tile {% if chat_theme == key %}tp-tile-active{% endif %}"
+              data-theme-key="{{ key }}"
+              onclick="pickTheme('{{ key }}')">
+        <div class="tp-preview" style="background:{{ bg }};">
+          <div class="tp-bubble tp-bubble-them" style="background:{{ them }}; color:{{ them_text }};">Morning</div>
+          <div class="tp-bubble tp-bubble-mine" style="background:{{ mine }};">{{ label }}</div>
+        </div>
+        <div class="tp-meta">
+          <div class="tp-label">{{ label }}</div>
+          <div class="tp-tag">{{ tag }}</div>
+        </div>
+        <div class="tp-check">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
       </button>
       {% endfor %}
     </div>
   </div>
-
-
-  <!-- ============ CHAT MENU (3-dot dropdown) ============ -->
-  <div id="tm-chat-menu-backdrop" class="hidden" onclick="tmCloseChatMenu()" style="position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.35);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);animation:msg-slide-in 0.18s ease-out both;"></div>
-  <div id="tm-chat-menu" class="hidden" style="position:fixed;top:60px;right:12px;z-index:401;width:264px;background:#1f2c33;border-radius:16px;padding:6px;box-shadow:0 24px 64px -16px rgba(0,0,0,0.7), 0 6px 20px -4px rgba(0,0,0,0.4);animation:menu-in 0.18s cubic-bezier(0.16,1,0.3,1) both;">
-    <style>
-      @keyframes menu-in {
-        from { opacity: 0; transform: translateY(-8px) scale(0.96); }
-        to   { opacity: 1; transform: translateY(0) scale(1); }
-      }
-      html.light #tm-chat-menu { background: #ffffff; }
-      .cm-header {
-        padding: 12px 14px 10px;
-        border-bottom: 1px solid rgba(255,255,255,0.08);
-        display: flex; align-items: center; gap: 10px;
-        margin-bottom: 4px;
-      }
-      html.light .cm-header { border-bottom-color: rgba(0,0,0,0.06); }
-      .cm-avatar {
-        width: 36px; height: 36px; border-radius: 50%; object-fit: cover;
-        flex-shrink: 0;
-      }
-      .cm-avatar-init {
-        width: 36px; height: 36px; border-radius: 50%;
-        background: linear-gradient(135deg, #10b981, #065f46);
-        display: flex; align-items: center; justify-content: center;
-        font-weight: 700; color: #052e16; font-size: 14px;
-        flex-shrink: 0;
-      }
-      .cm-name { font-size: 14px; font-weight: 600; color: #e9edef; }
-      html.light .cm-name { color: #111b21; }
-      .cm-sub { font-size: 12px; color: #8696a0; margin-top: 1px; }
-      .cm-item {
-        display: flex; align-items: center; gap: 12px;
-        width: 100%;
-        padding: 11px 12px;
-        border-radius: 10px;
-        color: #e9edef;
-        font-size: 14px;
-        font-weight: 500;
-        text-align: left;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        transition: background 0.12s ease;
-        letter-spacing: -0.005em;
-      }
-      html.light .cm-item { color: #111b21; }
-      .cm-item:hover { background: rgba(255,255,255,0.06); }
-      html.light .cm-item:hover { background: rgba(0,0,0,0.04); }
-      .cm-item.danger { color: #f87171; }
-      .cm-item.danger:hover { background: rgba(248,113,113,0.1); }
-      .cm-item .cm-icon {
-        width: 20px; height: 20px; flex-shrink: 0;
-        opacity: 0.75;
-      }
-      .cm-item .cm-icon svg {
-        width: 20px; height: 20px;
-        stroke: currentColor;
-        fill: none;
-        stroke-width: 1.7;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-      }
-      .cm-item .cm-arrow {
-        margin-left: auto;
-        width: 16px; height: 16px;
-        opacity: 0.5;
-      }
-      .cm-divider {
-        height: 1px;
-        background: rgba(255,255,255,0.06);
-        margin: 4px 8px;
-      }
-      html.light .cm-divider { background: rgba(0,0,0,0.05); }
-    </style>
-
-    <div class="cm-header">
-      {% if other.avatar_url %}
-        <img src="{{ other.avatar_url }}" class="cm-avatar">
-      {% else %}
-        <div class="cm-avatar-init">{{ (other.name or '?')[0]|upper }}</div>
-      {% endif %}
-      <div style="min-width:0;flex:1;">
-        <div class="cm-name">{{ other.name }}</div>
-        <div class="cm-sub">{% if other.username %}@{{ other.username }}{% else %}Chat options{% endif %}</div>
-      </div>
-    </div>
+</div>
 
     {% if other.username %}
     <a href="/u/{{ other.username }}" class="cm-item">
@@ -917,6 +1139,14 @@ function tmAppendMessage(m) {
   row.dataset.body = m.body;
   row.innerHTML = tmRenderBubble(m);
   chat.appendChild(row);
+
+  // Play the right entrance animation
+  row.classList.add(m.from_me ? 'just-sent' : 'just-received');
+  setTimeout(() => row.classList.remove('just-sent', 'just-received'), 700);
+
+  // If it's my message and it later becomes read, we want a fresh pulse
+  if (m.from_me) row.dataset.pendingRead = '1';
+
   scrollBottom(true);
 }
 
@@ -927,8 +1157,17 @@ async function tmPoll() {
     if (r.ok) {
       const data = await r.json();
       for (const m of data.messages || []) {
-        if (!document.querySelector('[data-msg-id="' + m.id + '"]')) {
+        const existing = document.querySelector('[data-msg-id="' + m.id + '"]');
+        if (!existing) {
           tmAppendMessage(m);
+        } else if (m.from_me) {
+          // Check if ticks just became read
+          const tick = existing.querySelector('.tick');
+          if (tick && m.read && !tick.classList.contains('read')) {
+            tick.classList.add('read');
+            tick.classList.add('tick-fresh');
+            setTimeout(() => tick.classList.remove('tick-fresh'), 900);
+          }
         }
         if (m.created_at) lastTs = m.created_at;
       }
@@ -1241,7 +1480,28 @@ function closeThemePop() {
 async function pickTheme(key) {
   currentTheme = key;
   closeThemePop();
-  document.querySelectorAll('.theme-row').forEach(b => b.classList.toggle('selected', b.dataset.theme === key));
+
+  // Update the chat-screen class → triggers CSS transitions on all bubbles
+  var screen = document.querySelector('.chat-screen');
+  if (screen) {
+    // Strip any existing theme-* class
+    screen.className = screen.className.replace(/theme-\S+/g, '').trim();
+    screen.classList.add('theme-' + key);
+  }
+
+  // Update picker tile selection
+  document.querySelectorAll('.tp-tile').forEach(b =>
+    b.classList.toggle('tp-tile-active', b.dataset.themeKey === key)
+  );
+
+  // Bump animation on chat — playful luxury
+  var chat = document.getElementById('chat-messages');
+  if (chat) {
+    chat.style.transition = 'transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    chat.style.transform = 'scale(1.015)';
+    setTimeout(function() { chat.style.transform = ''; }, 220);
+  }
+
   try {
     await fetch('/api/settings/chat_theme', {
       method: 'POST', credentials: 'same-origin',
@@ -1250,6 +1510,17 @@ async function pickTheme(key) {
     });
   } catch(e) {}
   tmToast('Theme saved');
+}
+
+function closeThemePop() {
+  var el = document.getElementById('theme-popover-wrap');
+  if (el) el.classList.add('hidden');
+}
+
+function toggleThemePop(e) {
+  if (e) e.stopPropagation();
+  var el = document.getElementById('theme-popover-wrap');
+  if (el) el.classList.toggle('hidden');
 }
 
 // ---------- Calls ----------
