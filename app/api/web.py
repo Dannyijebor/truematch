@@ -1569,3 +1569,19 @@ async def media_presign(request: Request, db: Session = Depends(get_db)):
         return JSONResponse({"ok": True, **result})
     except Exception as e:
         return JSONResponse({"ok": False, "error": str(e)}, status_code=400)
+
+
+# Alias — matches the JS in feed.html
+@router.post("/api/stories/{story_id}/delete")
+def api_story_delete(story_id: str, request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    user = current_user_web(request, db)
+    if not user:
+        return JSONResponse({"ok": False, "error": "auth"}, status_code=401)
+    from uuid import UUID
+    from app.stories import delete_story
+    try:
+        delete_story(db, user.id, UUID(story_id))
+        return JSONResponse({"ok": True})
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=400)
