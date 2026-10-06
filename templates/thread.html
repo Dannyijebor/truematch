@@ -459,6 +459,39 @@ html.light .chat-screen.theme-editorial {
   .man-night-only { display: inline; }
   html.light .man-night-only { display: none; }
 
+  /* ---------- Manhattan celestial: moon ⇄ sun morph + travel ---------- */
+  .man-celestial {
+    transform: translate(92px, 98px);
+    transition: transform 1.8s cubic-bezier(0.45, 0.05, 0.35, 1);
+    transform-box: view-box;
+    transform-origin: 0 0;
+  }
+  html:not(.light) .man-celestial {
+    transform: translate(392px, 88px);
+  }
+  .man-cel-sun {
+    opacity: 1;
+    transition: opacity 0.6s ease 0.4s;
+  }
+  html:not(.light) .man-cel-sun {
+    opacity: 0;
+    transition: opacity 0.55s ease;
+  }
+  .man-cel-moon {
+    opacity: 0;
+    transition: opacity 0.55s ease;
+  }
+  html:not(.light) .man-cel-moon {
+    opacity: 1;
+    transition: opacity 0.6s ease 0.4s;
+  }
+
+  /* ---------- Manhattan day/night toggle ---------- */
+  .man-day-only { display: none; }
+  html.light .man-day-only { display: inline; }
+  .man-night-only { display: inline; }
+  html.light .man-night-only { display: none; }
+
   .chat-wallpaper[data-wallpaper="boardroom"] {
     --man-sky-1: #050a18; --man-sky-2: #0f1c34; --man-sky-3: #2a2438;
     --man-moon: #e8eef5; --man-moon-shade: #8fa8c4;

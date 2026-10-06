@@ -364,36 +364,36 @@
       <circle cx="325" cy="48" r="0.5" opacity="0.4"/>
     </g>
 
-    <!-- Celestial body — morphs moon↔sun and travels across the sky -->
-    <g class="man-celestial">
-      <g class="man-cel-sun">
-        <circle r="72" fill="url(#man-sunhalo)"/>
-        <circle r="30" fill="var(--man-sun)"/>
-        <circle r="30" fill="none" stroke="var(--man-sun-edge)" stroke-width="0.5" opacity="0.6"/>
-        <circle cx="-8" cy="-6" r="6" fill="#fff" opacity="0.45"/>
-        <g stroke="var(--man-sun-ray)" stroke-width="1.2" stroke-linecap="round" opacity="0.35">
-          <line x1="0" y1="-46" x2="0" y2="-58"/>
-          <line x1="0" y1="46" x2="0" y2="58"/>
-          <line x1="-46" y1="0" x2="-58" y2="0"/>
-          <line x1="46" y1="0" x2="58" y2="0"/>
-          <line x1="-33" y1="-33" x2="-42" y2="-42"/>
-          <line x1="33" y1="33" x2="42" y2="42"/>
-          <line x1="33" y1="-33" x2="42" y2="-42"/>
-          <line x1="-33" y1="33" x2="-42" y2="42"/>
-        </g>
-      </g>
-      <g class="man-cel-moon">
-        <circle r="60" fill="url(#man-moonhalo)"/>
-        <circle r="22" fill="var(--man-moon)"/>
-        <circle cx="-10" cy="-8" r="20" fill="var(--man-sky-1)" opacity="0.95"/>
-        <circle cx="-6" cy="0" r="1.2" fill="var(--man-moon-shade)" opacity="0.4"/>
-        <circle cx="0" cy="6" r="0.9" fill="var(--man-moon-shade)" opacity="0.35"/>
-        <circle cx="6" cy="-4" r="0.7" fill="var(--man-moon-shade)" opacity="0.3"/>
-      </g>
+    <!-- Moon crescent with halo -->
+    <g class="man-night-only">
+    <circle cx="392" cy="88" r="60" fill="url(#man-moonhalo)"/>
+    <circle cx="392" cy="88" r="22" fill="var(--man-moon)"/>
+    <circle cx="382" cy="80" r="20" fill="var(--man-sky-1)" opacity="0.9"/>
+    <circle cx="386" cy="88" r="1.2" fill="var(--man-moon-shade)" opacity="0.4"/>
+    <circle cx="392" cy="94" r="0.9" fill="var(--man-moon-shade)" opacity="0.35"/>
+    <circle cx="398" cy="84" r="0.7" fill="var(--man-moon-shade)" opacity="0.3"/>
     </g>
 
     <!-- ============ DAY SCENE: sun + clouds ============ -->
     <g class="man-day-only">
+      <!-- Sun upper-left with soft rays -->
+      <circle cx="92" cy="98" r="72" fill="url(#man-sunhalo)"/>
+      <circle cx="92" cy="98" r="30" fill="var(--man-sun)"/>
+      <circle cx="92" cy="98" r="30" fill="none" stroke="var(--man-sun-edge)" stroke-width="0.5" opacity="0.6"/>
+      <circle cx="84" cy="92" r="6" fill="#fff" opacity="0.4"/>
+
+      <!-- Sun rays (soft) -->
+      <g stroke="var(--man-sun-ray)" stroke-width="1.2" stroke-linecap="round" opacity="0.35">
+        <line x1="92" y1="52" x2="92" y2="40"/>
+        <line x1="92" y1="144" x2="92" y2="156"/>
+        <line x1="46" y1="98" x2="34" y2="98"/>
+        <line x1="138" y1="98" x2="150" y2="98"/>
+        <line x1="59" y1="65" x2="50" y2="56"/>
+        <line x1="125" y1="131" x2="134" y2="140"/>
+        <line x1="125" y1="65" x2="134" y2="56"/>
+        <line x1="59" y1="131" x2="50" y2="140"/>
+      </g>
+
       <!-- Cloud 1: large, drifting right -->
       <g fill="var(--man-cloud)" opacity="0.9">
         <animateTransform attributeName="transform" type="translate" values="0 0; 30 0; 0 0" dur="60s" repeatCount="indefinite"/>
