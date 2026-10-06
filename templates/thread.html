@@ -1846,9 +1846,45 @@ async function tmMicTap(e) {
 async function tmRecBegin() {
   if (recording) return;
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { alert('Recording not supported.'); return; }
+  // Check permission state first (Chrome-specific flow)
+  try {
+    if (navigator.permissions && navigator.permissions.query) {
+      const perm = await navigator.permissions.query({ name: 'microphone' });
+      if (perm.state === 'denied') {
+        alert(
+          'Microphone is BLOCKED for this site.\n\n' +
+          'Fix it:\n' +
+          '1. Tap the 🔒 lock icon next to the URL\n' +
+          '2. Tap Permissions\n' +
+          '3. Set Microphone → Allow\n' +
+          '4. Reload the page'
+        );
+        return;
+      }
+    }
+  } catch(_) {}
+
   try {
     activeStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  } catch (err) { alert('Microphone access is required.'); return; }
+  } catch (err) {
+    const name = (err && err.name) || '';
+    if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+      alert(
+        'Microphone permission was denied.\n\n' +
+        'To enable:\n' +
+        '1. Tap the 🔒 icon next to the URL\n' +
+        '2. Tap Permissions → Microphone → Allow\n' +
+        '3. Reload the page'
+      );
+    } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
+      alert('No microphone found on this device.');
+    } else if (name === 'NotReadableError' || name === 'TrackStartError') {
+      alert('Microphone is already in use by another app. Close it and try again.');
+    } else {
+      alert('Could not access microphone: ' + name + '\n' + (err && err.message ? err.message : ''));
+    }
+    return;
+  }
 
   try {
     recAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
