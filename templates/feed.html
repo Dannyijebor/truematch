@@ -688,6 +688,8 @@ function tmShowMenu(anchorEl) {
   var bd = document.getElementById('tm-menu-backdrop');
   var pop = document.getElementById('tm-menu-pop');
   if (!bd || !pop) return;
+  // Pause any playing experience/video while the menu is open
+  tmPauseViewer();
   bd.classList.remove('hidden');
   pop.classList.remove('hidden');
   tmPositionMenu(anchorEl);
@@ -697,6 +699,67 @@ function tmCloseMenu() {
   var pop = document.getElementById('tm-menu-pop');
   if (bd) bd.classList.add('hidden');
   if (pop) pop.classList.add('hidden');
+  // Resume the experience after the menu closes
+  tmResumeViewer();
+}
+
+// ---------- Viewer pause / resume ----------
+function tmPauseViewer() {
+  var s = tmViewer.queue[tmViewer.index];
+  if (!s) return;
+  tmViewer.paused = true;
+  clearTimeout(tmViewer.timer);
+
+  // Freeze the progress bar mid-way
+  var active = document.querySelector('.tm-vbar-active span');
+  if (active) {
+    var cs = window.getComputedStyle(active);
+    var matrix = cs.transform;
+    // Force inline current transform so it stops animating
+    active.style.transition = 'none';
+    if (matrix && matrix !== 'none') active.style.transform = matrix;
+  }
+
+  // Pause video if any
+  var v = document.getElementById('tm-current-video');
+  if (v) { try { v.pause(); } catch(e){} }
+}
+
+function tmResumeViewer() {
+  var s = tmViewer.queue[tmViewer.index];
+  if (!s) return;
+  tmViewer.paused = false;
+
+  // Resume video if any
+  var v = document.getElementById('tm-current-video');
+  if (v) { try { v.play().catch(function(){}); } catch(e){} }
+
+  // Continue progress from where it stopped
+  var active = document.querySelector('.tm-vbar-active span');
+  if (active) {
+    var cs = window.getComputedStyle(active);
+    var matrix = cs.transform;
+    var progress = 0;
+    if (matrix && matrix !== 'none') {
+      // matrix(a, b, c, d, tx, ty) — a is scaleX
+      var m = matrix.match(/matrix\(([^)]+)\)/);
+      if (m) progress = parseFloat(m[1].split(',')[0]) || 0;
+    }
+    var totalMs = (s.kind === 'video' ? (s.duration || 15) : 5) * 1000;
+    var remainingMs = Math.max(600, totalMs * (1 - progress));
+
+    active.style.transition = 'transform ' + (remainingMs / 1000) + 's linear';
+    // Force reflow then continue
+    void active.offsetWidth;
+    active.style.transform = 'scaleX(1)';
+
+    clearTimeout(tmViewer.timer);
+    tmViewer.timer = setTimeout(tmStoryNext, remainingMs);
+  } else {
+    // Fallback: restart the timer
+    clearTimeout(tmViewer.timer);
+    tmViewer.timer = setTimeout(tmStoryNext, 5000);
+  }
 }
 function tmOpenStoryMenu(e) {
   if (e) e.stopPropagation();
@@ -795,6 +858,132 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') { tmCloseMenu(); tmCloseEdit(); }
 });
 </script>
+<script>
+// ============================================================
+// VIEWER INTERACTIONS — long-press pause + swipe-down to close
+// ============================================================
+(function() {
+  var viewerEl = document.getElementById('tm-story-viewer');
+  if (!viewerEl || viewerEl.dataset.interactions === '1') return;
+  viewerEl.dataset.interactions = '1';
+
+  var pressTimer = null;
+  var isPressing = false;
+  var touchStartY = 0;
+  var touchStartX = 0;
+  var dragging = false;
+  var dragThreshold = 60;
+  var swipeThreshold = 100;
+
+  function isMenuOpen() {
+    var bd = document.getElementById('tm-menu-backdrop');
+    return bd && !bd.classList.contains('hidden');
+  }
+
+  function isModalOpen() {
+    var m = document.getElementById('tm-edit-modal');
+    return m && !m.classList.contains('hidden');
+  }
+
+  // ---------- Press / hold to pause ----------
+  function onPressStart(e) {
+    if (isMenuOpen() || isModalOpen()) return;
+    if (e.target.closest('.tm-viewer-tap') === null) return;
+    isPressing = true;
+    pressTimer = setTimeout(function() {
+      if (isPressing) tmPauseViewer();
+    }, 180); // slight delay so a quick tap doesn't stutter the bar
+  }
+
+  function onPressEnd() {
+    isPressing = false;
+    if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+    if (!dragging && tmViewer.paused && !isMenuOpen() && !isModalOpen()) {
+      tmResumeViewer();
+    }
+  }
+
+  // ---------- Swipe down to close ----------
+  function onTouchStart(e) {
+    var t = e.touches[0];
+    touchStartY = t.clientY;
+    touchStartX = t.clientX;
+    dragging = false;
+    if (isMenuOpen() || isModalOpen()) return;
+    if (e.target.closest('.tm-viewer-tap') === null) return;
+    onPressStart(e);
+  }
+
+  function onTouchMove(e) {
+    if (isMenuOpen() || isModalOpen()) return;
+    var t = e.touches[0];
+    var dy = t.clientY - touchStartY;
+    var dx = Math.abs(t.clientX - touchStartX);
+    if (!dragging && Math.abs(dy) > dragThreshold * 0.4 && Math.abs(dy) > dx) {
+      dragging = true;
+      isPressing = false;
+      if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+      tmPauseViewer();
+    }
+    if (dragging && dy > 0) {
+      var offset = Math.min(dy, 300);
+      var opacity = Math.max(0.25, 1 - offset / 400);
+      viewerEl.style.transform = 'translateY(' + offset + 'px)';
+      viewerEl.style.opacity = String(opacity);
+      viewerEl.style.transition = 'none';
+    }
+  }
+
+  function onTouchEnd(e) {
+    var t = e.changedTouches[0];
+    var dy = t.clientY - touchStartY;
+    var dx = Math.abs(t.clientX - touchStartX);
+
+    if (dragging && dy > swipeThreshold && dy > dx) {
+      // Close with a smooth exit animation
+      viewerEl.style.transition = 'transform 0.22s cubic-bezier(0.4, 0, 1, 1), opacity 0.22s ease-out';
+      viewerEl.style.transform = 'translateY(100%)';
+      viewerEl.style.opacity = '0';
+      setTimeout(function() {
+        viewerEl.style.transform = '';
+        viewerEl.style.opacity = '';
+        viewerEl.style.transition = '';
+        tmCloseStory();
+      }, 200);
+      dragging = false;
+      return;
+    }
+
+    // Reset transform if not enough drag
+    if (dragging) {
+      viewerEl.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease-out';
+      viewerEl.style.transform = '';
+      viewerEl.style.opacity = '';
+      setTimeout(function() { viewerEl.style.transition = ''; }, 260);
+    }
+    dragging = false;
+    onPressEnd();
+  }
+
+  // ---------- Desktop equivalents ----------
+  function onMouseDown(e) {
+    if (isMenuOpen() || isModalOpen()) return;
+    if (e.target.closest('.tm-viewer-tap') === null) return;
+    onPressStart(e);
+  }
+  function onMouseUp() { onPressEnd(); }
+
+  // ---------- Wire it up ----------
+  viewerEl.addEventListener('touchstart', onTouchStart, {passive: true});
+  viewerEl.addEventListener('touchmove', onTouchMove, {passive: true});
+  viewerEl.addEventListener('touchend', onTouchEnd, {passive: true});
+  viewerEl.addEventListener('touchcancel', onTouchEnd, {passive: true});
+  viewerEl.addEventListener('mousedown', onMouseDown);
+  document.addEventListener('mouseup', onMouseUp);
+  document.addEventListener('touchend', onPressEnd, {passive: true});
+})();
+</script>
+
 
 
 
