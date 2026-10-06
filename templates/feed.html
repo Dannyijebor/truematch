@@ -339,8 +339,14 @@
         <p class="tm-video-hint">Max 3 MB. MP4, WebM, or MOV. Longer videos may not upload.</p>
         <video id="tm-video-preview" class="hidden" controls muted playsinline
                style="width:100%;border-radius:12px;margin-top:10px;"></video>
-        <div id="tm-video-progress" class="tm-video-progress hidden">
-          <div class="tm-video-progress-bar" id="tm-video-progress-bar"></div>
+        <div id="tm-upload-progress" class="hidden" style="margin-top:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);">Uploading to CDN</span>
+            <span id="tm-upload-progress-label" style="font-size:11px;color:var(--accent);font-weight:600;">0%</span>
+          </div>
+          <div style="height:4px;background:var(--surface-3);border-radius:2px;overflow:hidden;">
+            <div id="tm-upload-progress-bar" style="height:100%;background:var(--accent);width:0%;transition:width 0.15s linear;"></div>
+          </div>
         </div>
       </div>
       <div>
@@ -983,6 +989,128 @@ document.addEventListener('keydown', function(e) {
   document.addEventListener('touchend', onPressEnd, {passive: true});
 })();
 </script>
+<script>
+// ============================================================
+// R2 PRESIGNED UPLOADS — 70 MB videos with progress bar
+// ============================================================
+async function tmUploadToR2(file, kind, onProgress) {
+  // 1. Ask server for a presigned PUT URL
+  const presignRes = await fetch('/api/media/presign', {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      filename: file.name,
+      content_type: file.type,
+      size: file.size,
+      kind: kind,
+    })
+  });
+  const data = await presignRes.json();
+  if (!data.ok) throw new Error(data.error || 'presign failed');
+
+  // 2. PUT the file directly to R2 with progress
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', data.upload_url);
+    xhr.setRequestHeader('Content-Type', file.type);
+    xhr.upload.onprogress = function(e) {
+      if (e.lengthComputable && onProgress) {
+        onProgress(e.loaded / e.total);
+      }
+    };
+    xhr.onload = function() {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve({ public_url: data.public_url, key: data.key });
+      } else {
+        reject(new Error('Upload failed (' + xhr.status + ')'));
+      }
+    };
+    xhr.onerror = function() { reject(new Error('Network error')); };
+    xhr.send(file);
+  });
+}
+
+function tmShowProgress(pct) {
+  var wrap = document.getElementById('tm-upload-progress');
+  var bar = document.getElementById('tm-upload-progress-bar');
+  var label = document.getElementById('tm-upload-progress-label');
+  if (!wrap || !bar || !label) return;
+  wrap.classList.remove('hidden');
+  bar.style.width = (pct * 100) + '%';
+  label.textContent = Math.round(pct * 100) + '%';
+}
+
+function tmHideProgress() {
+  var wrap = document.getElementById('tm-upload-progress');
+  if (wrap) wrap.classList.add('hidden');
+}
+
+// Override tmVideoSelected to skip base64 preview for large files
+function tmVideoSelected(input) {
+  var file = input.files && input.files[0];
+  var preview = document.getElementById('tm-video-preview');
+  var durField = document.getElementById('tm-video-duration');
+  if (!file) { preview.classList.add('hidden'); return; }
+
+  if (file.size > 70 * 1024 * 1024) {
+    alert('Video is ' + (file.size / 1024 / 1024).toFixed(1) + ' MB. Max is 70 MB.');
+    input.value = '';
+    preview.classList.add('hidden');
+    return;
+  }
+
+  var url = URL.createObjectURL(file);
+  preview.src = url;
+  preview.classList.remove('hidden');
+  preview.onloadedmetadata = function() {
+    durField.value = preview.duration.toFixed(2);
+  };
+}
+
+// Intercept the composer form submission: upload to R2 first, then post
+(function() {
+  var form = document.querySelector('#tm-composer form');
+  if (!form || form.dataset.r2 === '1') return;
+  form.dataset.r2 = '1';
+
+  form.addEventListener('submit', async function(e) {
+    var kind = document.getElementById('tm-kind-input').value;
+    if (kind !== 'video' && kind !== 'image') return; // text path unchanged
+
+    var input = form.querySelector(kind === 'video' ? 'input[name="video"]' : 'input[name="image"]');
+    var file = input && input.files && input.files[0];
+    if (!file) return;
+
+    e.preventDefault();
+
+    try {
+      var result = await tmUploadToR2(file, kind, tmShowProgress);
+
+      // Clear the file input so it isn't re-sent
+      input.value = '';
+      input.removeAttribute('name');
+
+      // Add hidden media_url field
+      var hidden = form.querySelector('input[name="media_url"]');
+      if (!hidden) {
+        hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = 'media_url';
+        form.appendChild(hidden);
+      }
+      hidden.value = result.public_url;
+
+      // Resubmit
+      form.submit();
+    } catch (err) {
+      tmHideProgress();
+      alert('Upload failed: ' + err.message);
+    }
+  });
+})();
+</script>
+
 
 
 

@@ -1543,3 +1543,29 @@ async def api_edit_story(story_id: str, request: Request, db: Session = Depends(
         })
     except Exception as e:
         return JSONResponse({"ok": False, "error": str(e)}, status_code=400)
+
+
+# ---------- media presign ----------
+@router.post("/api/media/presign")
+async def media_presign(request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    user = current_user_web(request, db)
+    if not user:
+        return JSONResponse({"ok": False, "error": "auth"}, status_code=401)
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"ok": False, "error": "bad json"}, status_code=400)
+
+    from app.media import presign_upload
+    try:
+        result = presign_upload(
+            user_id=user.id,
+            filename=body.get("filename") or "file",
+            content_type=(body.get("content_type") or "").strip(),
+            size=int(body.get("size") or 0),
+            kind=(body.get("kind") or "").strip(),
+        )
+        return JSONResponse({"ok": True, **result})
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=400)
