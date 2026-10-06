@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Home · TrueMatch{% endblock %}
+
 {% block content %}
 
 {% set hour = now_hour if now_hour is defined else 12 %}
@@ -13,7 +14,7 @@
 </div>
 {% endif %}
 
-<!-- ============ HERO ============ -->
+<!-- HERO -->
 <section class="tm-hero">
   <div class="tm-hero-bg"></div>
   <div class="tm-hero-content">
@@ -22,7 +23,7 @@
       <span>{{ greeting }}</span>
     </div>
     <h1 class="tm-hero-title">
-      {% if profile and profile.full_name %}{{ profile.full_name.split(' ')[0] }}{% elif user.full_name %}{{ user.full_name.split(' ')[0] }}{% else %}there{% endif %}.
+      {% if user.full_name %}{{ user.full_name.split(' ')[0] }}{% else %}there{% endif %}.
     </h1>
     <p class="tm-hero-sub">
       {% if story_groups and story_groups|length > 1 %}
@@ -34,11 +35,10 @@
   </div>
 </section>
 
-<!-- ============ STORIES (Facebook style) ============ -->
+<!-- EXPERIENCES CAROUSEL -->
 <section class="tm-stories-wrap mt-5">
   <div class="tm-stories">
 
-    <!-- New experience card -->
     <button type="button" onclick="tmOpenComposer()" class="tm-fb-story tm-fb-story-create">
       <div class="tm-fb-story-top">
         {% if profile and profile.avatar_url %}
@@ -56,14 +56,11 @@
     {% if story_groups %}
       {% for g in story_groups if not g.is_me %}
         {% set first_story = g.stories[0] if g.stories else None %}
-        <button type="button"
-                class="tm-fb-story"
-                onclick="tmOpenStory('{{ g.user_id }}')"
+        <button type="button" class="tm-fb-story" onclick="tmOpenStory('{{ g.user_id }}')"
                 style="background: {{ first_story.background_css if first_story and first_story.kind != 'image' else 'linear-gradient(135deg,#1e293b,#0f172a)' }};">
           {% if first_story and first_story.kind == 'image' and first_story.image_url %}
             <img src="{{ first_story.image_url }}" alt="" class="tm-fb-story-bg">
           {% endif %}
-
           <div class="tm-fb-story-ring {% if g.has_unseen %}tm-fb-story-ring-unseen{% endif %}">
             {% if g.avatar_url %}
               <img src="{{ g.avatar_url }}" alt="">
@@ -71,7 +68,6 @@
               <span class="tm-fb-story-init-sm">{{ (g.name or '?')[0]|upper }}</span>
             {% endif %}
           </div>
-
           <div class="tm-fb-story-label-bottom">{{ g.name.split(' ')[0] }}</div>
         </button>
       {% endfor %}
@@ -79,7 +75,7 @@
   </div>
 </section>
 
-<!-- ============ COMPOSER ============ -->
+<!-- COMPOSER -->
 <form method="post" action="/app/post" class="tm-composer tm-card mt-5">
   <div class="flex items-start gap-3">
     {% if profile and profile.avatar_url %}
@@ -91,18 +87,17 @@
     {% endif %}
     <div class="flex-1 min-w-0">
       <textarea name="body" rows="2" required maxlength="3000"
-                placeholder="Share a win, a question, a lesson…"
+                placeholder="Share an experience — a win, a question, a lesson…"
                 class="tm-composer-input w-full bg-transparent outline-none text-[15px] resize-none placeholder:text-slate-600"></textarea>
       <div class="tm-composer-actions">
-        <input name="link_url" type="url" placeholder="Add a link (optional)"
-               class="tm-composer-link">
+        <input name="link_url" type="url" placeholder="Add a link (optional)" class="tm-composer-link">
         <button class="tm-btn tm-btn-primary px-5 py-2 text-sm shrink-0">Post</button>
       </div>
     </div>
   </div>
 </form>
 
-<!-- ============ FEED ============ -->
+<!-- FEED -->
 {% if not posts %}
 <div class="tm-card p-10 text-center mt-5 fade-up">
   <div class="text-3xl mb-3">◐</div>
@@ -130,29 +125,19 @@
           {% else %}
             <span class="font-semibold truncate text-[15px]">{{ p.author.name }}</span>
           {% endif %}
-          {% if p.author.title or p.author.company %}
-            <span class="text-slate-500 text-xs truncate">
-              {% if p.author.title %}· {{ p.author.title }}{% endif %}
-              {% if p.author.company %}· {{ p.author.company }}{% endif %}
-            </span>
-          {% endif %}
         </div>
         <div class="text-slate-600 text-xs mt-0.5">{{ p.created_at[:16].replace('T', ' ') }}</div>
       </div>
     </header>
-
     <div class="tm-post-body">{{ p.body }}</div>
-
     {% if p.link_url %}
       <a href="{{ p.link_url }}" target="_blank" rel="noopener" class="tm-post-link">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
         <span class="truncate">{{ p.link_url }}</span>
       </a>
     {% endif %}
-
     <footer class="tm-post-footer">
-      <button onclick="toggleLike('{{ p.id }}', this)"
-              data-liked="{{ '1' if p.liked else '0' }}"
+      <button onclick="toggleLike('{{ p.id }}', this)" data-liked="{{ '1' if p.liked else '0' }}"
               class="tm-like {% if p.liked %}tm-like-on{% endif %}">
         <svg viewBox="0 0 24 24" fill="{% if p.liked %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="1.8" class="w-5 h-5">
           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
@@ -165,13 +150,12 @@
 </div>
 {% endif %}
 
-
-
-
 {% endblock %}
 
+
 {% block overlays %}
-<!-- ============ EXPERIENCE VIEWER ============ -->
+
+<!-- EXPERIENCE VIEWER -->
 <div id="tm-story-viewer" class="tm-viewer hidden">
   <div class="tm-viewer-bars" id="tm-viewer-bars"></div>
   <div class="tm-viewer-head">
@@ -186,22 +170,18 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5"><path d="M6 6l12 12M6 18L18 6"/></svg>
     </button>
   </div>
-
-  <div class="tm-viewer-body" id="tm-viewer-body">
+  <div class="tm-viewer-body">
     <div class="tm-viewer-content" id="tm-viewer-content"></div>
   </div>
-
   <button class="tm-viewer-tap tm-viewer-tap-left" onclick="tmStoryPrev()" aria-label="Previous"></button>
   <button class="tm-viewer-tap tm-viewer-tap-right" onclick="tmStoryNext()" aria-label="Next"></button>
-
   <div class="tm-viewer-reply">
-    <input type="text" id="tm-viewer-reply" placeholder="Reply…"
-           onkeydown="if(event.key==='Enter')tmStoryReply()">
+    <input type="text" id="tm-viewer-reply" placeholder="Reply…" onkeydown="if(event.key==='Enter')tmStoryReply()">
     <button onclick="tmStoryReply()" class="tm-btn tm-btn-primary px-4 py-2 text-sm">Send</button>
   </div>
 </div>
 
-<!-- ============ EXPERIENCE COMPOSER ============ -->
+<!-- EXPERIENCE COMPOSER -->
 <div id="tm-composer" class="tm-viewer hidden">
   <div class="tm-viewer-head">
     <div class="tm-viewer-name">New experience</div>
@@ -209,71 +189,61 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5"><path d="M6 6l12 12M6 18L18 6"/></svg>
     </button>
   </div>
-
   <div class="tm-composer-body">
     <div class="tm-composer-preview">
       <div id="tm-composer-preview-inner" class="tm-composer-preview-inner" style="background: linear-gradient(135deg,#10b981,#06b6d4,#3b82f6);">
         <span id="tm-composer-preview-text" class="tm-composer-preview-text"></span>
       </div>
     </div>
-
     <form method="post" action="/stories/create" enctype="multipart/form-data" class="tm-composer-form">
       <input type="hidden" name="background" id="tm-bg-input" value="aurora">
       <input type="hidden" name="kind" id="tm-kind-input" value="text">
-
       <div class="tm-composer-tabs">
         <button type="button" class="tm-ctab tm-ctab-on" onclick="tmComposerTab('text', this)">Text</button>
         <button type="button" class="tm-ctab" onclick="tmComposerTab('image', this)">Image</button>
       </div>
-
       <div id="tm-tab-text">
-        <textarea name="body" id="tm-story-body" rows="3" maxlength="280"
-                  placeholder="What's on your mind?"
+        <textarea name="body" id="tm-story-body" rows="3" maxlength="280" placeholder="What's on your mind?"
                   class="tm-composer-textarea"
                   oninput="document.getElementById('tm-composer-preview-text').textContent = this.value"></textarea>
       </div>
-
       <div id="tm-tab-image" class="hidden">
-        <input type="file" name="image" accept="image/*"
-               class="tm-composer-file">
+        <input type="file" name="image" accept="image/*" class="tm-composer-file">
       </div>
-
       <div>
         <div class="tm-bg-label">Background</div>
         <div class="tm-bg-grid">
-          {% set bgs = [
-            ('aurora','linear-gradient(135deg,#10b981,#06b6d4,#3b82f6)'),
-            ('ember','linear-gradient(135deg,#f59e0b,#ef4444)'),
-            ('midnight','linear-gradient(135deg,#1e293b,#0f172a)'),
-            ('berry','linear-gradient(135deg,#ec4899,#8b5cf6)'),
-            ('forest','linear-gradient(135deg,#059669,#065f46)'),
-            ('sunset','linear-gradient(135deg,#f97316,#ec4899)'),
-            ('royal','linear-gradient(135deg,#6366f1,#8b5cf6,#ec4899)'),
-            ('graphite','linear-gradient(135deg,#334155,#0f172a)')
-          ] %}
-          {% for key, css in bgs %}
-            <button type="button" class="tm-bg-swatch" style="background: {{ css }};"
-                    onclick="tmPickBg('{{ key }}', '{{ css }}')"></button>
-          {% endfor %}
+          <button type="button" class="tm-bg-swatch" style="background: linear-gradient(135deg,#10b981,#06b6d4,#3b82f6);" onclick="tmPickBg('aurora', 'linear-gradient(135deg,#10b981,#06b6d4,#3b82f6)')"></button>
+          <button type="button" class="tm-bg-swatch" style="background: linear-gradient(135deg,#f59e0b,#ef4444);" onclick="tmPickBg('ember', 'linear-gradient(135deg,#f59e0b,#ef4444)')"></button>
+          <button type="button" class="tm-bg-swatch" style="background: linear-gradient(135deg,#1e293b,#0f172a);" onclick="tmPickBg('midnight', 'linear-gradient(135deg,#1e293b,#0f172a)')"></button>
+          <button type="button" class="tm-bg-swatch" style="background: linear-gradient(135deg,#ec4899,#8b5cf6);" onclick="tmPickBg('berry', 'linear-gradient(135deg,#ec4899,#8b5cf6)')"></button>
+          <button type="button" class="tm-bg-swatch" style="background: linear-gradient(135deg,#059669,#065f46);" onclick="tmPickBg('forest', 'linear-gradient(135deg,#059669,#065f46)')"></button>
+          <button type="button" class="tm-bg-swatch" style="background: linear-gradient(135deg,#f97316,#ec4899);" onclick="tmPickBg('sunset', 'linear-gradient(135deg,#f97316,#ec4899)')"></button>
+          <button type="button" class="tm-bg-swatch" style="background: linear-gradient(135deg,#6366f1,#8b5cf6,#ec4899);" onclick="tmPickBg('royal', 'linear-gradient(135deg,#6366f1,#8b5cf6,#ec4899)')"></button>
+          <button type="button" class="tm-bg-swatch" style="background: linear-gradient(135deg,#334155,#0f172a);" onclick="tmPickBg('graphite', 'linear-gradient(135deg,#334155,#0f172a)')"></button>
         </div>
       </div>
-
       <button class="tm-btn tm-btn-primary w-full py-3 mt-4">Share experience</button>
     </form>
   </div>
 </div>
-{% endblock %}
 
 <script>
-function tmImmersiveOn() { document.body.classList.add('tm-mode-immersive'); document.body.style.overflow = 'hidden'; }
-function tmImmersiveOff() { document.body.classList.remove('tm-mode-immersive'); document.body.style.overflow = ''; }
+function tmImmersiveOn() {
+  document.body.classList.add('tm-mode-immersive');
+  document.body.style.overflow = 'hidden';
+}
+function tmImmersiveOff() {
+  document.body.classList.remove('tm-mode-immersive');
+  document.body.style.overflow = '';
+}
 
 const TM_STORY_GROUPS = {{ story_groups|tojson if story_groups else '[]' }};
 const TM_ME_ID = "{{ user.id }}";
 
 let tmViewer = { queue: [], index: 0, timer: null, paused: false };
 
-function tmBuildQueue(startUserId) {
+function tmBuildQueue() {
   const q = [];
   for (const g of TM_STORY_GROUPS) {
     if (g.user_id === TM_ME_ID) continue;
@@ -284,8 +254,8 @@ function tmBuildQueue(startUserId) {
   return q;
 }
 
-function tmOpenStory(userId) {
-  tmViewer.queue = tmBuildQueue(userId);
+function tmOpenStory() {
+  tmViewer.queue = tmBuildQueue();
   if (!tmViewer.queue.length) return;
   tmViewer.index = 0;
   document.getElementById('tm-story-viewer').classList.remove('hidden');
@@ -348,7 +318,7 @@ function tmStoryReply() {
   const s = tmViewer.queue[tmViewer.index];
   if (!s) return;
   const fd = new FormData();
-  fd.append('body', 'Reply to your story: ' + txt);
+  fd.append('body', 'Reply to your experience: ' + txt);
   fetch('/messages/' + s.user.id, {method: 'POST', body: fd, credentials: 'same-origin'})
     .then(() => { input.value = ''; });
 }
@@ -384,4 +354,8 @@ async function toggleLike(id, btn) {
     btn.classList.toggle('tm-like-on', data.liked);
   }
 }
+
+console.log('[TrueMatch] feed.js loaded — tmOpenComposer:', typeof tmOpenComposer);
 </script>
+
+{% endblock %}
