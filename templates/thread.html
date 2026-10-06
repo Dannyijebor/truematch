@@ -516,85 +516,53 @@ html.light .chat-screen.theme-editorial {
   .man-night-only { display: inline; }
   html.light .man-night-only { display: none; }
 
-  /* ---------- Mayfair celestial arc ---------- */
-  .may-celestial {
-    transform: translate(80px, 0);
-    transition: transform 3.4s cubic-bezier(0.5, 0, 0.5, 1);
-    transform-box: view-box;
-    transform-origin: 0 0;
-  }
-  html:not(.light) .may-celestial { transform: translate(400px, 0); }
-  .may-celestial > .may-cel-arc {
-    transform: translate(0, 90px);
-    transition: transform 1.7s cubic-bezier(0.5, 0, 0.5, 1);
-    transform-box: view-box;
-    transform-origin: 0 0;
-  }
-  html:not(.light) .may-celestial > .may-cel-arc { transform: translate(0, 78px); }
-  .may-cel-sun { opacity: 1; transition: opacity 0.8s ease 1.4s; }
-  html:not(.light) .may-cel-sun { opacity: 0; transition: opacity 0.7s ease 0.4s; }
-  .may-cel-moon { opacity: 0; transition: opacity 0.7s ease 0.4s; }
-  html:not(.light) .may-cel-moon { opacity: 1; transition: opacity 0.8s ease 1.4s; }
-  .may-cel-bloom { animation: may-bloom-pulse 3.4s ease-in-out; }
-  @keyframes may-bloom-pulse {
-    0%, 100% { r: 0; opacity: 0; }
-    42%      { r: 60; opacity: 0.85; }
-    58%      { r: 70; opacity: 0.6; }
-  }
+  /* ---------- Mayfair day/night toggle ---------- */
   .may-day-only { display: none; }
   html.light .may-day-only { display: inline; }
   .may-night-only { display: inline; }
   html.light .may-night-only { display: none; }
 
+  /* ---------- Mayfair — DARK palette (evening, lamp lit) ---------- */
   .chat-wallpaper[data-wallpaper="heritage"] {
-    --may-sky-1: #050a08; --may-sky-2: #0b1a14; --may-sky-3: #1a2a22;
-    --may-moon: #f0ead8; --may-moon-shade: #a8b8a8;
-    --may-sun: #ffe8b0; --may-sun-ray: #ffd080;
-    --may-manor-1: #2a2620; --may-manor-2: #1a1612;
-    --may-manor-roof: #0f0d0a; --may-manor-edge: #3a3228;
-    --may-manor-pediment: #26221c;
-    --may-window-warm: #ffb84a; --may-window-cool: #8fb8d8;
-    --may-door: #1a0f08;
-    --may-tree-back: #0a140f; --may-tree-front: #050a08;
-    --may-lawn-1: #0f1a10; --may-lawn-2: #050a06; --may-lawn-edge: #2a3a28;
-    --may-hedge-1: #0a1408; --may-hedge-2: #1a2a18;
-    --may-topiary: #0d1810; --may-topiary-shadow: #000;
-    --may-path: #2a2620; --may-path-edge: #4a4238;
-    --may-fountain-water: #0a1a1e; --may-fountain-edge: #3a4a48;
-    --may-fountain-spray: #a8c8d0;
-    --may-lantern: #ffb84a;
-    --may-fog: #5a6a5a;
-    --may-cloud: #ffffff; --may-cloud-2: #e8eef5; --may-cloud-3: #d8e0ea;
-    --may-bird: #2a2820;
-    --may-flower-1: #e8b0c0; --may-flower-2: #f0d080;
-    --may-butterfly: #f0d080;
+    --may-wall-1: #0d1a12; --may-wall-2: #040807;
+    --may-shelf-wood: #1a0e06; --may-shelf-edge: #3a2410;
+    --may-book-1: #3a1408; --may-book-2: #1a2438; --may-book-3: #2a1808;
+    --may-book-4: #4a2010; --may-book-5: #2a1428;
+    --may-book-gold: #c9a961;
+    --may-frame-outer: #b8922a; --may-frame-inner: #7a5a1a;
+    --may-portrait-bg: #0a0604; --may-portrait-flesh: #3a2418;
+    --may-table-1: #1a0806; --may-table-2: #0a0402;
+    --may-marble-1: #c8c4b8; --may-marble-2: #8a8278; --may-marble-vein: #5a5448;
+    --may-board-edge: #3a1c10;
+    --may-board-light: #d8c8a0; --may-board-dark: #2a1810;
+    --may-piece-light: #f0e8d0; --may-piece-dark: #0d0806;
+    --may-lamp-brass: #d4a850; --may-lamp-glass: #1a3020;
+    --may-lamp-glow: #ffd080;
+    --may-crystal: #e8f0f0; --may-whisky: #d49028;
+    --may-smoke: #b8c0b8;
   }
 
+  /* ---------- Mayfair — LIGHT palette (daylight, lamp off) ---------- */
   html.light .chat-wallpaper[data-wallpaper="heritage"] {
-    --may-sky-1: #c8dcf0; --may-sky-2: #e8e0d0; --may-sky-3: #f8f0dc;
-    --may-moon: #f5f0e0; --may-moon-shade: #d8d0b8;
-    --may-sun: #fff0b0; --may-sun-ray: #ffd060;
-    --may-manor-1: #d8c8a8; --may-manor-2: #a89068;
-    --may-manor-roof: #6a5848; --may-manor-edge: #5a4838;
-    --may-manor-pediment: #c8b890;
-    --may-window-warm: #f0d090; --may-window-cool: #c8dce8;
-    --may-door: #4a2818;
-    --may-tree-back: #88a880; --may-tree-front: #4a6848;
-    --may-lawn-1: #8ab080; --may-lawn-2: #5a8058; --may-lawn-edge: #3a5a38;
-    --may-hedge-1: #4a7038; --may-hedge-2: #7a9868;
-    --may-topiary: #3a5a30; --may-topiary-shadow: #2a4020;
-    --may-path: #c8b898; --may-path-edge: #a89060;
-    --may-fountain-water: #88b8c8; --may-fountain-edge: #5a7888;
-    --may-fountain-spray: #ffffff;
-    --may-lantern: #ffd080;
-    --may-fog: #d8d0b8;
-    --may-cloud: #ffffff; --may-cloud-2: #f0f4f8; --may-cloud-3: #e0e8f0;
-    --may-bird: #2a2820;
-    --may-flower-1: #e86890; --may-flower-2: #f0c040;
-    --may-butterfly: #e8a030;
+    --may-wall-1: #c8b890; --may-wall-2: #a08858;
+    --may-shelf-wood: #8a5c38; --may-shelf-edge: #5a3818;
+    --may-book-1: #8a3820; --may-book-2: #3a4868; --may-book-3: #5a3818;
+    --may-book-4: #8a4828; --may-book-5: #5a3858;
+    --may-book-gold: #8a6820;
+    --may-frame-outer: #c8a040; --may-frame-inner: #a08030;
+    --may-portrait-bg: #3a2818; --may-portrait-flesh: #a06848;
+    --may-table-1: #6a3818; --may-table-2: #4a2810;
+    --may-marble-1: #f0e8d8; --may-marble-2: #c8bca8; --may-marble-vein: #8a8070;
+    --may-board-edge: #8a5030;
+    --may-board-light: #f8f0dc; --may-board-dark: #8a5a3a;
+    --may-piece-light: #f8f0dc; --may-piece-dark: #5a3018;
+    --may-lamp-brass: #b89030; --may-lamp-glass: #2a4828;
+    --may-lamp-glow: #ffd080;
+    --may-crystal: #f0f8f8; --may-whisky: #b87820;
+    --may-smoke: #a8b0a8;
   }
 
-  .chat-wallpaper[data-wallpaper="boardroom"] {
+    .chat-wallpaper[data-wallpaper="boardroom"] {
     --man-sky-1: #050a18; --man-sky-2: #0f1c34; --man-sky-3: #2a2438;
     --man-moon: #e8eef5; --man-moon-shade: #8fa8c4;
     --man-cityglow: #d4a060;

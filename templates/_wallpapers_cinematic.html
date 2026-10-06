@@ -871,54 +871,32 @@
   {# ---------- MAYFAIR · The Diplomat · An old estate with drifting fog ---------- #}
   <svg viewBox="0 0 500 500" preserveAspectRatio="xMidYMid slice" class="wp-svg wp-may">
   <defs>
-    <linearGradient id="may-sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="var(--may-sky-1)"/>
-      <stop offset="55%" stop-color="var(--may-sky-2)"/>
-      <stop offset="100%" stop-color="var(--may-sky-3)"/>
+    <linearGradient id="may-wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--may-wall-1)"/>
+      <stop offset="100%" stop-color="var(--may-wall-2)"/>
     </linearGradient>
-    <radialGradient id="may-moonhalo" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="var(--may-moon)" stop-opacity="0.7"/>
-      <stop offset="45%" stop-color="var(--may-moon)" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="var(--may-moon)" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="may-sunhalo" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="var(--may-sun)" stop-opacity="0.7"/>
-      <stop offset="45%" stop-color="var(--may-sun)" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="var(--may-sun)" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="may-sun-core" cx="42%" cy="38%" r="60%">
-      <stop offset="0%" stop-color="#fff8dc"/>
-      <stop offset="55%" stop-color="#ffe090"/>
-      <stop offset="100%" stop-color="#e8a840"/>
-    </radialGradient>
-    <radialGradient id="may-moon-face" cx="38%" cy="34%" r="65%">
-      <stop offset="0%" stop-color="#f5faff"/>
-      <stop offset="70%" stop-color="#dbe5f2"/>
-      <stop offset="100%" stop-color="#a8b8cc"/>
-    </radialGradient>
-    <radialGradient id="may-bloom" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#ffe8a0" stop-opacity="0.9"/>
-      <stop offset="60%" stop-color="#ffb860" stop-opacity="0.35"/>
-      <stop offset="100%" stop-color="#ffb860" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="may-lantern-glow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="var(--may-lantern)" stop-opacity="0.85"/>
-      <stop offset="45%" stop-color="var(--may-lantern)" stop-opacity="0.2"/>
-      <stop offset="100%" stop-color="var(--may-lantern)" stop-opacity="0"/>
-    </radialGradient>
-    <linearGradient id="may-lawn" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="var(--may-lawn-1)"/>
-      <stop offset="100%" stop-color="var(--may-lawn-2)"/>
+    <linearGradient id="may-table" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--may-table-1)"/>
+      <stop offset="100%" stop-color="var(--may-table-2)"/>
     </linearGradient>
-    <linearGradient id="may-stone" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="var(--may-manor-1)"/>
-      <stop offset="100%" stop-color="var(--may-manor-2)"/>
+    <linearGradient id="may-marble" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--may-marble-1)"/>
+      <stop offset="100%" stop-color="var(--may-marble-2)"/>
     </linearGradient>
+    <radialGradient id="may-lamp-pool" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="var(--may-lamp-glow)" stop-opacity="0.9"/>
+      <stop offset="42%" stop-color="var(--may-lamp-glow)" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="var(--may-lamp-glow)" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="may-daylight" cx="70%" cy="10%" r="80%">
+      <stop offset="0%" stop-color="#fff8e0" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#fff8e0" stop-opacity="0"/>
+    </radialGradient>
     <filter id="may-blur-xs"><feGaussianBlur stdDeviation="0.5"/></filter>
     <filter id="may-blur-sm"><feGaussianBlur stdDeviation="1.2"/></filter>
     <filter id="may-blur-md"><feGaussianBlur stdDeviation="2.8"/></filter>
-    <filter id="may-blur-lg"><feGaussianBlur stdDeviation="6.5"/></filter>
-    <filter id="may-blur-xl"><feGaussianBlur stdDeviation="12"/></filter>
+    <filter id="may-blur-lg"><feGaussianBlur stdDeviation="7"/></filter>
+    <filter id="may-blur-xl"><feGaussianBlur stdDeviation="14"/></filter>
     <radialGradient id="may-fade" cx="50%" cy="50%" r="80%">
       <stop offset="0%" stop-color="#fff" stop-opacity="1"/>
       <stop offset="62%" stop-color="#fff" stop-opacity="0.94"/>
@@ -926,229 +904,362 @@
       <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
     </radialGradient>
     <mask id="may-mask"><rect width="500" height="500" fill="url(#may-fade)"/></mask>
+
+    <g id="pm-pawn">
+      <ellipse cx="0" cy="-4.5" rx="4.5" ry="1.2"/>
+      <path d="M -3 -5 Q -3.5 -8 -3 -10 Q -1 -13 0 -13 Q 1 -13 3 -10 Q 3.5 -8 3 -5 Z"/>
+      <circle cx="0" cy="-12" r="3"/>
+    </g>
+    <g id="pm-rook">
+      <ellipse cx="0" cy="-4.5" rx="4.5" ry="1.2"/>
+      <rect x="-3.5" y="-16" width="7" height="11"/>
+      <rect x="-3.5" y="-18" width="1.8" height="2.5"/>
+      <rect x="-0.9" y="-18" width="1.8" height="2.5"/>
+      <rect x="1.7" y="-18" width="1.8" height="2.5"/>
+    </g>
+    <g id="pm-knight">
+      <ellipse cx="0" cy="-4.5" rx="4.5" ry="1.2"/>
+      <path d="M -3 -5 Q -3.5 -10 -2 -13 Q -0.5 -16 2 -16 Q 3.5 -15 3.5 -13 Q 2.5 -12 3 -10 Q 4 -8 4 -5 Z"/>
+    </g>
+    <g id="pm-bishop">
+      <ellipse cx="0" cy="-4.5" rx="4.5" ry="1.2"/>
+      <path d="M -3 -5 Q -3 -10 0 -13 Q 3 -10 3 -5 Z"/>
+      <ellipse cx="0" cy="-14.5" rx="1.6" ry="2.2"/>
+    </g>
+    <g id="pm-queen">
+      <ellipse cx="0" cy="-4.5" rx="4.5" ry="1.2"/>
+      <path d="M -3 -5 L -3.5 -14 L 3.5 -14 L 3 -5 Z"/>
+      <circle cx="-3.5" cy="-15" r="1.1"/>
+      <circle cx="0" cy="-16.5" r="1.1"/>
+      <circle cx="3.5" cy="-15" r="1.1"/>
+    </g>
+    <g id="pm-king">
+      <ellipse cx="0" cy="-4.5" rx="4.5" ry="1.2"/>
+      <path d="M -3 -5 L -3.5 -14 L 3.5 -14 L 3 -5 Z"/>
+      <rect x="-0.6" y="-19" width="1.2" height="3"/>
+      <rect x="-2" y="-18" width="4" height="1.1"/>
+    </g>
   </defs>
 
   <g mask="url(#may-mask)">
-    <rect width="500" height="500" fill="url(#may-sky)"/>
+    <rect width="500" height="500" fill="url(#may-wall)"/>
 
-    <g class="may-night-only">
-      <g fill="var(--may-moon)">
-        <circle cx="62" cy="42" r="0.6" opacity="0.5"/>
-        <circle cx="118" cy="30" r="0.5" opacity="0.4"/>
-        <circle cx="178" cy="58" r="0.7" opacity="0.5"/>
-        <circle cx="240" cy="34" r="0.5" opacity="0.35"/>
-        <circle cx="88" cy="96" r="0.5" opacity="0.4"/>
-        <circle cx="160" cy="82" r="0.6" opacity="0.45"/>
-        <circle cx="300" cy="48" r="0.5" opacity="0.4"/>
+    <!-- Wall panelling lines -->
+    <g stroke="var(--may-wall-2)" stroke-width="0.4" opacity="0.55">
+      <line x1="0" y1="100" x2="340" y2="100"/>
+      <line x1="0" y1="200" x2="340" y2="200"/>
+      <line x1="60" y1="0" x2="60" y2="296"/>
+      <line x1="180" y1="0" x2="180" y2="296"/>
+      <line x1="300" y1="0" x2="300" y2="296"/>
+    </g>
+
+    <!-- Framed oil portrait (left) -->
+    <g>
+      <rect x="42" y="52" width="104" height="146" fill="var(--may-frame-outer)"/>
+      <rect x="46" y="56" width="96" height="138" fill="var(--may-frame-inner)"/>
+      <rect x="52" y="62" width="84" height="126" fill="var(--may-portrait-bg)"/>
+      <ellipse cx="94" cy="118" rx="26" ry="30" fill="var(--may-portrait-flesh)" opacity="0.9"/>
+      <ellipse cx="94" cy="152" rx="34" ry="24" fill="var(--may-portrait-flesh)" opacity="0.6"/>
+      <ellipse cx="84" cy="106" rx="8" ry="10" fill="#000" opacity="0.5"/>
+      <ellipse cx="104" cy="106" rx="8" ry="10" fill="#000" opacity="0.5"/>
+      <line x1="52" y1="62" x2="52" y2="188" stroke="#f0d890" stroke-width="0.5" opacity="0.4"/>
+      <line x1="42" y1="52" x2="146" y2="52" stroke="#f0d890" stroke-width="0.4" opacity="0.5"/>
+      <rect x="82" y="188" width="24" height="6" fill="var(--may-frame-outer)"/>
+      <polygon points="82,194 106,194 112,202 76,202" fill="var(--may-frame-inner)"/>
+    </g>
+
+    <!-- Bookshelf (right) -->
+    <g>
+      <rect x="340" y="46" width="152" height="258" fill="var(--may-shelf-wood)"/>
+      <rect x="340" y="46" width="4" height="258" fill="var(--may-shelf-edge)"/>
+      <rect x="488" y="46" width="4" height="258" fill="var(--may-shelf-edge)"/>
+      <rect x="340" y="46" width="152" height="4" fill="var(--may-shelf-edge)"/>
+      <rect x="340" y="112" width="152" height="5" fill="var(--may-shelf-edge)"/>
+      <rect x="340" y="178" width="152" height="5" fill="var(--may-shelf-edge)"/>
+      <rect x="340" y="244" width="152" height="5" fill="var(--may-shelf-edge)"/>
+      <rect x="340" y="300" width="152" height="4" fill="var(--may-shelf-edge)"/>
+
+      <g>
+        <rect x="346" y="66" width="8" height="46" fill="var(--may-book-1)"/>
+        <rect x="355" y="70" width="6" height="42" fill="var(--may-book-2)"/>
+        <rect x="362" y="64" width="9" height="48" fill="var(--may-book-3)"/>
+        <rect x="372" y="72" width="7" height="40" fill="var(--may-book-4)"/>
+        <rect x="380" y="66" width="10" height="46" fill="var(--may-book-5)"/>
+        <rect x="391" y="70" width="6" height="42" fill="var(--may-book-1)"/>
+        <rect x="398" y="64" width="9" height="48" fill="var(--may-book-2)"/>
+        <rect x="408" y="70" width="7" height="42" fill="var(--may-book-3)"/>
+        <rect x="416" y="66" width="10" height="46" fill="var(--may-book-4)"/>
+        <rect x="427" y="72" width="7" height="40" fill="var(--may-book-5)"/>
+        <rect x="435" y="66" width="9" height="46" fill="var(--may-book-1)"/>
+        <rect x="445" y="70" width="7" height="42" fill="var(--may-book-2)"/>
+        <rect x="453" y="64" width="9" height="48" fill="var(--may-book-3)"/>
+        <rect x="463" y="70" width="8" height="42" fill="var(--may-book-4)"/>
+        <rect x="472" y="66" width="10" height="46" fill="var(--may-book-5)"/>
+      </g>
+      <g>
+        <rect x="346" y="126" width="9" height="52" fill="var(--may-book-4)"/>
+        <rect x="356" y="122" width="7" height="56" fill="var(--may-book-5)"/>
+        <rect x="364" y="128" width="10" height="50" fill="var(--may-book-1)"/>
+        <rect x="375" y="124" width="6" height="54" fill="var(--may-book-2)"/>
+        <rect x="382" y="130" width="9" height="48" fill="var(--may-book-3)"/>
+        <polygon points="392,178 402,130 410,178" fill="var(--may-book-5)"/>
+        <rect x="412" y="128" width="10" height="50" fill="var(--may-book-1)"/>
+        <rect x="423" y="124" width="7" height="54" fill="var(--may-book-2)"/>
+        <rect x="431" y="130" width="10" height="48" fill="var(--may-book-3)"/>
+        <rect x="442" y="126" width="8" height="52" fill="var(--may-book-4)"/>
+        <rect x="451" y="122" width="10" height="56" fill="var(--may-book-5)"/>
+        <rect x="462" y="128" width="9" height="50" fill="var(--may-book-1)"/>
+        <rect x="472" y="124" width="10" height="54" fill="var(--may-book-2)"/>
+      </g>
+      <g>
+        <rect x="346" y="192" width="10" height="52" fill="var(--may-book-2)"/>
+        <rect x="357" y="196" width="7" height="48" fill="var(--may-book-3)"/>
+        <rect x="365" y="189" width="9" height="55" fill="var(--may-book-4)"/>
+        <rect x="375" y="194" width="8" height="50" fill="var(--may-book-1)"/>
+        <rect x="384" y="191" width="10" height="53" fill="var(--may-book-5)"/>
+        <rect x="395" y="196" width="7" height="48" fill="var(--may-book-2)"/>
+        <rect x="403" y="190" width="9" height="54" fill="var(--may-book-3)"/>
+        <rect x="413" y="195" width="8" height="49" fill="var(--may-book-4)"/>
+        <rect x="422" y="192" width="10" height="52" fill="var(--may-book-1)"/>
+        <rect x="433" y="196" width="7" height="48" fill="var(--may-book-5)"/>
+        <rect x="441" y="190" width="10" height="54" fill="var(--may-book-2)"/>
+        <rect x="452" y="194" width="9" height="50" fill="var(--may-book-3)"/>
+        <rect x="462" y="192" width="10" height="52" fill="var(--may-book-4)"/>
+        <rect x="473" y="196" width="10" height="48" fill="var(--may-book-1)"/>
+      </g>
+      <g>
+        <rect x="346" y="258" width="8" height="42" fill="var(--may-book-3)"/>
+        <rect x="355" y="261" width="10" height="39" fill="var(--may-book-1)"/>
+        <rect x="366" y="256" width="7" height="44" fill="var(--may-book-5)"/>
+        <rect x="374" y="260" width="9" height="40" fill="var(--may-book-2)"/>
+        <rect x="384" y="258" width="10" height="42" fill="var(--may-book-4)"/>
+        <rect x="395" y="261" width="8" height="39" fill="var(--may-book-1)"/>
+        <rect x="404" y="256" width="9" height="44" fill="var(--may-book-3)"/>
+        <rect x="414" y="260" width="10" height="40" fill="var(--may-book-5)"/>
+        <rect x="425" y="258" width="7" height="42" fill="var(--may-book-2)"/>
+        <rect x="433" y="261" width="10" height="39" fill="var(--may-book-4)"/>
+        <rect x="444" y="256" width="9" height="44" fill="var(--may-book-1)"/>
+        <rect x="454" y="260" width="8" height="40" fill="var(--may-book-3)"/>
+        <rect x="463" y="258" width="10" height="42" fill="var(--may-book-5)"/>
+        <rect x="474" y="261" width="9" height="39" fill="var(--may-book-2)"/>
+      </g>
+      <!-- Gold gilt details on some spines -->
+      <g stroke="var(--may-book-gold)" stroke-width="0.4" opacity="0.7" fill="none">
+        <line x1="347" y1="76" x2="353" y2="76"/>
+        <line x1="347" y1="86" x2="353" y2="86"/>
+        <line x1="363" y1="74" x2="370" y2="74"/>
+        <line x1="363" y1="86" x2="370" y2="86"/>
+        <line x1="381" y1="76" x2="389" y2="76"/>
+        <line x1="399" y1="76" x2="406" y2="76"/>
+        <line x1="417" y1="76" x2="425" y2="76"/>
+        <line x1="436" y1="76" x2="443" y2="76"/>
+        <line x1="454" y1="74" x2="461" y2="74"/>
+        <line x1="473" y1="76" x2="481" y2="76"/>
       </g>
     </g>
 
-    <g class="may-celestial">
-      <g class="may-cel-arc">
-        <g class="may-cel-sun">
-          <circle r="88" fill="url(#may-sunhalo)"/>
-          <circle r="52" fill="url(#may-sun-core)" opacity="0.55"/>
-          <circle r="34" fill="url(#may-sun-core)"/>
-          <circle cx="-10" cy="-8" r="10" fill="#fff" opacity="0.55"/>
-          <circle cx="-14" cy="-12" r="4" fill="#fff" opacity="0.9"/>
-          <g stroke="var(--may-sun-ray)" stroke-width="1.4" stroke-linecap="round" opacity="0.42">
-            <line x1="0" y1="-50" x2="0" y2="-66"/>
-            <line x1="0" y1="50" x2="0" y2="66"/>
-            <line x1="-50" y1="0" x2="-66" y2="0"/>
-            <line x1="50" y1="0" x2="66" y2="0"/>
-            <line x1="-36" y1="-36" x2="-48" y2="-48"/>
-            <line x1="36" y1="36" x2="48" y2="48"/>
-            <line x1="36" y1="-36" x2="48" y2="-48"/>
-            <line x1="-36" y1="36" x2="-48" y2="48"/>
-          </g>
-        </g>
-        <g class="may-cel-moon">
-          <circle r="78" fill="url(#may-moonhalo)"/>
-          <circle r="32" fill="url(#may-moon-face)"/>
-          <circle cx="-14" cy="-10" r="30" fill="var(--may-sky-1)" opacity="0.98"/>
-          <circle cx="-8" cy="-2" r="1.5" fill="var(--may-moon-shade)" opacity="0.35"/>
-          <circle cx="0" cy="8" r="1.1" fill="var(--may-moon-shade)" opacity="0.3"/>
-          <circle cx="8" cy="-4" r="0.9" fill="var(--may-moon-shade)" opacity="0.28"/>
-          <circle r="34" fill="none" stroke="var(--may-moon)" stroke-width="0.4" opacity="0.35"/>
-        </g>
-        <circle r="0" fill="url(#may-bloom)" opacity="0" class="may-cel-bloom"/>
+    <!-- Marble back edge of table -->
+    <rect x="0" y="292" width="500" height="10" fill="url(#may-marble)"/>
+    <line x1="0" y1="292" x2="500" y2="292" stroke="var(--may-marble-vein)" stroke-width="0.4" opacity="0.6"/>
+    <line x1="0" y1="300" x2="500" y2="300" stroke="var(--may-marble-vein)" stroke-width="0.4" opacity="0.6"/>
+    <g stroke="var(--may-marble-vein)" stroke-width="0.3" opacity="0.45" fill="none">
+      <path d="M 20 296 Q 90 293 160 297 Q 230 300 300 295 Q 370 291 440 297 Q 480 299 500 296"/>
+      <path d="M 60 298 Q 130 296 200 299 Q 270 301 340 297"/>
+    </g>
+
+    <!-- Table surface -->
+    <rect x="0" y="302" width="500" height="198" fill="url(#may-table)"/>
+    <g stroke="var(--may-table-2)" stroke-width="0.4" opacity="0.55">
+      <line x1="0" y1="322" x2="500" y2="324"/>
+      <line x1="0" y1="352" x2="500" y2="354"/>
+      <line x1="0" y1="384" x2="500" y2="382"/>
+      <line x1="0" y1="418" x2="500" y2="420"/>
+      <line x1="0" y1="452" x2="500" y2="450"/>
+      <line x1="0" y1="484" x2="500" y2="482"/>
+    </g>
+
+    <!-- Chessboard: 8x8 from (170,336) cells 20x18 -->
+    <g>
+      <rect x="164" y="330" width="172" height="152" fill="var(--may-board-edge)"/>
+      <g>
+        <rect x="170" y="336" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="210" y="336" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="250" y="336" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="290" y="336" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="190" y="336" width="20" height="18" fill="var(--may-board-dark)"/>
+        <rect x="230" y="336" width="20" height="18" fill="var(--may-board-dark)"/>
+        <rect x="270" y="336" width="20" height="18" fill="var(--may-board-dark)"/>
+        <rect x="310" y="336" width="20" height="18" fill="var(--may-board-dark)"/>
+      </g>
+      <g>
+        <rect x="190" y="354" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="230" y="354" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="270" y="354" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="310" y="354" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="170" y="354" width="20" height="18" fill="var(--may-board-dark)"/>
+        <rect x="210" y="354" width="20" height="18" fill="var(--may-board-dark)"/>
+        <rect x="250" y="354" width="20" height="18" fill="var(--may-board-dark)"/>
+        <rect x="290" y="354" width="20" height="18" fill="var(--may-board-dark)"/>
+      </g>
+      <g>
+        <rect x="170" y="372" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="210" y="372" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="250" y="372" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="290" y="372" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="190" y="372" width="20" height="18" fill="var(--may-board-dark)"/>
+        <rect x="230" y="372" width="20" height="18" fill="var(--may-board-dark)"/>
+        <rect x="270" y="372" width="20" height="18" fill="var(--may-board-dark)"/>
+        <rect x="310" y="372" width="20" height="18" fill="var(--may-board-dark)"/>
+      </g>
+      <g>
+        <rect x="190" y="390" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="230" y="390" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="270" y="390" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="310" y="390" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="170" y="390" width="20" height="18" fill="var(--may-board-dark)"/>
+        <rect x="210" y="390" width="20" height="18" fill="var(--may-board-dark)"/>
+        <rect x="250" y="390" width="20" height="18" fill="var(--may-board-dark)"/>
+        <rect x="290" y="390" width="20" height="18" fill="var(--may-board-dark)"/>
+      </g>
+      <g>
+        <rect x="170" y="408" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="210" y="408" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="250" y="408" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="290" y="408" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="190" y="408" width="20" height="18" fill="var(--may-board-dark)"/>
+        <rect x="230" y="408" width="20" height="18" fill="var(--may-board-dark)"/>
+        <rect x="270" y="408" width="20" height="18" fill="var(--may-board-dark)"/>
+        <rect x="310" y="408" width="20" height="18" fill="var(--may-board-dark)"/>
+      </g>
+      <g>
+        <rect x="190" y="426" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="230" y="426" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="270" y="426" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="310" y="426" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="170" y="426" width="20" height="18" fill="var(--may-board-dark)"/>
+        <rect x="210" y="426" width="20" height="18" fill="var(--may-board-dark)"/>
+        <rect x="250" y="426" width="20" height="18" fill="var(--may-board-dark)"/>
+        <rect x="290" y="426" width="20" height="18" fill="var(--may-board-dark)"/>
+      </g>
+      <g>
+        <rect x="170" y="444" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="210" y="444" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="250" y="444" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="290" y="444" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="190" y="444" width="20" height="18" fill="var(--may-board-dark)"/>
+        <rect x="230" y="444" width="20" height="18" fill="var(--may-board-dark)"/>
+        <rect x="270" y="444" width="20" height="18" fill="var(--may-board-dark)"/>
+        <rect x="310" y="444" width="20" height="18" fill="var(--may-board-dark)"/>
+      </g>
+      <g>
+        <rect x="190" y="462" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="230" y="462" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="270" y="462" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="310" y="462" width="20" height="18" fill="var(--may-board-light)"/>
+        <rect x="170" y="462" width="20" height="18" fill="var(--may-board-dark)"/>
+        <rect x="210" y="462" width="20" height="18" fill="var(--may-board-dark)"/>
+        <rect x="250" y="462" width="20" height="18" fill="var(--may-board-dark)"/>
+        <rect x="290" y="462" width="20" height="18" fill="var(--may-board-dark)"/>
       </g>
     </g>
 
+    <!-- Pieces: white (light) -->
+    <g fill="var(--may-piece-light)" stroke="var(--may-piece-dark)" stroke-width="0.3">
+      <use href="#pm-rook"   x="180" y="482"/>
+      <use href="#pm-queen"  x="240" y="482"/>
+      <use href="#pm-king"   x="260" y="482"/>
+      <use href="#pm-pawn"   x="180" y="462"/>
+      <use href="#pm-pawn"   x="200" y="462"/>
+      <use href="#pm-pawn"   x="220" y="462"/>
+      <use href="#pm-pawn"   x="280" y="462"/>
+      <use href="#pm-pawn"   x="300" y="462"/>
+      <use href="#pm-knight" x="280" y="444"/>
+      <use href="#pm-bishop" x="220" y="426"/>
+      <use href="#pm-pawn"   x="260" y="426"/>
+    </g>
+
+    <!-- Pieces: black (dark) -->
+    <g fill="var(--may-piece-dark)" stroke="var(--may-piece-light)" stroke-width="0.3">
+      <use href="#pm-rook"   x="180" y="356"/>
+      <use href="#pm-bishop" x="220" y="356"/>
+      <use href="#pm-queen"  x="240" y="356"/>
+      <use href="#pm-king"   x="260" y="356"/>
+      <use href="#pm-rook"   x="320" y="356"/>
+      <use href="#pm-pawn"   x="180" y="374"/>
+      <use href="#pm-pawn"   x="200" y="374"/>
+      <use href="#pm-pawn"   x="240" y="374"/>
+      <use href="#pm-pawn"   x="280" y="374"/>
+      <use href="#pm-pawn"   x="300" y="374"/>
+      <use href="#pm-knight" x="280" y="392"/>
+      <use href="#pm-pawn"   x="240" y="410"/>
+      <use href="#pm-pawn"   x="260" y="410"/>
+    </g>
+
+    <!-- Warm lamp pool (dark mode) -->
+    <ellipse cx="110" cy="380" rx="150" ry="120" fill="url(#may-lamp-pool)" class="may-night-only" style="mix-blend-mode:screen" opacity="0.95"/>
+
+    <!-- Banker's lamp -->
+    <g>
+      <ellipse cx="108" cy="392" rx="24" ry="5" fill="var(--may-lamp-brass)"/>
+      <ellipse cx="108" cy="392" rx="24" ry="5" fill="none" stroke="#000" stroke-width="0.3" opacity="0.4"/>
+      <rect x="104" y="352" width="8" height="42" fill="var(--may-lamp-brass)"/>
+      <ellipse cx="108" cy="352" rx="6" ry="2" fill="var(--may-lamp-brass)"/>
+      <!-- Glass shade -->
+      <path d="M 58 350 Q 58 316 108 316 Q 158 316 158 350 Z" fill="var(--may-lamp-glass)" stroke="var(--may-lamp-brass)" stroke-width="1.2"/>
+      <!-- Inner glow (dark mode) -->
+      <path d="M 62 348 Q 62 320 108 320 Q 154 320 154 348 Z" fill="var(--may-lamp-glow)" class="may-night-only" opacity="0.85"/>
+      <!-- Brass rim -->
+      <line x1="58" y1="350" x2="158" y2="350" stroke="var(--may-lamp-brass)" stroke-width="1.6"/>
+      <line x1="58" y1="353" x2="158" y2="353" stroke="var(--may-lamp-brass)" stroke-width="1.6"/>
+      <!-- Small glow underneath -->
+      <ellipse cx="108" cy="370" rx="55" ry="12" fill="var(--may-lamp-glow)" opacity="0.35" class="may-night-only" filter="url(#may-blur-md)"/>
+    </g>
+
+    <!-- Crystal decanter + tumbler -->
+    <g>
+      <!-- Decanter -->
+      <path d="M 388 336 Q 388 326 391 318 L 391 300 Q 391 296 395 296 L 403 296 Q 407 296 407 300 L 407 318 Q 410 326 410 336 L 410 384 Q 410 394 399 394 Q 388 394 388 384 Z" fill="var(--may-crystal)" opacity="0.5" stroke="var(--may-crystal)" stroke-width="0.6"/>
+      <path d="M 390 356 Q 390 350 392 342 L 406 342 Q 408 350 408 356 L 408 384 Q 408 391 399 391 Q 390 391 390 384 Z" fill="var(--may-whisky)" opacity="0.8"/>
+      <rect x="393" y="290" width="8" height="8" fill="var(--may-crystal)" opacity="0.65"/>
+      <line x1="393" y1="316" x2="393" y2="358" stroke="#fff" stroke-width="0.6" opacity="0.5"/>
+      <ellipse cx="399" cy="392" rx="20" ry="4" fill="var(--may-whisky)" opacity="0.3" filter="url(#may-blur-sm)"/>
+
+      <!-- Tumbler -->
+      <path d="M 428 358 L 428 396 Q 428 402 443 402 Q 458 402 458 396 L 458 358 Z" fill="var(--may-crystal)" opacity="0.38" stroke="var(--may-crystal)" stroke-width="0.5"/>
+      <path d="M 428 378 L 428 396 Q 428 402 443 402 Q 458 402 458 396 L 458 378 Z" fill="var(--may-whisky)" opacity="0.85"/>
+      <rect x="433" y="382" width="8" height="8" fill="#fff" opacity="0.28"/>
+      <rect x="444" y="384" width="6" height="6" fill="#fff" opacity="0.22"/>
+      <line x1="431" y1="360" x2="431" y2="392" stroke="#fff" stroke-width="0.6" opacity="0.55"/>
+      <line x1="455" y1="362" x2="455" y2="394" stroke="#fff" stroke-width="0.4" opacity="0.3"/>
+      <ellipse cx="443" cy="394" rx="18" ry="4" fill="var(--may-whisky)" opacity="0.35" filter="url(#may-blur-sm)"/>
+    </g>
+
+    <!-- Cigar smoke (dark mode) -->
+    <g class="may-night-only" stroke="var(--may-smoke)" fill="none" stroke-linecap="round" filter="url(#may-blur-sm)">
+      <path d="M 470 490 Q 476 468 468 446 Q 460 424 470 402 Q 478 382 472 360" stroke-width="1.4" opacity="0.42">
+        <animate attributeName="d"
+          values="M 470 490 Q 476 468 468 446 Q 460 424 470 402 Q 478 382 472 360;
+                  M 470 490 Q 464 468 472 446 Q 480 424 470 402 Q 462 382 468 360;
+                  M 470 490 Q 476 468 468 446 Q 460 424 470 402 Q 478 382 472 360"
+          dur="9s" repeatCount="indefinite"/>
+      </path>
+      <path d="M 472 490 Q 466 472 472 452 Q 478 432 470 412" stroke-width="1" opacity="0.35">
+        <animate attributeName="d"
+          values="M 472 490 Q 466 472 472 452 Q 478 432 470 412;
+                  M 472 490 Q 478 472 472 452 Q 466 432 474 412;
+                  M 472 490 Q 466 472 472 452 Q 478 432 470 412"
+          dur="7s" repeatCount="indefinite"/>
+      </path>
+    </g>
+
+    <!-- Daylight wash (light mode) -->
     <g class="may-day-only">
-      <g fill="var(--may-cloud)" opacity="0.85">
-        <animateTransform attributeName="transform" type="translate" values="0 0; 26 0; 0 0" dur="62s" repeatCount="indefinite"/>
-        <ellipse cx="190" cy="80" rx="40" ry="13"/>
-        <ellipse cx="168" cy="78" rx="20" ry="11"/>
-        <ellipse cx="214" cy="78" rx="24" ry="12"/>
-        <ellipse cx="190" cy="72" rx="18" ry="10"/>
-      </g>
-      <g fill="var(--may-cloud-2)" opacity="0.7">
-        <animateTransform attributeName="transform" type="translate" values="0 0; -22 0; 0 0" dur="78s" repeatCount="indefinite"/>
-        <ellipse cx="340" cy="48" rx="32" ry="10"/>
-        <ellipse cx="324" cy="46" rx="16" ry="8"/>
-        <ellipse cx="356" cy="46" rx="18" ry="9"/>
-      </g>
-      <g fill="var(--may-cloud-3)" opacity="0.55">
-        <animateTransform attributeName="transform" type="translate" values="0 0; 18 0; 0 0" dur="95s" repeatCount="indefinite"/>
-        <ellipse cx="430" cy="130" rx="44" ry="12"/>
-      </g>
-      <g stroke="var(--may-bird)" stroke-width="0.9" fill="none" opacity="0.55">
-        <animateTransform attributeName="transform" type="translate" values="0 0; 55 -8; 0 0" dur="48s" repeatCount="indefinite"/>
-        <path d="M 280 96 q 3 -3 6 0 q 3 -3 6 0"/>
-        <path d="M 295 104 q 3 -3 6 0 q 3 -3 6 0"/>
-        <path d="M 286 112 q 3 -3 6 0 q 3 -3 6 0"/>
-      </g>
+      <ellipse cx="400" cy="80" rx="220" ry="180" fill="url(#may-daylight)"/>
+      <polygon points="500,0 500,240 380,320 380,60" fill="#fff5d0" opacity="0.1" filter="url(#may-blur-lg)"/>
     </g>
 
-    <g fill="var(--may-tree-back)" filter="url(#may-blur-sm)" opacity="0.75">
-      <path d="M 0 320 Q 20 260 40 320 Q 60 240 80 320 Q 100 270 120 320 Q 140 230 160 320 Q 180 275 200 320 Q 220 245 240 320 Q 260 265 280 320 Q 300 250 320 320 Q 340 280 360 320 Q 380 240 400 320 Q 420 275 440 320 Q 460 255 480 320 Q 495 280 500 320 L 500 410 L 0 410 Z"/>
-    </g>
-
-    <g fill="var(--may-tree-front)">
-      <path d="M 22 400 Q 30 320 42 260 Q 50 245 58 260 Q 70 320 78 400 Z"/>
-      <ellipse cx="50" cy="270" rx="26" ry="35"/>
-      <rect x="46" y="395" width="8" height="20" fill="var(--may-tree-front)"/>
-      <path d="M 400 400 Q 410 340 420 310 Q 435 280 450 310 Q 460 340 468 400 Z"/>
-      <ellipse cx="435" cy="300" rx="38" ry="30"/>
-      <rect x="430" y="395" width="10" height="22" fill="var(--may-tree-front)"/>
-    </g>
-
-    <g>
-      <rect x="120" y="308" width="60" height="90" fill="url(#may-stone)" stroke="var(--may-manor-edge)" stroke-width="0.8"/>
-      <polygon points="120,308 150,290 180,308" fill="var(--may-manor-roof)"/>
-      <rect x="132" y="330" width="10" height="14" fill="var(--may-window-warm)" opacity="0.9">
-        <animate attributeName="opacity" values="0.9;0.7;0.9" dur="6s" repeatCount="indefinite"/>
-      </rect>
-      <rect x="158" y="330" width="10" height="14" fill="var(--may-window-warm)" opacity="0.75"/>
-      <rect x="132" y="360" width="10" height="14" fill="var(--may-window-warm)" opacity="0.6"/>
-      <rect x="158" y="360" width="10" height="14" fill="var(--may-window-cool)" opacity="0.6"/>
-
-      <rect x="180" y="270" width="140" height="128" fill="url(#may-stone)" stroke="var(--may-manor-edge)" stroke-width="0.9"/>
-      <polygon points="174,270 250,235 326,270" fill="var(--may-manor-roof)" stroke="var(--may-manor-edge)" stroke-width="0.6"/>
-      <polygon points="220,270 250,248 280,270" fill="var(--may-manor-pediment)"/>
-      <line x1="220" y1="270" x2="280" y2="270" stroke="var(--may-manor-edge)" stroke-width="0.6"/>
-      <rect x="196" y="242" width="8" height="26" fill="var(--may-manor-roof)"/>
-      <rect x="296" y="242" width="8" height="26" fill="var(--may-manor-roof)"/>
-      <rect x="194" y="240" width="12" height="3" fill="var(--may-manor-edge)"/>
-      <rect x="294" y="240" width="12" height="3" fill="var(--may-manor-edge)"/>
-
-      <g fill="var(--may-window-warm)">
-        <rect x="196" y="290" width="12" height="18" opacity="0.95"/>
-        <rect x="244" y="290" width="12" height="18" opacity="0.85">
-          <animate attributeName="opacity" values="0.85;0.5;0.85" dur="8s" repeatCount="indefinite"/>
-        </rect>
-        <rect x="292" y="290" width="12" height="18" opacity="0.9"/>
-        <rect x="196" y="320" width="12" height="18" opacity="0.7"/>
-        <rect x="244" y="320" width="12" height="18" opacity="0.8"/>
-        <rect x="292" y="320" width="12" height="18" opacity="0.5"/>
-        <rect x="196" y="350" width="12" height="18" opacity="0.9">
-          <animate attributeName="opacity" values="0.9;0.4;0.9" dur="12s" repeatCount="indefinite"/>
-        </rect>
-        <rect x="244" y="350" width="12" height="18" opacity="0.95"/>
-        <rect x="292" y="350" width="12" height="18" opacity="0.75"/>
-      </g>
-      <rect x="240" y="378" width="20" height="20" fill="var(--may-door)" stroke="var(--may-manor-edge)" stroke-width="0.5"/>
-      <circle cx="256" cy="390" r="1" fill="var(--may-lantern)"/>
-
-      <rect x="320" y="308" width="60" height="90" fill="url(#may-stone)" stroke="var(--may-manor-edge)" stroke-width="0.8"/>
-      <polygon points="320,308 350,290 380,308" fill="var(--may-manor-roof)"/>
-      <rect x="332" y="330" width="10" height="14" fill="var(--may-window-warm)" opacity="0.85"/>
-      <rect x="358" y="330" width="10" height="14" fill="var(--may-window-cool)" opacity="0.6"/>
-      <rect x="332" y="360" width="10" height="14" fill="var(--may-window-warm)" opacity="0.65"/>
-      <rect x="358" y="360" width="10" height="14" fill="var(--may-window-warm)" opacity="0.75">
-        <animate attributeName="opacity" values="0.75;0.4;0.75" dur="9s" repeatCount="indefinite"/>
-      </rect>
-    </g>
-
-    <g style="mix-blend-mode:screen">
-      <ellipse cx="248" cy="380" rx="60" ry="20" fill="var(--may-window-warm)" opacity="0.28" filter="url(#may-blur-lg)"/>
-      <ellipse cx="150" cy="380" rx="34" ry="14" fill="var(--may-window-warm)" opacity="0.22" filter="url(#may-blur-lg)"/>
-      <ellipse cx="350" cy="380" rx="34" ry="14" fill="var(--may-window-warm)" opacity="0.22" filter="url(#may-blur-lg)"/>
-    </g>
-
-    <rect y="398" width="500" height="102" fill="url(#may-lawn)"/>
-    <line x1="0" y1="398" x2="500" y2="398" stroke="var(--may-lawn-edge)" stroke-width="0.6" opacity="0.6"/>
-
-    <rect x="90" y="392" width="320" height="10" fill="var(--may-hedge-1)" opacity="0.9"/>
-    <rect x="90" y="390" width="320" height="3" fill="var(--may-hedge-2)"/>
-
-    <g fill="var(--may-topiary)">
-      <ellipse cx="60" cy="440" rx="9" ry="3" fill="var(--may-topiary-shadow)"/>
-      <path d="M 52 440 Q 60 400 68 440 Z"/>
-      <path d="M 54 440 Q 60 412 66 440 Z" opacity="0.5"/>
-      <ellipse cx="60" cy="454" rx="12" ry="6"/>
-      <ellipse cx="440" cy="446" rx="10" ry="3" fill="var(--may-topiary-shadow)"/>
-      <path d="M 431 446 Q 440 400 449 446 Z"/>
-      <ellipse cx="440" cy="460" rx="13" ry="7"/>
-    </g>
-
-    <path d="M 220 500 L 250 400 L 270 400 L 290 500 Z" fill="var(--may-path)"/>
-    <path d="M 220 500 L 250 400 L 270 400 L 290 500 Z" fill="none" stroke="var(--may-path-edge)" stroke-width="0.6" opacity="0.7"/>
-
-    <g>
-      <ellipse cx="140" cy="470" rx="42" ry="10" fill="var(--may-fountain-water)"/>
-      <ellipse cx="140" cy="470" rx="42" ry="10" fill="none" stroke="var(--may-fountain-edge)" stroke-width="0.7"/>
-      <ellipse cx="140" cy="470" rx="30" ry="6" fill="none" stroke="var(--may-fountain-edge)" stroke-width="0.4" opacity="0.5"/>
-      <rect x="138" y="440" width="4" height="30" fill="var(--may-manor-1)" stroke="var(--may-manor-edge)" stroke-width="0.4"/>
-      <ellipse cx="140" cy="440" rx="12" ry="3.5" fill="var(--may-manor-1)" stroke="var(--may-manor-edge)" stroke-width="0.5"/>
-      <g fill="var(--may-fountain-spray)" opacity="0.55">
-        <circle cx="140" cy="425" r="0.9">
-          <animate attributeName="cy" values="435;410;435" dur="2.5s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0.8;0;0.8" dur="2.5s" repeatCount="indefinite"/>
-        </circle>
-        <circle cx="134" cy="428" r="0.7">
-          <animate attributeName="cy" values="435;415;435" dur="2.1s" begin="0.6s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0.7;0;0.7" dur="2.1s" begin="0.6s" repeatCount="indefinite"/>
-        </circle>
-        <circle cx="146" cy="430" r="0.8">
-          <animate attributeName="cy" values="435;412;435" dur="2.8s" begin="1.1s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0.75;0;0.75" dur="2.8s" begin="1.1s" repeatCount="indefinite"/>
-        </circle>
-      </g>
-    </g>
-
-    <g class="may-night-only">
-      <circle cx="88" cy="420" r="60" fill="url(#may-lantern-glow)" style="mix-blend-mode:screen"/>
-      <line x1="88" y1="400" x2="88" y2="420" stroke="var(--may-manor-edge)" stroke-width="1"/>
-      <rect x="82" y="418" width="12" height="16" fill="var(--may-manor-edge)"/>
-      <rect x="84" y="421" width="8" height="10" fill="var(--may-lantern)">
-        <animate attributeName="opacity" values="1;0.85;1" dur="3.2s" repeatCount="indefinite"/>
-      </rect>
-    </g>
-
-    <g class="may-day-only" opacity="0.85">
-      <circle cx="188" cy="470" r="1.6" fill="var(--may-flower-1)"/>
-      <circle cx="196" cy="474" r="1.4" fill="var(--may-flower-2)"/>
-      <circle cx="204" cy="468" r="1.5" fill="var(--may-flower-1)"/>
-      <circle cx="312" cy="472" r="1.6" fill="var(--may-flower-2)"/>
-      <circle cx="320" cy="468" r="1.4" fill="var(--may-flower-1)"/>
-      <circle cx="328" cy="474" r="1.5" fill="var(--may-flower-2)"/>
-      <circle cx="80" cy="480" r="1.4" fill="var(--may-flower-1)"/>
-      <circle cx="410" cy="482" r="1.4" fill="var(--may-flower-1)"/>
-    </g>
-
-    <g class="may-day-only" fill="var(--may-butterfly)" opacity="0.75">
-      <g>
-        <ellipse cx="0" cy="0" rx="3" ry="1.5"/>
-        <ellipse cx="0" cy="0" rx="1" ry="1.8" fill="#000" opacity="0.4"/>
-        <animateTransform attributeName="transform" type="translate" values="180 400; 220 380; 180 400" dur="14s" repeatCount="indefinite"/>
-      </g>
-      <g>
-        <ellipse cx="0" cy="0" rx="2.6" ry="1.3"/>
-        <ellipse cx="0" cy="0" rx="0.8" ry="1.5" fill="#000" opacity="0.4"/>
-        <animateTransform attributeName="transform" type="translate" values="320 410; 350 395; 320 410" dur="11s" repeatCount="indefinite"/>
-      </g>
-    </g>
-
-    <g class="may-night-only" fill="var(--may-fog)" filter="url(#may-blur-xl)" opacity="0.35">
-      <ellipse cx="120" cy="400" rx="180" ry="16">
-        <animate attributeName="cx" values="120;160;120" dur="24s" repeatCount="indefinite"/>
-      </ellipse>
-      <ellipse cx="380" cy="405" rx="200" ry="18">
-        <animate attributeName="cx" values="380;340;380" dur="28s" repeatCount="indefinite"/>
-      </ellipse>
-    </g>
+    <!-- Soft floor vignette overlay -->
+    <rect width="500" height="500" fill="transparent" pointer-events="none"/>
   </g>
 </svg>
 
