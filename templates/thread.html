@@ -238,6 +238,70 @@ html.light .tp-row-label { color: #111b21; }
     display: none !important;
   }
 
+
+  .tp-row {
+    position: relative;
+    overflow: hidden;
+    animation: tp-row-in 0.36s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .tp-row:nth-child(1) { animation-delay: 0.02s; }
+  .tp-row:nth-child(2) { animation-delay: 0.06s; }
+  .tp-row:nth-child(3) { animation-delay: 0.10s; }
+  .tp-row:nth-child(4) { animation-delay: 0.14s; }
+  .tp-row:nth-child(5) { animation-delay: 0.18s; }
+  .tp-row:nth-child(6) { animation-delay: 0.22s; }
+  .tp-row:nth-child(7) { animation-delay: 0.26s; }
+
+  @keyframes tp-row-in {
+    from { opacity: 0; transform: translateX(-10px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Subtle sheen on active */
+  .tp-row.tp-row-active::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    background: linear-gradient(115deg, transparent 30%, rgba(0,168,132,0.08) 50%, transparent 70%);
+    pointer-events: none;
+    animation: tp-sheen 3s ease-in-out infinite;
+  }
+  @keyframes tp-sheen {
+    0%, 100% { transform: translateX(-30%); opacity: 0; }
+    50%      { transform: translateX(30%); opacity: 1; }
+  }
+
+  /* Panel entrance — luxury */
+  #tp-panel {
+    animation: tp-panel-in 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @keyframes tp-panel-in {
+    from { opacity: 0; transform: translateY(-14px) scale(0.94); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* Header icon shimmer */
+  .tp-title {
+    background: linear-gradient(90deg, #e9edef 0%, #a7f3d0 50%, #e9edef 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: tp-title-shimmer 5s ease-in-out infinite;
+  }
+  html.light .tp-title {
+    background: linear-gradient(90deg, #111b21 0%, #059669 50%, #111b21 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  @keyframes tp-title-shimmer {
+    0%, 100% { background-position: 100% 0; }
+    50%      { background-position: 0 0; }
+  }
+
 </style>
 
 <div class="chat-screen theme-{{ chat_theme }}">
@@ -851,13 +915,41 @@ function tmReportUser() {
 }
 
 async function pickTheme(key) {
-  currentTheme = key; tmCloseThemePicker();
+  currentTheme = key;
+  tmCloseThemePicker();
+
+  // Apply theme class cleanly
   var screen = document.querySelector('.chat-screen');
-  if (screen) { screen.className = screen.className.replace(/theme-\S+/g, '').trim(); screen.classList.add('theme-' + key); }
-  document.querySelectorAll('.tp-row').forEach(function(b) { b.classList.toggle('tp-row-active', b.dataset.themeKey === key); });
+  if (screen) {
+    // Remove any theme-* class, add the new one
+    var cls = screen.getAttribute('class') || '';
+    cls = cls.split(' ').filter(function(x) { return x && !x.startsWith('theme-'); }).join(' ');
+    screen.setAttribute('class', cls + ' theme-' + key);
+  }
+
+  // Update tile selected state
+  document.querySelectorAll('.tp-row').forEach(function(b) {
+    if (b.dataset.themeKey === key) b.classList.add('tp-row-active');
+    else b.classList.remove('tp-row-active');
+  });
+
+  // Bump animation on the chat
   var chat = document.getElementById('chat-messages');
-  if (chat) { chat.style.transition = 'transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1)'; chat.style.transform = 'scale(1.015)'; setTimeout(function() { chat.style.transform = ''; }, 220); }
-  try { await fetch('/api/settings/chat_theme', {method: 'POST', credentials: 'same-origin', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({theme: key})}); } catch(e) {}
+  if (chat) {
+    chat.style.transition = 'transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    chat.style.transform = 'scale(1.015)';
+    setTimeout(function() { chat.style.transform = ''; }, 220);
+  }
+
+  // Persist
+  try {
+    await fetch('/api/settings/chat_theme', {
+      method: 'POST', credentials: 'same-origin',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({theme: key})
+    });
+  } catch(e) {}
+
   tmToast('Theme saved');
 }
 
