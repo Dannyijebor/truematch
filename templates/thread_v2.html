@@ -1265,6 +1265,8 @@ html.light .chat-screen.theme-editorial {
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 22px;
   padding: 14px 18px !important;
+  min-height: 80px;
+  justify-content: center;
   z-index: 9100;
   box-shadow:
     0 20px 48px rgba(0, 0, 0, 0.5),
@@ -1294,11 +1296,29 @@ html.light .rec-bar {
 /* ---------- Row layout ---------- */
 .rec-row { display: flex; align-items: center; width: 100%; }
 
-/* Row 1 — always visible */
+/* Row 1 — floats ABOVE the bar as a separate pill */
 .rec-row-top {
-  gap: 10px;
-  height: 26px;
-  padding: 0 4px;
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 46px;
+  padding: 0 18px;
+  background: rgba(22, 28, 32, 0.98);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 23px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  box-sizing: border-box;
+}
+html.light .rec-row-top {
+  background: rgba(252, 252, 252, 0.99);
+  border-color: rgba(0,0,0,0.07);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.12);
 }
 .rec-dot {
   width: 10px; height: 10px;
@@ -1344,9 +1364,10 @@ html.light .rec-time { color: #0f1720; }
 /* Row 2 — hint, visible only when NOT locked */
 .rec-row-hint {
   display: flex;
-  justify-content: flex-end;
-  padding-right: 4px;
-  min-height: 14px;
+  justify-content: center;
+  align-items: center;
+  min-height: 26px;
+  width: 100%;
 }
 .rec-bar.locked .rec-row-hint { display: none; }
 .rec-hint {
@@ -1447,7 +1468,6 @@ html.light .rec-pause {
 /* ---------- Locked state ---------- */
 .rec-bar.locked {
   border-color: color-mix(in srgb, var(--chat-accent, #00a884) 40%, transparent);
-  padding-bottom: 30px !important;
   box-shadow:
     0 20px 48px rgba(0, 0, 0, 0.5),
     0 0 0 1px color-mix(in srgb, var(--chat-accent, #00a884) 20%, transparent);
