@@ -1857,6 +1857,34 @@ let recHoldTimer = null, recCancelling = false, recLocked = false, recLockPendin
 let recPointerId = null, recStartY = 0, recStartX = 0;
 let recAudioCtx = null, recAnalyser = null, recWaveRAF = null;
 
+let recDocListenersAttached = false;
+
+function tmAttachDocListeners() {
+  if (recDocListenersAttached) return;
+  recDocListenersAttached = true;
+  document.addEventListener('pointermove', tmMicMove, { passive: false });
+  document.addEventListener('pointerup', tmMicUp, { passive: false });
+  document.addEventListener('pointercancel', tmMicUp, { passive: false });
+  document.addEventListener('touchmove', tmMicMove, { passive: false });
+  document.addEventListener('touchend', tmMicUp, { passive: false });
+  document.addEventListener('touchcancel', tmMicUp, { passive: false });
+  document.addEventListener('mousemove', tmMicMove);
+  document.addEventListener('mouseup', tmMicUp);
+}
+
+function tmDetachDocListeners() {
+  if (!recDocListenersAttached) return;
+  recDocListenersAttached = false;
+  document.removeEventListener('pointermove', tmMicMove);
+  document.removeEventListener('pointerup', tmMicUp);
+  document.removeEventListener('pointercancel', tmMicUp);
+  document.removeEventListener('touchmove', tmMicMove);
+  document.removeEventListener('touchend', tmMicUp);
+  document.removeEventListener('touchcancel', tmMicUp);
+  document.removeEventListener('mousemove', tmMicMove);
+  document.removeEventListener('mouseup', tmMicUp);
+}
+
 function tmMicDown(e) {
   e.preventDefault(); e.stopPropagation();
   if (recording && recLocked) return;
@@ -1870,7 +1898,6 @@ function tmMicDown(e) {
   recCancelling = false;
   recLockPending = false;
 
-  // Show floating cursor at finger position
   const cur = document.getElementById('rec-cursor');
   if (cur) {
     cur.style.left = p.x + 'px';
@@ -1879,12 +1906,9 @@ function tmMicDown(e) {
   }
 
   if (recHoldTimer) clearTimeout(recHoldTimer);
-  recHoldTimer = setTimeout(() => { tmRecBegin(); }, 120);
+  recHoldTimer = setTimeout(() => { tmStartRecording(); }, 120);
 
-  try {
-    const btn = document.getElementById('mic-btn');
-    if (btn && btn.setPointerCapture && recPointerId != null) btn.setPointerCapture(recPointerId);
-  } catch(_){}
+  tmAttachDocListeners();
 }
 
 function tmPointerPoint(e) {
@@ -1947,6 +1971,7 @@ function tmMicMove(e) {
 
 async function tmMicUp(e) {
   if (recHoldTimer) { clearTimeout(recHoldTimer); recHoldTimer = null; }
+  tmDetachDocListeners();
   const cur = document.getElementById('rec-cursor');
   if (cur) cur.classList.remove('visible');
 
