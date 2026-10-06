@@ -199,3 +199,23 @@ def story_viewers(db: Session, story_id) -> list[dict]:
             "username": p.username if p else None,
         })
     return users
+
+
+def update_story(db: Session, user_id, story_id, new_body: str | None = None,
+                 new_background: str | None = None) -> Story:
+    s = db.get(Story, story_id)
+    if not s or s.user_id != user_id:
+        raise ValueError("not found or not yours")
+
+    if new_body is not None and s.kind == "text":
+        b = (new_body or "").strip()[:280]
+        if not b:
+            raise ValueError("body required for text stories")
+        s.body = b
+
+    if new_background is not None and new_background in BACKGROUNDS:
+        s.background = new_background
+
+    db.commit()
+    db.refresh(s)
+    return s

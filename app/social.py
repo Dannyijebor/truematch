@@ -258,3 +258,24 @@ def unread_messages_count(db: Session, user_id) -> int:
             DirectMessage.read_at.is_(None),
         )
     ).scalar() or 0
+
+
+def update_post(db: Session, user_id, post_id, new_body: str) -> Post:
+    p = db.get(Post, post_id)
+    if not p or p.user_id != user_id:
+        raise ValueError("not found or not yours")
+    body = (new_body or "").strip()
+    if not body or len(body) > 3000:
+        raise ValueError("body must be 1-3000 chars")
+    p.body = body
+    db.commit()
+    db.refresh(p)
+    return p
+
+
+def delete_post(db: Session, user_id, post_id):
+    p = db.get(Post, post_id)
+    if not p or p.user_id != user_id:
+        raise ValueError("not found or not yours")
+    db.delete(p)
+    db.commit()

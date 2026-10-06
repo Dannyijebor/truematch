@@ -1481,3 +1481,65 @@ def story_seen(story_id: str, request: Request, db: Session = Depends(get_db)):
     except Exception:
         pass
     return {"ok": True}
+
+
+# ---------- post edit / delete ----------
+@router.post("/api/posts/{post_id}/edit")
+async def api_edit_post(post_id: str, request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    user = current_user_web(request, db)
+    if not user:
+        return JSONResponse({"ok": False, "error": "auth"}, status_code=401)
+    from uuid import UUID
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    new_body = body.get("body") or ""
+    from app.social import update_post
+    try:
+        p = update_post(db, user.id, UUID(post_id), new_body)
+        return JSONResponse({"ok": True, "body": p.body})
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=400)
+
+
+@router.post("/api/posts/{post_id}/delete")
+def api_delete_post(post_id: str, request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    user = current_user_web(request, db)
+    if not user:
+        return JSONResponse({"ok": False, "error": "auth"}, status_code=401)
+    from uuid import UUID
+    from app.social import delete_post
+    try:
+        delete_post(db, user.id, UUID(post_id))
+        return JSONResponse({"ok": True})
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=400)
+
+
+# ---------- story edit ----------
+@router.post("/api/stories/{story_id}/edit")
+async def api_edit_story(story_id: str, request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    user = current_user_web(request, db)
+    if not user:
+        return JSONResponse({"ok": False, "error": "auth"}, status_code=401)
+    from uuid import UUID
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    from app.stories import update_story
+    try:
+        s = update_story(db, user.id, UUID(story_id),
+                         new_body=body.get("body"),
+                         new_background=body.get("background"))
+        return JSONResponse({
+            "ok": True,
+            "body": s.body,
+            "background": s.background,
+        })
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=400)

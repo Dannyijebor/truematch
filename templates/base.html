@@ -1220,6 +1220,131 @@
     transition: width 0.2s linear;
   }
 
+
+  /* ============================================================
+     3-DOT MENU + BLUR BACKDROP
+     ============================================================ */
+  .tm-menu-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 480;
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    animation: tm-fade 0.18s ease-out both;
+  }
+  .tm-menu-pop {
+    position: fixed;
+    z-index: 500;
+    min-width: 200px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-2);
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 24px 60px -16px rgba(0,0,0,0.6),
+                0 6px 16px -4px rgba(0,0,0,0.3);
+    animation: tm-menu-pop-in 0.16s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @keyframes tm-menu-pop-in {
+    from { opacity: 0; transform: translateY(-6px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .tm-menu-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text-2);
+    text-align: left;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    transition: background 0.12s ease;
+  }
+  .tm-menu-row:hover { background: var(--surface-3); }
+  .tm-menu-row.danger { color: #f87171; }
+  .tm-menu-row.danger:hover { background: rgba(248,113,113,0.12); }
+  .tm-menu-row svg { width: 16px; height: 16px; opacity: 0.8; }
+
+  /* Three-dot button */
+  .tm-dots {
+    padding: 8px;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.12s ease, color 0.12s ease;
+    cursor: pointer;
+    border: none;
+  }
+  .tm-dots:hover { background: var(--surface-3); color: var(--text); }
+  .tm-dots svg { width: 18px; height: 18px; }
+
+  /* Edit modal */
+  .tm-edit-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 600;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: tm-fade 0.2s ease-out both;
+  }
+  .tm-edit-card {
+    width: 100%;
+    max-width: 440px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-2);
+    border-radius: 20px;
+    padding: 22px;
+    box-shadow: 0 30px 80px -20px rgba(0,0,0,0.7);
+    animation: tm-menu-pop-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .tm-edit-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .tm-edit-sub {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .tm-edit-textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border-2);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: var(--text);
+    outline: none;
+    resize: vertical;
+    min-height: 110px;
+    font-family: inherit;
+  }
+  .tm-edit-textarea:focus { border-color: var(--accent); }
+  .tm-edit-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 16px;
+  }
+
+  /* Blur when a menu is open (used on viewer/post parents if needed) */
+  .tm-blurred { filter: blur(6px); transition: filter 0.2s ease; }
+
 </style>
 </head>
 <body class="min-h-screen pb-20 md:pb-0">
