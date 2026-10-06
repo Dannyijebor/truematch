@@ -1260,13 +1260,11 @@ html.light .chat-screen.theme-editorial {
   box-sizing: border-box !important;
   position: fixed;
   bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
-  left: 14px; right: 14px;
-  max-width: 460px;
-  margin: 0 auto;
+  left: 12px; right: 12px;
   background: rgba(22, 28, 32, 0.98);
   border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 24px;
-  padding: 14px 14px;
+  border-radius: 22px;
+  padding: 14px 18px;
   z-index: 9100;
   box-shadow:
     0 20px 48px rgba(0, 0, 0, 0.5),
@@ -1372,8 +1370,12 @@ html.light .rec-time { color: #0f1720; }
 .rec-row-buttons {
   display: none;
   justify-content: center;
-  gap: 10px;
+  align-items: center;
+  gap: 22px;
   height: 52px;
+  padding: 0 4px;
+  width: 100%;
+  box-sizing: border-box;
 }
 .rec-bar.locked .rec-row-buttons { display: flex; }
 
@@ -1394,7 +1396,7 @@ html.light .rec-time { color: #0f1720; }
 .rec-trash:active, .rec-pause:active, .rec-send:active { transform: scale(0.92); }
 
 .rec-trash {
-  width: 48px; height: 48px;
+  width: 46px; height: 46px;
   border-radius: 50%;
   background: rgba(255,74,74,0.14);
   border: 1.5px solid rgba(255,74,74,0.42);
@@ -1405,13 +1407,13 @@ html.light .rec-trash {
   border-color: rgba(220,50,50,0.4);
   color: #d63030;
 }
-.rec-trash svg { width: 22px; height: 22px; }
+.rec-trash svg { width: 20px; height: 20px; }
 
 .rec-pause {
-  flex: 1;
-  max-width: 160px;
-  height: 48px;
-  border-radius: 24px;
+  flex: 0 0 auto;
+  width: 140px;
+  height: 46px;
+  border-radius: 23px;
   background: rgba(255,255,255,0.09);
   border: 1.5px solid rgba(255,255,255,0.14);
   color: #eef3f6;
@@ -1419,7 +1421,7 @@ html.light .rec-trash {
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.3px;
-  padding: 0 16px;
+  padding: 0 14px;
 }
 html.light .rec-pause {
   background: rgba(0,0,0,0.05);
@@ -1429,7 +1431,7 @@ html.light .rec-pause {
 .rec-pause svg { width: 16px; height: 16px; }
 
 .rec-send {
-  width: 48px; height: 48px;
+  width: 46px; height: 46px;
   border-radius: 50%;
   background: var(--chat-accent, #00a884);
   color: #ffffff;
@@ -1437,7 +1439,7 @@ html.light .rec-pause {
     0 6px 20px color-mix(in srgb, var(--chat-accent, #00a884) 45%, transparent),
     inset 0 1px 0 rgba(255,255,255,0.22);
 }
-.rec-send svg { width: 22px; height: 22px; margin-left: 2px; }
+.rec-send svg { width: 20px; height: 20px; margin-left: 2px; }
 
 /* ---------- Locked state ---------- */
 .rec-bar.locked {
