@@ -744,3 +744,18 @@ def debug_home(request: Request, db: _S = Depends(get_db)):
             "error": f"{type(e).__name__}: {e}",
             "traceback": traceback.format_exc()
         }, status_code=200)
+
+
+@app.post("/debug-login")
+def debug_login(payload: LoginIn, db: Session = Depends(get_db)):
+    """TEMPORARY: same body as /users/login but returns traceback on error."""
+    import traceback
+    try:
+        email = payload.email.lower()
+        user = db.execute(select(User).where(User.email == email)).scalar_one_or_none()
+        if not user:
+            return {"ok": False, "reason": "no user", "email_tried": email}
+        ok = verify_password(payload.password, user.password_hash)
+        return {"ok": True, "user_found": True, "password_match": ok, "hash_prefix": user.password_hash.split("$")[0]}
+    except Exception as e:
+        return {"error": f"{type(e).__name__}: {e}", "traceback": traceback.format_exc()}
