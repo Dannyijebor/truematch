@@ -1447,6 +1447,7 @@ html.light .rec-pause {
 /* ---------- Locked state ---------- */
 .rec-bar.locked {
   border-color: color-mix(in srgb, var(--chat-accent, #00a884) 40%, transparent);
+  padding-bottom: 30px !important;
   box-shadow:
     0 20px 48px rgba(0, 0, 0, 0.5),
     0 0 0 1px color-mix(in srgb, var(--chat-accent, #00a884) 20%, transparent);
@@ -2158,29 +2159,34 @@ function tmMicMove(e) {
   const p = tmPointerPoint(e);
   const cur = document.getElementById('rec-cursor');
   const micEl = document.getElementById('mic-btn');
-  if (cur && micEl) {
-    // Cursor moves VERTICALLY only, and only UP (never below start Y)
-    const mr = micEl.getBoundingClientRect();
-    const minY = Math.min(p.y, recStartY);  // never go lower than start
-    cur.style.left = (mr.left + mr.width / 2) + 'px';
-    cur.style.top = minY + 'px';
+  const lockField = document.getElementById('rec-lock-field');
+
+  // Compute lock field bounds so we can clamp the cursor
+  let lockTopY = -Infinity;
+  if (lockField) {
+    const lr = lockField.getBoundingClientRect();
+    lockTopY = lr.top + lr.height / 2;
   }
 
-  const lockField = document.getElementById('rec-lock-field');
+  if (cur && micEl) {
+    // Cursor moves VERTICALLY only, never below start, never above lock center
+    const mr = micEl.getBoundingClientRect();
+    let cy = Math.min(p.y, recStartY);
+    if (lockTopY > -Infinity) cy = Math.max(cy, lockTopY);
+    cur.style.left = (mr.left + mr.width / 2) + 'px';
+    cur.style.top = cy + 'px';
+  }
+
   const hint = document.getElementById('rec-hint');
   const bar = document.getElementById('rec-bar');
 
-  // Lock field center
-  let lockCenterY = 0;
-  if (lockField) {
-    const r = lockField.getBoundingClientRect();
-    lockCenterY = r.top + r.height / 2;
-  }
+  // Lock field center (already computed above)
+  const lockCenterY = lockTopY;
 
   const dyFromLock = p.y - lockCenterY; // negative when finger is ABOVE lock
 
-  // Reached lock?
-  if (Math.abs(dyFromLock) < 40 && recording) {
+  // Reached lock? Fire the moment the cursor touches the lock level
+  if (dyFromLock <= 8 && recording) {
     tmRecLock();
     return;
   }
