@@ -386,9 +386,8 @@ html.light .chat-screen.theme-editorial {
 
 
   /* Wallpaper accent reacts to theme + mode */
-  .chat-wallpaper .wp-svg [stroke]:not([stroke="none"]) { stroke: var(--wallpaper-accent); }
-  .chat-wallpaper .wp-svg [fill]:not([fill="none"]):not([fill^="url("]) { fill: var(--wallpaper-accent); }
-  .chat-wallpaper .wp-svg [fill^="url("] { fill: revert-layer; }
+  .chat-wallpaper .wp-svg [stroke="currentColor"] { stroke: var(--wallpaper-accent); }
+  .chat-wallpaper .wp-svg [fill="currentColor"] { fill: var(--wallpaper-accent); }
   .chat-wallpaper .wp-svg .wp-manh-windows [fill] { fill: #ffffff; }
   html.light .chat-wallpaper .wp-svg .wp-manh-windows [fill] { fill: #ffffff; }
 
