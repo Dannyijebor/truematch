@@ -1257,6 +1257,7 @@ html.light .chat-screen.theme-editorial {
 
   /* ============ WHATSAPP-STYLE RECORDER ============ */
   .rec-bar {
+  box-sizing: border-box !important;
     position: fixed;
     bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
     left: 8px; right: 8px; height: 56px;
@@ -1513,8 +1514,10 @@ html.light .chat-screen.theme-editorial {
   /* ---------- Recorder: dim overlay + locked layout ---------- */
   .rec-dim {
   position: fixed !important;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.62);
+  top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(0,0,0,0.72) !important;
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   opacity: 0;
@@ -2256,6 +2259,9 @@ async function tmStartRecording() {
   audioChunks = []; currentBlob = null;
   mediaRecorder.ondataavailable = ev => { if (ev.data.size) audioChunks.push(ev.data); };
   mediaRecorder.onstop = () => {
+      const _dim = document.getElementById('rec-dim');
+      if (_dim) _dim.classList.remove('visible');
+      recPaused = false;
     recording = false;
     if (recTimer) { clearInterval(recTimer); recTimer = null; }
     try { if (activeStream) activeStream.getTracks().forEach(t => t.stop()); } catch(e){}
