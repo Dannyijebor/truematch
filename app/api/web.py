@@ -787,7 +787,7 @@ def message_thread(other_id: str, request: Request, db: Session = Depends(get_db
     other_profile = db.get(Profile, other_user.id)
     my_profile = db.get(Profile, user.id) or Profile(user_id=user.id)
 
-    return templates.TemplateResponse(request, "thread.html", _ctx(
+    return templates.TemplateResponse(request, "thread_v2.html", _ctx(
         request,
         db=db,
         user=user,
