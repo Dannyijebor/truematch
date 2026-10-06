@@ -41,29 +41,34 @@
 
     {% set me_group = story_groups[0] if story_groups and story_groups[0].is_me else None %}
     {% if me_group and me_group.stories %}
-      {# User has active story — show preview card with tap to view + small add button #}
       {% set latest = me_group.stories[-1] %}
-      <div class="tm-fb-story tm-fb-story-mine" style="background: {{ latest.background_css if latest.kind != 'image' else 'linear-gradient(135deg,#1e293b,#0f172a)' }};">
+      <div class="tm-fb-story tm-fb-story-mine" role="button" tabindex="0"
+           onclick="tmOpenMyStory()"
+           onkeydown="if(event.key==='Enter')tmOpenMyStory()"
+           style="cursor:pointer; background: {{ latest.background_css if latest.kind != 'image' else 'linear-gradient(135deg,#1e293b,#0f172a)' }};">
         {% if latest.kind == 'image' and latest.image_url %}
-          <img src="{{ latest.image_url }}" alt="" class="tm-fb-story-bg">
+          <img src="{{ latest.image_url }}" alt="" class="tm-fb-story-bg" style="pointer-events:none;">
+        {% elif latest.kind == 'video' and latest.image_url %}
+          <video src="{{ latest.image_url }}" class="tm-fb-story-bg" muted playsinline style="pointer-events:none;"></video>
+          <div style="position:absolute;top:8px;right:44px;background:rgba(0,0,0,0.6);color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;z-index:3;">VIDEO</div>
         {% else %}
-          <div class="tm-fb-story-text-preview">{{ latest.body[:60] }}{% if latest.body and latest.body|length > 60 %}…{% endif %}</div>
+          <div class="tm-fb-story-text-preview" style="pointer-events:none;">{{ latest.body[:60] }}{% if latest.body and latest.body|length > 60 %}…{% endif %}</div>
         {% endif %}
 
-        <button type="button" onclick="tmOpenMyStory()" class="tm-fb-story-open" aria-label="View your experience">
-          <div class="tm-fb-story-ring {% if me_group.has_unseen %}tm-fb-story-ring-unseen{% endif %}">
-            {% if profile and profile.avatar_url %}
-              <img src="{{ profile.avatar_url }}" alt="">
-            {% else %}
-              <span class="tm-fb-story-init-sm">{{ (user.full_name or user.email)[0]|upper }}</span>
-            {% endif %}
-          </div>
-          <div class="tm-fb-story-label-bottom">Your experience</div>
-        </button>
+        <div class="tm-fb-story-ring" style="pointer-events:none;">
+          {% if profile and profile.avatar_url %}
+            <img src="{{ profile.avatar_url }}" alt="">
+          {% else %}
+            <span class="tm-fb-story-init-sm">{{ (user.full_name or user.email)[0]|upper }}</span>
+          {% endif %}
+        </div>
+        <div class="tm-fb-story-label-bottom" style="pointer-events:none;">Your experience</div>
 
-        <button type="button" onclick="tmOpenComposer()" class="tm-fb-story-add-sm" aria-label="Add another">
+        <span class="tm-fb-story-add-sm"
+              onclick="event.stopPropagation(); tmOpenComposer();"
+              role="button" tabindex="0" aria-label="Add another">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="w-4 h-4"><path d="M12 5v14M5 12h14"/></svg>
-        </button>
+        </span>
       </div>
     {% else %}
       <button type="button" onclick="tmOpenComposer()" class="tm-fb-story tm-fb-story-create">
@@ -200,12 +205,41 @@
   </div>
   <div class="tm-viewer-body">
     <div class="tm-viewer-content" id="tm-viewer-content"></div>
+    <button class="tm-viewer-mute hidden" id="tm-mute-btn" onclick="tmToggleMute(event)" aria-label="Mute">
+      <svg id="tm-mute-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5">
+        <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+        <path id="tm-mute-wave" d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/>
+      </svg>
+    </button>
+    <div class="tm-viewer-seen hidden" id="tm-seen-badge" onclick="tmShowViewers(event)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-3.5 h-3.5">
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+        <circle cx="12" cy="12" r="3"/>
+      </svg>
+      <span id="tm-seen-count">0</span>
+    </div>
   </div>
   <button class="tm-viewer-tap tm-viewer-tap-left" onclick="tmStoryPrev()" aria-label="Previous"></button>
   <button class="tm-viewer-tap tm-viewer-tap-right" onclick="tmStoryNext()" aria-label="Next"></button>
   <div class="tm-viewer-reply">
     <input type="text" id="tm-viewer-reply" placeholder="Reply…" onkeydown="if(event.key==='Enter')tmStoryReply()">
     <button onclick="tmStoryReply()" class="tm-btn tm-btn-primary px-4 py-2 text-sm">Send</button>
+  </div>
+</div>
+
+<!-- VIEWERS SHEET -->
+<div id="tm-viewers-sheet" class="tm-viewers-sheet hidden" onclick="if(event.target===this)tmCloseViewers()">
+  <div class="tm-viewers-panel">
+    <div class="tm-viewers-header">
+      <div>
+        <div style="font-weight:700;color:var(--text);">Seen by</div>
+        <div style="font-size:12px;color:var(--muted);" id="tm-viewers-count">0</div>
+      </div>
+      <button onclick="tmCloseViewers()" style="color:var(--muted);padding:8px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </button>
+    </div>
+    <div class="tm-viewers-list" id="tm-viewers-list"></div>
   </div>
 </div>
 
@@ -229,6 +263,7 @@
       <div class="tm-composer-tabs">
         <button type="button" class="tm-ctab tm-ctab-on" onclick="tmComposerTab('text', this)">Text</button>
         <button type="button" class="tm-ctab" onclick="tmComposerTab('image', this)">Image</button>
+        <button type="button" class="tm-ctab" onclick="tmComposerTab('video', this)">Video</button>
       </div>
       <div id="tm-tab-text">
         <textarea name="body" id="tm-story-body" rows="3" maxlength="280" placeholder="What's on your mind?"
@@ -237,6 +272,19 @@
       </div>
       <div id="tm-tab-image" class="hidden">
         <input type="file" name="image" accept="image/*" class="tm-composer-file">
+      </div>
+
+      <div id="tm-tab-video" class="hidden">
+        <input type="file" name="video" accept="video/mp4,video/webm,video/quicktime"
+               class="tm-composer-file" id="tm-video-input"
+               onchange="tmVideoSelected(this)">
+        <input type="hidden" name="duration" id="tm-video-duration" value="">
+        <p class="tm-video-hint">Max 3 MB. MP4, WebM, or MOV. Longer videos may not upload.</p>
+        <video id="tm-video-preview" class="hidden" controls muted playsinline
+               style="width:100%;border-radius:12px;margin-top:10px;"></video>
+        <div id="tm-video-progress" class="tm-video-progress hidden">
+          <div class="tm-video-progress-bar" id="tm-video-progress-bar"></div>
+        </div>
       </div>
       <div>
         <div class="tm-bg-label">Background</div>
@@ -291,11 +339,31 @@ function tmOpenStory() {
   tmRenderStory();
 }
 
+function tmOpenMyStory() {
+  const q = [];
+  for (const g of TM_STORY_GROUPS) {
+    if (g.user_id !== TM_ME_ID) continue;
+    for (const s of g.stories) {
+      q.push({ ...s, user: { id: g.user_id, name: g.name, avatar_url: g.avatar_url } });
+    }
+  }
+  if (!q.length) return;
+  tmViewer.queue = q;
+  tmViewer.index = 0;
+  document.getElementById('tm-story-viewer').classList.remove('hidden');
+  tmImmersiveOn();
+  tmRenderStory();
+}
+
 function tmRenderStory() {
   clearTimeout(tmViewer.timer);
+  var oldVid = document.querySelector('.tm-viewer-video');
+  if (oldVid) { try { oldVid.pause(); } catch(e){} }
+
   const s = tmViewer.queue[tmViewer.index];
   if (!s) return tmCloseStory();
 
+  const isMine = (s.user.id === TM_ME_ID);
   const bars = document.getElementById('tm-viewer-bars');
   bars.innerHTML = tmViewer.queue.map((_, i) =>
     `<span class="tm-vbar ${i < tmViewer.index ? 'tm-vbar-done' : ''} ${i === tmViewer.index ? 'tm-vbar-active' : ''}"></span>`
@@ -311,16 +379,95 @@ function tmRenderStory() {
   document.getElementById('tm-viewer-time').textContent = s.ago || '';
 
   const content = document.getElementById('tm-viewer-content');
-  if (s.kind === 'image' && s.image_url) {
+  const muteBtn = document.getElementById('tm-mute-btn');
+  const seenBadge = document.getElementById('tm-seen-badge');
+
+  if (muteBtn) {
+    muteBtn.classList.add('hidden');
+    muteBtn.dataset.muted = '1';
+    tmUpdateMuteIcon(true);
+  }
+
+  if (s.kind === 'video' && s.image_url) {
+    content.innerHTML = `<video src="${s.image_url}" class="tm-viewer-video" id="tm-current-video" playsinline autoplay></video>`;
+    var v = document.getElementById('tm-current-video');
+    v.muted = true;
+    muteBtn.classList.remove('hidden');
+    v.onloadedmetadata = function() {
+      var dur = (v.duration && isFinite(v.duration)) ? v.duration : (s.duration || 15);
+      tmSetBarProgress(dur);
+      v.play().catch(function(){});
+    };
+    v.onerror = function() { tmSetBarProgress(s.duration || 15); };
+
+  } else if (s.kind === 'image' && s.image_url) {
     content.innerHTML = `<img src="${s.image_url}" class="tm-viewer-img" alt="">`;
+    tmSetBarProgress(5);
+
   } else {
     content.innerHTML = `<div class="tm-viewer-text-bg" style="background: ${s.background_css};">
       <div class="tm-viewer-text">${(s.body||'').replace(/</g,'&lt;')}</div>
     </div>`;
+    tmSetBarProgress(5);
   }
 
-  fetch('/api/stories/' + s.id + '/seen', {method: 'POST', credentials: 'same-origin'});
-  tmViewer.timer = setTimeout(tmStoryNext, 5200);
+  if (isMine) {
+    seenBadge.classList.remove('hidden');
+    document.getElementById('tm-seen-count').textContent = s.seen_count || 0;
+    seenBadge.dataset.storyId = s.id;
+  } else {
+    seenBadge.classList.add('hidden');
+  }
+
+  if (!isMine) {
+    fetch('/api/stories/' + s.id + '/seen', {method: 'POST', credentials: 'same-origin'});
+  }
+}
+
+function tmSetBarProgress(seconds) {
+  var active = document.querySelector('.tm-vbar-active');
+  if (!active) return;
+  active.innerHTML = '';
+  var fill = document.createElement('span');
+  fill.style.cssText = 'position:absolute;inset:0;background:#fff;transform-origin:left;transform:scaleX(0);';
+  active.appendChild(fill);
+  void fill.offsetWidth;
+  var ms = Math.max(1500, Math.min(60, seconds) * 1000);
+  fill.style.transition = 'transform ' + (ms/1000) + 's linear';
+  fill.style.transform = 'scaleX(1)';
+  tmViewer.timer = setTimeout(tmStoryNext, ms);
+}
+
+function tmToggleMute(e) {
+  e.stopPropagation();
+  var v = document.getElementById('tm-current-video');
+  var btn = document.getElementById('tm-mute-btn');
+  if (!v || !btn) return;
+  v.muted = !v.muted;
+  btn.dataset.muted = v.muted ? '1' : '0';
+  tmUpdateMuteIcon(v.muted);
+}
+
+function tmUpdateMuteIcon(muted) {
+  var wave = document.getElementById('tm-mute-wave');
+  var svg = document.getElementById('tm-mute-icon');
+  if (!wave || !svg) return;
+  var xLine = svg.querySelector('.tm-x-line');
+  if (muted) {
+    wave.style.display = 'none';
+    if (!xLine) {
+      var x = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      x.setAttribute('d', 'M22 9l-6 6M16 9l6 6');
+      x.setAttribute('class', 'tm-x-line');
+      x.setAttribute('stroke', 'currentColor');
+      x.setAttribute('stroke-width', '1.8');
+      x.setAttribute('fill', 'none');
+      svg.appendChild(x);
+    }
+  } else {
+    wave.style.display = '';
+    if (xLine) xLine.remove();
+  }
 }
 
 function tmStoryNext() {
@@ -336,6 +483,8 @@ function tmStoryPrev() {
 }
 function tmCloseStory() {
   clearTimeout(tmViewer.timer);
+  var v = document.getElementById('tm-current-video');
+  if (v) { try { v.pause(); } catch(e){} }
   document.getElementById('tm-story-viewer').classList.add('hidden');
   tmImmersiveOff();
 }
@@ -348,7 +497,7 @@ function tmStoryReply() {
   const fd = new FormData();
   fd.append('body', 'Reply to your experience: ' + txt);
   fetch('/messages/' + s.user.id, {method: 'POST', body: fd, credentials: 'same-origin'})
-    .then(() => { input.value = ''; });
+    .then(function() { input.value = ''; });
 }
 
 function tmOpenComposer() {
@@ -360,15 +509,73 @@ function tmCloseComposer() {
   tmImmersiveOff();
 }
 function tmComposerTab(tab, btn) {
-  document.querySelectorAll('.tm-ctab').forEach(b => b.classList.remove('tm-ctab-on'));
+  document.querySelectorAll('.tm-ctab').forEach(function(b){ b.classList.remove('tm-ctab-on'); });
   btn.classList.add('tm-ctab-on');
   document.getElementById('tm-kind-input').value = tab;
   document.getElementById('tm-tab-text').classList.toggle('hidden', tab !== 'text');
   document.getElementById('tm-tab-image').classList.toggle('hidden', tab !== 'image');
+  var v = document.getElementById('tm-tab-video');
+  if (v) v.classList.toggle('hidden', tab !== 'video');
 }
 function tmPickBg(key, css) {
   document.getElementById('tm-bg-input').value = key;
   document.getElementById('tm-composer-preview-inner').style.background = css;
+}
+function tmVideoSelected(input) {
+  var file = input.files && input.files[0];
+  var preview = document.getElementById('tm-video-preview');
+  var durField = document.getElementById('tm-video-duration');
+  if (!file) { preview.classList.add('hidden'); return; }
+  if (file.size > 3 * 1024 * 1024) {
+    alert('Video is ' + (file.size / 1024 / 1024).toFixed(1) + ' MB. Please choose a file under 3 MB.');
+    input.value = '';
+    preview.classList.add('hidden');
+    return;
+  }
+  var url = URL.createObjectURL(file);
+  preview.src = url;
+  preview.classList.remove('hidden');
+  preview.onloadedmetadata = function() {
+    durField.value = preview.duration.toFixed(2);
+  };
+}
+
+function tmShowViewers(e) {
+  if (e) e.stopPropagation();
+  var badge = document.getElementById('tm-seen-badge');
+  var id = badge.dataset.storyId;
+  if (!id) return;
+  var sheet = document.getElementById('tm-viewers-sheet');
+  sheet.classList.remove('hidden');
+  document.getElementById('tm-viewers-list').innerHTML =
+    '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">Loading…</div>';
+  fetch('/api/stories/' + id + '/viewers', {credentials: 'same-origin'})
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      var list = document.getElementById('tm-viewers-list');
+      var viewers = (data && data.viewers) || [];
+      document.getElementById('tm-viewers-count').textContent =
+        viewers.length + ' ' + (viewers.length === 1 ? 'person' : 'people');
+      if (!viewers.length) {
+        list.innerHTML = '<div style="padding:30px;text-align:center;color:var(--muted);font-size:13px;">No views yet.</div>';
+        return;
+      }
+      list.innerHTML = viewers.map(function(v) {
+        var avatar = v.avatar_url
+          ? '<img src="' + v.avatar_url + '" class="tm-viewer-row-avatar" alt="">'
+          : '<div class="tm-viewer-row-avatar-init">' + (v.name || '?')[0].toUpperCase() + '</div>';
+        return '<div class="tm-viewer-row">' + avatar +
+               '<div><div class="tm-viewer-row-name">' + (v.name || 'Someone') + '</div></div></div>';
+      }).join('');
+    })
+    .catch(function() {
+      document.getElementById('tm-viewers-list').innerHTML =
+        '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">Could not load.</div>';
+    });
+}
+
+function tmCloseViewers() {
+  document.getElementById('tm-viewers-sheet').classList.add('hidden');
 }
 
 async function toggleLike(id, btn) {
@@ -383,7 +590,7 @@ async function toggleLike(id, btn) {
   }
 }
 
-console.log('[TrueMatch] feed.js loaded — tmOpenComposer:', typeof tmOpenComposer);
+console.log('[TrueMatch] feed.js loaded');
 </script>
 
 {% endblock %}

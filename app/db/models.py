@@ -262,5 +262,6 @@ class Story(Base):
     image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     background: Mapped[str] = mapped_column(String, default="aurora")
     seen_by: Mapped[list] = mapped_column(JSON, default=list)
+    duration: Mapped[float | None] = mapped_column(Float, nullable=True)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)

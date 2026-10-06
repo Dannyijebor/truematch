@@ -18,8 +18,9 @@ BACKGROUNDS = {
 
 
 def create_story(db: Session, user_id, kind: str, body: str | None = None,
-                 image_url: str | None = None, background: str = "aurora") -> Story:
-    if kind not in ("text", "image"):
+                 image_url: str | None = None, background: str = "aurora",
+                 duration: float | None = None) -> Story:
+    if kind not in ("text", "image", "video"):
         kind = "text"
     if background not in BACKGROUNDS:
         background = "aurora"
@@ -27,8 +28,8 @@ def create_story(db: Session, user_id, kind: str, body: str | None = None,
     body = (body or "").strip()[:280] or None
     if kind == "text" and not body:
         raise ValueError("text required for text stories")
-    if kind == "image" and not image_url:
-        raise ValueError("image required for image stories")
+    if kind in ("image", "video") and not image_url:
+        raise ValueError("media required for this story kind")
 
     now = datetime.now(timezone.utc)
     story = Story(
@@ -38,6 +39,7 @@ def create_story(db: Session, user_id, kind: str, body: str | None = None,
         image_url=image_url,
         background=background,
         seen_by=[],
+        duration=duration,
         expires_at=now + timedelta(hours=24),
     )
     db.add(story)
@@ -128,6 +130,8 @@ def _serialize(s: Story, viewer_id) -> dict:
         "background": s.background,
         "background_css": BACKGROUNDS.get(s.background, BACKGROUNDS["aurora"]),
         "seen": viewer_id in (s.seen_by or []),
+        "seen_count": len(s.seen_by or []),
+        "duration": s.duration,
         "created_at": s.created_at.isoformat() if s.created_at else None,
         "ago": _ago(s.created_at),
     }
@@ -166,3 +170,32 @@ def cleanup_expired(db: Session) -> int:
         n += 1
     db.commit()
     return n
+
+
+def story_viewers(db: Session, story_id) -> list[dict]:
+    """Return list of users who have seen this story, newest first."""
+    s = db.get(Story, story_id)
+    if not s:
+        return []
+    seen_ids = s.seen_by or []
+    if not seen_ids:
+        return []
+    from uuid import UUID
+    from app.social import display_name
+
+    users = []
+    for uid_str in reversed(seen_ids):
+        try:
+            u = db.get(User, UUID(uid_str))
+        except Exception:
+            continue
+        if not u:
+            continue
+        p = db.get(Profile, u.id)
+        users.append({
+            "user_id": str(u.id),
+            "name": display_name(u, p),
+            "avatar_url": p.avatar_url if p else None,
+            "username": p.username if p else None,
+        })
+    return users
