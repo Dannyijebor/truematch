@@ -153,17 +153,72 @@ def search_people(db: Session, q: str, limit: int = 30) -> list[dict]:
 from app.db.models import DirectMessage
 
 
-def send_message(db: Session, from_id, to_id, body: str) -> DirectMessage:
+def send_message(db: Session, from_id, to_id, body: str = "", kind: str = "text",
+                 media_url: str | None = None, media_duration: float | None = None,
+                 reply_to_id=None) -> DirectMessage:
     body = (body or "").strip()
-    if not body or len(body) > 4000:
+    if kind not in ("text", "image", "voice", "sticker"):
+        kind = "text"
+    if kind == "text" and (not body or len(body) > 4000):
         raise ValueError("message must be 1-4000 chars")
+    if kind in ("image", "voice", "sticker") and not media_url:
+        raise ValueError("media required")
     if from_id == to_id:
         raise ValueError("cannot message yourself")
-    msg = DirectMessage(from_user_id=from_id, to_user_id=to_id, body=body)
+
+    msg = DirectMessage(
+        from_user_id=from_id, to_user_id=to_id,
+        body=body[:4000] if body else "",
+        kind=kind, media_url=media_url,
+        media_duration=media_duration,
+        reply_to_id=reply_to_id,
+    )
     db.add(msg)
     db.commit()
     db.refresh(msg)
     return msg
+
+
+def delete_message_for_me(db: Session, user_id, message_id):
+    m = db.get(DirectMessage, message_id)
+    if not m:
+        raise ValueError("not found")
+    if m.from_user_id == user_id:
+        m.deleted_for_sender = True
+    else:
+        db.delete(m)
+    db.commit()
+
+
+def toggle_sticker(db: Session, user_id, name: str, kind: str, data: str) -> dict:
+    existing = db.execute(
+        select(Sticker).where(Sticker.user_id == user_id, Sticker.name == name)
+    ).scalar_one_or_none()
+    if existing:
+        existing.kind = kind
+        existing.data = data
+        db.commit()
+        return {"id": str(existing.id), "name": name, "kind": kind, "data": data, "saved": True}
+    s = Sticker(user_id=user_id, name=name[:60], kind=kind, data=data)
+    db.add(s)
+    db.commit()
+    db.refresh(s)
+    return {"id": str(s.id), "name": s.name, "kind": s.kind, "data": s.data, "saved": True}
+
+
+def list_stickers(db: Session, user_id) -> list[dict]:
+    rows = db.execute(
+        select(Sticker).where(Sticker.user_id == user_id).order_by(desc(Sticker.created_at)).limit(120)
+    ).scalars().all()
+    return [{"id": str(s.id), "name": s.name, "kind": s.kind, "data": s.data} for s in rows]
+
+
+def delete_sticker(db: Session, user_id, sticker_id):
+    s = db.get(Sticker, sticker_id)
+    if not s or s.user_id != user_id:
+        raise ValueError("not found")
+    db.delete(s)
+    db.commit()
 
 
 def inbox(db: Session, user_id) -> list[dict]:
@@ -242,13 +297,32 @@ def thread(db: Session, user_id, other_id, limit: int = 200) -> list[dict]:
     if now_dirty:
         db.commit()
 
-    return [{
-        "id": str(m.id),
-        "body": m.body,
-        "from_me": m.from_user_id == user_id,
-        "created_at": m.created_at.isoformat() if m.created_at else None,
-        "read": m.read_at is not None,
-    } for m in rows]
+    out = []
+    for m in rows:
+        if m.deleted_for_sender and m.from_user_id == user_id:
+            continue
+        reply = None
+        if m.reply_to_id:
+            parent = db.get(DirectMessage, m.reply_to_id)
+            if parent:
+                preview = parent.body[:80] if parent.body else ("[image]" if parent.kind == "image" else "[voice]" if parent.kind == "voice" else "[sticker]")
+                reply = {
+                    "id": str(parent.id),
+                    "preview": preview,
+                    "from_me": parent.from_user_id == user_id,
+                }
+        out.append({
+            "id": str(m.id),
+            "body": m.body,
+            "kind": m.kind or "text",
+            "media_url": m.media_url,
+            "media_duration": m.media_duration,
+            "from_me": m.from_user_id == user_id,
+            "created_at": m.created_at.isoformat() if m.created_at else None,
+            "read": m.read_at is not None,
+            "reply": reply,
+        })
+    return out
 
 
 def unread_messages_count(db: Session, user_id) -> int:

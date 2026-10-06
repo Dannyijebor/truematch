@@ -32,13 +32,29 @@ def messages_since(db: Session, user_id, other_id, since_iso: str | None) -> lis
     if dirty:
         db.commit()
 
-    return [{
-        "id": str(m.id),
-        "body": m.body,
-        "from_me": m.from_user_id == user_id,
-        "created_at": m.created_at.isoformat() if m.created_at else None,
-        "read": m.read_at is not None,
-    } for m in rows]
+    out = []
+    for m in rows:
+        if m.deleted_for_sender and m.from_user_id == user_id:
+            continue
+        reply = None
+        if m.reply_to_id:
+            parent = db.get(DirectMessage, m.reply_to_id)
+            if parent:
+                preview = parent.body[:80] if parent.body else ("[image]" if parent.kind == "image" else "[voice]" if parent.kind == "voice" else "[sticker]")
+                reply = {"id": str(parent.id), "preview": preview,
+                         "from_me": parent.from_user_id == user_id}
+        out.append({
+            "id": str(m.id),
+            "body": m.body,
+            "kind": m.kind or "text",
+            "media_url": m.media_url,
+            "media_duration": m.media_duration,
+            "from_me": m.from_user_id == user_id,
+            "created_at": m.created_at.isoformat() if m.created_at else None,
+            "read": m.read_at is not None,
+            "reply": reply,
+        })
+    return out
 
 
 def unread_from(db: Session, user_id, other_id) -> int:

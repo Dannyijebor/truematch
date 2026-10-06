@@ -1585,3 +1585,136 @@ def api_story_delete(story_id: str, request: Request, db: Session = Depends(get_
         return JSONResponse({"ok": True})
     except Exception as e:
         return JSONResponse({"ok": False, "error": str(e)}, status_code=400)
+
+
+# ---------- chat send + stickers + voice ----------
+@router.post("/api/chat/send")
+async def api_chat_send(request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    user = current_user_web(request, db)
+    if not user:
+        return JSONResponse({"ok": False, "error": "auth"}, status_code=401)
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"ok": False, "error": "bad json"}, status_code=400)
+
+    to_id = body.get("to")
+    kind = body.get("kind") or "text"
+    text = body.get("body") or ""
+    media_url = body.get("media_url")
+    duration = body.get("media_duration")
+    reply_to = body.get("reply_to_id")
+
+    from uuid import UUID
+    try:
+        to_uuid = UUID(to_id)
+    except Exception:
+        return JSONResponse({"ok": False, "error": "bad recipient"}, status_code=400)
+
+    reply_uuid = None
+    if reply_to:
+        try: reply_uuid = UUID(reply_to)
+        except Exception: pass
+
+    from app.social import send_message
+    try:
+        msg = send_message(db, user.id, to_uuid, body=text, kind=kind,
+                           media_url=media_url,
+                           media_duration=(float(duration) if duration else None),
+                           reply_to_id=reply_uuid)
+
+        # Create notification for recipient
+        try:
+            from app.notify_inapp import create_notification
+            sender_name = user.full_name or user.email.split("@")[0]
+            preview = text if kind == "text" else (
+                "sent an image" if kind == "image" else
+                "sent a voice message" if kind == "voice" else
+                "sent a sticker")
+            create_notification(
+                db, user_id=to_uuid, kind="message",
+                title=f"New message from {sender_name}",
+                body=(preview[:120] if text else preview),
+                link=f"/messages/{user.id}",
+            )
+        except Exception:
+            pass
+
+        return JSONResponse({
+            "ok": True,
+            "message": {
+                "id": str(msg.id),
+                "body": msg.body,
+                "kind": msg.kind,
+                "media_url": msg.media_url,
+                "media_duration": msg.media_duration,
+                "from_me": True,
+                "created_at": msg.created_at.isoformat() if msg.created_at else None,
+                "read": False,
+                "reply": None,
+            }
+        })
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=400)
+
+
+@router.post("/api/chat/messages/{message_id}/delete")
+def api_delete_message(message_id: str, request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    user = current_user_web(request, db)
+    if not user:
+        return JSONResponse({"ok": False, "error": "auth"}, status_code=401)
+    from uuid import UUID
+    from app.social import delete_message_for_me
+    try:
+        delete_message_for_me(db, user.id, UUID(message_id))
+        return JSONResponse({"ok": True})
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=400)
+
+
+@router.get("/api/stickers")
+def api_list_stickers(request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    user = current_user_web(request, db)
+    if not user:
+        return JSONResponse({"ok": False, "items": []})
+    from app.social import list_stickers
+    return JSONResponse({"ok": True, "items": list_stickers(db, user.id)})
+
+
+@router.post("/api/stickers")
+async def api_save_sticker(request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    user = current_user_web(request, db)
+    if not user:
+        return JSONResponse({"ok": False, "error": "auth"}, status_code=401)
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"ok": False, "error": "bad json"}, status_code=400)
+    from app.social import toggle_sticker
+    try:
+        result = toggle_sticker(db, user.id,
+            name=(body.get("name") or "").strip() or "sticker",
+            kind=body.get("kind") or "emoji",
+            data=body.get("data") or "")
+        return JSONResponse({"ok": True, **result})
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=400)
+
+
+@router.post("/api/stickers/{sticker_id}/delete")
+def api_delete_sticker(sticker_id: str, request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    user = current_user_web(request, db)
+    if not user:
+        return JSONResponse({"ok": False, "error": "auth"}, status_code=401)
+    from uuid import UUID
+    from app.social import delete_sticker
+    try:
+        delete_sticker(db, user.id, UUID(sticker_id))
+        return JSONResponse({"ok": True})
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=400)
