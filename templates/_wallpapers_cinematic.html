@@ -1597,43 +1597,451 @@
 
   {% elif key == 'obsidian' %}
   {# ---------- ZURICH · The Analyst · A faceted crystal refracting light ---------- #}
-  <svg viewBox="0 0 500 500" preserveAspectRatio="xMidYMid meet" class="wp-svg wp-zurich">
-    <defs>
-      <radialGradient id="zurich-glow" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stop-color="currentColor" stop-opacity="0.18"/>
-        <stop offset="100%" stop-color="currentColor" stop-opacity="0"/>
-      </radialGradient>
-    </defs>
+  <svg viewBox="0 0 500 500" preserveAspectRatio="xMidYMid slice" class="wp-svg wp-zur">
+  <defs>
+    <linearGradient id="zur-wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--zur-wall-1)"/>
+      <stop offset="100%" stop-color="var(--zur-wall-2)"/>
+    </linearGradient>
+    <linearGradient id="zur-marble" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--zur-marble-1)"/>
+      <stop offset="100%" stop-color="var(--zur-marble-2)"/>
+    </linearGradient>
+    <linearGradient id="zur-desk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--zur-desk-1)"/>
+      <stop offset="100%" stop-color="var(--zur-desk-2)"/>
+    </linearGradient>
+    <radialGradient id="zur-vault-steel" cx="30%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="var(--zur-steel-1)"/>
+      <stop offset="55%" stop-color="var(--zur-steel-2)"/>
+      <stop offset="100%" stop-color="var(--zur-steel-3)"/>
+    </radialGradient>
+    <linearGradient id="zur-brass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="var(--zur-brass-1)"/>
+      <stop offset="50%" stop-color="var(--zur-brass-2)"/>
+      <stop offset="100%" stop-color="var(--zur-brass-3)"/>
+    </linearGradient>
+    <linearGradient id="zur-gold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="var(--zur-gold-1)"/>
+      <stop offset="35%" stop-color="var(--zur-gold-2)"/>
+      <stop offset="65%" stop-color="var(--zur-gold-3)"/>
+      <stop offset="100%" stop-color="var(--zur-gold-1)"/>
+    </linearGradient>
+    <linearGradient id="zur-window" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--zur-sky-1)"/>
+      <stop offset="100%" stop-color="var(--zur-sky-2)"/>
+    </linearGradient>
+    <radialGradient id="zur-lamp" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="var(--zur-lamp-glow)" stop-opacity="0.85"/>
+      <stop offset="45%" stop-color="var(--zur-lamp-glow)" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="var(--zur-lamp-glow)" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="zur-whisky" cx="40%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#ffc860" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#b87820" stop-opacity="0.9"/>
+    </radialGradient>
+    <radialGradient id="zur-daylight" cx="68%" cy="12%" r="80%">
+      <stop offset="0%" stop-color="#fff8e0" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#fff8e0" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="zur-blur-xs"><feGaussianBlur stdDeviation="0.5"/></filter>
+    <filter id="zur-blur-sm"><feGaussianBlur stdDeviation="1.2"/></filter>
+    <filter id="zur-blur-md"><feGaussianBlur stdDeviation="3"/></filter>
+    <filter id="zur-blur-lg"><feGaussianBlur stdDeviation="7"/></filter>
+    <radialGradient id="zur-fade" cx="50%" cy="50%" r="80%">
+      <stop offset="0%" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="62%" stop-color="#fff" stop-opacity="0.94"/>
+      <stop offset="88%" stop-color="#fff" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="zur-mask"><rect width="500" height="500" fill="url(#zur-fade)"/></mask>
+  </defs>
 
-    <circle cx="250" cy="250" r="200" fill="url(#zurich-glow)"/>
+  <g mask="url(#zur-mask)">
+    <!-- Wall — dark polished stone panels -->
+    <rect width="500" height="500" fill="url(#zur-wall)"/>
+    <g stroke="var(--zur-wall-line)" stroke-width="0.4" opacity="0.55">
+      <line x1="0" y1="120" x2="500" y2="120"/>
+      <line x1="0" y1="240" x2="500" y2="240"/>
+      <line x1="100" y1="0" x2="100" y2="320"/>
+      <line x1="260" y1="0" x2="260" y2="320"/>
+      <line x1="420" y1="0" x2="420" y2="320"/>
+    </g>
 
-    <g stroke="currentColor" stroke-width="1" fill="none" opacity="0.8">
-      <!-- Outer crystalline form -->
-      <path d="M250 60 L410 200 L250 440 L90 200 Z"/>
-      <path d="M250 60 L410 200 L250 260 L90 200 Z"/>
-      <path d="M250 260 L410 200 L250 440"/>
-      <path d="M250 260 L90 200 L250 440"/>
+    <!-- ===== VAULT DOOR (left, partially cropped) ===== -->
+    <g>
+      <!-- Outer frame recess -->
+      <circle cx="60" cy="220" r="150" fill="var(--zur-vault-recess)"/>
+      <!-- Door body -->
+      <circle cx="60" cy="220" r="138" fill="url(#zur-vault-steel)"/>
+      <!-- Outer rim highlight -->
+      <circle cx="60" cy="220" r="138" fill="none" stroke="var(--zur-steel-hi)" stroke-width="1.2" opacity="0.7"/>
+      <!-- Inner rim -->
+      <circle cx="60" cy="220" r="128" fill="none" stroke="var(--zur-steel-3)" stroke-width="2"/>
+      <!-- Bolt ring — 12 bolts around the circumference -->
+      <g fill="var(--zur-brass-2)" stroke="var(--zur-steel-3)" stroke-width="0.4">
+        <circle cx="60" cy="112" r="3.2"/>
+        <circle cx="122" cy="148" r="3.2"/>
+        <circle cx="146" cy="220" r="3.2"/>
+        <circle cx="122" cy="292" r="3.2"/>
+        <circle cx="60" cy="328" r="3.2"/>
+        <circle cx="-2" cy="292" r="3.2"/>
+        <circle cx="-26" cy="220" r="3.2"/>
+        <circle cx="-2" cy="148" r="3.2"/>
+        <circle cx="100" cy="128" r="3.2"/>
+        <circle cx="138" cy="182" r="3.2"/>
+        <circle cx="138" cy="258" r="3.2"/>
+        <circle cx="100" cy="312" r="3.2"/>
+      </g>
+      <!-- Inner recessed ring -->
+      <circle cx="60" cy="220" r="96" fill="var(--zur-steel-3)" opacity="0.55"/>
+      <circle cx="60" cy="220" r="96" fill="none" stroke="var(--zur-steel-hi)" stroke-width="0.6" opacity="0.4"/>
+      <!-- Spoke wheel -->
+      <g stroke="url(#zur-brass)" stroke-linecap="round" fill="none">
+        <line x1="60" y1="220" x2="60" y2="140" stroke-width="7"/>
+        <line x1="60" y1="220" x2="60" y2="300" stroke-width="7"/>
+        <line x1="60" y1="220" x2="-20" y2="220" stroke-width="7"/>
+        <line x1="60" y1="220" x2="140" y2="220" stroke-width="7"/>
+        <line x1="60" y1="220" x2="17" y2="177" stroke-width="6"/>
+        <line x1="60" y1="220" x2="103" y2="263" stroke-width="6"/>
+        <line x1="60" y1="220" x2="103" y2="177" stroke-width="6"/>
+        <line x1="60" y1="220" x2="17" y2="263" stroke-width="6"/>
+      </g>
+      <!-- Spoke wheel outer ring -->
+      <circle cx="60" cy="220" r="80" fill="none" stroke="url(#zur-brass)" stroke-width="4"/>
+      <circle cx="60" cy="220" r="80" fill="none" stroke="var(--zur-brass-3)" stroke-width="0.8" opacity="0.7"/>
+      <!-- Center hub -->
+      <circle cx="60" cy="220" r="22" fill="url(#zur-brass)"/>
+      <circle cx="60" cy="220" r="22" fill="none" stroke="var(--zur-brass-3)" stroke-width="1"/>
+      <circle cx="60" cy="220" r="14" fill="var(--zur-steel-2)" stroke="var(--zur-brass-3)" stroke-width="0.6"/>
+      <circle cx="60" cy="220" r="6" fill="var(--zur-brass-2)"/>
+      <!-- Dial markings on inner ring -->
+      <g stroke="var(--zur-brass-2)" stroke-width="1" fill="none" opacity="0.75">
+        <line x1="60" y1="140" x2="60" y2="132"/>
+        <line x1="60" y1="300" x2="60" y2="308"/>
+        <line x1="-20" y1="220" x2="-28" y2="220"/>
+        <line x1="140" y1="220" x2="148" y2="220"/>
+        <line x1="17" y1="177" x2="11" y2="171"/>
+        <line x1="103" y1="263" x2="109" y2="269"/>
+        <line x1="103" y1="177" x2="109" y2="171"/>
+        <line x1="17" y1="263" x2="11" y2="269"/>
+      </g>
+      <!-- Shadow under vault base -->
+      <ellipse cx="60" cy="372" rx="130" ry="16" fill="#000" opacity="0.55" filter="url(#zur-blur-md)"/>
+    </g>
 
-      <!-- Inner refracting facets -->
-      <g opacity="0.6">
-        <path d="M250 130 L320 200 L250 300 L180 200 Z"/>
-        <path d="M250 130 L320 200 L250 200 Z" fill="currentColor" opacity="0.15"/>
-        <path d="M250 130 L180 200 L250 200 Z" fill="currentColor" opacity="0.08"/>
-        <path d="M180 200 L250 300 L250 200 Z" fill="currentColor" opacity="0.12"/>
-        <path d="M320 200 L250 300 L250 200 Z" fill="currentColor" opacity="0.2"/>
+    <!-- ===== ARCHED WINDOW (center-right, behind desk) ===== -->
+    <g>
+      <!-- Frame + arch -->
+      <path d="M 240 320 L 240 130 Q 240 60 315 60 Q 390 60 390 130 L 390 320 Z" fill="var(--zur-window-frame)" stroke="var(--zur-window-frame-edge)" stroke-width="1"/>
+      <!-- Glass inside -->
+      <path d="M 248 318 L 248 132 Q 248 68 315 68 Q 382 68 382 132 L 382 318 Z" fill="url(#zur-window)"/>
+      <!-- Muntins -->
+      <line x1="315" y1="68" x2="315" y2="318" stroke="var(--zur-window-frame)" stroke-width="2"/>
+      <line x1="248" y1="180" x2="382" y2="180" stroke="var(--zur-window-frame)" stroke-width="2"/>
+      <line x1="248" y1="248" x2="382" y2="248" stroke="var(--zur-window-frame)" stroke-width="2"/>
+
+      <!-- Night: rain + distant city -->
+      <g class="zur-night-only">
+        <!-- City beyond the glass -->
+        <g fill="var(--zur-city-sil)" opacity="0.65">
+          <rect x="252" y="270" width="18" height="48"/>
+          <rect x="274" y="255" width="16" height="63"/>
+          <rect x="294" y="278" width="22" height="40"/>
+          <rect x="320" y="262" width="20" height="56"/>
+          <rect x="344" y="272" width="18" height="46"/>
+          <rect x="366" y="258" width="14" height="60"/>
+        </g>
+        <!-- City windows -->
+        <g fill="var(--zur-city-win)">
+          <rect x="256" y="280" width="1.5" height="2"/>
+          <rect x="266" y="292" width="1.5" height="2"/>
+          <rect x="280" y="265" width="1.5" height="2"/>
+          <rect x="288" y="280" width="1.5" height="2"/>
+          <rect x="280" y="295" width="1.5" height="2"/>
+          <rect x="300" y="288" width="1.5" height="2"/>
+          <rect x="310" y="298" width="1.5" height="2"/>
+          <rect x="324" y="272" width="1.5" height="2"/>
+          <rect x="334" y="285" width="1.5" height="2"/>
+          <rect x="324" y="298" width="1.5" height="2"/>
+          <rect x="348" y="282" width="1.5" height="2"/>
+          <rect x="358" y="294" width="1.5" height="2"/>
+          <rect x="370" y="268" width="1.5" height="2"/>
+          <rect x="378" y="282" width="1.5" height="2"/>
+        </g>
+        <!-- Rain streaks on the glass (varied, diagonal) -->
+        <g stroke="var(--zur-rain)" stroke-linecap="round" opacity="0.55">
+          <line x1="260" y1="80" x2="252" y2="120" stroke-width="0.7">
+            <animate attributeName="y1" values="-20;400" dur="2s" repeatCount="indefinite"/>
+            <animate attributeName="y2" values="20;440" dur="2s" repeatCount="indefinite"/>
+          </line>
+          <line x1="290" y1="100" x2="282" y2="140" stroke-width="0.8">
+            <animate attributeName="y1" values="-20;400" dur="1.7s" begin="0.3s" repeatCount="indefinite"/>
+            <animate attributeName="y2" values="20;440" dur="1.7s" begin="0.3s" repeatCount="indefinite"/>
+          </line>
+          <line x1="320" y1="70" x2="312" y2="110" stroke-width="0.6">
+            <animate attributeName="y1" values="-20;400" dur="2.3s" begin="0.6s" repeatCount="indefinite"/>
+            <animate attributeName="y2" values="20;440" dur="2.3s" begin="0.6s" repeatCount="indefinite"/>
+          </line>
+          <line x1="350" y1="90" x2="342" y2="130" stroke-width="0.8">
+            <animate attributeName="y1" values="-20;400" dur="1.8s" begin="0.9s" repeatCount="indefinite"/>
+            <animate attributeName="y2" values="20;440" dur="1.8s" begin="0.9s" repeatCount="indefinite"/>
+          </line>
+          <line x1="280" y1="60" x2="272" y2="100" stroke-width="0.7">
+            <animate attributeName="y1" values="-20;400" dur="2.1s" begin="1.2s" repeatCount="indefinite"/>
+            <animate attributeName="y2" values="20;440" dur="2.1s" begin="1.2s" repeatCount="indefinite"/>
+          </line>
+          <line x1="335" y1="60" x2="327" y2="100" stroke-width="0.7">
+            <animate attributeName="y1" values="-20;400" dur="1.9s" begin="0.5s" repeatCount="indefinite"/>
+            <animate attributeName="y2" values="20;440" dur="1.9s" begin="0.5s" repeatCount="indefinite"/>
+          </line>
+          <line x1="368" y1="100" x2="360" y2="140" stroke-width="0.6">
+            <animate attributeName="y1" values="-20;400" dur="2.4s" begin="0.8s" repeatCount="indefinite"/>
+            <animate attributeName="y2" values="20;440" dur="2.4s" begin="0.8s" repeatCount="indefinite"/>
+          </line>
+        </g>
+        <!-- Water droplets on glass -->
+        <g fill="var(--zur-rain)" opacity="0.5">
+          <circle cx="270" cy="220" r="1.2"/>
+          <circle cx="300" cy="205" r="0.9"/>
+          <circle cx="340" cy="230" r="1.1"/>
+          <circle cx="360" cy="200" r="0.8"/>
+          <circle cx="290" cy="240" r="1"/>
+        </g>
       </g>
 
-      <!-- Extra sparkle lines -->
-      <g class="zurich-sparkle" stroke-width="0.5" opacity="0.4">
-        <path d="M250 40 L250 100"/>
-        <path d="M420 200 L360 200"/>
-        <path d="M250 460 L250 400"/>
-        <path d="M80 200 L140 200"/>
+      <!-- Day: clear sky with sun rays + clouds + birds -->
+      <g class="zur-day-only">
+        <g fill="var(--zur-cloud)" opacity="0.85">
+          <animateTransform attributeName="transform" type="translate" values="0 0; 20 0; 0 0" dur="62s" repeatCount="indefinite"/>
+          <ellipse cx="290" cy="120" rx="28" ry="10"/>
+          <ellipse cx="274" cy="118" rx="14" ry="7"/>
+          <ellipse cx="304" cy="118" rx="16" ry="8"/>
+        </g>
+        <g fill="var(--zur-cloud)" opacity="0.65">
+          <animateTransform attributeName="transform" type="translate" values="0 0; -16 0; 0 0" dur="78s" repeatCount="indefinite"/>
+          <ellipse cx="348" cy="150" rx="22" ry="8"/>
+          <ellipse cx="336" cy="148" rx="12" ry="6"/>
+          <ellipse cx="360" cy="148" rx="12" ry="6"/>
+        </g>
+        <g stroke="var(--zur-bird)" stroke-width="0.9" fill="none" opacity="0.6" stroke-linecap="round">
+          <animateTransform attributeName="transform" type="translate" values="-40 -20; 200 10" dur="24s" repeatCount="indefinite"/>
+          <path d="M 0 0 q 3 -3 6 0 q 3 -3 6 0"/>
+          <path d="M 14 6 q 3 -3 6 0 q 3 -3 6 0"/>
+          <path d="M -14 6 q 3 -3 6 0 q 3 -3 6 0"/>
+        </g>
       </g>
     </g>
 
-    <circle cx="250" cy="200" r="4" fill="currentColor"/>
-  </svg>
+    <!-- Wall clocks above the desk — 3 time zones -->
+    <g>
+      <!-- Zürich -->
+      <circle cx="220" cy="60" r="24" fill="var(--zur-clock-frame)" stroke="var(--zur-clock-edge)" stroke-width="1.5"/>
+      <circle cx="220" cy="60" r="20" fill="var(--zur-clock-face)"/>
+      <g stroke="var(--zur-clock-hand)" stroke-linecap="round" fill="none">
+        <line x1="220" y1="60" x2="220" y2="46" stroke-width="1.4"/>
+        <line x1="220" y1="60" x2="230" y2="60" stroke-width="1.1"/>
+        <line x1="220" y1="60" x2="220" y2="42" stroke-width="0.4" opacity="0.8">
+          <animateTransform attributeName="transform" type="rotate" from="0 220 60" to="360 220 60" dur="60s" repeatCount="indefinite"/>
+        </line>
+      </g>
+      <circle cx="220" cy="60" r="1.4" fill="var(--zur-clock-hand)"/>
+      <text x="220" y="98" font-size="6" fill="var(--zur-clock-label)" text-anchor="middle" font-family="Georgia, serif" letter-spacing="1.2">ZÜRICH</text>
+
+      <!-- London -->
+      <circle cx="315" cy="42" r="22" fill="var(--zur-clock-frame)" stroke="var(--zur-clock-edge)" stroke-width="1.4"/>
+      <circle cx="315" cy="42" r="18" fill="var(--zur-clock-face)"/>
+      <g stroke="var(--zur-clock-hand)" stroke-linecap="round" fill="none">
+        <line x1="315" y1="42" x2="315" y2="30" stroke-width="1.2"/>
+        <line x1="315" y1="42" x2="323" y2="42" stroke-width="1"/>
+        <line x1="315" y1="42" x2="315" y2="25" stroke-width="0.4" opacity="0.75">
+          <animateTransform attributeName="transform" type="rotate" from="0 315 42" to="360 315 42" dur="60s" repeatCount="indefinite"/>
+        </line>
+      </g>
+      <circle cx="315" cy="42" r="1.2" fill="var(--zur-clock-hand)"/>
+      <text x="315" y="76" font-size="5.5" fill="var(--zur-clock-label)" text-anchor="middle" font-family="Georgia, serif" letter-spacing="1.1">LONDON</text>
+
+      <!-- Tokyo -->
+      <circle cx="405" cy="60" r="24" fill="var(--zur-clock-frame)" stroke="var(--zur-clock-edge)" stroke-width="1.5"/>
+      <circle cx="405" cy="60" r="20" fill="var(--zur-clock-face)"/>
+      <g stroke="var(--zur-clock-hand)" stroke-linecap="round" fill="none">
+        <line x1="405" y1="60" x2="405" y2="46" stroke-width="1.4"/>
+        <line x1="405" y1="60" x2="395" y2="60" stroke-width="1.1"/>
+        <line x1="405" y1="60" x2="405" y2="42" stroke-width="0.4" opacity="0.8">
+          <animateTransform attributeName="transform" type="rotate" from="0 405 60" to="360 405 60" dur="60s" repeatCount="indefinite"/>
+        </line>
+      </g>
+      <circle cx="405" cy="60" r="1.4" fill="var(--zur-clock-hand)"/>
+      <text x="405" y="98" font-size="6" fill="var(--zur-clock-label)" text-anchor="middle" font-family="Georgia, serif" letter-spacing="1.2">TŌKYŌ</text>
+    </g>
+
+    <!-- Floor — polished marble -->
+    <rect y="320" width="500" height="180" fill="url(#zur-marble)"/>
+    <g stroke="var(--zur-marble-vein)" stroke-width="0.3" opacity="0.45" fill="none">
+      <path d="M 20 340 Q 120 336 220 342 Q 320 348 420 342 Q 470 339 500 342"/>
+      <path d="M 40 380 Q 140 376 240 382 Q 340 388 440 382"/>
+      <path d="M 10 420 Q 110 415 210 422 Q 310 429 410 422"/>
+      <path d="M 60 460 Q 160 456 260 462 Q 360 468 460 462"/>
+    </g>
+    <!-- Reflection of vault door on marble -->
+    <ellipse cx="60" cy="374" rx="120" ry="22" fill="var(--zur-steel-2)" opacity="0.35" filter="url(#zur-blur-md)"/>
+
+    <!-- ===== DESK (foreground) ===== -->
+    <rect x="0" y="358" width="500" height="142" fill="url(#zur-desk)"/>
+    <line x1="0" y1="358" x2="500" y2="358" stroke="var(--zur-desk-edge)" stroke-width="0.9"/>
+    <g stroke="var(--zur-desk-edge)" stroke-width="0.3" opacity="0.55">
+      <line x1="0" y1="382" x2="500" y2="381"/>
+      <line x1="0" y1="408" x2="500" y2="409"/>
+      <line x1="0" y1="436" x2="500" y2="434"/>
+      <line x1="0" y1="464" x2="500" y2="465"/>
+      <line x1="0" y1="490" x2="500" y2="489"/>
+    </g>
+
+    <!-- Banker's lamp (far left of desk) -->
+    <g>
+      <ellipse cx="42" cy="430" rx="22" ry="5" fill="url(#zur-brass)"/>
+      <ellipse cx="42" cy="430" rx="22" ry="5" fill="none" stroke="#000" stroke-width="0.3" opacity="0.45"/>
+      <rect x="39" y="398" width="6" height="32" fill="url(#zur-brass)"/>
+      <path d="M 10 398 Q 10 378 42 378 Q 74 378 74 398 Z" fill="var(--zur-lamp-glass)" stroke="url(#zur-brass)" stroke-width="1.2"/>
+      <path d="M 14 396 Q 14 382 42 382 Q 70 382 70 396 Z" fill="var(--zur-lamp-glow)" class="zur-night-only" opacity="0.85"/>
+      <line x1="10" y1="398" x2="74" y2="398" stroke="url(#zur-brass)" stroke-width="1.5"/>
+      <ellipse cx="42" cy="418" rx="40" ry="10" fill="var(--zur-lamp-glow)" class="zur-night-only" opacity="0.4" filter="url(#zur-blur-md)"/>
+    </g>
+
+    <!-- Open leather ledger (center of desk, right of lamp) -->
+    <g>
+      <!-- Left page -->
+      <polygon points="150,438 250,440 250,486 150,482" fill="var(--zur-ledger-page)"/>
+      <!-- Right page -->
+      <polygon points="250,440 350,438 350,482 250,486" fill="var(--zur-ledger-page-2)"/>
+      <!-- Center spine shadow -->
+      <line x1="250" y1="440" x2="250" y2="486" stroke="var(--zur-ledger-line)" stroke-width="0.6" opacity="0.5"/>
+      <!-- Leather cover edges -->
+      <polygon points="150,438 250,440 250,486 150,482" fill="none" stroke="var(--zur-ledger-edge)" stroke-width="1.2"/>
+      <polygon points="250,440 350,438 350,482 250,486" fill="none" stroke="var(--zur-ledger-edge)" stroke-width="1.2"/>
+      <!-- Ruled lines and entries -->
+      <g stroke="var(--zur-ledger-line)" stroke-width="0.4" opacity="0.65" fill="none">
+        <line x1="158" y1="450" x2="242" y2="452"/>
+        <line x1="158" y1="458" x2="242" y2="460"/>
+        <line x1="158" y1="466" x2="242" y2="468"/>
+        <line x1="158" y1="474" x2="218" y2="475"/>
+        <line x1="258" y1="452" x2="342" y2="450"/>
+        <line x1="258" y1="460" x2="342" y2="458"/>
+        <line x1="258" y1="468" x2="342" y2="466"/>
+        <line x1="258" y1="475" x2="300" y2="474"/>
+      </g>
+      <!-- Brass corner caps -->
+      <path d="M 150 438 L 165 439 L 150 452 Z" fill="url(#zur-brass)" opacity="0.85"/>
+      <path d="M 350 438 L 335 439 L 350 452 Z" fill="url(#zur-brass)" opacity="0.85"/>
+    </g>
+
+    <!-- Fountain pen on the ledger (right page) -->
+    <g transform="rotate(-4 300 470)">
+      <rect x="270" y="466" width="60" height="3.5" fill="var(--zur-pen-body)" stroke="var(--zur-pen-edge)" stroke-width="0.3"/>
+      <rect x="320" y="466" width="10" height="3.5" fill="url(#zur-brass)"/>
+      <polygon points="330,466 336,467.75 330,469.5" fill="var(--zur-pen-tip)"/>
+      <rect x="266" y="466.5" width="4" height="2.5" fill="url(#zur-brass)"/>
+    </g>
+
+    <!-- Crystal decanter + tumbler (right of ledger) -->
+    <g>
+      <!-- Decanter body -->
+      <path d="M 396 396 Q 396 386 400 378 L 400 362 Q 400 358 405 358 L 415 358 Q 420 358 420 362 L 420 378 Q 424 386 424 396 L 424 442 Q 424 452 410 452 Q 396 452 396 442 Z" fill="var(--zur-crystal)" opacity="0.42" stroke="var(--zur-crystal-edge)" stroke-width="0.6"/>
+      <!-- Whisky inside -->
+      <path d="M 398 418 Q 398 408 400 398 L 420 398 Q 422 408 422 418 L 422 442 Q 422 450 410 450 Q 398 450 398 442 Z" fill="url(#zur-whisky)"/>
+      <!-- Neck -->
+      <rect x="404" y="348" width="12" height="14" fill="var(--zur-crystal)" opacity="0.55"/>
+      <!-- Stopper -->
+      <ellipse cx="410" cy="346" rx="8" ry="3" fill="var(--zur-crystal)" opacity="0.7"/>
+      <circle cx="410" cy="340" r="5" fill="var(--zur-crystal)" opacity="0.65" stroke="var(--zur-crystal-edge)" stroke-width="0.4"/>
+      <!-- Highlights -->
+      <line x1="402" y1="404" x2="402" y2="440" stroke="#fff" stroke-width="0.7" opacity="0.55"/>
+      <line x1="418" y1="400" x2="418" y2="444" stroke="#fff" stroke-width="0.4" opacity="0.35"/>
+      <!-- Ground reflection -->
+      <ellipse cx="410" cy="452" rx="18" ry="3.5" fill="var(--zur-whisky)" opacity="0.35" filter="url(#zur-blur-sm)"/>
+    </g>
+
+    <!-- Tumbler with whisky -->
+    <g>
+      <path d="M 442 420 L 442 456 Q 442 462 456 462 Q 470 462 470 456 L 470 420 Z" fill="var(--zur-crystal)" opacity="0.35" stroke="var(--zur-crystal-edge)" stroke-width="0.5"/>
+      <path d="M 442 440 L 442 456 Q 442 462 456 462 Q 470 462 470 456 L 470 440 Z" fill="url(#zur-whisky)"/>
+      <!-- Ice cube -->
+      <rect x="450" y="444" width="7" height="7" fill="#fff" opacity="0.28"/>
+      <rect x="459" y="446" width="5" height="5" fill="#fff" opacity="0.22"/>
+      <!-- Highlights -->
+      <line x1="444" y1="422" x2="444" y2="452" stroke="#fff" stroke-width="0.6" opacity="0.55"/>
+      <line x1="468" y1="424" x2="468" y2="454" stroke="#fff" stroke-width="0.4" opacity="0.3"/>
+      <!-- Ground reflection -->
+      <ellipse cx="456" cy="462" rx="15" ry="3" fill="var(--zur-whisky)" opacity="0.35" filter="url(#zur-blur-sm)"/>
+    </g>
+
+    <!-- Gold bar stack (in front of ledger, left of decanter) -->
+    <g>
+      <!-- Bottom row -->
+      <g>
+        <polygon points="180,478 240,478 244,486 184,486" fill="url(#zur-gold)"/>
+        <polygon points="180,478 184,486 184,498 180,490" fill="var(--zur-gold-1)"/>
+        <polygon points="240,478 244,486 244,498 240,490" fill="var(--zur-gold-1)"/>
+        <polygon points="184,486 244,486 240,498 180,498" fill="var(--zur-gold-1)" opacity="0.7"/>
+      </g>
+      <!-- Top row -->
+      <g>
+        <polygon points="186,470 232,470 236,478 190,478" fill="url(#zur-gold)"/>
+        <polygon points="186,470 190,478 190,490 186,482" fill="var(--zur-gold-1)"/>
+        <polygon points="232,470 236,478 236,490 232,482" fill="var(--zur-gold-1)"/>
+        <polygon points="190,478 236,478 232,490 186,490" fill="var(--zur-gold-1)" opacity="0.7"/>
+      </g>
+      <!-- Etched mark on top bar -->
+      <text x="211" y="475" font-size="4" fill="var(--zur-gold-3)" text-anchor="middle" font-family="Georgia, serif" letter-spacing="0.6" opacity="0.85">999.9</text>
+      <!-- Highlight sweep -->
+      <line x1="188" y1="471" x2="230" y2="471" stroke="#fff8c0" stroke-width="0.5" opacity="0.55"/>
+      <!-- Ground reflection -->
+      <ellipse cx="210" cy="498" rx="34" ry="4" fill="var(--zur-gold-2)" opacity="0.35" filter="url(#zur-blur-sm)"/>
+    </g>
+
+    <!-- Small brass keypad (on wall behind desk, right) -->
+    <g>
+      <rect x="446" y="240" width="34" height="50" fill="var(--zur-keypad-bg)" stroke="url(#zur-brass)" stroke-width="0.7" rx="2"/>
+      <g fill="var(--zur-keypad-key)">
+        <rect x="451" y="246" width="6" height="6"/>
+        <rect x="460" y="246" width="6" height="6"/>
+        <rect x="469" y="246" width="6" height="6"/>
+        <rect x="451" y="256" width="6" height="6"/>
+        <rect x="460" y="256" width="6" height="6"/>
+        <rect x="469" y="256" width="6" height="6"/>
+        <rect x="451" y="266" width="6" height="6"/>
+        <rect x="460" y="266" width="6" height="6"/>
+        <rect x="469" y="266" width="6" height="6"/>
+        <rect x="451" y="276" width="6" height="6"/>
+        <rect x="460" y="276" width="6" height="6"/>
+        <rect x="469" y="276" width="6" height="6"/>
+      </g>
+      <rect x="453" y="256" width="3" height="3" fill="var(--zur-keypad-active)" class="zur-night-only">
+        <animate attributeName="opacity" values="1;0.35;1" dur="2.4s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+
+    <!-- Security camera dot (upper right corner) -->
+    <g>
+      <circle cx="486" cy="20" r="4" fill="#1a1a1e" stroke="#3a3a3e" stroke-width="0.5"/>
+      <circle cx="486" cy="20" r="1.6" fill="var(--zur-cam-led)" class="zur-night-only">
+        <animate attributeName="opacity" values="1;0.25;1" dur="1.8s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="486" cy="20" r="6" fill="var(--zur-cam-led)" opacity="0.28" class="zur-night-only" filter="url(#zur-blur-sm)">
+        <animate attributeName="opacity" values="0.28;0.05;0.28" dur="1.8s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+
+    <!-- Warm lamp pool (dark mode) -->
+    <ellipse cx="42" cy="410" rx="140" ry="110" fill="url(#zur-lamp)" class="zur-night-only" style="mix-blend-mode:screen" opacity="0.65"/>
+
+    <!-- Sunlight spill (light mode) -->
+    <g class="zur-day-only">
+      <ellipse cx="380" cy="90" rx="220" ry="200" fill="url(#zur-daylight)"/>
+      <polygon points="260,60 400,60 400,500 220,500" fill="#fff5d0" opacity="0.09" filter="url(#zur-blur-lg)"/>
+    </g>
+  </g>
+</svg>
 
   {% elif key == 'bordeaux' %}
   {# ---------- KYOTO · The Strategist · Cherry blossoms over still water ---------- #}
