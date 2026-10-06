@@ -70,9 +70,9 @@
     <text x="250" y="78" font-family="Georgia, serif" font-size="12" fill="currentColor" text-anchor="middle" font-style="italic" opacity="0.55">MMXXVI</text>
 
     <!-- Hands rotate around the actual center (250,250) -->
-    <line class="wp-savile-hour" x1="250" y1="250" x2="250" y2="145" stroke="currentColor" stroke-width="4" stroke-linecap="round" filter="url(#savile-soft)"/>
-    <line class="wp-savile-minute" x1="250" y1="250" x2="250" y2="110" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    <line class="wp-savile-second" x1="250" y1="270" x2="250" y2="100" stroke="currentColor" stroke-width="0.7" stroke-linecap="round" opacity="0.65"/>
+    <line x1="250" y1="250" x2="250" y2="145" stroke="currentColor" stroke-width="4" stroke-linecap="round" filter="url(#savile-soft)"><animateTransform attributeName="transform" type="rotate" from="0 250 250" to="360 250 250" dur="60s" repeatCount="indefinite"/></line>
+    <line x1="250" y1="250" x2="250" y2="110" stroke="currentColor" stroke-width="2" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" from="0 250 250" to="360 250 250" dur="12s" repeatCount="indefinite"/></line>
+    <line x1="250" y1="270" x2="250" y2="100" stroke="currentColor" stroke-width="0.7" stroke-linecap="round" opacity="0.65"><animateTransform attributeName="transform" type="rotate" from="0 250 250" to="360 250 250" dur="1.5s" repeatCount="indefinite"/></line>
 
     <circle cx="250" cy="250" r="7" fill="currentColor"/>
     <circle cx="250" cy="250" r="3" fill="#0d0e12"/>
@@ -122,27 +122,27 @@
 
     <!-- Window grid on the tall central building -->
     <g class="manh-windows-a" fill="#ffffff" opacity="0.85">
-      <rect x="242" y="140" width="5" height="7"/><rect x="252" y="140" width="5" height="7"/><rect x="262" y="140" width="5" height="7"/>
-      <rect x="242" y="155" width="5" height="7"/><rect x="252" y="155" width="5" height="7"/><rect x="262" y="155" width="5" height="7"/>
-      <rect x="242" y="170" width="5" height="7"/><rect x="252" y="170" width="5" height="7"/><rect x="262" y="170" width="5" height="7"/>
-      <rect x="242" y="185" width="5" height="7"/><rect x="252" y="185" width="5" height="7"/><rect x="262" y="185" width="5" height="7"/>
-      <rect x="242" y="200" width="5" height="7"/><rect x="252" y="200" width="5" height="7"/><rect x="262" y="200" width="5" height="7"/>
-      <rect x="242" y="215" width="5" height="7"/><rect x="252" y="215" width="5" height="7"/><rect x="262" y="215" width="5" height="7"/>
-      <rect x="242" y="230" width="5" height="7"/><rect x="252" y="230" width="5" height="7"/><rect x="262" y="230" width="5" height="7"/>
-      <rect x="242" y="245" width="5" height="7"/><rect x="252" y="245" width="5" height="7"/><rect x="262" y="245" width="5" height="7"/>
-      <rect x="242" y="260" width="5" height="7"/><rect x="252" y="260" width="5" height="7"/><rect x="262" y="260" width="5" height="7"/>
+      <rect x="242" y="140" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="252" y="140" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="262" y="140" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="242" y="155" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="252" y="155" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="262" y="155" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="242" y="170" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="252" y="170" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="262" y="170" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="242" y="185" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="252" y="185" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="262" y="185" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="242" y="200" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="252" y="200" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="262" y="200" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="242" y="215" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="252" y="215" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="262" y="215" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="242" y="230" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="252" y="230" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="262" y="230" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="242" y="245" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="252" y="245" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="262" y="245" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="242" y="260" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="252" y="260" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="262" y="260" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
     </g>
 
     <!-- Windows on other buildings -->
     <g class="manh-windows-b" fill="#ffffff" opacity="0.7">
-      <rect x="110" y="180" width="5" height="7"/><rect x="122" y="180" width="5" height="7"/><rect x="134" y="180" width="5" height="7"/>
-      <rect x="110" y="200" width="5" height="7"/><rect x="122" y="200" width="5" height="7"/><rect x="134" y="200" width="5" height="7"/>
-      <rect x="110" y="220" width="5" height="7"/><rect x="122" y="220" width="5" height="7"/><rect x="134" y="220" width="5" height="7"/>
-      <rect x="110" y="240" width="5" height="7"/><rect x="122" y="240" width="5" height="7"/><rect x="134" y="240" width="5" height="7"/>
-      <rect x="390" y="160" width="5" height="7"/><rect x="402" y="160" width="5" height="7"/><rect x="414" y="160" width="5" height="7"/>
-      <rect x="390" y="180" width="5" height="7"/><rect x="402" y="180" width="5" height="7"/><rect x="414" y="180" width="5" height="7"/>
-      <rect x="390" y="200" width="5" height="7"/><rect x="402" y="200" width="5" height="7"/><rect x="414" y="200" width="5" height="7"/>
-      <rect x="390" y="220" width="5" height="7"/><rect x="402" y="220" width="5" height="7"/><rect x="414" y="220" width="5" height="7"/>
+      <rect x="110" y="180" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="122" y="180" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="134" y="180" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="110" y="200" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="122" y="200" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="134" y="200" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="110" y="220" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="122" y="220" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="134" y="220" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="110" y="240" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="122" y="240" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="134" y="240" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="390" y="160" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="402" y="160" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="414" y="160" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="390" y="180" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="402" y="180" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="414" y="180" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="390" y="200" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="402" y="200" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="414" y="200" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="390" y="220" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="402" y="220" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="414" y="220" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
     </g>
 
     <!-- Ground haze -->
@@ -198,17 +198,17 @@
 
     <!-- Fog layers drifting -->
     <g class="mayfair-fog" fill="currentColor" opacity="0.2">
-      <ellipse cx="150" cy="400" rx="160" ry="18"/>
-      <ellipse cx="350" cy="420" rx="180" ry="22"/>
-      <ellipse cx="250" cy="440" rx="220" ry="20"/>
+      <ellipse cx="150" cy="400" rx="160" ry="18"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="350" cy="420" rx="180" ry="22"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="250" cy="440" rx="220" ry="20"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
     </g>
 
     <!-- Trees -->
     <g fill="currentColor" opacity="0.3">
-      <ellipse cx="80" cy="380" rx="30" ry="45"/>
-      <ellipse cx="80" cy="390" rx="6" ry="25"/>
-      <ellipse cx="420" cy="380" rx="28" ry="42"/>
-      <ellipse cx="420" cy="392" rx="6" ry="25"/>
+      <ellipse cx="80" cy="380" rx="30" ry="45"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="80" cy="390" rx="6" ry="25"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="420" cy="380" rx="28" ry="42"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="420" cy="392" rx="6" ry="25"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
     </g>
   </svg>
 
@@ -367,26 +367,26 @@
 
     <!-- Falling petals — many, varied size and delay -->
     <g class="kyoto-petals" fill="currentColor" opacity="0.85">
-      <ellipse cx="40" cy="60" rx="6" ry="3.5"/>
-      <ellipse cx="120" cy="30" rx="5" ry="3"/>
-      <ellipse cx="200" cy="80" rx="6.5" ry="3.5"/>
-      <ellipse cx="290" cy="50" rx="5" ry="3"/>
-      <ellipse cx="360" cy="100" rx="6" ry="3.5"/>
-      <ellipse cx="440" cy="70" rx="5.5" ry="3"/>
-      <ellipse cx="80" cy="150" rx="6" ry="3.5"/>
-      <ellipse cx="180" cy="180" rx="5.5" ry="3"/>
-      <ellipse cx="270" cy="140" rx="6" ry="3.5"/>
-      <ellipse cx="350" cy="200" rx="5" ry="3"/>
-      <ellipse cx="60" cy="270" rx="6" ry="3.5"/>
-      <ellipse cx="150" cy="320" rx="5" ry="3"/>
-      <ellipse cx="240" cy="290" rx="6.5" ry="3.5"/>
-      <ellipse cx="330" cy="350" rx="5" ry="3"/>
-      <ellipse cx="420" cy="290" rx="6" ry="3.5"/>
-      <ellipse cx="100" cy="400" rx="5" ry="3"/>
-      <ellipse cx="210" cy="430" rx="6" ry="3.5"/>
-      <ellipse cx="310" cy="460" rx="5" ry="3"/>
-      <ellipse cx="420" cy="420" rx="6" ry="3.5"/>
-      <ellipse cx="40" cy="470" rx="5" ry="3"/>
+      <ellipse cx="40" cy="60" rx="6" ry="3.5"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="120" cy="30" rx="5" ry="3"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="200" cy="80" rx="6.5" ry="3.5"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="290" cy="50" rx="5" ry="3"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="360" cy="100" rx="6" ry="3.5"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="440" cy="70" rx="5.5" ry="3"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="80" cy="150" rx="6" ry="3.5"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="180" cy="180" rx="5.5" ry="3"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="270" cy="140" rx="6" ry="3.5"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="350" cy="200" rx="5" ry="3"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="60" cy="270" rx="6" ry="3.5"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="150" cy="320" rx="5" ry="3"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="240" cy="290" rx="6.5" ry="3.5"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="330" cy="350" rx="5" ry="3"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="420" cy="290" rx="6" ry="3.5"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="100" cy="400" rx="5" ry="3"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="210" cy="430" rx="6" ry="3.5"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="310" cy="460" rx="5" ry="3"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="420" cy="420" rx="6" ry="3.5"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="40" cy="470" rx="5" ry="3"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
     </g>
   </svg>
 
@@ -438,9 +438,9 @@
     <!-- Potted plant silhouette -->
     <g fill="currentColor" opacity="0.35">
       <path d="M400 400 L440 400 L432 450 L408 450 Z"/>
-      <ellipse cx="420" cy="360" rx="18" ry="42"/>
-      <ellipse cx="408" cy="370" rx="12" ry="32"/>
-      <ellipse cx="432" cy="372" rx="12" ry="32"/>
+      <ellipse cx="420" cy="360" rx="18" ry="42"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="408" cy="370" rx="12" ry="32"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="432" cy="372" rx="12" ry="32"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
     </g>
   </svg>
   {% endif %}
