@@ -1,15 +1,18 @@
-import socket
-# Cache DNS forever (avoids repeated lookups on flaky mobile networks)
-_orig_getaddrinfo = socket.getaddrinfo
-_dns_cache = {}
-def _cached_getaddrinfo(*args, **kwargs):
-    key = args[0] if args else None
-    if key in _dns_cache:
-        return _dns_cache[key]
-    result = _orig_getaddrinfo(*args, **kwargs)
-    _dns_cache[key] = result
-    return result
-socket.getaddrinfo = _cached_getaddrinfo
+import os, socket
+# On Termux (flaky 4G), cache DNS to avoid lookup failures.
+# On cloud hosts, Neon's Cloudflare endpoint rotates IPs, so caching breaks
+# connections. Only enable when TM_DNS_CACHE=1.
+if os.getenv("TM_DNS_CACHE") == "1":
+    _orig_getaddrinfo = socket.getaddrinfo
+    _dns_cache = {}
+    def _cached_getaddrinfo(*args, **kwargs):
+        key = args[0] if args else None
+        if key in _dns_cache:
+            return _dns_cache[key]
+        result = _orig_getaddrinfo(*args, **kwargs)
+        _dns_cache[key] = result
+        return result
+    socket.getaddrinfo = _cached_getaddrinfo
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
