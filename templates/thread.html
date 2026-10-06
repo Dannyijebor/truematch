@@ -324,6 +324,45 @@ html.light .tp-row-label { color: #111b21; }
   100% { transform: translate(0, 36px) rotate(360deg); opacity: 0.15; }
 }
 
+
+  .tp-row .tp-preview {
+    animation: tp-preview-breathe 5.5s ease-in-out infinite;
+  }
+  @keyframes tp-preview-breathe {
+    0%, 100% { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08), 0 1px 3px rgba(0,0,0,0.3); }
+    50%      { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14), 0 2px 8px rgba(0,0,0,0.4); }
+  }
+  .tp-row.tp-row-active .tp-preview { animation: tp-preview-glow 2.8s ease-in-out infinite; }
+
+  .tp-row::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #00a884;
+    opacity: 0;
+    pointer-events: none;
+    box-shadow: 0 0 6px rgba(0,168,132,0.8);
+    transition: opacity 0.3s ease;
+  }
+  .tp-row:hover::before,
+  .tp-row.tp-row-active::before {
+    opacity: 1;
+    animation: tp-sparkle 1.8s ease-in-out infinite;
+  }
+  @keyframes tp-sparkle {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50%      { transform: scale(1.8); opacity: 0.3; }
+  }
+  .tp-row { transition: transform 0.18s ease, background 0.14s ease, border-color 0.14s ease, box-shadow 0.2s ease; position: relative; overflow: hidden; }
+  .tp-row:hover {
+    transform: translateX(2px);
+    box-shadow: 0 2px 12px rgba(0,168,132,0.15);
+  }
+
 </style>
 
 <div class="chat-screen theme-{{ chat_theme }}">
@@ -691,11 +730,24 @@ function scrollBottom(smooth) { const c = document.getElementById('chat-messages
 scrollBottom();
 function tmAutoGrow(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
 function tmToggleSendMic() {
-  const v = document.getElementById('msg-input').value.trim();
-  document.getElementById('send-btn').style.display = v ? 'flex' : 'none';
-  document.getElementById('mic-btn').style.display = v ? 'none' : 'flex';
+  var input = document.getElementById('msg-input');
+  var sendBtn = document.getElementById('send-btn');
+  var micBtn = document.getElementById('mic-btn');
+  if (!input || !sendBtn || !micBtn) return;
+  var hasText = input.value.trim().length > 0;
+  sendBtn.style.display = hasText ? 'flex' : 'none';
+  micBtn.style.display = hasText ? 'none' : 'flex';
 }
-tmToggleSendMic();
+document.addEventListener('input', function(e) {
+  if (e.target && e.target.id === 'msg-input') tmToggleSendMic();
+});
+document.addEventListener('keyup', function(e) {
+  if (e.target && e.target.id === 'msg-input') tmToggleSendMic();
+});
+document.addEventListener('paste', function(e) {
+  if (e.target && e.target.id === 'msg-input') setTimeout(tmToggleSendMic, 20);
+});
+setTimeout(tmToggleSendMic, 200);
 
 function tmSetReply(msgId, preview, mine) {
   replyTo = msgId;
