@@ -307,179 +307,73 @@
   {% elif key == 'boardroom' %}
   {# ---------- MANHATTAN · The Rainmaker · A skyline breathing at night ---------- #}
   <svg viewBox="0 0 500 500" preserveAspectRatio="xMidYMid slice" class="wp-svg wp-manh">
-  <defs>
-    <linearGradient id="man-sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="var(--man-sky-1)"/>
-      <stop offset="100%" stop-color="var(--man-sky-2)"/>
-    </linearGradient>
-    <radialGradient id="man-moonhalo" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="var(--man-moon)" stop-opacity="0.55"/>
-      <stop offset="100%" stop-color="var(--man-moon)" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="man-cityglow" cx="50%" cy="100%" r="75%">
-      <stop offset="0%" stop-color="var(--man-cityglow)" stop-opacity="0.45"/>
-      <stop offset="100%" stop-color="var(--man-cityglow)" stop-opacity="0"/>
-    </radialGradient>
-    <linearGradient id="man-road" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="var(--man-road-1)"/>
-      <stop offset="100%" stop-color="var(--man-road-2)"/>
-    </linearGradient>
-    <filter id="man-blur-sm"><feGaussianBlur stdDeviation="1"/></filter>
-    <filter id="man-blur-md"><feGaussianBlur stdDeviation="3"/></filter>
-    <filter id="man-blur-lg"><feGaussianBlur stdDeviation="7"/></filter>
-    <radialGradient id="man-fade" cx="50%" cy="50%" r="80%">
-      <stop offset="0%" stop-color="#fff" stop-opacity="1"/>
-      <stop offset="60%" stop-color="#fff" stop-opacity="0.92"/>
-      <stop offset="88%" stop-color="#fff" stop-opacity="0.35"/>
-      <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
-    </radialGradient>
-    <mask id="man-mask"><rect width="500" height="500" fill="url(#man-fade)"/></mask>
-  </defs>
+    <defs>
+      <linearGradient id="manh-sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="currentColor" stop-opacity="0.02"/>
+        <stop offset="70%" stop-color="currentColor" stop-opacity="0.06"/>
+        <stop offset="100%" stop-color="currentColor" stop-opacity="0.12"/>
+      </linearGradient>
+      <radialGradient id="manh-moon" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="currentColor" stop-opacity="0.35"/>
+        <stop offset="100%" stop-color="currentColor" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
 
-  <g mask="url(#man-mask)">
-    <rect width="500" height="500" fill="url(#man-sky)"/>
-    <rect y="330" width="500" height="170" fill="url(#man-cityglow)" style="mix-blend-mode:screen"/>
+    <rect width="500" height="500" fill="url(#manh-sky)"/>
+    <circle cx="380" cy="90" r="55" fill="url(#manh-moon)"/>
+    <circle cx="380" cy="90" r="22" fill="currentColor" opacity="0.5"/>
 
-    <circle cx="390" cy="92" r="46" fill="url(#man-moonhalo)"/>
-    <circle cx="390" cy="92" r="22" fill="var(--man-moon)"/>
-    <circle cx="382" cy="86" r="4" fill="var(--man-moon-shade)" opacity="0.35"/>
-    <circle cx="398" cy="98" r="3" fill="var(--man-moon-shade)" opacity="0.3"/>
-
-    <g fill="var(--man-bld-back)" opacity="0.55">
-      <rect x="10" y="240" width="42" height="120"/>
-      <rect x="58" y="215" width="38" height="145"/>
-      <rect x="102" y="255" width="30" height="105"/>
-      <rect x="138" y="195" width="34" height="165"/>
-      <rect x="178" y="230" width="40" height="130"/>
-      <rect x="224" y="205" width="30" height="155"/>
-      <rect x="260" y="245" width="36" height="115"/>
-      <rect x="302" y="220" width="42" height="140"/>
-      <rect x="350" y="255" width="34" height="105"/>
-      <rect x="390" y="235" width="46" height="125"/>
-      <rect x="442" y="215" width="48" height="145"/>
+    <!-- Far layer — faded skyline -->
+    <g fill="currentColor" opacity="0.25">
+      <rect x="20" y="290" width="30" height="180"/>
+      <rect x="70" y="250" width="26" height="220"/>
+      <rect x="130" y="310" width="34" height="160"/>
+      <rect x="200" y="270" width="28" height="200"/>
+      <rect x="260" y="320" width="36" height="150"/>
+      <rect x="330" y="260" width="30" height="210"/>
+      <rect x="400" y="300" width="28" height="170"/>
+      <rect x="450" y="280" width="34" height="190"/>
     </g>
 
-    <g fill="var(--man-bld-mid)">
-      <rect x="20" y="270" width="58" height="110"/>
-      <rect x="86" y="245" width="52" height="135"/>
-      <rect x="146" y="225" width="66" height="155"/>
-      <rect x="220" y="255" width="48" height="125"/>
-      <rect x="276" y="215" width="62" height="165"/>
-      <rect x="346" y="250" width="54" height="130"/>
-      <rect x="408" y="235" width="82" height="145"/>
+    <!-- Mid layer — main buildings -->
+    <g fill="currentColor" opacity="0.7">
+      <rect x="40" y="220" width="45" height="250"/>
+      <rect x="100" y="160" width="55" height="310"/>
+      <rect x="170" y="260" width="48" height="210"/>
+      <rect x="230" y="120" width="65" height="350"/>
+      <rect x="310" y="200" width="55" height="270"/>
+      <rect x="380" y="140" width="60" height="330"/>
+      <rect x="450" y="230" width="42" height="240"/>
     </g>
 
-    <g fill="var(--man-win)">
-      <rect x="30" y="280" width="3" height="4"/><rect x="40" y="280" width="3" height="4"/>
-      <rect x="30" y="295" width="3" height="4"/><rect x="50" y="295" width="3" height="4"/>
-      <rect x="30" y="310" width="3" height="4"/><rect x="40" y="325" width="3" height="4"/>
-      <rect x="60" y="280" width="3" height="4"/><rect x="60" y="310" width="3" height="4"/>
-      <rect x="96" y="255" width="3" height="4"/><rect x="106" y="255" width="3" height="4"/>
-      <rect x="116" y="255" width="3" height="4"/><rect x="96" y="275" width="3" height="4"/>
-      <rect x="116" y="275" width="3" height="4"/><rect x="106" y="295" width="3" height="4"/>
-      <rect x="96" y="315" width="3" height="4"/><rect x="116" y="335" width="3" height="4"/>
-      <rect x="156" y="235" width="3" height="4"/><rect x="168" y="235" width="3" height="4"/>
-      <rect x="180" y="235" width="3" height="4"/><rect x="192" y="235" width="3" height="4"/>
-      <rect x="156" y="255" width="3" height="4"/><rect x="180" y="255" width="3" height="4"/>
-      <rect x="168" y="275" width="3" height="4"/><rect x="192" y="275" width="3" height="4"/>
-      <rect x="156" y="295" width="3" height="4"/><rect x="180" y="315" width="3" height="4"/>
-      <rect x="230" y="265" width="3" height="4"/><rect x="242" y="265" width="3" height="4"/>
-      <rect x="254" y="265" width="3" height="4"/><rect x="230" y="285" width="3" height="4"/>
-      <rect x="254" y="285" width="3" height="4"/><rect x="242" y="305" width="3" height="4"/>
-      <rect x="230" y="325" width="3" height="4"/><rect x="254" y="345" width="3" height="4"/>
-      <rect x="286" y="225" width="3" height="4"/><rect x="298" y="225" width="3" height="4"/>
-      <rect x="310" y="225" width="3" height="4"/><rect x="322" y="225" width="3" height="4"/>
-      <rect x="286" y="245" width="3" height="4"/><rect x="310" y="245" width="3" height="4"/>
-      <rect x="322" y="265" width="3" height="4"/><rect x="298" y="285" width="3" height="4"/>
-      <rect x="286" y="305" width="3" height="4"/><rect x="310" y="325" width="3" height="4"/>
-      <rect x="356" y="260" width="3" height="4"/><rect x="368" y="260" width="3" height="4"/>
-      <rect x="380" y="260" width="3" height="4"/><rect x="356" y="280" width="3" height="4"/>
-      <rect x="380" y="280" width="3" height="4"/><rect x="368" y="300" width="3" height="4"/>
-      <rect x="356" y="320" width="3" height="4"/><rect x="380" y="340" width="3" height="4"/>
-      <rect x="418" y="245" width="3" height="4"/><rect x="430" y="245" width="3" height="4"/>
-      <rect x="442" y="245" width="3" height="4"/><rect x="454" y="245" width="3" height="4"/>
-      <rect x="466" y="245" width="3" height="4"/><rect x="418" y="265" width="3" height="4"/>
-      <rect x="442" y="265" width="3" height="4"/><rect x="466" y="265" width="3" height="4"/>
-      <rect x="430" y="285" width="3" height="4"/><rect x="454" y="285" width="3" height="4"/>
-      <rect x="418" y="305" width="3" height="4"/><rect x="442" y="325" width="3" height="4"/>
+    <!-- Window grid on the tall central building -->
+    <g class="manh-windows-a" fill="#ffffff" opacity="0.85">
+      <rect x="242" y="140" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="252" y="140" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="262" y="140" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="242" y="155" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="252" y="155" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="262" y="155" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="242" y="170" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="252" y="170" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="262" y="170" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="242" y="185" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="252" y="185" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="262" y="185" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="242" y="200" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="252" y="200" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="262" y="200" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="242" y="215" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="252" y="215" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="262" y="215" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="242" y="230" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="252" y="230" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="262" y="230" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="242" y="245" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="252" y="245" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="262" y="245" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="242" y="260" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="252" y="260" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="262" y="260" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
     </g>
 
-    <g fill="var(--man-win-warm)" opacity="0.9">
-      <rect x="46" y="340" width="3" height="4"><animate attributeName="opacity" values="0.9;0.1;0.9" dur="7s" begin="0s" repeatCount="indefinite"/></rect>
-      <rect x="106" y="315" width="3" height="4"><animate attributeName="opacity" values="0.9;0.1;0.9" dur="9s" begin="2s" repeatCount="indefinite"/></rect>
-      <rect x="168" y="295" width="3" height="4"><animate attributeName="opacity" values="0.9;0.1;0.9" dur="6s" begin="4s" repeatCount="indefinite"/></rect>
-      <rect x="242" y="305" width="3" height="4"><animate attributeName="opacity" values="0.9;0.1;0.9" dur="8s" begin="1s" repeatCount="indefinite"/></rect>
-      <rect x="310" y="245" width="3" height="4"><animate attributeName="opacity" values="0.9;0.1;0.9" dur="10s" begin="3s" repeatCount="indefinite"/></rect>
-      <rect x="380" y="280" width="3" height="4"><animate attributeName="opacity" values="0.9;0.1;0.9" dur="7.5s" begin="5s" repeatCount="indefinite"/></rect>
-      <rect x="442" y="265" width="3" height="4"><animate attributeName="opacity" values="0.9;0.1;0.9" dur="6.5s" begin="2.5s" repeatCount="indefinite"/></rect>
+    <!-- Windows on other buildings -->
+    <g class="manh-windows-b" fill="#ffffff" opacity="0.7">
+      <rect x="110" y="180" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="122" y="180" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="134" y="180" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="110" y="200" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="122" y="200" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="134" y="200" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="110" y="220" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="122" y="220" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="134" y="220" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="110" y="240" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="122" y="240" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="134" y="240" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="390" y="160" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="402" y="160" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="414" y="160" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="390" y="180" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="402" y="180" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="414" y="180" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="390" y="200" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="402" y="200" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="414" y="200" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
+      <rect x="390" y="220" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="402" y="220" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect><rect x="414" y="220" width="5" height="7"><animate attributeName="opacity" values="0.85; 0.2; 0.85" dur="4s" repeatCount="indefinite"/></rect>
     </g>
 
-    <g fill="var(--man-bld-front)">
-      <polygon points="0,180 62,180 62,500 0,500"/>
-      <polygon points="438,150 500,150 500,500 438,500"/>
-      <rect x="18" y="200" width="4" height="6"/><rect x="30" y="200" width="4" height="6"/>
-      <rect x="18" y="220" width="4" height="6"/><rect x="42" y="240" width="4" height="6"/>
-      <rect x="30" y="260" width="4" height="6"/><rect x="18" y="280" width="4" height="6"/>
-      <rect x="460" y="180" width="4" height="6"/><rect x="472" y="180" width="4" height="6"/>
-      <rect x="484" y="180" width="4" height="6"/><rect x="460" y="200" width="4" height="6"/>
-      <rect x="484" y="200" width="4" height="6"/><rect x="472" y="220" width="4" height="6"/>
-      <rect x="460" y="240" width="4" height="6"/><rect x="484" y="260" width="4" height="6"/>
-    </g>
-
-    <g stroke="var(--man-rain)" stroke-width="0.6" opacity="0.35" stroke-linecap="round">
-      <line x1="30" y1="20" x2="20" y2="70"><animate attributeName="y1" values="-30;550" dur="1.6s" repeatCount="indefinite"/><animate attributeName="y2" values="20;600" dur="1.6s" repeatCount="indefinite"/></line>
-      <line x1="90" y1="60" x2="80" y2="110"><animate attributeName="y1" values="-30;550" dur="1.9s" begin="0.3s" repeatCount="indefinite"/><animate attributeName="y2" values="20;600" dur="1.9s" begin="0.3s" repeatCount="indefinite"/></line>
-      <line x1="150" y1="30" x2="140" y2="80"><animate attributeName="y1" values="-30;550" dur="1.7s" begin="0.6s" repeatCount="indefinite"/><animate attributeName="y2" values="20;600" dur="1.7s" begin="0.6s" repeatCount="indefinite"/></line>
-      <line x1="210" y1="70" x2="200" y2="120"><animate attributeName="y1" values="-30;550" dur="2s" begin="0.9s" repeatCount="indefinite"/><animate attributeName="y2" values="20;600" dur="2s" begin="0.9s" repeatCount="indefinite"/></line>
-      <line x1="270" y1="40" x2="260" y2="90"><animate attributeName="y1" values="-30;550" dur="1.8s" begin="1.2s" repeatCount="indefinite"/><animate attributeName="y2" values="20;600" dur="1.8s" begin="1.2s" repeatCount="indefinite"/></line>
-      <line x1="330" y1="80" x2="320" y2="130"><animate attributeName="y1" values="-30;550" dur="1.5s" begin="1.5s" repeatCount="indefinite"/><animate attributeName="y2" values="20;600" dur="1.5s" begin="1.5s" repeatCount="indefinite"/></line>
-      <line x1="395" y1="50" x2="385" y2="100"><animate attributeName="y1" values="-30;550" dur="2.1s" begin="0.4s" repeatCount="indefinite"/><animate attributeName="y2" values="20;600" dur="2.1s" begin="0.4s" repeatCount="indefinite"/></line>
-      <line x1="460" y1="25" x2="450" y2="75"><animate attributeName="y1" values="-30;550" dur="1.7s" begin="0.8s" repeatCount="indefinite"/><animate attributeName="y2" values="20;600" dur="1.7s" begin="0.8s" repeatCount="indefinite"/></line>
-    </g>
-
-    <g transform="translate(0,0)">
-      <circle cx="0" cy="0" r="1.2" fill="var(--man-heli)"/>
-      <circle cx="0" cy="0" r="4" fill="var(--man-heli)" opacity="0.5">
-        <animate attributeName="opacity" values="0.5;0;0.5" dur="1.6s" repeatCount="indefinite"/>
-      </circle>
-      <animateTransform attributeName="transform" type="translate" values="-40 60; 560 90" dur="32s" repeatCount="indefinite"/>
-    </g>
-
-    <rect y="410" width="500" height="90" fill="url(#man-road)"/>
-    <line x1="0" y1="410" x2="500" y2="410" stroke="var(--man-road-edge)" stroke-width="1"/>
-
-    <g opacity="0.35">
-      <rect x="150" y="418" width="4" height="55" fill="var(--man-reflect)"/>
-      <rect x="180" y="418" width="4" height="55" fill="var(--man-reflect)"/>
-      <rect x="220" y="418" width="4" height="55" fill="var(--man-reflect)"/>
-      <rect x="270" y="418" width="4" height="55" fill="var(--man-reflect)"/>
-      <rect x="320" y="418" width="4" height="55" fill="var(--man-reflect)"/>
-      <rect x="360" y="418" width="4" height="55" fill="var(--man-reflect)"/>
-    </g>
-
-    <g class="man-taxi">
-      <ellipse cx="0" cy="440" rx="12" ry="3" fill="var(--man-taxi-glow)" opacity="0.65" filter="url(#man-blur-md)"/>
-      <circle cx="-4" cy="440" r="1.6" fill="var(--man-taxi)"/>
-      <circle cx="4" cy="440" r="1.6" fill="var(--man-taxi)"/>
-      <animateTransform attributeName="transform" type="translate" values="-40 0; 540 0" dur="14s" repeatCount="indefinite"/>
-    </g>
-
-    <g opacity="0.6">
-      <ellipse cx="0" cy="0" rx="14" ry="3" fill="var(--man-taxi-glow)" filter="url(#man-blur-md)">
-        <animateTransform attributeName="transform" type="translate" values="540 0; -40 0" dur="22s" begin="6s" repeatCount="indefinite"/>
-      </ellipse>
-    </g>
-
-    <g fill="var(--man-fog)" filter="url(#man-blur-lg)" opacity="0.35">
-      <ellipse cx="100" cy="395" rx="120" ry="20">
-        <animate attributeName="cx" values="100;130;100" dur="18s" repeatCount="indefinite"/>
-      </ellipse>
-      <ellipse cx="380" cy="400" rx="140" ry="22">
-        <animate attributeName="cx" values="380;350;380" dur="22s" repeatCount="indefinite"/>
-      </ellipse>
-    </g>
-  </g>
-</svg>
+    <!-- Ground haze -->
+    <rect x="0" y="450" width="500" height="50" fill="currentColor" opacity="0.15"/>
+  </svg>
 
   {% elif key == 'heritage' %}
   {# ---------- MAYFAIR · The Diplomat · An old estate with drifting fog ---------- #}
