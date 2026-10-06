@@ -1365,8 +1365,8 @@ html.light .chat-screen.theme-editorial {
   .rec-lock-field {
     position: fixed;
     left: 50%;
-    bottom: 130px;
-    transform: translate(-50%, 30px) scale(0.7);
+    top: 70px;
+    transform: translate(-50%, -30px) scale(0.7);
     opacity: 0;
     pointer-events: none;
     z-index: 255;
@@ -1384,8 +1384,8 @@ html.light .chat-screen.theme-editorial {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
-    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
-                opacity 0.22s ease,
+    transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1),
+                opacity 0.24s ease,
                 background-color 0.25s ease,
                 border-color 0.25s ease,
                 color 0.25s ease;
@@ -1468,6 +1468,45 @@ html.light .chat-screen.theme-editorial {
   .rec-cursor svg {
     width: 24px;
     height: 24px;
+  }
+
+  /* ---------- Recorder gradient rail (bar → lock) ---------- */
+  .rec-rail {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    background: linear-gradient(
+      to top,
+      rgba(255, 74, 74, 0) 0%,
+      rgba(255, 74, 74, 0.35) 18%,
+      rgba(255, 74, 74, 0.7) 60%,
+      rgba(255, 74, 74, 0.95) 100%
+    );
+    border-radius: 2px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 254;
+    transition: opacity 0.28s ease, background 0.28s ease;
+  }
+  .rec-rail.visible { opacity: 1; }
+  .rec-rail.armed {
+    background: linear-gradient(
+      to top,
+      rgba(255, 210, 122, 0) 0%,
+      rgba(255, 210, 122, 0.4) 18%,
+      rgba(255, 210, 122, 0.8) 60%,
+      rgba(255, 210, 122, 1) 100%
+    );
+  }
+  .rec-rail.locked {
+    background: linear-gradient(
+      to top,
+      rgba(0, 168, 132, 0) 0%,
+      rgba(0, 168, 132, 0.4) 18%,
+      rgba(0, 168, 132, 0.9) 60%,
+      rgba(0, 168, 132, 1) 100%
+    );
   }
 </style>
 
@@ -1683,6 +1722,7 @@ html.light .chat-screen.theme-editorial {
   </button>
 </div>
 
+<div id="rec-rail" class="rec-rail" aria-hidden="true"></div>
 <div id="rec-lock-field" class="rec-lock-field" aria-hidden="true">
   <svg class="rec-lock-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <rect x="5" y="11" width="14" height="10" rx="2"/>
@@ -1947,13 +1987,16 @@ function tmMicMove(e) {
     return;
   }
 
+  const rail = document.getElementById('rec-rail');
   // Close to lock → armed (warm flash)
   if (dyFromLock < 60 && dyFromLock > -20) {
     if (lockField) lockField.classList.add('armed');
     if (lockField) document.getElementById('rec-lock-field-text').textContent = 'Release to lock';
+    if (rail) rail.classList.add('armed');
   } else {
     if (lockField) lockField.classList.remove('armed');
     if (lockField) document.getElementById('rec-lock-field-text').textContent = 'Slide up to lock';
+    if (rail) rail.classList.remove('armed');
   }
 
   // Slide left → cancel
@@ -2000,8 +2043,10 @@ async function tmMicUp(e) {
 function tmRecLock() {
   if (!recording || recLocked) return;
   recLocked = true;
+
   const bar = document.getElementById('rec-bar');
   if (bar) bar.classList.add('locked');
+
   const lockField = document.getElementById('rec-lock-field');
   if (lockField) {
     lockField.classList.add('locked');
@@ -2009,16 +2054,38 @@ function tmRecLock() {
     const t = document.getElementById('rec-lock-field-text');
     if (t) t.textContent = 'Locked — release to send';
   }
+
+  const rail = document.getElementById('rec-rail');
+  if (rail) { rail.classList.add('locked'); rail.classList.remove('armed'); }
+
+  // Fly the cursor back DOWN to the bar with a snap
   const cur = document.getElementById('rec-cursor');
-  if (cur) {
+  const barEl = document.getElementById('rec-bar');
+  if (cur && barEl) {
+    const r = barEl.getBoundingClientRect();
+    cur.style.transition = 'transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1), left 0.42s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.42s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease 0.15s';
+    cur.style.left = (r.left + 34) + 'px';
+    cur.style.top = (r.top + r.height / 2) + 'px';
     cur.classList.add('locked');
-    // Snap the cursor to the lock field position
-    if (lockField) {
-      const r = lockField.getBoundingClientRect();
-      cur.style.left = (r.left + r.width / 2) + 'px';
-      cur.style.top = (r.top + r.height / 2) + 'px';
-    }
+    setTimeout(() => {
+      cur.classList.remove('visible');
+      setTimeout(() => {
+        cur.style.transition = '';
+        cur.style.left = '';
+        cur.style.top = '';
+        cur.classList.remove('locked');
+      }, 350);
+    }, 320);
   }
+
+  setTimeout(() => {
+    if (lockField) lockField.classList.remove('visible', 'locked');
+    if (rail) rail.classList.remove('visible', 'locked', 'armed');
+  }, 500);
+
+  const hint = document.getElementById('rec-hint');
+  if (hint) hint.textContent = 'Tap ➤ to send';
+
   recCancelling = false;
 }
 
@@ -2065,7 +2132,7 @@ async function tmStartRecording() {
   recStart = Date.now(); recording = true;
   document.getElementById('rec-time').textContent = '0:00';
 
-  // Show recorder bar, lock target, and floating cursor
+  // Show recorder bar, lock target, gradient rail, and floating cursor
   const bar = document.getElementById('rec-bar');
   if (bar) bar.classList.add('active');
   const lockField = document.getElementById('rec-lock-field');
@@ -2075,6 +2142,20 @@ async function tmStartRecording() {
     const t = document.getElementById('rec-lock-field-text');
     if (t) t.textContent = 'Slide up to lock';
   }
+  // Position the gradient rail from bar top to lock field bottom
+  requestAnimationFrame(() => {
+    const rail = document.getElementById('rec-rail');
+    const barEl = document.getElementById('rec-bar');
+    const lf = document.getElementById('rec-lock-field');
+    if (rail && barEl && lf) {
+      const bRect = barEl.getBoundingClientRect();
+      const lRect = lf.getBoundingClientRect();
+      rail.style.top = (lRect.bottom + 8) + 'px';
+      rail.style.height = Math.max(0, bRect.top - lRect.bottom - 24) + 'px';
+      rail.classList.add('visible');
+      rail.classList.remove('armed', 'locked');
+    }
+  });
   const cur = document.getElementById('rec-cursor');
   if (cur) {
     cur.classList.add('visible');
