@@ -302,6 +302,28 @@ html.light .tp-row-label { color: #111b21; }
     50%      { background-position: 0 0; }
   }
 
+.savile-hand { animation: savile-sweep 6s linear infinite; transform-origin: 30px 30px; }
+@keyframes savile-sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.savile-minute { animation: savile-sweep-minute 18s linear infinite; transform-origin: 30px 30px; }
+@keyframes savile-sweep-minute { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.manh-windows rect { animation: manh-flicker 4s ease-in-out infinite; }
+.manh-windows rect:nth-child(2n) { animation-delay: 0.6s; }
+.manh-windows rect:nth-child(3n) { animation-delay: 1.4s; }
+.manh-windows rect:nth-child(5n) { animation-delay: 2.8s; }
+@keyframes manh-flicker { 0%, 100% { opacity: 0.85; } 40% { opacity: 0.25; } 70% { opacity: 0.7; } }
+.kyoto-petals ellipse { animation: kyoto-fall 7s ease-in-out infinite; }
+.kyoto-petals ellipse:nth-child(1) { animation-delay: 0.0s; }
+.kyoto-petals ellipse:nth-child(2) { animation-delay: 0.8s; }
+.kyoto-petals ellipse:nth-child(3) { animation-delay: 1.6s; }
+.kyoto-petals ellipse:nth-child(4) { animation-delay: 2.4s; }
+.kyoto-petals ellipse:nth-child(5) { animation-delay: 3.2s; }
+.kyoto-petals ellipse:nth-child(6) { animation-delay: 4.0s; }
+@keyframes kyoto-fall {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 0.85; }
+  50%  { transform: translate(-4px, 18px) rotate(180deg); opacity: 0.7; }
+  100% { transform: translate(0, 36px) rotate(360deg); opacity: 0.15; }
+}
+
 </style>
 
 <div class="chat-screen theme-{{ chat_theme }}">
