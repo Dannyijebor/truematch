@@ -217,7 +217,7 @@ html.light .attach-item { color: #111b21; }
 .rec-action:active { transform: scale(0.9); }
 .rec-action svg { width: 24px; height: 24px; }
 .rec-cancel { background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.25); }
-.rec-send { background: #00a884; box-shadow: 0 6px 20px rgba(0,168,132,0.5); }
+
 
 .sticker-sheet { position: fixed; bottom: 0; left: 0; right: 0; z-index: 210; background: #1f2c33; border-top-left-radius: 22px; border-top-right-radius: 22px; padding: 16px 12px 30px; max-height: 60vh; overflow-y: auto; animation: sheet-up 0.24s cubic-bezier(0.16, 1, 0.3, 1) both; }
 html.light .sticker-sheet { background: #ffffff; }
@@ -1260,11 +1260,11 @@ html.light .chat-screen.theme-editorial {
   box-sizing: border-box !important;
   position: fixed;
   bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
-  left: 12px; right: 12px;
+  left: 12px !important; right: 12px !important;
   background: rgba(22, 28, 32, 0.98);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 22px;
-  padding: 14px 18px;
+  padding: 14px 18px !important;
   z-index: 9100;
   box-shadow:
     0 20px 48px rgba(0, 0, 0, 0.5),
@@ -1369,9 +1369,9 @@ html.light .rec-time { color: #0f1720; }
 /* Row 3 — buttons, visible only when locked */
 .rec-row-buttons {
   display: none;
-  justify-content: center;
-  align-items: center;
-  gap: 22px;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 22px !important;
   height: 52px;
   padding: 0 4px;
   width: 100%;
@@ -1396,7 +1396,8 @@ html.light .rec-time { color: #0f1720; }
 .rec-trash:active, .rec-pause:active, .rec-send:active { transform: scale(0.92); }
 
 .rec-trash {
-  width: 46px; height: 46px;
+  width: 46px !important; height: 46px !important; min-width: 46px !important;
+  flex: 0 0 46px !important;
   border-radius: 50%;
   background: rgba(255,74,74,0.14);
   border: 1.5px solid rgba(255,74,74,0.42);
@@ -1410,9 +1411,10 @@ html.light .rec-trash {
 .rec-trash svg { width: 20px; height: 20px; }
 
 .rec-pause {
-  flex: 0 0 auto;
-  width: 140px;
-  height: 46px;
+  flex: 0 0 140px !important;
+  width: 140px !important;
+  height: 46px !important;
+  min-width: 140px !important;
   border-radius: 23px;
   background: rgba(255,255,255,0.09);
   border: 1.5px solid rgba(255,255,255,0.14);
@@ -1431,7 +1433,8 @@ html.light .rec-pause {
 .rec-pause svg { width: 16px; height: 16px; }
 
 .rec-send {
-  width: 46px; height: 46px;
+  width: 46px !important; height: 46px !important; min-width: 46px !important;
+  flex: 0 0 46px !important;
   border-radius: 50%;
   background: var(--chat-accent, #00a884);
   color: #ffffff;
