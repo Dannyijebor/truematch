@@ -1554,7 +1554,14 @@ html.light .chat-screen.theme-editorial {
     gap: 10px;
     margin-left: auto;
   }
-  .rec-bar.locked .rec-lock-controls { display: flex; }
+  .rec-bar.locked .rec-lock-controls {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin-left: auto !important;
+  flex: 1 !important;
+  justify-content: flex-end !important;
+}
 
   .rec-trash-btn {
     width: 42px; height: 42px;
@@ -2071,10 +2078,11 @@ function tmMicMove(e) {
   const cur = document.getElementById('rec-cursor');
   const micEl = document.getElementById('mic-btn');
   if (cur && micEl) {
-    // Cursor moves VERTICALLY only — X stays fixed at the mic's centre
+    // Cursor moves VERTICALLY only, and only UP (never below start Y)
     const mr = micEl.getBoundingClientRect();
+    const minY = Math.min(p.y, recStartY);  // never go lower than start
     cur.style.left = (mr.left + mr.width / 2) + 'px';
-    cur.style.top = p.y + 'px';
+    cur.style.top = minY + 'px';
   }
 
   const lockField = document.getElementById('rec-lock-field');
@@ -2124,6 +2132,13 @@ function tmMicMove(e) {
 async function tmMicUp(e) {
   if (recHoldTimer) { clearTimeout(recHoldTimer); recHoldTimer = null; }
   tmDetachDocListeners();
+
+  // If locked, do NOTHING on release — user must tap Send or Trash
+  if (recLocked) {
+    recPointerId = null;
+    return;
+  }
+
   const cur = document.getElementById('rec-cursor');
   if (cur) cur.classList.remove('visible');
 
@@ -2132,7 +2147,6 @@ async function tmMicUp(e) {
   if (recCancelling) {
     tmRecCancelInternal();
   } else {
-    // Any release (locked or not) sends
     tmRecSend(e);
   }
 
