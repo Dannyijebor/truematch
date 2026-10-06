@@ -470,13 +470,13 @@
     <div class="pro-popover" onclick="event.stopPropagation()" style="min-width:240px;">
       <div class="pro-popover-header">Conversation theme</div>
       {% set themes = [
-        ('#0d0e12','#c9a961','#1e2028'),
-        ('#0a0f18','#3b6ba5','#1a1f2b'),
-        ('#0b1410','#8b7355','#1c2420'),
-        ('#100a06','#b87333','#221814'),
-        ('#0c0e12','#4a5568','#1a1d24'),
-        ('#13100d','#b8563a','#241a16'),
-        ('#efe9dd','#d4b896','#faf7f2')
+        ('executive','Savile','#0d0e12','#c9a961','#1e2028'),
+        ('boardroom','Manhattan','#0a0f18','#3b6ba5','#1a1f2b'),
+        ('heritage','Mayfair','#0b1410','#8b7355','#1c2420'),
+        ('sovereign','Soho','#100a06','#b87333','#221814'),
+        ('obsidian','Zurich','#0c0e12','#4a5568','#1a1d24'),
+        ('bordeaux','Kyoto','#13100d','#b8563a','#241a16'),
+        ('editorial','Aspen','#efe9dd','#d4b896','#faf7f2')
       ] %}
       {% for key, label, bg, mine, them in themes %}
       <button onclick="pickTheme('{{ key }}')" data-theme="{{ key }}"
