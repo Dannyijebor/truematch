@@ -308,6 +308,22 @@
   .rec-cancel { background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.25); }
   .rec-send { background: #00a884; box-shadow: 0 6px 20px rgba(0,168,132,0.5); }
 
+
+  /* ============================================================
+     FORCE .hidden TO WIN — our flex rules come after Tailwind's
+     .hidden in the cascade, so we need explicit overrides.
+     ============================================================ */
+  .rec-overlay.hidden,
+  .lightbox.hidden,
+  .sticker-sheet.hidden,
+  .attach-menu.hidden,
+  .msg-actions.hidden,
+  #theme-popover-wrap.hidden,
+  #call-overlay.hidden,
+  #incoming-overlay.hidden {
+    display: none !important;
+  }
+
 </style>
 
 <div class="chat-screen">
