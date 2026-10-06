@@ -1379,67 +1379,367 @@
 
   {% elif key == 'bordeaux' %}
   {# ---------- KYOTO · The Strategist · Cherry blossoms over still water ---------- #}
-  <svg viewBox="0 0 500 500" preserveAspectRatio="xMidYMid slice" class="wp-svg wp-kyoto">
-    <defs>
-      <linearGradient id="kyoto-sky" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="currentColor" stop-opacity="0.03"/>
-        <stop offset="100%" stop-color="currentColor" stop-opacity="0.1"/>
-      </linearGradient>
-      <radialGradient id="kyoto-moon" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stop-color="currentColor" stop-opacity="0.3"/>
-        <stop offset="100%" stop-color="currentColor" stop-opacity="0"/>
-      </radialGradient>
-    </defs>
+  <svg viewBox="0 0 500 500" preserveAspectRatio="xMidYMid slice" class="wp-svg wp-kyo">
+  <defs>
+    <linearGradient id="kyo-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--kyo-sky-1)"/>
+      <stop offset="55%" stop-color="var(--kyo-sky-2)"/>
+      <stop offset="100%" stop-color="var(--kyo-sky-3)"/>
+    </linearGradient>
+    <radialGradient id="kyo-moonhalo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="var(--kyo-moon)" stop-opacity="0.65"/>
+      <stop offset="45%" stop-color="var(--kyo-moon)" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="var(--kyo-moon)" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="kyo-sunhalo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="var(--kyo-sun)" stop-opacity="0.7"/>
+      <stop offset="45%" stop-color="var(--kyo-sun)" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="var(--kyo-sun)" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="kyo-sun-core" cx="42%" cy="38%" r="60%">
+      <stop offset="0%" stop-color="#fff8dc"/>
+      <stop offset="55%" stop-color="#ffe090"/>
+      <stop offset="100%" stop-color="#e8a840"/>
+    </radialGradient>
+    <radialGradient id="kyo-moon-face" cx="38%" cy="34%" r="65%">
+      <stop offset="0%" stop-color="#f5faff"/>
+      <stop offset="70%" stop-color="#dbe5f2"/>
+      <stop offset="100%" stop-color="#a8b8cc"/>
+    </radialGradient>
+    <radialGradient id="kyo-bloom" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffe8a0" stop-opacity="0.9"/>
+      <stop offset="60%" stop-color="#ffb860" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#ffb860" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="kyo-lantern-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="var(--kyo-lantern)" stop-opacity="0.85"/>
+      <stop offset="45%" stop-color="var(--kyo-lantern)" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="var(--kyo-lantern)" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="kyo-mountain" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--kyo-mount-1)"/>
+      <stop offset="100%" stop-color="var(--kyo-mount-2)"/>
+    </linearGradient>
+    <linearGradient id="kyo-pond" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--kyo-pond-1)"/>
+      <stop offset="100%" stop-color="var(--kyo-pond-2)"/>
+    </linearGradient>
+    <linearGradient id="kyo-torii" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--kyo-torii-1)"/>
+      <stop offset="100%" stop-color="var(--kyo-torii-2)"/>
+    </linearGradient>
+    <filter id="kyo-blur-xs"><feGaussianBlur stdDeviation="0.5"/></filter>
+    <filter id="kyo-blur-sm"><feGaussianBlur stdDeviation="1.2"/></filter>
+    <filter id="kyo-blur-md"><feGaussianBlur stdDeviation="2.8"/></filter>
+    <filter id="kyo-blur-lg"><feGaussianBlur stdDeviation="6.5"/></filter>
+    <filter id="kyo-blur-xl"><feGaussianBlur stdDeviation="12"/></filter>
+    <radialGradient id="kyo-fade" cx="50%" cy="50%" r="80%">
+      <stop offset="0%" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="62%" stop-color="#fff" stop-opacity="0.94"/>
+      <stop offset="88%" stop-color="#fff" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="kyo-mask"><rect width="500" height="500" fill="url(#kyo-fade)"/></mask>
+  </defs>
 
-    <rect width="500" height="500" fill="url(#kyoto-sky)"/>
-    <circle cx="400" cy="100" r="60" fill="url(#kyoto-moon)"/>
-    <circle cx="400" cy="100" r="26" fill="currentColor" opacity="0.45"/>
+  <g mask="url(#kyo-mask)">
+    <rect width="500" height="500" fill="url(#kyo-sky)"/>
 
-    <!-- Distant mountain silhouette -->
-    <path d="M0 300 L120 220 L200 280 L290 200 L400 280 L500 240 V500 H0 Z" fill="currentColor" opacity="0.15"/>
-
-    <!-- Torii gate on the mountain ridge -->
-    <g stroke="currentColor" stroke-width="2" fill="none" opacity="0.5">
-      <line x1="230" y1="220" x2="230" y2="270"/>
-      <line x1="270" y1="220" x2="270" y2="270"/>
-      <line x1="215" y1="228" x2="285" y2="228"/>
-      <line x1="220" y1="245" x2="280" y2="245"/>
+    <!-- Night-only stars -->
+    <g class="kyo-night-only">
+      <g fill="var(--kyo-moon)">
+        <circle cx="58" cy="42" r="0.6" opacity="0.5"/>
+        <circle cx="120" cy="28" r="0.5" opacity="0.4"/>
+        <circle cx="178" cy="56" r="0.7" opacity="0.5"/>
+        <circle cx="240" cy="32" r="0.5" opacity="0.35"/>
+        <circle cx="90" cy="90" r="0.5" opacity="0.4"/>
+        <circle cx="160" cy="78" r="0.6" opacity="0.45"/>
+        <circle cx="300" cy="46" r="0.5" opacity="0.4"/>
+        <circle cx="360" cy="60" r="0.6" opacity="0.42"/>
+        <circle cx="420" cy="42" r="0.5" opacity="0.4"/>
+        <circle cx="280" cy="88" r="0.55" opacity="0.4"/>
+      </g>
     </g>
 
-    <!-- Still water reflection band -->
-    <rect x="0" y="330" width="500" height="170" fill="currentColor" opacity="0.05"/>
-    <g class="kyoto-ripples" stroke="currentColor" stroke-width="0.4" fill="none" opacity="0.3">
-      <path d="M0 350 Q125 345 250 350 T500 350"/>
-      <path d="M0 380 Q125 375 250 380 T500 380"/>
-      <path d="M0 410 Q125 405 250 410 T500 410"/>
-      <path d="M0 440 Q125 435 250 440 T500 440"/>
-      <path d="M0 470 Q125 465 250 470 T500 470"/>
+    <!-- Celestial body — arcs moon ⇄ sun -->
+    <g class="kyo-celestial">
+      <g class="kyo-cel-arc">
+        <g class="kyo-cel-sun">
+          <circle r="88" fill="url(#kyo-sunhalo)"/>
+          <circle r="52" fill="url(#kyo-sun-core)" opacity="0.55"/>
+          <circle r="34" fill="url(#kyo-sun-core)"/>
+          <circle cx="-10" cy="-8" r="10" fill="#fff" opacity="0.55"/>
+          <circle cx="-14" cy="-12" r="4" fill="#fff" opacity="0.9"/>
+          <g stroke="var(--kyo-sun-ray)" stroke-width="1.4" stroke-linecap="round" opacity="0.42">
+            <line x1="0" y1="-50" x2="0" y2="-66"/>
+            <line x1="0" y1="50" x2="0" y2="66"/>
+            <line x1="-50" y1="0" x2="-66" y2="0"/>
+            <line x1="50" y1="0" x2="66" y2="0"/>
+            <line x1="-36" y1="-36" x2="-48" y2="-48"/>
+            <line x1="36" y1="36" x2="48" y2="48"/>
+            <line x1="36" y1="-36" x2="48" y2="-48"/>
+            <line x1="-36" y1="36" x2="-48" y2="48"/>
+          </g>
+        </g>
+        <g class="kyo-cel-moon">
+          <circle r="78" fill="url(#kyo-moonhalo)"/>
+          <circle r="30" fill="url(#kyo-moon-face)"/>
+          <circle cx="-13" cy="-9" r="28" fill="var(--kyo-sky-1)" opacity="0.98"/>
+          <circle cx="-7" cy="-2" r="1.4" fill="var(--kyo-moon-shade)" opacity="0.35"/>
+          <circle cx="0" cy="7" r="1" fill="var(--kyo-moon-shade)" opacity="0.3"/>
+          <circle cx="7" cy="-3" r="0.9" fill="var(--kyo-moon-shade)" opacity="0.28"/>
+          <circle r="32" fill="none" stroke="var(--kyo-moon)" stroke-width="0.4" opacity="0.32"/>
+        </g>
+        <circle r="0" fill="url(#kyo-bloom)" opacity="0" class="kyo-cel-bloom"/>
+      </g>
     </g>
 
-    <!-- Falling petals — many, varied size and delay -->
-    <g class="kyoto-petals" fill="currentColor" opacity="0.85">
-      <ellipse cx="40" cy="60" rx="6" ry="3.5"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
-      <ellipse cx="120" cy="30" rx="5" ry="3"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
-      <ellipse cx="200" cy="80" rx="6.5" ry="3.5"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
-      <ellipse cx="290" cy="50" rx="5" ry="3"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
-      <ellipse cx="360" cy="100" rx="6" ry="3.5"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
-      <ellipse cx="440" cy="70" rx="5.5" ry="3"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
-      <ellipse cx="80" cy="150" rx="6" ry="3.5"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
-      <ellipse cx="180" cy="180" rx="5.5" ry="3"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
-      <ellipse cx="270" cy="140" rx="6" ry="3.5"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
-      <ellipse cx="350" cy="200" rx="5" ry="3"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
-      <ellipse cx="60" cy="270" rx="6" ry="3.5"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
-      <ellipse cx="150" cy="320" rx="5" ry="3"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
-      <ellipse cx="240" cy="290" rx="6.5" ry="3.5"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
-      <ellipse cx="330" cy="350" rx="5" ry="3"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
-      <ellipse cx="420" cy="290" rx="6" ry="3.5"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
-      <ellipse cx="100" cy="400" rx="5" ry="3"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
-      <ellipse cx="210" cy="430" rx="6" ry="3.5"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
-      <ellipse cx="310" cy="460" rx="5" ry="3"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
-      <ellipse cx="420" cy="420" rx="6" ry="3.5"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
-      <ellipse cx="40" cy="470" rx="5" ry="3"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+    <!-- Mountain silhouette (distant) -->
+    <g>
+      <path d="M 0 260 Q 40 230 80 250 Q 120 220 160 245 Q 200 200 240 235 Q 280 210 320 240 Q 360 215 400 245 Q 440 220 480 250 L 500 260 L 500 300 L 0 300 Z" fill="url(#kyo-mountain)" opacity="0.85"/>
+      <!-- Mt Fuji-style peak behind -->
+      <path d="M 200 200 Q 230 150 250 145 Q 270 148 300 200 L 320 240 L 180 240 Z" fill="var(--kyo-fuji)" opacity="0.75"/>
+      <path d="M 240 172 Q 250 160 262 172 Q 258 178 250 178 Q 242 178 240 172 Z" fill="#f0f8ff" opacity="0.55"/>
     </g>
-  </svg>
+
+    <!-- Day clouds -->
+    <g class="kyo-day-only">
+      <g fill="var(--kyo-cloud)" opacity="0.75">
+        <animateTransform attributeName="transform" type="translate" values="0 0; 24 0; 0 0" dur="70s" repeatCount="indefinite"/>
+        <ellipse cx="170" cy="70" rx="42" ry="13"/>
+        <ellipse cx="148" cy="68" rx="22" ry="11"/>
+        <ellipse cx="194" cy="68" rx="26" ry="12"/>
+      </g>
+      <g fill="var(--kyo-cloud-2)" opacity="0.6">
+        <animateTransform attributeName="transform" type="translate" values="0 0; -20 0; 0 0" dur="85s" repeatCount="indefinite"/>
+        <ellipse cx="330" cy="50" rx="34" ry="11"/>
+        <ellipse cx="312" cy="48" rx="18" ry="9"/>
+        <ellipse cx="348" cy="48" rx="20" ry="10"/>
+      </g>
+      <g stroke="var(--kyo-bird)" stroke-width="0.9" fill="none" opacity="0.55">
+        <animateTransform attributeName="transform" type="translate" values="0 0; 50 -6; 0 0" dur="52s" repeatCount="indefinite"/>
+        <path d="M 260 100 q 3 -3 6 0 q 3 -3 6 0"/>
+        <path d="M 275 108 q 3 -3 6 0 q 3 -3 6 0"/>
+        <path d="M 266 116 q 3 -3 6 0 q 3 -3 6 0"/>
+      </g>
+    </g>
+
+    <!-- Torii gate (hero) -->
+    <g>
+      <!-- Top lintel (kasagi) -->
+      <path d="M 118 262 Q 250 250 382 262 L 382 270 Q 250 258 118 270 Z" fill="url(#kyo-torii)"/>
+      <!-- Second beam (nuki) -->
+      <rect x="132" y="288" width="236" height="9" fill="url(#kyo-torii)"/>
+      <!-- Vertical pillars -->
+      <path d="M 148 270 L 162 270 L 166 400 L 144 400 Z" fill="url(#kyo-torii)"/>
+      <path d="M 338 270 L 352 270 L 356 400 L 334 400 Z" fill="url(#kyo-torii)"/>
+      <!-- Small horizontal braces -->
+      <rect x="150" y="298" width="16" height="3" fill="var(--kyo-torii-2)"/>
+      <rect x="334" y="298" width="16" height="3" fill="var(--kyo-torii-2)"/>
+      <!-- Top cap (decorative black) -->
+      <path d="M 116 260 Q 250 246 384 260 L 384 264 Q 250 250 116 264 Z" fill="var(--kyo-torii-cap)"/>
+      <!-- Center plaque -->
+      <rect x="236" y="272" width="28" height="16" fill="var(--kyo-torii-cap)" stroke="var(--kyo-torii-1)" stroke-width="0.5"/>
+      <rect x="240" y="275" width="20" height="10" fill="var(--kyo-torii-1)" opacity="0.65"/>
+    </g>
+
+    <!-- Stone lantern (left) -->
+    <g>
+      <ellipse cx="88" cy="400" rx="22" ry="4" fill="var(--kyo-stone-1)" opacity="0.6"/>
+      <rect x="80" y="380" width="16" height="20" fill="var(--kyo-stone-1)"/>
+      <ellipse cx="88" cy="380" rx="14" ry="4" fill="var(--kyo-stone-2)"/>
+      <path d="M 78 380 L 74 358 L 102 358 L 98 380 Z" fill="var(--kyo-stone-1)"/>
+      <path d="M 72 356 Q 88 348 104 356 L 106 360 L 70 360 Z" fill="var(--kyo-stone-2)"/>
+      <circle cx="88" cy="368" r="4" fill="var(--kyo-lantern)" class="kyo-night-only"/>
+      <circle cx="88" cy="368" r="12" fill="url(#kyo-lantern-glow)" class="kyo-night-only" style="mix-blend-mode:screen"/>
+    </g>
+
+    <!-- Cherry blossom tree (right) -->
+    <g>
+      <!-- Trunk -->
+      <path d="M 440 400 Q 435 380 445 360 Q 450 340 445 320" fill="none" stroke="var(--kyo-trunk)" stroke-width="6" stroke-linecap="round"/>
+      <path d="M 445 360 Q 460 350 470 340" fill="none" stroke="var(--kyo-trunk)" stroke-width="4" stroke-linecap="round"/>
+      <path d="M 445 335 Q 432 320 428 305" fill="none" stroke="var(--kyo-trunk)" stroke-width="3.5" stroke-linecap="round"/>
+      <path d="M 445 320 Q 460 305 468 292" fill="none" stroke="var(--kyo-trunk)" stroke-width="3" stroke-linecap="round"/>
+
+      <!-- Blossom clusters -->
+      <g fill="var(--kyo-blossom)" opacity="0.85">
+        <ellipse cx="466" cy="336" rx="20" ry="14"/>
+        <ellipse cx="430" cy="300" rx="24" ry="16"/>
+        <ellipse cx="470" cy="288" rx="22" ry="15"/>
+        <ellipse cx="448" cy="312" rx="26" ry="16"/>
+        <ellipse cx="418" cy="318" rx="18" ry="12"/>
+        <ellipse cx="452" cy="278" rx="16" ry="10"/>
+      </g>
+      <g fill="var(--kyo-blossom-hi)" opacity="0.9">
+        <ellipse cx="430" cy="296" rx="6" ry="4"/>
+        <ellipse cx="470" cy="284" rx="7" ry="4"/>
+        <ellipse cx="448" cy="308" rx="8" ry="4"/>
+        <ellipse cx="462" cy="334" rx="6" ry="4"/>
+        <ellipse cx="416" cy="316" rx="5" ry="3"/>
+      </g>
+    </g>
+
+    <!-- Second smaller tree (left background) -->
+    <g class="kyo-night-only" opacity="0.55">
+      <path d="M 60 380 Q 58 360 66 340" fill="none" stroke="var(--kyo-trunk)" stroke-width="3"/>
+      <ellipse cx="66" cy="336" rx="16" ry="10" fill="var(--kyo-blossom)"/>
+      <ellipse cx="52" cy="326" rx="12" ry="8" fill="var(--kyo-blossom)"/>
+    </g>
+
+    <!-- Pond -->
+    <rect x="0" y="400" width="500" height="100" fill="url(#kyo-pond)"/>
+    <line x1="0" y1="400" x2="500" y2="400" stroke="var(--kyo-pond-edge)" stroke-width="0.6" opacity="0.6"/>
+
+    <!-- Torii reflection in the pond -->
+    <g opacity="0.4">
+      <path d="M 148 400 L 162 400 L 162 470 L 148 470 Z" fill="url(#kyo-torii)"/>
+      <path d="M 338 400 L 352 400 L 352 470 L 338 470 Z" fill="url(#kyo-torii)"/>
+      <rect x="132" y="400" width="236" height="5" fill="url(#kyo-torii)"/>
+      <rect x="118" y="410" width="264" height="4" fill="url(#kyo-torii)"/>
+    </g>
+
+    <!-- Pond ripples -->
+    <g stroke="var(--kyo-ripple)" stroke-width="0.6" fill="none" opacity="0.55">
+      <ellipse cx="250" cy="440" rx="40" ry="3">
+        <animate attributeName="rx" values="20;60;90" dur="6s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.7;0.3;0" dur="6s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="180" cy="460" rx="30" ry="2.5">
+        <animate attributeName="rx" values="15;50;80" dur="7s" begin="1.5s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.65;0.25;0" dur="7s" begin="1.5s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="330" cy="475" rx="30" ry="2.5">
+        <animate attributeName="rx" values="18;45;70" dur="8s" begin="3s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.6;0.2;0" dur="8s" begin="3s" repeatCount="indefinite"/>
+      </ellipse>
+    </g>
+
+    <!-- Koi fish — 3 slow swimmers -->
+    <g class="kyo-koi">
+      <g fill="var(--kyo-koi-1)" opacity="0.85">
+        <ellipse cx="0" cy="0" rx="10" ry="3.5"/>
+        <path d="M -10 0 L -15 -3 L -15 3 Z"/>
+        <circle cx="7" cy="-1" r="1" fill="#000" opacity="0.6"/>
+        <animateTransform attributeName="transform" type="translate" values="-40 440; 540 452; -40 440" dur="38s" repeatCount="indefinite"/>
+      </g>
+      <g fill="var(--kyo-koi-2)" opacity="0.85">
+        <ellipse cx="0" cy="0" rx="9" ry="3.2"/>
+        <path d="M 9 0 L 14 -2.5 L 14 2.5 Z"/>
+        <circle cx="-6" cy="-1" r="0.9" fill="#000" opacity="0.6"/>
+        <animateTransform attributeName="transform" type="translate" values="540 462; -40 448; 540 462" dur="44s" repeatCount="indefinite"/>
+      </g>
+      <g fill="var(--kyo-koi-3)" opacity="0.8">
+        <ellipse cx="0" cy="0" rx="8" ry="2.8"/>
+        <path d="M -8 0 L -12 -2 L -12 2 Z"/>
+        <circle cx="5" cy="-1" r="0.8" fill="#000" opacity="0.6"/>
+        <animateTransform attributeName="transform" type="translate" values="-40 478; 540 470; -40 478" dur="52s" repeatCount="indefinite"/>
+      </g>
+    </g>
+
+    <!-- Fireflies (night only) -->
+    <g class="kyo-night-only" fill="var(--kyo-firefly)">
+      <circle cx="120" cy="350" r="1.2">
+        <animate attributeName="cx" values="120;140;130;120" dur="12s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="350;330;360;350" dur="12s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.9;0.2;0.9" dur="3s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="200" cy="380" r="1">
+        <animate attributeName="cx" values="200;180;195;200" dur="14s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="380;360;390;380" dur="14s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.8;0.15;0.8" dur="3.5s" begin="1s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="320" cy="360" r="1.1">
+        <animate attributeName="cx" values="320;340;325;320" dur="11s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="360;345;375;360" dur="11s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.85;0.2;0.85" dur="4s" begin="0.5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="380" cy="380" r="0.9">
+        <animate attributeName="cx" values="380;360;375;380" dur="13s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="380;365;390;380" dur="13s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.75;0.15;0.75" dur="3.2s" begin="2s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+
+    <!-- Falling petals — 16, varied speeds -->
+    <g class="kyo-petals" fill="var(--kyo-petal)">
+      <ellipse cx="0" cy="0" rx="2.2" ry="1.2">
+        <animateTransform attributeName="transform" type="translate" values="80 60; 40 240; 100 480" dur="14s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.9;0.7;0" dur="14s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="0" cy="0" rx="2.2" ry="1.2">
+        <animateTransform attributeName="transform" type="translate" values="200 20; 170 260; 230 500" dur="18s" begin="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.9;0.7;0" dur="18s" begin="2s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="0" cy="0" rx="2" ry="1.1">
+        <animateTransform attributeName="transform" type="translate" values="320 40; 300 220; 340 480" dur="16s" begin="4s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.85;0.6;0" dur="16s" begin="4s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="0" cy="0" rx="2.4" ry="1.3">
+        <animateTransform attributeName="transform" type="translate" values="420 80; 440 260; 420 480" dur="15s" begin="1s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.9;0.65;0" dur="15s" begin="1s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="0" cy="0" rx="2" ry="1.1">
+        <animateTransform attributeName="transform" type="translate" values="140 100; 120 280; 160 500" dur="17s" begin="6s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.85;0.6;0" dur="17s" begin="6s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="0" cy="0" rx="2.2" ry="1.2">
+        <animateTransform attributeName="transform" type="translate" values="280 60; 250 300; 290 480" dur="19s" begin="8s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.9;0.7;0" dur="19s" begin="8s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="0" cy="0" rx="2" ry="1.1">
+        <animateTransform attributeName="transform" type="translate" values="360 100; 380 300; 350 500" dur="16s" begin="3s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.85;0.6;0" dur="16s" begin="3s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="0" cy="0" rx="2.3" ry="1.2">
+        <animateTransform attributeName="transform" type="translate" values="60 140; 40 320; 80 500" dur="20s" begin="5s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.9;0.65;0" dur="20s" begin="5s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="0" cy="0" rx="2" ry="1.1">
+        <animateTransform attributeName="transform" type="translate" values="240 20; 260 240; 240 480" dur="15s" begin="7s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.85;0.6;0" dur="15s" begin="7s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="0" cy="0" rx="2.2" ry="1.2">
+        <animateTransform attributeName="transform" type="translate" values="460 40; 480 280; 450 500" dur="18s" begin="9s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.9;0.65;0" dur="18s" begin="9s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="0" cy="0" rx="2" ry="1.1">
+        <animateTransform attributeName="transform" type="translate" values="100 60; 80 260; 120 480" dur="17s" begin="11s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.85;0.6;0" dur="17s" begin="11s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="0" cy="0" rx="2.3" ry="1.2">
+        <animateTransform attributeName="transform" type="translate" values="300 40; 320 260; 290 500" dur="19s" begin="13s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.9;0.65;0" dur="19s" begin="13s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="0" cy="0" rx="2" ry="1.1">
+        <animateTransform attributeName="transform" type="translate" values="180 80; 160 300; 200 480" dur="16s" begin="0s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.88;0.6;0" dur="16s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="0" cy="0" rx="2.2" ry="1.2">
+        <animateTransform attributeName="transform" type="translate" values="400 20; 420 260; 390 500" dur="18s" begin="10s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.9;0.65;0" dur="18s" begin="10s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="0" cy="0" rx="2" ry="1.1">
+        <animateTransform attributeName="transform" type="translate" values="30 20; 10 300; 40 480" dur="19s" begin="12s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.85;0.6;0" dur="19s" begin="12s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="0" cy="0" rx="2.4" ry="1.3">
+        <animateTransform attributeName="transform" type="translate" values="340 60; 360 300; 320 500" dur="17s" begin="14s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.92;0.65;0" dur="17s" begin="14s" repeatCount="indefinite"/>
+      </ellipse>
+    </g>
+
+    <!-- Fog (night only) -->
+    <g class="kyo-night-only" fill="var(--kyo-fog)" filter="url(#kyo-blur-xl)" opacity="0.28">
+      <ellipse cx="120" cy="398" rx="180" ry="14">
+        <animate attributeName="cx" values="120;150;120" dur="24s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="380" cy="402" rx="200" ry="16">
+        <animate attributeName="cx" values="380;350;380" dur="28s" repeatCount="indefinite"/>
+      </ellipse>
+    </g>
+  </g>
+</svg>
 
   {% elif key == 'editorial' %}
   {# ---------- ASPEN · The Curator · A gallery wall with soft shifting light ---------- #}

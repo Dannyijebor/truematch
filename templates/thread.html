@@ -516,6 +516,78 @@ html.light .chat-screen.theme-editorial {
   .man-night-only { display: inline; }
   html.light .man-night-only { display: none; }
 
+  /* ---------- Kyoto celestial arc ---------- */
+  .kyo-celestial {
+    transform: translate(80px, 0);
+    transition: transform 3.4s cubic-bezier(0.5, 0, 0.5, 1);
+    transform-box: view-box;
+    transform-origin: 0 0;
+  }
+  html:not(.light) .kyo-celestial { transform: translate(400px, 0); }
+  .kyo-celestial > .kyo-cel-arc {
+    transform: translate(0, 92px);
+    transition: transform 1.7s cubic-bezier(0.5, 0, 0.5, 1);
+    transform-box: view-box;
+    transform-origin: 0 0;
+  }
+  html:not(.light) .kyo-celestial > .kyo-cel-arc { transform: translate(0, 82px); }
+  .kyo-cel-sun { opacity: 1; transition: opacity 0.8s ease 1.4s; }
+  html:not(.light) .kyo-cel-sun { opacity: 0; transition: opacity 0.7s ease 0.4s; }
+  .kyo-cel-moon { opacity: 0; transition: opacity 0.7s ease 0.4s; }
+  html:not(.light) .kyo-cel-moon { opacity: 1; transition: opacity 0.8s ease 1.4s; }
+  .kyo-cel-bloom { animation: kyo-bloom-pulse 3.4s ease-in-out; }
+  @keyframes kyo-bloom-pulse {
+    0%, 100% { r: 0; opacity: 0; }
+    42%      { r: 60; opacity: 0.85; }
+    58%      { r: 70; opacity: 0.6; }
+  }
+  .kyo-day-only { display: none; }
+  html.light .kyo-day-only { display: inline; }
+  .kyo-night-only { display: inline; }
+  html.light .kyo-night-only { display: none; }
+
+  /* ---------- Kyoto — DARK palette (night) ---------- */
+  .chat-wallpaper[data-wallpaper="bordeaux"] {
+    --kyo-sky-1: #050810; --kyo-sky-2: #0a1428; --kyo-sky-3: #1a2038;
+    --kyo-moon: #f0ead8; --kyo-moon-shade: #a8b8c8;
+    --kyo-sun: #ffe8b0; --kyo-sun-ray: #ffd080;
+    --kyo-fuji: #1a2438;
+    --kyo-mount-1: #0a1828; --kyo-mount-2: #05101c;
+    --kyo-pond-1: #0a1820; --kyo-pond-2: #030a10; --kyo-pond-edge: #1a2830;
+    --kyo-ripple: #7a98a8;
+    --kyo-torii-1: #a82030; --kyo-torii-2: #6a1018; --kyo-torii-cap: #1a0808;
+    --kyo-stone-1: #3a3838; --kyo-stone-2: #5a5858;
+    --kyo-lantern: #ffb84a;
+    --kyo-trunk: #2a1810;
+    --kyo-blossom: #d8a8b8; --kyo-blossom-hi: #f0c8d8;
+    --kyo-petal: #e8b8c8;
+    --kyo-koi-1: #e8a040; --kyo-koi-2: #f0f0e8; --kyo-koi-3: #d06030;
+    --kyo-firefly: #ffe090;
+    --kyo-cloud: #ffffff; --kyo-cloud-2: #e8eef5; --kyo-bird: #2a2820;
+    --kyo-fog: #5a6878;
+  }
+
+  /* ---------- Kyoto — LIGHT palette (day) ---------- */
+  html.light .chat-wallpaper[data-wallpaper="bordeaux"] {
+    --kyo-sky-1: #a8cce8; --kyo-sky-2: #d8e8f0; --kyo-sky-3: #f0e8e0;
+    --kyo-moon: #f5f0e0; --kyo-moon-shade: #d8d0b8;
+    --kyo-sun: #fff0b0; --kyo-sun-ray: #ffd060;
+    --kyo-fuji: #98b0c8;
+    --kyo-mount-1: #88a8b8; --kyo-mount-2: #6890a0;
+    --kyo-pond-1: #88c0d0; --kyo-pond-2: #5a98a8; --kyo-pond-edge: #4a7888;
+    --kyo-ripple: #ffffff;
+    --kyo-torii-1: #d83848; --kyo-torii-2: #a02830; --kyo-torii-cap: #3a1818;
+    --kyo-stone-1: #a8a0a0; --kyo-stone-2: #c8c0c0;
+    --kyo-lantern: #ffd080;
+    --kyo-trunk: #6a4838;
+    --kyo-blossom: #f8c8d8; --kyo-blossom-hi: #ffe0e8;
+    --kyo-petal: #ffc8d8;
+    --kyo-koi-1: #f0b060; --kyo-koi-2: #f8f8f0; --kyo-koi-3: #e88040;
+    --kyo-firefly: #ffe090;
+    --kyo-cloud: #ffffff; --kyo-cloud-2: #f0f4f8; --kyo-bird: #2a2820;
+    --kyo-fog: #d8d8d8;
+  }
+
   /* ---------- Mayfair day/night toggle ---------- */
   .may-day-only { display: none; }
   html.light .may-day-only { display: inline; }
