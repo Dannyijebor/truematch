@@ -47,7 +47,7 @@ def landing(request: Request, db: Session = Depends(get_db)):
     user = current_user_web(request, db)
     if user:
         return RedirectResponse("/app", status_code=302)
-    return templates.TemplateResponse("landing.html", _ctx(request))
+    return templates.TemplateResponse(request, "landing.html", _ctx(request))
 
 
 @router.post("/logout")
@@ -59,7 +59,7 @@ def logout():
 
 @router.get("/signup", response_class=HTMLResponse)
 def signup_get(request: Request, db: Session = Depends(get_db)):
-    return templates.TemplateResponse("auth.html", _ctx(request, db=db, mode="signup"))
+    return templates.TemplateResponse(request, "auth.html", _ctx(request, db=db, mode="signup"))
 
 
 @router.post("/signup")
@@ -73,12 +73,12 @@ def signup_post(
 ):
     email = email.strip().lower()
     if len(password) < 6:
-        return templates.TemplateResponse("auth.html", _ctx(request, db=db, mode="signup", error="Password must be at least 6 characters."),
+        return templates.TemplateResponse(request, "auth.html", _ctx(request, db=db, mode="signup", error="Password must be at least 6 characters."),
             status_code=400,
         )
     existing = db.execute(select(User).where(User.email == email)).scalar_one_or_none()
     if existing:
-        return templates.TemplateResponse("auth.html", _ctx(request, db=db, mode="signup", error="That email is already registered."),
+        return templates.TemplateResponse(request, "auth.html", _ctx(request, db=db, mode="signup", error="That email is already registered."),
             status_code=400,
         )
     user = User(
@@ -100,7 +100,7 @@ def signup_post(
 
 @router.get("/login", response_class=HTMLResponse)
 def login_get(request: Request, db: Session = Depends(get_db)):
-    return templates.TemplateResponse("auth.html", _ctx(request, db=db, mode="login"))
+    return templates.TemplateResponse(request, "auth.html", _ctx(request, db=db, mode="login"))
 
 
 @router.post("/login")
@@ -113,7 +113,7 @@ def login_post(
     email = email.strip().lower()
     user = db.execute(select(User).where(User.email == email)).scalar_one_or_none()
     if not user or not verify_password(password, user.password_hash):
-        return templates.TemplateResponse("auth.html", _ctx(request, db=db, mode="login", error="Wrong email or password."),
+        return templates.TemplateResponse(request, "auth.html", _ctx(request, db=db, mode="login", error="Wrong email or password."),
             status_code=401,
         )
     token = create_token(str(user.id))
@@ -161,7 +161,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         try: track(db, "match_card_layout", layout["variant"], "impression", user_id=user.id)
         except Exception: pass
 
-    return templates.TemplateResponse("dashboard.html", _ctx(
+    return templates.TemplateResponse(request, "dashboard.html", _ctx(
         request, db=db, user=user, profile=profile, matches=matches,
         show=show, has_more=has_more, total_found=total_found,
         cta_label=cta["config"].get("label", "Generate tailored application"),
@@ -217,7 +217,7 @@ def job_detail(job_id: str, request: Request, db: Session = Depends(get_db)):
         select(ApplyPacket).where(ApplyPacket.user_id == user.id, ApplyPacket.job_id == job.id)
     ).scalar_one_or_none()
 
-    return templates.TemplateResponse("job.html", _ctx(request, db=db, user=user, job=job, packet=packet),
+    return templates.TemplateResponse(request, "job.html", _ctx(request, db=db, user=user, job=job, packet=packet),
     )
 
 
@@ -348,7 +348,7 @@ def resume_page(request: Request, db: Session = Depends(get_db)):
     from app.db.models import Resume
     resume = db.query(Resume).filter_by(user_id=user.id).order_by(Resume.uploaded_at.desc()).first()
 
-    return templates.TemplateResponse("resume.html", _ctx(
+    return templates.TemplateResponse(request, "resume.html", _ctx(
         request, user=user, resume=resume,
     ))
 
@@ -560,7 +560,7 @@ def feed_page(request: Request, db: Session = Depends(get_db)):
     groups = story_groups(db, user.id)
 
     from datetime import datetime, timezone
-    return templates.TemplateResponse("feed.html", _ctx(
+    return templates.TemplateResponse(request, "feed.html", _ctx(
         request, db=db, user=user, posts=posts, profile=profile,
         story_groups=groups,
         now_hour=datetime.now(timezone.utc).hour,
@@ -584,7 +584,7 @@ def discover_page(request: Request, db: Session = Depends(get_db)):
     matches = jobs_matching_you(db, user, limit=3)
     people = people_to_know(db, user.id, limit=8)
 
-    return templates.TemplateResponse("discover.html", _ctx(
+    return templates.TemplateResponse(request, "discover.html", _ctx(
         request, db=db, user=user,
         pulse=pulse, skills=skills, companies=companies,
         recruiters=recruiters, matches=matches, people=people,
@@ -623,7 +623,7 @@ def people_page(request: Request, db: Session = Depends(get_db)):
         from uuid import UUID
         person["following"] = is_following(db, user.id, UUID(person["user_id"]))
 
-    return templates.TemplateResponse("people.html", _ctx(
+    return templates.TemplateResponse(request, "people.html", _ctx(
         request, user=user, people=people, q=q,
     ))
 
@@ -710,7 +710,7 @@ def public_profile(username: str, request: Request, db: Session = Depends(get_db
 
     posts_data = [_serialize_post(db, p, viewer.id if viewer else target_user.id) for p in posts]
 
-    return templates.TemplateResponse("profile_public.html", _ctx(
+    return templates.TemplateResponse(request, "profile_public.html", _ctx(
         request,
         user=viewer,
         target={
@@ -761,7 +761,7 @@ def messages_inbox(request: Request, db: Session = Depends(get_db)):
                 "avatar_url": p.avatar_url if p else None,
             })
 
-    return templates.TemplateResponse("messages.html", _ctx(
+    return templates.TemplateResponse(request, "messages.html", _ctx(
         request, db=db, user=user, convos=convos, unread=unread, candidates=candidates,
     ))
 
@@ -787,7 +787,7 @@ def message_thread(other_id: str, request: Request, db: Session = Depends(get_db
     other_profile = db.get(Profile, other_user.id)
     my_profile = db.get(Profile, user.id) or Profile(user_id=user.id)
 
-    return templates.TemplateResponse("thread_v2.html", _ctx(
+    return templates.TemplateResponse(request, "thread_v2.html", _ctx(
         request,
         db=db,
         user=user,
@@ -862,7 +862,7 @@ def settings_page(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse("/login?next=/settings", status_code=302)
 
     profile = db.get(Profile, user.id) or Profile(user_id=user.id)
-    return templates.TemplateResponse("settings.html", _ctx(
+    return templates.TemplateResponse(request, "settings.html", _ctx(
         request, user=user, profile=profile,
     ))
 
@@ -982,7 +982,7 @@ def hr_dashboard(request: Request, db: Session = Depends(get_db)):
     jobs = list_my_posted_jobs(db, user.id)
     profile = db.get(Profile, user.id)
 
-    return templates.TemplateResponse("hr_dashboard.html", _ctx(
+    return templates.TemplateResponse(request, "hr_dashboard.html", _ctx(
         request, user=user, profile=profile, jobs=jobs,
     ))
 
@@ -993,7 +993,7 @@ def hr_new_job(request: Request, db: Session = Depends(get_db)):
     if not user:
         return RedirectResponse("/login?next=/hire/new", status_code=302)
     profile = db.get(Profile, user.id)
-    return templates.TemplateResponse("hr_post_job.html", _ctx(
+    return templates.TemplateResponse(request, "hr_post_job.html", _ctx(
         request, user=user, profile=profile, job=None,
     ))
 
@@ -1045,7 +1045,7 @@ def hr_job_detail(job_id: str, request: Request, db: Session = Depends(get_db)):
     from app.hr import list_applicants
     applicants = list_applicants(db, user.id, job.id)
 
-    return templates.TemplateResponse("hr_applicants.html", _ctx(
+    return templates.TemplateResponse(request, "hr_applicants.html", _ctx(
         request, user=user, job=job, applicants=applicants,
     ))
 
@@ -1109,7 +1109,7 @@ def hr_screen_applicant(app_id: str, request: Request, db: Session = Depends(get
         result = None
         error = str(e)
 
-    return templates.TemplateResponse("hr_screen.html", _ctx(
+    return templates.TemplateResponse(request, "hr_screen.html", _ctx(
         request, user=user, job=job, applicant_id=str(a.user_id),
         applicant_name=name, result=result, error=error, app_id=app_id,
     ))
@@ -1120,7 +1120,7 @@ def public_posted_jobs(request: Request, db: Session = Depends(get_db)):
     user = current_user_web(request, db)
     from app.hr import list_posted_jobs_public
     jobs = list_posted_jobs_public(db, limit=200)
-    return templates.TemplateResponse("posted_jobs.html", _ctx(
+    return templates.TemplateResponse(request, "posted_jobs.html", _ctx(
         request, user=user, jobs=jobs,
     ))
 
@@ -1183,7 +1183,7 @@ def notifications_page(request: Request, db: Session = Depends(get_db)):
     items = list_notifications(db, user.id, limit=100)
     mark_all_read(db, user.id)
 
-    return templates.TemplateResponse("notifications.html", _ctx(
+    return templates.TemplateResponse(request, "notifications.html", _ctx(
         request, db=db, user=user, items=items,
     ))
 
@@ -1239,7 +1239,7 @@ def admin_experiments(request: Request, db: Session = Depends(get_db)):
     fb = feedback_summary(db, days=30)
     recent = recent_feedback(db, limit=30)
 
-    return templates.TemplateResponse("admin_experiments.html", _ctx(
+    return templates.TemplateResponse(request, "admin_experiments.html", _ctx(
         request, db=db, user=user,
         experiments=exp_data, feedback=fb, recent=recent,
     ))
@@ -1287,7 +1287,7 @@ def portfolio_edit(request: Request, db: Session = Depends(get_db)):
     settings = get_portfolio_settings(db, user.id)
     items = list_items(db, user.id)
 
-    return templates.TemplateResponse("portfolio_edit.html", _ctx(
+    return templates.TemplateResponse(request, "portfolio_edit.html", _ctx(
         request, db=db, user=user, settings=settings, items=items,
         themes=THEMES, kinds=KINDS, accents=ACCENTS,
         profile=db.get(Profile, user.id),
@@ -1416,7 +1416,7 @@ def portfolio_public_view(username: str, request: Request, db: Session = Depends
         raise HTTPException(404, "Portfolio not found or not public")
 
     viewer = current_user_web(request, db)
-    return templates.TemplateResponse("portfolio_public.html", _ctx(
+    return templates.TemplateResponse(request, "portfolio_public.html", _ctx(
         request, db=db, user=viewer, **data,
     ))
 
