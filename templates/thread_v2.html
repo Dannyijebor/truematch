@@ -1800,14 +1800,28 @@ html.light .chat-screen.theme-editorial {
   <span class="rec-time" id="rec-time">0:00</span>
   <div class="rec-wave" id="rec-wave"></div>
   <span class="rec-hint" id="rec-hint">Slide up to lock</span>
-  <button class="rec-lock-cancel" id="rec-lock-cancel" onclick="tmRecCancelFromLock(event)" aria-label="Delete" style="display:none;">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
-  </button>
-  <button class="rec-lock-send" id="rec-lock-send" onclick="tmRecStopFromLock(event)" aria-label="Send">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-  </button>
+  </div>
+  <div class="rec-lock-controls">
+    <button class="rec-trash-btn" onclick="tmRecCancelFromLock(event)" aria-label="Delete">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 6h18"/>
+        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+        <line x1="10" y1="11" x2="10" y2="17"/>
+        <line x1="14" y1="11" x2="14" y2="17"/>
+      </svg>
+    </button>
+    <button class="rec-pause-btn" id="rec-pause-btn" onclick="tmRecPauseToggle(event)" aria-label="Pause">
+      <svg id="rec-pause-icon" viewBox="0 0 24 24" fill="currentColor">
+        <rect x="6" y="5" width="4" height="14" rx="1"/>
+        <rect x="14" y="5" width="4" height="14" rx="1"/>
+      </svg>
+      <span class="rec-pause-label">Pause</span>
+    </button>
+  </div>
 </div>
 
+<div id="rec-dim" class="rec-dim" aria-hidden="true"></div>
 <div id="rec-rail" class="rec-rail" aria-hidden="true"></div>
 <div id="rec-lock-field" class="rec-lock-field" aria-hidden="true">
   <svg class="rec-lock-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -2271,6 +2285,8 @@ async function tmStartRecording() {
   };
   try { mediaRecorder.start(); } catch (err) { try { activeStream.getTracks().forEach(t => t.stop()); } catch(e){} activeStream = null; alert('Recorder failed: ' + err.message); return; }
   recStart = Date.now(); recording = true;
+  const _mBtn = document.getElementById('mic-btn');
+  if (_mBtn) _mBtn.classList.add('recording');
   document.getElementById('rec-time').textContent = '0:00';
 
   // Show dim overlay + recorder bar
