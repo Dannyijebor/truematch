@@ -1516,34 +1516,11 @@
         <ellipse cx="312" cy="48" rx="18" ry="9"/>
         <ellipse cx="348" cy="48" rx="20" ry="10"/>
       </g>
-      <!-- Flock 1: 6 birds in V formation, flying left→right, upper sky -->
-      <g stroke="var(--kyo-bird)" stroke-width="1" fill="none" opacity="0.65" stroke-linecap="round">
-        <animateTransform attributeName="transform" type="translate" values="-80 -10; 520 6" dur="42s" repeatCount="indefinite"/>
-        <path d="M 0 0 q 3 -3 6 0 q 3 -3 6 0"/>
-        <path d="M 16 8 q 3 -3 6 0 q 3 -3 6 0"/>
-        <path d="M -16 8 q 3 -3 6 0 q 3 -3 6 0"/>
-        <path d="M 32 14 q 3 -3 6 0 q 3 -3 6 0"/>
-        <path d="M -32 14 q 3 -3 6 0 q 3 -3 6 0"/>
-        <path d="M 8 -8 q 3 -3 6 0 q 3 -3 6 0"/>
-      </g>
-
-      <!-- Flock 2: 5 birds, lower sky, flying right→left, slightly faster -->
-      <g stroke="var(--kyo-bird)" stroke-width="0.9" fill="none" opacity="0.5" stroke-linecap="round">
-        <animateTransform attributeName="transform" type="translate" values="540 40; -80 30" dur="36s" begin="6s" repeatCount="indefinite"/>
-        <path d="M 0 0 q 3 -3 6 0 q 3 -3 6 0"/>
-        <path d="M 14 6 q 3 -3 6 0 q 3 -3 6 0"/>
-        <path d="M -14 6 q 3 -3 6 0 q 3 -3 6 0"/>
-        <path d="M 28 12 q 3 -3 6 0 q 3 -3 6 0"/>
-        <path d="M -28 12 q 3 -3 6 0 q 3 -3 6 0"/>
-      </g>
-
-      <!-- Flock 3: 4 birds, distant, slow drift -->
-      <g stroke="var(--kyo-bird)" stroke-width="0.7" fill="none" opacity="0.4" stroke-linecap="round">
-        <animateTransform attributeName="transform" type="translate" values="-60 80; 520 72" dur="55s" begin="12s" repeatCount="indefinite"/>
-        <path d="M 0 0 q 3 -3 6 0 q 3 -3 6 0"/>
-        <path d="M 12 5 q 3 -3 6 0 q 3 -3 6 0"/>
-        <path d="M -12 5 q 3 -3 6 0 q 3 -3 6 0"/>
-        <path d="M 24 10 q 3 -3 6 0 q 3 -3 6 0"/>
+      <g stroke="var(--kyo-bird)" stroke-width="0.9" fill="none" opacity="0.55">
+        <animateTransform attributeName="transform" type="translate" values="0 0; 50 -6; 0 0" dur="52s" repeatCount="indefinite"/>
+        <path d="M 260 100 q 3 -3 6 0 q 3 -3 6 0"/>
+        <path d="M 275 108 q 3 -3 6 0 q 3 -3 6 0"/>
+        <path d="M 266 116 q 3 -3 6 0 q 3 -3 6 0"/>
       </g>
     </g>
 
