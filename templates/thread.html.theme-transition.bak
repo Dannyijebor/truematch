@@ -418,55 +418,6 @@ html.light .chat-screen.theme-editorial {
     opacity: var(--wallpaper-opacity, 0.10);
     transition: opacity 0.35s ease;
   }
-  /* ---------- Theme transition: crossfade + cinematic bloom ---------- */
-  .chat-screen .chat-wallpaper {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(1.05);
-    transition: opacity 0.85s cubic-bezier(0.4, 0, 0.2, 1),
-                transform 0.85s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: opacity, transform;
-    pointer-events: none;
-  }
-
-  /* Reveal only the wallpaper that matches the active theme class */
-  .chat-screen.theme-executive .chat-wallpaper[data-wallpaper="executive"],
-  .chat-screen.theme-boardroom .chat-wallpaper[data-wallpaper="boardroom"],
-  .chat-screen.theme-heritage  .chat-wallpaper[data-wallpaper="heritage"],
-  .chat-screen.theme-sovereign .chat-wallpaper[data-wallpaper="sovereign"],
-  .chat-screen.theme-obsidian  .chat-wallpaper[data-wallpaper="obsidian"],
-  .chat-screen.theme-bordeaux  .chat-wallpaper[data-wallpaper="bordeaux"],
-  .chat-screen.theme-editorial .chat-wallpaper[data-wallpaper="editorial"] {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1.0);
-  }
-
-  /* Warm accent bloom — flashes across the scene at the crossfade midpoint */
-  .tm-theme-bloom {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0;
-    z-index: 1;
-    background: radial-gradient(
-      ellipse at 50% 55%,
-      color-mix(in srgb, var(--wallpaper-accent) 45%, transparent) 0%,
-      color-mix(in srgb, var(--wallpaper-accent) 14%, transparent) 42%,
-      transparent 78%
-    );
-    mix-blend-mode: screen;
-  }
-  .tm-theme-bloom.tm-pulse {
-    animation: tm-bloom-flash 1.25s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  @keyframes tm-bloom-flash {
-    0%   { opacity: 0;    transform: scale(0.94); }
-    45%  { opacity: 0.85; transform: scale(1.0); }
-    100% { opacity: 0;    transform: scale(1.08); }
-  }
-
-  /* Keep message rows above wallpapers + bloom */
-  .chat-messages > .msg-row { z-index: 3; }
-
   .wp-svg {
     width: 100%;
     height: 100%;
@@ -1243,10 +1194,7 @@ html.light .chat-screen.theme-editorial {
       'bordeaux': '#b8563a',
       'editorial': '#d4b896'
     } %}
-    {% for _tk in ['executive','boardroom','heritage','sovereign','obsidian','bordeaux','editorial'] %}
-    {{ wallpaper(_tk, theme_accents.get(_tk, '#00a884')) }}
-    {% endfor %}
-    <div class="tm-theme-bloom" aria-hidden="true"></div>
+    {{ wallpaper(chat_theme, theme_accents.get(chat_theme, '#00a884')) }}
     {% for m in msgs %}
     <div class="msg-row {% if m.from_me %}mine{% else %}theirs{% endif %}" data-msg-id="{{ m.id }}" data-kind="{{ m.kind or 'text' }}" data-body="{{ m.body|e }}">
       <div class="bubble {% if m.from_me %}mine{% else %}theirs{% endif %}" data-bubble-id="{{ m.id }}">
@@ -1729,17 +1677,6 @@ async function pickTheme(key) {
     var cls = screen.getAttribute('class') || '';
     cls = cls.split(' ').filter(function(x) { return x && !x.startsWith('theme-'); }).join(' ');
     screen.setAttribute('class', cls + ' theme-' + key);
-    try {
-      document.querySelectorAll('.chat-wallpaper').forEach(function(wp){
-        var active = (wp.getAttribute('data-wallpaper') === key);
-        wp.querySelectorAll('svg').forEach(function(sv){
-          if (typeof sv.pauseAnimations !== 'function') return;
-          if (active) sv.unpauseAnimations(); else sv.pauseAnimations();
-        });
-      });
-      var b = document.querySelector('.tm-theme-bloom');
-      if (b) { b.classList.remove('tm-pulse'); void b.offsetWidth; b.classList.add('tm-pulse'); }
-    } catch (e) {}
   }
 
   // Update tile selected state
@@ -1958,26 +1895,6 @@ console.log('[TrueMatch] chat loaded');
   if (watch) watch.style.display = 'none';
   if (study) study.style.display = '';
   console.log('[TrueMatch] Study scene active');
-})();
-</script>
-<script>
-(function(){
-  try {
-    var scr = document.querySelector('.chat-screen');
-    if (!scr) return;
-    var initKey = null;
-    scr.className.split(' ').forEach(function(c){
-      if (c.indexOf('theme-') === 0) initKey = c.substring(6);
-    });
-    if (!initKey) return;
-    document.querySelectorAll('.chat-wallpaper').forEach(function(wp){
-      var active = (wp.getAttribute('data-wallpaper') === initKey);
-      wp.querySelectorAll('svg').forEach(function(sv){
-        if (typeof sv.pauseAnimations !== 'function') return;
-        if (active) sv.unpauseAnimations(); else sv.pauseAnimations();
-      });
-    });
-  } catch (e) {}
 })();
 </script>
 {% endblock %}
