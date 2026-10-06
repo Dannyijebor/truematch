@@ -722,3 +722,25 @@ def debug_landing():
             except StopIteration: pass
     except Exception as e:
         return {"error": f"{type(e).__name__}: {e}", "traceback": traceback.format_exc()}
+
+
+from fastapi import Depends, Request
+from fastapi.responses import RedirectResponse, JSONResponse
+from sqlalchemy.orm import Session as _S
+
+@app.get("/debug-home")
+def debug_home(request: Request, db: _S = Depends(get_db)):
+    """TEMPORARY: exact mimic of `/` route with traceback."""
+    import traceback
+    try:
+        from app.api.web import templates, _ctx, current_user_web
+        user = current_user_web(request, db)
+        if user:
+            return JSONResponse({"ok": True, "redirect_to": "/app", "user": str(user.id)})
+        resp = templates.TemplateResponse(request, "landing.html", _ctx(request))
+        return JSONResponse({"ok": True, "status": resp.status_code, "len": len(resp.body) if hasattr(resp, 'body') else None})
+    except Exception as e:
+        return JSONResponse({
+            "error": f"{type(e).__name__}: {e}",
+            "traceback": traceback.format_exc()
+        }, status_code=200)
