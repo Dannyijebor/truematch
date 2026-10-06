@@ -76,12 +76,12 @@ CALL_TTL_MINUTES = 2
 
 def start_call(db: Session, caller: User, callee_id, kind: str) -> Call:
     if caller.id == callee_id:
-        raise ValueError("cannot call yourself")
+        raise ValueError("You can't call yourself — open a chat with the other person to test.")
     if kind not in ("audio", "video"):
-        raise ValueError("bad kind")
+        raise ValueError("Invalid call type.")
     callee = db.get(User, callee_id)
     if not callee:
-        raise ValueError("callee not found")
+        raise ValueError("This person is no longer available.")
 
     # End any stale ringing calls between these two
     stale = db.execute(

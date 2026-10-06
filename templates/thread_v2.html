@@ -2816,22 +2816,89 @@ async function pickTheme(key) {
 
 let pc = null, localStream = null, currentCallId = null, currentCallKind = 'audio';
 let pollInterval = null, incomingCall = null;
+var RINGBACK_CTX = null, RINGBACK_OSC = null, RINGBACK_TIMER = null;
+var CALL_TIMEOUT_MS = 45000;
+var CALL_START_AT = 0;
+
+function tmStartRingback() {
+  try {
+    RINGBACK_CTX = new (window.AudioContext || window.webkitAudioContext)();
+    RINGBACK_OSC = RINGBACK_CTX.createOscillator();
+    var g = RINGBACK_CTX.createGain();
+    RINGBACK_OSC.type = 'sine';
+    RINGBACK_OSC.frequency.value = 440;
+    g.gain.value = 0.06;
+    RINGBACK_OSC.connect(g); g.connect(RINGBACK_CTX.destination);
+    RINGBACK_OSC.start();
+    // Ring pattern: 1s on, 3s off
+    RINGBACK_TIMER = setInterval(function(){
+      try {
+        g.gain.setValueAtTime(0.06, RINGBACK_CTX.currentTime);
+        setTimeout(function(){ try { g.gain.setValueAtTime(0, RINGBACK_CTX.currentTime); } catch(_){} }, 1000);
+      } catch(_){}
+    }, 4000);
+    // Start immediately
+    setTimeout(function(){ try { g.gain.setValueAtTime(0, RINGBACK_CTX.currentTime); } catch(_){} }, 1000);
+  } catch(_) {}
+}
+
+function tmStopRingback() {
+  try { if (RINGBACK_TIMER) clearInterval(RINGBACK_TIMER); } catch(_){}
+  RINGBACK_TIMER = null;
+  try { if (RINGBACK_OSC) RINGBACK_OSC.stop(); } catch(_){}
+  RINGBACK_OSC = null;
+  try { if (RINGBACK_CTX) RINGBACK_CTX.close(); } catch(_){}
+  RINGBACK_CTX = null;
+}
+
 async function startCall(kind) {
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { alert('Calling unsupported'); return; }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { alert('Calling is not supported on this browser.'); return; }
   currentCallKind = kind;
   try { localStream = await navigator.mediaDevices.getUserMedia({audio: true, video: kind === 'video'}); }
-  catch (e) { alert('Permission denied.'); return; }
+  catch (e) {
+    alert('Microphone/camera permission is required to make calls.\n\nTap the lock icon → Permissions → Allow.');
+    return;
+  }
   const r = await fetch('/api/calls/start/' + OTHER_ID + '?kind=' + kind, {method: 'POST', credentials: 'same-origin'});
-  if (!r.ok) { alert('Call failed'); hangUp(true); return; }
+  if (!r.ok) {
+    // Read the actual reason from the API instead of showing a generic message
+    var reason = 'unknown error';
+    try { var j = await r.json(); reason = j.detail || j.error || reason; } catch(_) {}
+    alert('Could not start the call: ' + reason);
+    try { if (localStream) localStream.getTracks().forEach(t => t.stop()); } catch(_){}
+    localStream = null;
+    return;
+  }
   const data = await r.json();
-  currentCallId = data.call_id; showCallOverlay('Calling…');
+  currentCallId = data.call_id;
+  CALL_START_AT = Date.now();
+  showCallOverlay('Calling…');
   await setupPeer(true);
   const offer = await pc.createOffer(); await pc.setLocalDescription(offer);
   await fetch('/api/calls/' + currentCallId + '/offer', {method: 'POST', credentials: 'same-origin', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({sdp: offer.sdp, type: offer.type})});
   startSignalPolling();
+  tmStartRingback();
+  // Timeout if no answer in 45s
+  setTimeout(function(){
+    if (currentCallId && !pc.currentRemoteDescription) {
+      tmStopRingback();
+      showCallOverlay('No answer');
+      setTimeout(function(){ hangUp(); }, 1200);
+    }
+  }, CALL_TIMEOUT_MS);
 }
 async function setupPeer(isCaller) {
-  pc = new RTCPeerConnection({iceServers: [{urls: 'stun:stun.l.google.com:19302'}, {urls: 'stun:stun1.l.google.com:19302'}]});
+  pc = new RTCPeerConnection({
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' },
+      // Free TURN relay — makes calls work across networks
+      { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+      { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+      { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
+    ],
+    iceCandidatePoolSize: 10,
+  });
   localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
   document.getElementById('local-video').srcObject = localStream;
   pc.ontrack = ev => { document.getElementById('remote-video').srcObject = ev.streams[0]; showCallOverlay('Connected'); };
@@ -2865,11 +2932,13 @@ async function startSignalPolling() {
 function showCallOverlay(s) { document.getElementById('call-overlay').classList.remove('hidden'); document.getElementById('call-status').textContent = s; }
 function hideCallOverlay() { document.getElementById('call-overlay').classList.add('hidden'); }
 async function hangUp(silent) {
+  tmStopRingback();
   if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
   if (pc) { try { pc.close(); } catch(e){} pc = null; }
   if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
   if (currentCallId && !silent) await fetch('/api/calls/' + currentCallId + '/end', {method: 'POST', credentials: 'same-origin'}).catch(()=>{});
   currentCallId = null; hideCallOverlay();
+  try { if (typeof tmResetCallUI === 'function') tmResetCallUI(); } catch(_){}
 }
 async function pollIncoming() {
   try {
