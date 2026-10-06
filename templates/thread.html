@@ -482,6 +482,68 @@ html.light .chat-screen.theme-editorial {
     .wp-kyoto-petals ellipse { animation: none !important; }
   }
 
+
+  /* ============================================================
+     WALLPAPER INTENSITY — Off / Soft / Medium / Bold
+     ============================================================ */
+  .tp-opacity {
+    margin-top: 14px;
+    padding: 14px 10px 8px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  html.light .tp-opacity { border-top-color: rgba(0,0,0,0.08); }
+  .tp-opacity-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #8696a0;
+    margin-bottom: 12px;
+    font-weight: 700;
+  }
+  html.light .tp-opacity-label { color: #64748b; }
+  .tp-opacity-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .tp-op-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 4px 10px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid transparent;
+    color: #8696a0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
+    text-transform: uppercase;
+  }
+  html.light .tp-op-btn { background: rgba(0,0,0,0.04); color: #475569; }
+  .tp-op-btn:hover { background: rgba(255,255,255,0.08); transform: translateY(-1px); }
+  html.light .tp-op-btn:hover { background: rgba(0,0,0,0.07); }
+  .tp-op-btn:active { transform: scale(0.94); }
+  .tp-op-btn.tp-op-active {
+    background: rgba(0,168,132,0.15);
+    border-color: rgba(0,168,132,0.55);
+    color: #a7f3d0;
+    box-shadow: 0 0 0 3px rgba(0,168,132,0.12), 0 4px 12px rgba(0,168,132,0.25);
+  }
+  html.light .tp-op-btn.tp-op-active { color: #065f46; }
+  .tp-op-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: currentColor;
+    transition: opacity 0.2s;
+    box-shadow: 0 0 6px currentColor;
+  }
+
 </style>
 
 <div class="chat-screen theme-{{ chat_theme }}">
