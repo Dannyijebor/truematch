@@ -1360,6 +1360,115 @@ html.light .chat-screen.theme-editorial {
   /* Hint changes when user reaches the lock threshold */
   .rec-bar.lock-hint .rec-hint { color: #ffd27a; font-weight: 600; }
   .rec-bar.lock-hint .rec-hint::before { content: '\1F512  '; }
+
+  /* ---------- Lock target + floating mic cursor ---------- */
+  .rec-lock-field {
+    position: fixed;
+    left: 50%;
+    bottom: 130px;
+    transform: translate(-50%, 30px) scale(0.7);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 255;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 18px 10px 12px;
+    background: rgba(32, 44, 51, 0.96);
+    border: 1.5px solid rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    color: #c8d0d8;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
+    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+                opacity 0.22s ease,
+                background-color 0.25s ease,
+                border-color 0.25s ease,
+                color 0.25s ease;
+  }
+  html.light .rec-lock-field {
+    background: rgba(255, 255, 255, 0.98);
+    border-color: rgba(0, 0, 0, 0.06);
+    color: #5a6068;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.14);
+  }
+  .rec-lock-field.visible {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+  .rec-lock-field.armed {
+    background: rgba(60, 46, 20, 0.96);
+    border-color: #ffd27a;
+    color: #ffd27a;
+  }
+  html.light .rec-lock-field.armed { background: rgba(255, 244, 216, 0.98); border-color: #d4a840; color: #8a6820; }
+  .rec-lock-field.locked {
+    background: #00a884;
+    border-color: #00d99a;
+    color: #ffffff;
+    box-shadow: 0 8px 32px rgba(0, 168, 132, 0.55);
+    animation: rec-lock-pop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes rec-lock-pop {
+    0%   { transform: translate(-50%, 0) scale(1);    }
+    45%  { transform: translate(-50%, 0) scale(1.18); }
+    100% { transform: translate(-50%, 0) scale(1);    }
+  }
+  .rec-lock-field-icon {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+  .rec-lock-field.locked .rec-lock-field-icon {
+    animation: rec-shackle 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes rec-shackle {
+    0%   { transform: translateY(-3px) scale(0.92); }
+    50%  { transform: translateY(1px) scale(1.08);  }
+    100% { transform: translateY(0) scale(1);       }
+  }
+  .rec-lock-field-text { white-space: nowrap; }
+
+  /* Floating mic cursor that follows the finger */
+  .rec-cursor {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #ff4a4a;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 256;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.14s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+    will-change: transform;
+    box-shadow: 0 6px 24px rgba(255, 74, 74, 0.45);
+  }
+  .rec-cursor.visible { opacity: 1; }
+  .rec-cursor.locked {
+    background: #00a884;
+    box-shadow: 0 6px 24px rgba(0, 168, 132, 0.6);
+    animation: rec-cursor-snap 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes rec-cursor-snap {
+    0%   { transform: translate(-50%, -50%) scale(1);   }
+    55%  { transform: translate(-50%, -50%) scale(1.3); }
+    100% { transform: translate(-50%, -50%) scale(0);   }
+  }
+  .rec-cursor svg {
+    width: 24px;
+    height: 24px;
+  }
 </style>
 
 <div class="chat-screen theme-{{ chat_theme }}">
@@ -1574,6 +1683,20 @@ html.light .chat-screen.theme-editorial {
   </button>
 </div>
 
+<div id="rec-lock-field" class="rec-lock-field" aria-hidden="true">
+  <svg class="rec-lock-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="5" y="11" width="14" height="10" rx="2"/>
+    <path class="rec-lock-shackle" d="M8 11V8a4 4 0 0 1 8 0v3"/>
+  </svg>
+  <span class="rec-lock-field-text" id="rec-lock-field-text">Slide up to lock</span>
+</div>
+
+<div id="rec-cursor" class="rec-cursor" aria-hidden="true">
+  <svg viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/>
+  </svg>
+</div>
+
 <div id="sticker-sheet" class="sticker-sheet hidden">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:0 4px;">
     <div style="font-weight:700;font-size:16px;">Stickers</div>
@@ -1736,252 +1859,142 @@ let recAudioCtx = null, recAnalyser = null, recWaveRAF = null;
 
 function tmMicDown(e) {
   e.preventDefault(); e.stopPropagation();
-  if (recording && recLocked) return;  // already locked; send button handles it
+  if (recording && recLocked) return;
   if (recording) { tmRecSend(e); return; }
+
+  const p = tmPointerPoint(e);
   recPointerId = (e.pointerId != null) ? e.pointerId : null;
-  recStartX = (e.clientX != null) ? e.clientX : (e.touches && e.touches[0].clientX) || 0;
-  recStartY = (e.clientY != null) ? e.clientY : (e.touches && e.touches[0].clientY) || 0;
+  recStartX = p.x;
+  recStartY = p.y;
+
   recCancelling = false;
   recLockPending = false;
+
+  // Show floating cursor at finger position
+  const cur = document.getElementById('rec-cursor');
+  if (cur) {
+    cur.style.left = p.x + 'px';
+    cur.style.top = p.y + 'px';
+    cur.classList.remove('locked');
+  }
+
   if (recHoldTimer) clearTimeout(recHoldTimer);
   recHoldTimer = setTimeout(() => { tmRecBegin(); }, 120);
+
   try {
     const btn = document.getElementById('mic-btn');
     if (btn && btn.setPointerCapture && recPointerId != null) btn.setPointerCapture(recPointerId);
   } catch(_){}
 }
 
+function tmPointerPoint(e) {
+  if (e.touches && e.touches[0]) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  if (e.changedTouches && e.changedTouches[0]) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+  return { x: e.clientX || 0, y: e.clientY || 0 };
+}
+
 function tmMicMove(e) {
   if (!recording && !recHoldTimer) return;
-  if (recCancelling || recLocked) return;
+  if (recLocked) return;
 
-  const x = (e.clientX != null) ? e.clientX : (e.touches && e.touches[0].clientX) || 0;
-  const y = (e.clientY != null) ? e.clientY : (e.touches && e.touches[0].clientY) || 0;
-  const dx = x - recStartX;
-  const dy = y - recStartY;
+  const p = tmPointerPoint(e);
+  const cur = document.getElementById('rec-cursor');
+  if (cur) {
+    cur.style.left = p.x + 'px';
+    cur.style.top = p.y + 'px';
+  }
 
-  const bar = document.getElementById('rec-bar');
+  const lockField = document.getElementById('rec-lock-field');
   const hint = document.getElementById('rec-hint');
+  const bar = document.getElementById('rec-bar');
 
-  // Slide up → lock  (dy negative means finger moved up)
-  if (dy < -55) {
-    if (!recording) {
-      recLockPending = true;
-    } else {
-      tmRecLock();
-    }
+  // Lock field center
+  let lockCenterY = 0;
+  if (lockField) {
+    const r = lockField.getBoundingClientRect();
+    lockCenterY = r.top + r.height / 2;
+  }
+
+  const dyFromLock = p.y - lockCenterY; // negative when finger is ABOVE lock
+
+  // Reached lock?
+  if (Math.abs(dyFromLock) < 45 && recording) {
+    tmRecLock();
     return;
   }
-  // Close to lock threshold → show warm hint
-  if (dy < -30 && bar && !recCancelling) {
-    bar.classList.add('lock-hint');
-    if (hint) hint.textContent = 'Release to lock';
-    return;
-  } else if (bar) {
-    bar.classList.remove('lock-hint');
-    if (hint && !recCancelling) hint.textContent = 'Slide up to lock  •  left to cancel';
+
+  // Close to lock → armed (warm flash)
+  if (dyFromLock < 60 && dyFromLock > -20) {
+    if (lockField) lockField.classList.add('armed');
+    if (lockField) document.getElementById('rec-lock-field-text').textContent = 'Release to lock';
+  } else {
+    if (lockField) lockField.classList.remove('armed');
+    if (lockField) document.getElementById('rec-lock-field-text').textContent = 'Slide up to lock';
   }
 
   // Slide left → cancel
+  const dx = p.x - recStartX;
   if (dx < -55 && !recCancelling) {
     recCancelling = true;
-    if (bar) { bar.classList.add('cancelling'); bar.classList.remove('lock-hint'); }
+    if (bar) { bar.classList.add('cancelling'); }
     if (hint) hint.textContent = 'Release to cancel';
   } else if (dx > -20 && recCancelling) {
     recCancelling = false;
     if (bar) bar.classList.remove('cancelling');
-    if (hint) hint.textContent = 'Slide up to lock  •  left to cancel';
+    if (hint) hint.textContent = 'Release to send';
   }
 }
 
 async function tmMicUp(e) {
   if (recHoldTimer) { clearTimeout(recHoldTimer); recHoldTimer = null; }
-  if (!recording) { recLockPending = false; return; }
+  const cur = document.getElementById('rec-cursor');
+  if (cur) cur.classList.remove('visible');
 
-  if (recLocked) {
-    // Recording continues — nothing to do on release
-    recPointerId = null;
-    return;
-  }
+  if (!recording) { recLockPending = false; return; }
 
   if (recCancelling) {
     tmRecCancelInternal();
   } else {
+    // Any release (locked or not) sends
     tmRecSend(e);
   }
+
   recPointerId = null;
   recCancelling = false;
+
   const bar = document.getElementById('rec-bar');
   if (bar) bar.classList.remove('cancelling', 'active', 'lock-hint');
-  const hint = document.getElementById('rec-hint');
-  if (hint) hint.textContent = 'Slide up to lock  •  left to cancel';
+  const lockField = document.getElementById('rec-lock-field');
+  if (lockField) {
+    lockField.classList.remove('visible', 'armed', 'locked');
+    const t = document.getElementById('rec-lock-field-text');
+    if (t) t.textContent = 'Slide up to lock';
+  }
 }
 
 function tmRecLock() {
   if (!recording || recLocked) return;
   recLocked = true;
   const bar = document.getElementById('rec-bar');
-  if (bar) {
-    bar.classList.add('locked');
-    bar.classList.remove('lock-hint');
+  if (bar) bar.classList.add('locked');
+  const lockField = document.getElementById('rec-lock-field');
+  if (lockField) {
+    lockField.classList.add('locked');
+    lockField.classList.remove('armed');
+    const t = document.getElementById('rec-lock-field-text');
+    if (t) t.textContent = 'Locked — release to send';
   }
-  // Release pointer capture so we stop receiving move events
-  try {
-    const btn = document.getElementById('mic-btn');
-    if (btn && btn.releasePointerCapture && recPointerId != null) {
-      btn.releasePointerCapture(recPointerId);
+  const cur = document.getElementById('rec-cursor');
+  if (cur) {
+    cur.classList.add('locked');
+    // Snap the cursor to the lock field position
+    if (lockField) {
+      const r = lockField.getBoundingClientRect();
+      cur.style.left = (r.left + r.width / 2) + 'px';
+      cur.style.top = (r.top + r.height / 2) + 'px';
     }
-  } catch(_){}
-  recPointerId = null;
+  }
   recCancelling = false;
-}
-
-async function tmMicTap(e) {
-  if (e) { e.preventDefault(); e.stopPropagation(); }
-  if (recording && recLocked) { tmRecSend(e); return; }
-  if (recording) { tmRecSend(e); return; }
-  await tmRecBegin();
-}
-
-async function tmRecBegin() {
-  if (recording) return;
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { alert('Recording not supported.'); return; }
-  // Check permission state first (Chrome-specific flow)
-  try {
-    if (navigator.permissions && navigator.permissions.query) {
-      const perm = await navigator.permissions.query({ name: 'microphone' });
-      if (perm.state === 'denied') {
-        alert(
-          'Microphone is BLOCKED for this site.\n\n' +
-          'Fix it:\n' +
-          '1. Tap the 🔒 lock icon next to the URL\n' +
-          '2. Tap Permissions\n' +
-          '3. Set Microphone → Allow\n' +
-          '4. Reload the page'
-        );
-        return;
-      }
-    }
-  } catch(_) {}
-
-  try {
-    activeStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  } catch (err) {
-    const name = (err && err.name) || '';
-    if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
-      alert(
-        'Microphone permission was denied.\n\n' +
-        'To enable:\n' +
-        '1. Tap the 🔒 icon next to the URL\n' +
-        '2. Tap Permissions → Microphone → Allow\n' +
-        '3. Reload the page'
-      );
-    } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
-      alert('No microphone found on this device.');
-    } else if (name === 'NotReadableError' || name === 'TrackStartError') {
-      alert('Microphone is already in use by another app. Close it and try again.');
-    } else {
-      alert('Could not access microphone: ' + name + '\n' + (err && err.message ? err.message : ''));
-    }
-    return;
-  }
-
-  try {
-    recAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const srcNode = recAudioCtx.createMediaStreamSource(activeStream);
-    recAnalyser = recAudioCtx.createAnalyser();
-    recAnalyser.fftSize = 256;
-    recAnalyser.smoothingTimeConstant = 0.55;
-    srcNode.connect(recAnalyser);
-  } catch(_) { recAudioCtx = null; recAnalyser = null; }
-
-  try {
-    const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm';
-    mediaRecorder = new MediaRecorder(activeStream, { mimeType: mime });
-  } catch (err) {
-    try { activeStream.getTracks().forEach(t => t.stop()); } catch(e){}
-    activeStream = null; alert('Could not start: ' + err.message); return;
-  }
-
-  audioChunks = []; currentBlob = null;
-  mediaRecorder.ondataavailable = ev => { if (ev.data.size) audioChunks.push(ev.data); };
-  mediaRecorder.onstop = () => {
-    recording = false;
-    recLocked = false;
-    if (recTimer) { clearInterval(recTimer); recTimer = null; }
-    if (recWaveRAF) { cancelAnimationFrame(recWaveRAF); recWaveRAF = null; }
-    try { if (recAudioCtx) { recAudioCtx.close(); recAudioCtx = null; } } catch(_){}
-    recAnalyser = null;
-    const btn = document.getElementById('mic-btn');
-    if (btn) btn.classList.remove('recording');
-    const bar = document.getElementById('rec-bar');
-    if (bar) bar.classList.remove('active', 'locked', 'lock-hint', 'cancelling');
-    try { if (activeStream) activeStream.getTracks().forEach(t => t.stop()); } catch(e){}
-    activeStream = null;
-    if (audioChunks.length === 0) return;
-    currentBlob = new Blob(audioChunks, { type: 'audio/webm' });
-  };
-
-  try { mediaRecorder.start(); } catch (err) {
-    try { activeStream.getTracks().forEach(t => t.stop()); } catch(e){}
-    activeStream = null; alert('Recorder failed: ' + err.message); return;
-  }
-
-  const wave = document.getElementById('rec-wave');
-  if (wave) {
-    wave.innerHTML = '';
-    for (let i = 0; i < 40; i++) {
-      const s = document.createElement('span');
-      s.dataset.idx = i;
-      wave.appendChild(s);
-    }
-  }
-
-  recStart = Date.now(); recording = true;
-  const btn = document.getElementById('mic-btn');
-  if (btn) btn.classList.add('recording');
-  const bar = document.getElementById('rec-bar');
-  if (bar) bar.classList.add('active');
-  document.getElementById('rec-time').textContent = '0:00';
-  const hint = document.getElementById('rec-hint');
-  if (hint) hint.textContent = 'Slide up to lock  •  left to cancel';
-
-  // Apply pending lock state (user slid up before recording started)
-  if (recLockPending) {
-    recLockPending = false;
-    tmRecLock();
-  }
-
-  recTimer = setInterval(() => {
-    const s = Math.floor((Date.now() - recStart) / 1000);
-    document.getElementById('rec-time').textContent = Math.floor(s/60) + ':' + String(s % 60).padStart(2, '0');
-    if (s >= 120 && recording) tmRecSend(null);
-  }, 200);
-
-  if (recAnalyser) {
-    const data = new Uint8Array(recAnalyser.frequencyBinCount);
-    const tick = () => {
-      if (!recording || !recAnalyser) return;
-      recAnalyser.getByteFrequencyData(data);
-      const spans = document.querySelectorAll('#rec-wave span');
-      const step = Math.floor(data.length / spans.length) || 1;
-      spans.forEach((sp, i) => {
-        const v = data[i * step] || 0;
-        const h = Math.max(3, Math.min(28, (v / 255) * 28));
-        sp.style.height = h + 'px';
-      });
-      recWaveRAF = requestAnimationFrame(tick);
-    };
-    tick();
-  } else {
-    const tick = () => {
-      if (!recording) return;
-      const spans = document.querySelectorAll('#rec-wave span');
-      spans.forEach(sp => { sp.style.height = (3 + Math.random() * 18).toFixed(1) + 'px'; });
-      recWaveRAF = requestAnimationFrame(() => setTimeout(tick, 120));
-    };
-    tick();
-  }
 }
 
 function tmRecStopFromLock(e) {
@@ -2026,6 +2039,25 @@ async function tmStartRecording() {
   try { mediaRecorder.start(); } catch (err) { try { activeStream.getTracks().forEach(t => t.stop()); } catch(e){} activeStream = null; alert('Recorder failed: ' + err.message); return; }
   recStart = Date.now(); recording = true;
   document.getElementById('rec-time').textContent = '0:00';
+
+  // Show recorder bar, lock target, and floating cursor
+  const bar = document.getElementById('rec-bar');
+  if (bar) bar.classList.add('active');
+  const lockField = document.getElementById('rec-lock-field');
+  if (lockField) {
+    lockField.classList.add('visible');
+    lockField.classList.remove('armed', 'locked');
+    const t = document.getElementById('rec-lock-field-text');
+    if (t) t.textContent = 'Slide up to lock';
+  }
+  const cur = document.getElementById('rec-cursor');
+  if (cur) {
+    cur.classList.add('visible');
+    cur.classList.remove('locked');
+  }
+  const hint = document.getElementById('rec-hint');
+  if (hint) hint.textContent = 'Release to send';
+
   recTimer = setInterval(() => {
     const s = Math.floor((Date.now() - recStart) / 1000);
     document.getElementById('rec-time').textContent = Math.floor(s/60) + ':' + String(s % 60).padStart(2, '0');
