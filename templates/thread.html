@@ -423,6 +423,64 @@ html.light .chat-screen.theme-editorial {
     width: min(115vw, 620px);
     height: min(115vw, 620px);
     flex-shrink: 0;
+    transform-origin: 50% 55%;
+    animation: wp-breathe 14s ease-in-out infinite;
+    will-change: transform, filter;
+    filter:
+      drop-shadow(0 22px 44px rgba(0,0,0,0.12))
+      drop-shadow(0 3px 10px rgba(0,0,0,0.06));
+  }
+
+  /* ---------- PHASE 1: CINEMATIC LAYER (all themes) ---------- */
+
+  /* Perspective container — scene lives in 3D */
+  .chat-wallpaper {
+    perspective: 1200px;
+    perspective-origin: 50% 42%;
+  }
+
+  /* Breathe + drift + micro-tilt — scene is suspended, alive */
+  @keyframes wp-breathe {
+    0%   { transform: translate3d(0, 0, 0) scale(0.985) rotateX(0deg); }
+    50%  { transform: translate3d(0, -5px, 0) scale(1.015) rotateX(0.8deg); }
+    100% { transform: translate3d(0, 0, 0) scale(0.985) rotateX(0deg); }
+  }
+
+  /* Vignette — focus pulled to center */
+  .chat-wallpaper::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background: radial-gradient(
+      ellipse at 50% 45%,
+      transparent 0%,
+      transparent 42%,
+      rgba(0, 0, 0, 0.06) 72%,
+      rgba(0, 0, 0, 0.16) 100%
+    );
+    animation: wp-vig-pulse 18s ease-in-out infinite;
+  }
+
+  @keyframes wp-vig-pulse {
+    0%   { opacity: 0.85; }
+    50%  { opacity: 1; }
+    100% { opacity: 0.85; }
+  }
+
+  /* Accent halo — theme-tinted glow behind scene */
+  .chat-wallpaper::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background: radial-gradient(
+      ellipse at 50% 50%,
+      color-mix(in srgb, var(--wallpaper-accent) 10%, transparent) 0%,
+      transparent 62%
+    );
   }
   .chat-messages { position: relative; }
   .chat-messages > .msg-row { position: relative; z-index: 2; }
