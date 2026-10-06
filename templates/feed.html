@@ -9,7 +9,7 @@
 
 {% if request.query_params.get('posted') == 'story' %}
 <div class="mb-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 p-3 text-sm fade-in">
-  Story posted — live for 24 hours.
+  Experience posted — live for 24 hours.
 </div>
 {% endif %}
 
@@ -26,7 +26,7 @@
     </h1>
     <p class="tm-hero-sub">
       {% if story_groups and story_groups|length > 1 %}
-        {{ story_groups|length - 1 }} {{ 'person' if story_groups|length - 1 == 1 else 'people' }} shared something today.
+        {{ story_groups|length - 1 }} {{ 'person' if story_groups|length - 1 == 1 else 'people' }} shared an experience today.
       {% else %}
         One tap from your next role.
       {% endif %}
@@ -38,7 +38,7 @@
 <section class="tm-stories-wrap mt-5">
   <div class="tm-stories">
 
-    <!-- Create story card -->
+    <!-- New experience card -->
     <button type="button" onclick="tmOpenComposer()" class="tm-fb-story tm-fb-story-create">
       <div class="tm-fb-story-top">
         {% if profile and profile.avatar_url %}
@@ -49,7 +49,7 @@
       </div>
       <div class="tm-fb-story-bottom">
         <div class="tm-fb-story-plus">+</div>
-        <div class="tm-fb-story-label">Create story</div>
+        <div class="tm-fb-story-label">New experience</div>
       </div>
     </button>
 
@@ -165,7 +165,13 @@
 </div>
 {% endif %}
 
-<!-- ============ STORY VIEWER ============ -->
+
+
+
+{% endblock %}
+
+{% block overlays %}
+<!-- ============ EXPERIENCE VIEWER ============ -->
 <div id="tm-story-viewer" class="tm-viewer hidden">
   <div class="tm-viewer-bars" id="tm-viewer-bars"></div>
   <div class="tm-viewer-head">
@@ -195,10 +201,10 @@
   </div>
 </div>
 
-<!-- ============ STORY COMPOSER ============ -->
+<!-- ============ EXPERIENCE COMPOSER ============ -->
 <div id="tm-composer" class="tm-viewer hidden">
   <div class="tm-viewer-head">
-    <div class="tm-viewer-name">New story</div>
+    <div class="tm-viewer-name">New experience</div>
     <button onclick="tmCloseComposer()" class="tm-viewer-close" aria-label="Close">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5"><path d="M6 6l12 12M6 18L18 6"/></svg>
     </button>
@@ -252,12 +258,16 @@
         </div>
       </div>
 
-      <button class="tm-btn tm-btn-primary w-full py-3 mt-4">Share to story</button>
+      <button class="tm-btn tm-btn-primary w-full py-3 mt-4">Share experience</button>
     </form>
   </div>
 </div>
+{% endblock %}
 
 <script>
+function tmImmersiveOn() { document.body.classList.add('tm-mode-immersive'); document.body.style.overflow = 'hidden'; }
+function tmImmersiveOff() { document.body.classList.remove('tm-mode-immersive'); document.body.style.overflow = ''; }
+
 const TM_STORY_GROUPS = {{ story_groups|tojson if story_groups else '[]' }};
 const TM_ME_ID = "{{ user.id }}";
 
@@ -279,7 +289,7 @@ function tmOpenStory(userId) {
   if (!tmViewer.queue.length) return;
   tmViewer.index = 0;
   document.getElementById('tm-story-viewer').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
+  tmImmersiveOn();
   tmRenderStory();
 }
 
@@ -329,7 +339,7 @@ function tmStoryPrev() {
 function tmCloseStory() {
   clearTimeout(tmViewer.timer);
   document.getElementById('tm-story-viewer').classList.add('hidden');
-  document.body.style.overflow = '';
+  tmImmersiveOff();
 }
 function tmStoryReply() {
   const input = document.getElementById('tm-viewer-reply');
@@ -345,11 +355,11 @@ function tmStoryReply() {
 
 function tmOpenComposer() {
   document.getElementById('tm-composer').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
+  tmImmersiveOn();
 }
 function tmCloseComposer() {
   document.getElementById('tm-composer').classList.add('hidden');
-  document.body.style.overflow = '';
+  tmImmersiveOff();
 }
 function tmComposerTab(tab, btn) {
   document.querySelectorAll('.tm-ctab').forEach(b => b.classList.remove('tm-ctab-on'));
@@ -375,5 +385,3 @@ async function toggleLike(id, btn) {
   }
 }
 </script>
-
-{% endblock %}
