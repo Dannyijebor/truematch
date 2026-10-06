@@ -287,6 +287,27 @@
     animation: rec-pulse 1.4s ease-out infinite;
   }
 
+
+  .rec-actions {
+    display: flex;
+    gap: 32px;
+    margin-top: 12px;
+  }
+  .rec-action {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .rec-action:active { transform: scale(0.9); }
+  .rec-cancel { background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.25); }
+  .rec-send { background: #00a884; box-shadow: 0 6px 20px rgba(0,168,132,0.5); }
+
 </style>
 
 <div class="chat-screen">
@@ -432,7 +453,7 @@
     <button class="composer-send" id="send-btn" onclick="tmOnSendBtn(event)" style="display:none;">
       <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
     </button>
-    <button class="composer-send" id="mic-btn" onmousedown="tmMicDown(event)" onmouseup="tmMicUp(event)" ontouchstart="tmMicDown(event)" ontouchend="tmMicUp(event)">
+    <button class="composer-send" id="mic-btn" onclick="tmMicTap(event)">
       <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
     </button>
   </div>
@@ -441,7 +462,15 @@
 <div id="rec-overlay" class="rec-overlay hidden">
   <div class="rec-dot"></div>
   <div class="rec-time" id="rec-time">0:00</div>
-  <div class="rec-hint">Release to send · Swipe up to cancel</div>
+  <div class="rec-hint">Recording voice message</div>
+  <div class="rec-actions">
+    <button type="button" onclick="tmRecCancel(event)" class="rec-action rec-cancel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" class="w-6 h-6"><path d="M6 6l12 12M6 18L18 6"/></svg>
+    </button>
+    <button type="button" onclick="tmRecSend(event)" class="rec-action rec-send">
+      <svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
 </div>
 
 <div id="sticker-sheet" class="sticker-sheet hidden">
@@ -651,102 +680,161 @@ async function tmPoll() {
 }
 tmPoll();
 
-// ---------- Voice recording ----------
+// ---------- Voice recording (tap-to-start, tap-to-send) ----------
 let mediaRecorder = null;
 let audioChunks = [];
 let recStart = 0;
 let recTimer = null;
-let recCancelled = false;
-let recording = false;   // active recording flag
-let recSent = false;     // has the current recording already been finalized
+let recording = false;
+let activeStream = null;
+let currentBlob = null;
 
-async function tmMicDown(e) {
-  if (e) e.preventDefault();
+async function tmMicTap(e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  if (recording) {
+    // Second tap on mic = send
+    tmRecSend(e);
+    return;
+  }
+  await tmStartRecording();
+}
+
+async function tmStartRecording() {
   if (recording) return;
+
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    alert('Recording not supported on this browser.'); return;
+    alert('Recording is not supported on this browser.');
+    return;
   }
 
-  // Ask permission up front
-  let stream;
+  // Ask for mic permission
   try {
-    stream = await navigator.mediaDevices.getUserMedia({audio: true});
+    activeStream = await navigator.mediaDevices.getUserMedia({audio: true});
   } catch (err) {
     alert('Microphone access is required to record voice notes.\n\nIf you saw "site can\'t ask", close any floating chat bubbles from other apps and try again.');
     return;
   }
 
+  // Start recorder
   try {
-    mediaRecorder = new MediaRecorder(stream);
-    audioChunks = [];
-    recCancelled = false;
-    recSent = false;
-    recording = true;
-    mediaRecorder.ondataavailable = ev => { if (ev.data.size) audioChunks.push(ev.data); };
-
-    // When recording stops → upload + send
-    mediaRecorder.onstop = async () => {
-      if (recSent) return;
-      recSent = true;
-      recording = false;
-      clearInterval(recTimer);
-      document.getElementById('rec-overlay').classList.add('hidden');
-      document.getElementById('mic-btn').classList.remove('tm-recording');
-      try { stream.getTracks().forEach(t => t.stop()); } catch(e){}
-
-      if (recCancelled || audioChunks.length === 0) return;
-      const duration = (Date.now() - recStart) / 1000;
-      if (duration < 0.8) return;
-
-      const blob = new Blob(audioChunks, {type: 'audio/webm'});
-      if (blob.size > 15 * 1024 * 1024) { alert('Voice too large'); return; }
-
-      try {
-        const presign = await fetch('/api/media/presign', {
-          method: 'POST', credentials: 'same-origin',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({filename: 'voice.webm', content_type: 'audio/webm', size: blob.size, kind: 'video'})
-        });
-        const pdata = await presign.json();
-        if (!pdata.ok) throw new Error(pdata.error || 'presign failed');
-        await new Promise((resolve, reject) => {
-          const xhr = new XMLHttpRequest();
-          xhr.open('PUT', pdata.upload_url);
-          xhr.setRequestHeader('Content-Type', 'audio/webm');
-          xhr.onload = () => xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error('upload failed'));
-          xhr.onerror = () => reject(new Error('network'));
-          xhr.send(blob);
-        });
-        await tmSend({ kind: 'voice', media_url: pdata.public_url, media_duration: duration });
-      } catch (err) {
-        alert('Voice send failed: ' + err.message);
-      }
-    };
-
-    mediaRecorder.start();
-    document.getElementById('rec-overlay').classList.remove('hidden');
-    document.getElementById('mic-btn').classList.add('tm-recording');
-    recStart = Date.now();
-    recTimer = setInterval(() => {
-      const s = Math.floor((Date.now() - recStart) / 1000);
-      const m = Math.floor(s / 60);
-      document.getElementById('rec-time').textContent = m + ':' + String(s % 60).padStart(2, '0');
-      // Auto-send at 2 minutes
-      if (s >= 120) tmMicUp();
-    }, 200);
+    const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm';
+    mediaRecorder = new MediaRecorder(activeStream, {mimeType: mime});
   } catch (err) {
+    try { activeStream.getTracks().forEach(t => t.stop()); } catch(e){}
+    activeStream = null;
+    alert('Could not start recorder: ' + err.message);
+    return;
+  }
+
+  audioChunks = [];
+  currentBlob = null;
+
+  mediaRecorder.ondataavailable = ev => { if (ev.data.size) audioChunks.push(ev.data); };
+
+  mediaRecorder.onstop = () => {
     recording = false;
-    alert('Could not start recording: ' + err.message);
+    if (recTimer) { clearInterval(recTimer); recTimer = null; }
+    document.getElementById('rec-overlay').classList.add('hidden');
+    document.getElementById('mic-btn').classList.remove('tm-recording');
+    try { if (activeStream) activeStream.getTracks().forEach(t => t.stop()); } catch(e){}
+    activeStream = null;
+
+    if (audioChunks.length === 0) return;
+    currentBlob = new Blob(audioChunks, {type: 'audio/webm'});
+  };
+
+  try {
+    mediaRecorder.start();
+  } catch (err) {
+    try { activeStream.getTracks().forEach(t => t.stop()); } catch(e){}
+    activeStream = null;
+    alert('Recorder failed: ' + err.message);
+    return;
+  }
+
+  // Show overlay + start timer
+  recStart = Date.now();
+  recording = true;
+  document.getElementById('rec-overlay').classList.remove('hidden');
+  document.getElementById('mic-btn').classList.add('tm-recording');
+  document.getElementById('rec-time').textContent = '0:00';
+
+  recTimer = setInterval(() => {
+    const s = Math.floor((Date.now() - recStart) / 1000);
+    const m = Math.floor(s / 60);
+    document.getElementById('rec-time').textContent = m + ':' + String(s % 60).padStart(2, '0');
+    // Auto-send at 2 minutes
+    if (s >= 120 && recording) tmRecSend(null);
+  }, 200);
+}
+
+function tmRecCancel(e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  if (!recording) return;
+  audioChunks = [];
+  try { mediaRecorder.stop(); } catch(err){}
+}
+
+async function tmRecSend(e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  if (!recording) return;
+
+  const duration = (Date.now() - recStart) / 1000;
+
+  // Stop recorder — the onstop handler creates the blob
+  try { mediaRecorder.stop(); } catch(err){}
+
+  // Wait for onstop to populate currentBlob
+  const startedAt = Date.now();
+  while (!currentBlob && Date.now() - startedAt < 2000) {
+    await new Promise(r => setTimeout(r, 50));
+  }
+
+  if (!currentBlob || currentBlob.size < 100) {
+    alert('Recording was too short.');
+    return;
+  }
+
+  if (currentBlob.size > 15 * 1024 * 1024) {
+    alert('Voice message too large (15 MB max).');
+    return;
+  }
+
+  try {
+    const presign = await fetch('/api/media/presign', {
+      method: 'POST', credentials: 'same-origin',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        filename: 'voice.webm',
+        content_type: 'audio/webm',
+        size: currentBlob.size,
+        kind: 'video'
+      })
+    });
+    const pdata = await presign.json();
+    if (!pdata.ok) throw new Error(pdata.error || 'presign failed');
+
+    await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('PUT', pdata.upload_url);
+      xhr.setRequestHeader('Content-Type', 'audio/webm');
+      xhr.onload = () => (xhr.status >= 200 && xhr.status < 300) ? resolve() : reject(new Error('Upload failed'));
+      xhr.onerror = () => reject(new Error('Network error'));
+      xhr.send(currentBlob);
+    });
+
+    await tmSend({ kind: 'voice', media_url: pdata.public_url, media_duration: duration });
+  } catch (err) {
+    alert('Could not send voice: ' + err.message);
+  } finally {
+    currentBlob = null;
+    audioChunks = [];
   }
 }
 
-function tmMicUp(e) {
-  if (e) e.preventDefault();
-  if (!recording || !mediaRecorder) return;
-  if (mediaRecorder.state === 'recording') {
-    try { mediaRecorder.stop(); } catch(err){}
-  }
-}
+// Expose for the composer button (kept for backward compatibility)
+function tmMicDown(e) { if (e) e.preventDefault(); }
+function tmMicUp(e) { if (e) e.preventDefault(); }
 
 // ---------- Attach ----------
 function tmToggleAttach(e) {
@@ -1057,45 +1145,6 @@ document.addEventListener('click', function(e) {
 
 
 // ============================================================
-// Global release listeners — catches release ANYWHERE on screen
-// while recording is active. Essential because the rec-overlay
-// covers the mic button and steals the touchend/mouseup event.
-// ============================================================
-document.addEventListener('touchend', function(e) {
-  if (recording) {
-    // Only treat as "send" if the gesture didn't move far up (cancel gesture)
-    tmMicUp(e);
-  }
-}, {passive: false});
-
-document.addEventListener('touchcancel', function(e) {
-  if (recording) tmMicUp(e);
-}, {passive: false});
-
-document.addEventListener('mouseup', function(e) {
-  if (recording) tmMicUp(e);
-});
-
-// Swipe-up-to-cancel on the overlay
-(function() {
-  var overlay = document.getElementById('rec-overlay');
-  if (!overlay) return;
-  var startY = 0;
-  overlay.addEventListener('touchstart', function(e) {
-    startY = e.touches[0].clientY;
-  }, {passive: true});
-  overlay.addEventListener('touchmove', function(e) {
-    if (!recording) return;
-    var dy = e.touches[0].clientY - startY;
-    if (dy < -80) {
-      // Swipe up → cancel
-      recCancelled = true;
-      overlay.querySelector('.rec-hint').textContent = 'Cancelled';
-      tmMicUp();
-    }
-  }, {passive: true});
-})();
-
 console.log('[TrueMatch] chat loaded');
 </script>
 
