@@ -232,6 +232,12 @@ html.light .tp-row-label { color: #111b21; }
 .chat-screen.theme-obsidian   { --bubble-mine: #4a5568; --bubble-mine-text: #f7fafc; --bubble-them: #1a1d24; --bubble-them-text: #e2e8f0; --chat-bg: #0c0e12; --chat-accent: #718096; }
 .chat-screen.theme-bordeaux   { --bubble-mine: #b8563a; --bubble-mine-text: #fbf2ed; --bubble-them: #241a16; --bubble-them-text: #ede4de; --chat-bg: #13100d; --chat-accent: #b8563a; }
 .chat-screen.theme-editorial  { --bubble-mine: #d4b896; --bubble-mine-text: #2a1f12; --bubble-them: #faf7f2; --bubble-them-text: #2a2018; --chat-bg: #efe9dd; --chat-accent: #b89968; }
+
+  #call-overlay.hidden,
+  #incoming-overlay.hidden {
+    display: none !important;
+  }
+
 </style>
 
 <div class="chat-screen theme-{{ chat_theme }}">
