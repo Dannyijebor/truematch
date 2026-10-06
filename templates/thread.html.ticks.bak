@@ -101,44 +101,12 @@ html.light .bubble-reply { background: rgba(0,0,0,0.06); }
 .voice-time { font-size: 11px; opacity: 0.7; flex-shrink: 0; }
 
 .msg-meta { display: flex; align-items: center; justify-content: flex-end; gap: 3px; font-size: 11px; margin-top: 2px; opacity: 0.6; }
-/* ---------- Read receipts — world-class ---------- */
-.tick {
-  display: inline-flex;
-  align-items: center;
-  color: #8696a0;
-  transition: color 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-  vertical-align: middle;
-  line-height: 0;
-}
+.tick { display: inline-flex; align-items: center; transition: color 0.25s ease; }
 .tick.read { color: #53bdeb; }
-.tick svg {
-  width: 15px;
-  height: 11px;
-  overflow: visible;
-  flex-shrink: 0;
-}
-.tick svg.tick-b { margin-left: -5px; }
-.tick svg.tick-b path {
-  stroke-dasharray: 14;
-  stroke-dashoffset: 14;
-  transition: stroke-dashoffset 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.05s;
-}
-.tick.read svg.tick-b path { stroke-dashoffset: 0; }
-.tick.tick-fresh svg.tick-b path {
-  animation: tick-draw 0.36s cubic-bezier(0.4, 0, 0.2, 1) both;
-}
-.tick.tick-fresh {
-  animation: tick-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.24s both;
-}
-@keyframes tick-draw {
-  from { stroke-dashoffset: 14; }
-  to   { stroke-dashoffset: 0; }
-}
-@keyframes tick-pop {
-  0%   { transform: scale(1);    }
-  38%  { transform: scale(1.18); }
-  100% { transform: scale(1);    }
-}
+.tick svg { width: 15px; height: 11px; }
+.tick.double svg:last-child { margin-left: -6px; }
+@keyframes tick-pop { 0% { transform: scale(1); } 40% { transform: scale(1.4); } 100% { transform: scale(1); } }
+.tick.read.tick-fresh { animation: tick-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
 
 .chat-composer {
   display: flex; align-items: flex-end; gap: 6px;
@@ -1312,7 +1280,7 @@ html.light .chat-screen.theme-editorial {
         <div class="msg-meta">
           <span>{{ m.created_at[11:16] }}</span>
           {% if m.from_me %}
-            <span class="tick {% if m.read %}read{% endif %}">
+            <span class="tick double {% if m.read %}read{% endif %}">
               <svg viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 6l3.5 3.5L11 3"/></svg>
               <svg viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 6l3.5 3.5L11 3"/></svg>
             </span>
@@ -1551,7 +1519,7 @@ function tmRenderBubble(m) {
   } else if (m.kind === 'sticker') {
     contentHTML = (m.media_url && m.media_url.startsWith('http')) ? `<img src="${m.media_url}" class="sticker-img">` : `<span class="sticker-emoji">${m.body || m.media_url || '🙂'}</span>`;
   } else contentHTML = `<span class="msg-text">${(m.body||'').replace(/</g,'&lt;')}</span>`;
-  const ticksHTML = isMine ? `<span class="tick ${m.read ? 'read' : ''}"><svg class="tick-a" viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6l3.5 3.5L11 3"/></svg><svg class="tick-b" viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6l3.5 3.5L11 3"/></svg></span>` : '';
+  const ticksHTML = isMine ? `<span class="tick double ${m.read ? 'read' : ''}"><svg viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 6l3.5 3.5L11 3"/></svg><svg viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 6l3.5 3.5L11 3"/></svg></span>` : '';
   return `<div class="bubble ${isMine ? 'mine' : 'theirs'}" data-bubble-id="${m.id}">${replyHTML}${contentHTML}<div class="msg-meta"><span>${(m.created_at || '').substring(11, 16)}</span>${ticksHTML}</div></div>`;
 }
 function tmAppendMessage(m) {
@@ -1577,7 +1545,7 @@ async function tmPoll() {
           const tick = existing.querySelector('.tick');
           if (tick && m.read && !tick.classList.contains('read')) {
             tick.classList.add('read', 'tick-fresh');
-            setTimeout(() => tick.classList.remove('tick-fresh'), 850);
+            setTimeout(() => tick.classList.remove('tick-fresh'), 900);
           }
         }
         if (m.created_at) lastTs = m.created_at;
