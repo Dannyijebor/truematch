@@ -460,30 +460,54 @@ html.light .chat-screen.theme-editorial {
   html.light .man-night-only { display: none; }
 
   /* ---------- Manhattan celestial: moon ⇄ sun morph + travel ---------- */
+  /* Wrapper for X axis (main travel) */
   .man-celestial {
-    transform: translate(92px, 98px);
-    transition: transform 1.8s cubic-bezier(0.45, 0.05, 0.35, 1);
+    transform: translate(80px, 0);
+    transition: transform 3.4s cubic-bezier(0.5, 0, 0.5, 1);
     transform-box: view-box;
     transform-origin: 0 0;
   }
   html:not(.light) .man-celestial {
-    transform: translate(392px, 88px);
+    transform: translate(400px, 0);
   }
+
+  /* Inner wrapper for Y axis — creates the arc */
+  .man-celestial > .man-cel-arc {
+    transform: translate(0, 98px);
+    transition: transform 1.7s cubic-bezier(0.5, 0, 0.5, 1);
+    transform-box: view-box;
+    transform-origin: 0 0;
+  }
+  html:not(.light) .man-celestial > .man-cel-arc {
+    transform: translate(0, 88px);
+  }
+
+  /* Moon fades out FAST on light-mode switch, in SLOW on dark */
   .man-cel-sun {
     opacity: 1;
-    transition: opacity 0.6s ease 0.4s;
+    transition: opacity 0.8s ease 1.4s;
   }
   html:not(.light) .man-cel-sun {
     opacity: 0;
-    transition: opacity 0.55s ease;
+    transition: opacity 0.7s ease 0.4s;
   }
   .man-cel-moon {
     opacity: 0;
-    transition: opacity 0.55s ease;
+    transition: opacity 0.7s ease 0.4s;
   }
   html:not(.light) .man-cel-moon {
     opacity: 1;
-    transition: opacity 0.6s ease 0.4s;
+    transition: opacity 0.8s ease 1.4s;
+  }
+
+  /* Warm bloom — peaks at midpoint of the flight */
+  .man-cel-bloom {
+    animation: man-bloom-pulse 3.4s ease-in-out;
+  }
+  @keyframes man-bloom-pulse {
+    0%, 100% { r: 0; opacity: 0; }
+    42%      { r: 60; opacity: 0.85; }
+    58%      { r: 70; opacity: 0.6; }
   }
 
   /* ---------- Manhattan day/night toggle ---------- */

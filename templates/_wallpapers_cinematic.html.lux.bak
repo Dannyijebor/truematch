@@ -327,26 +327,6 @@
       <stop offset="0%" stop-color="var(--man-road-1)"/>
       <stop offset="100%" stop-color="var(--man-road-2)"/>
     </linearGradient>
-    <radialGradient id="man-sun-outer" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#fff3c8" stop-opacity="0.9"/>
-      <stop offset="60%" stop-color="#ffd66a" stop-opacity="0.45"/>
-      <stop offset="100%" stop-color="#ffb840" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="man-sun-core" cx="42%" cy="38%" r="60%">
-      <stop offset="0%" stop-color="#fff8dc"/>
-      <stop offset="55%" stop-color="#ffe090"/>
-      <stop offset="100%" stop-color="#e8a840"/>
-    </radialGradient>
-    <radialGradient id="man-moon-face" cx="38%" cy="34%" r="65%">
-      <stop offset="0%" stop-color="#f5faff"/>
-      <stop offset="70%" stop-color="#dbe5f2"/>
-      <stop offset="100%" stop-color="#a8b8cc"/>
-    </radialGradient>
-    <radialGradient id="man-bloom" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#ffe8a0" stop-opacity="0.9"/>
-      <stop offset="60%" stop-color="#ffb860" stop-opacity="0.35"/>
-      <stop offset="100%" stop-color="#ffb860" stop-opacity="0"/>
-    </radialGradient>
     <radialGradient id="man-sunhalo" cx="50%" cy="50%" r="50%">
       <stop offset="0%" stop-color="var(--man-sun)" stop-opacity="0.75"/>
       <stop offset="45%" stop-color="var(--man-sun)" stop-opacity="0.18"/>
@@ -384,38 +364,31 @@
       <circle cx="325" cy="48" r="0.5" opacity="0.4"/>
     </g>
 
-    <!-- Celestial body — morphs moon↔sun, glides across the sky -->
+    <!-- Celestial body — morphs moon↔sun and travels across the sky -->
     <g class="man-celestial">
-      <g class="man-cel-arc">
       <g class="man-cel-sun">
-        <circle r="88" fill="url(#man-sunhalo)"/>
-        <circle r="52" fill="url(#man-sun-outer)"/>
-        <circle r="34" fill="url(#man-sun-core)"/>
-        <circle cx="-10" cy="-8" r="10" fill="#fff" opacity="0.55"/>
-        <circle cx="-14" cy="-12" r="4" fill="#fff" opacity="0.9"/>
-        <g stroke="var(--man-sun-ray)" stroke-width="1.4" stroke-linecap="round" opacity="0.45">
-          <line x1="0" y1="-50" x2="0" y2="-66"/>
-          <line x1="0" y1="50" x2="0" y2="66"/>
-          <line x1="-50" y1="0" x2="-66" y2="0"/>
-          <line x1="50" y1="0" x2="66" y2="0"/>
-          <line x1="-36" y1="-36" x2="-48" y2="-48"/>
-          <line x1="36" y1="36" x2="48" y2="48"/>
-          <line x1="36" y1="-36" x2="48" y2="-48"/>
-          <line x1="-36" y1="36" x2="-48" y2="48"/>
+        <circle r="72" fill="url(#man-sunhalo)"/>
+        <circle r="30" fill="var(--man-sun)"/>
+        <circle r="30" fill="none" stroke="var(--man-sun-edge)" stroke-width="0.5" opacity="0.6"/>
+        <circle cx="-8" cy="-6" r="6" fill="#fff" opacity="0.45"/>
+        <g stroke="var(--man-sun-ray)" stroke-width="1.2" stroke-linecap="round" opacity="0.35">
+          <line x1="0" y1="-46" x2="0" y2="-58"/>
+          <line x1="0" y1="46" x2="0" y2="58"/>
+          <line x1="-46" y1="0" x2="-58" y2="0"/>
+          <line x1="46" y1="0" x2="58" y2="0"/>
+          <line x1="-33" y1="-33" x2="-42" y2="-42"/>
+          <line x1="33" y1="33" x2="42" y2="42"/>
+          <line x1="33" y1="-33" x2="42" y2="-42"/>
+          <line x1="-33" y1="33" x2="-42" y2="42"/>
         </g>
       </g>
       <g class="man-cel-moon">
-        <circle r="78" fill="url(#man-moonhalo)"/>
-        <circle r="32" fill="url(#man-moon-face)"/>
-        <circle cx="-14" cy="-10" r="30" fill="var(--man-sky-1)" opacity="0.98"/>
-        <circle cx="-8" cy="-2" r="1.5" fill="var(--man-moon-shade)" opacity="0.35"/>
-        <circle cx="0" cy="8" r="1.1" fill="var(--man-moon-shade)" opacity="0.3"/>
-        <circle cx="8" cy="-4" r="0.9" fill="var(--man-moon-shade)" opacity="0.28"/>
-        <circle cx="4" cy="14" r="0.8" fill="var(--man-moon-shade)" opacity="0.25"/>
-        <circle r="34" fill="none" stroke="var(--man-moon)" stroke-width="0.4" opacity="0.35"/>
-      </g>
-      <!-- Warm bloom that peaks mid-transition -->
-      <circle r="0" fill="var(--man-bloom)" opacity="0" class="man-cel-bloom"/>
+        <circle r="60" fill="url(#man-moonhalo)"/>
+        <circle r="22" fill="var(--man-moon)"/>
+        <circle cx="-10" cy="-8" r="20" fill="var(--man-sky-1)" opacity="0.95"/>
+        <circle cx="-6" cy="0" r="1.2" fill="var(--man-moon-shade)" opacity="0.4"/>
+        <circle cx="0" cy="6" r="0.9" fill="var(--man-moon-shade)" opacity="0.35"/>
+        <circle cx="6" cy="-4" r="0.7" fill="var(--man-moon-shade)" opacity="0.3"/>
       </g>
     </g>
 
@@ -476,111 +449,33 @@
       <polygon points="486,252 500,252 500,320 486,320"/>
     </g>
 
-    <!-- ============ MID: classic art-deco skyline ============ -->
+    <!-- ============ MID BACKGROUND: detailed buildings with window grids ============ -->
     <g fill="var(--man-bld-mid)">
-
-      <!-- Tower 1: stepped Empire-style with spire -->
-      <polygon points="18,200 70,200 70,410 18,410"/>
-      <polygon points="24,188 64,188 64,200 24,200"/>
-      <polygon points="30,176 58,176 58,188 30,188"/>
-      <polygon points="36,166 52,166 52,176 36,176"/>
-      <line x1="44" y1="166" x2="44" y2="140" stroke="var(--man-bld-mid)" stroke-width="1.6"/>
-      <circle cx="44" cy="140" r="1.4" fill="var(--man-win-warm)">
-        <animate attributeName="opacity" values="1;0.15;1" dur="2.2s" repeatCount="indefinite"/>
+      <!-- Building 1: tall, setback spire -->
+      <polygon points="18,205 68,205 68,240 76,240 76,268 66,268 66,410 18,410"/>
+      <!-- Building 2: flat top, antenna -->
+      <polygon points="82,225 132,225 132,410 82,410"/>
+      <line x1="98" y1="225" x2="98" y2="205" stroke="var(--man-bld-mid)" stroke-width="1.5"/>
+      <line x1="116" y1="225" x2="116" y2="212" stroke="var(--man-bld-mid)" stroke-width="1"/>
+      <!-- Building 3: stepped crown -->
+      <polygon points="142,195 192,195 192,225 200,225 200,255 190,255 190,410 142,410"/>
+      <!-- Building 4: shorter -->
+      <polygon points="206,240 244,240 244,410 206,410"/>
+      <!-- Building 5: very tall, spire -->
+      <polygon points="256,175 300,175 300,210 310,210 310,245 298,245 298,410 256,410"/>
+      <line x1="278" y1="175" x2="278" y2="145" stroke="var(--man-bld-mid)" stroke-width="1.8"/>
+      <circle cx="278" cy="145" r="1.5" fill="var(--man-win-warm)">
+        <animate attributeName="opacity" values="1;0.2;1" dur="2s" repeatCount="indefinite"/>
       </circle>
-
-      <!-- Tower 2: flat-roof with cornice + water tower -->
-      <polygon points="80,222 136,222 136,410 80,410"/>
-      <rect x="78" y="218" width="60" height="5" fill="var(--man-bld-front)"/>
-      <rect x="78" y="223" width="60" height="2" fill="var(--man-win-warm)" opacity="0.35"/>
-      <ellipse cx="102" cy="210" rx="7" ry="5" fill="var(--man-bld-mid)"/>
-      <line x1="96" y1="215" x2="96" y2="222" stroke="var(--man-bld-mid)" stroke-width="0.8"/>
-      <line x1="108" y1="215" x2="108" y2="222" stroke="var(--man-bld-mid)" stroke-width="0.8"/>
-
-      <!-- Tower 3: Hero deco tower — Chrysler-style crown -->
-      <polygon points="146,180 200,180 200,410 146,410"/>
-      <polygon points="152,166 194,166 194,180 152,180"/>
-      <polygon points="158,152 188,152 188,166 158,166"/>
-      <polygon points="164,140 182,140 182,152 164,152"/>
-      <!-- Crown sunburst -->
-      <g stroke="var(--man-win-warm)" stroke-width="1" opacity="0.7" fill="none">
-        <path d="M 164 140 Q 173 122 182 140"/>
-        <path d="M 165 141 Q 173 128 181 141"/>
-        <path d="M 166 142 Q 173 134 180 142"/>
-      </g>
-      <line x1="173" y1="120" x2="173" y2="140" stroke="var(--man-bld-mid)" stroke-width="1.6"/>
-      <circle cx="173" cy="120" r="1.3" fill="var(--man-win-warm)"/>
-
-      <!-- Tower 4: mid block with setbacks -->
-      <polygon points="208,238 246,238 246,410 208,410"/>
-      <polygon points="212,228 242,228 242,238 212,238"/>
-      <rect x="206" y="226" width="42" height="3" fill="var(--man-bld-front)"/>
-
-      <!-- Tower 5: second-tall tower with antenna cluster -->
-      <polygon points="256,168 308,168 308,410 256,410"/>
-      <polygon points="262,156 302,156 302,168 262,168"/>
-      <polygon points="268,146 296,146 296,156 268,156"/>
-      <line x1="274" y1="146" x2="274" y2="118" stroke="var(--man-bld-mid)" stroke-width="1.2"/>
-      <line x1="282" y1="146" x2="282" y2="110" stroke="var(--man-bld-mid)" stroke-width="1.4"/>
-      <line x1="290" y1="146" x2="290" y2="122" stroke="var(--man-bld-mid)" stroke-width="1.2"/>
-      <circle cx="282" cy="110" r="1.4" fill="#ff5a4a">
-        <animate attributeName="opacity" values="1;0.15;1" dur="1.6s" repeatCount="indefinite"/>
-      </circle>
-
-      <!-- Tower 6: deco corner with vertical fluting -->
-      <polygon points="316,220 366,220 366,410 316,410"/>
-      <polygon points="322,208 360,208 360,220 322,220"/>
-      <rect x="314" y="206" width="54" height="3" fill="var(--man-bld-front)"/>
-
-      <!-- Tower 7: right-side tower with water tank -->
-      <polygon points="376,232 434,232 434,410 376,410"/>
-      <polygon points="382,222 428,222 428,232 382,232"/>
-      <rect x="374" y="220" width="62" height="3" fill="var(--man-bld-front)"/>
-      <ellipse cx="405" cy="212" rx="8" ry="5" fill="var(--man-bld-mid)"/>
-      <line x1="398" y1="217" x2="398" y2="222" stroke="var(--man-bld-mid)" stroke-width="0.8"/>
-      <line x1="412" y1="217" x2="412" y2="222" stroke="var(--man-bld-mid)" stroke-width="0.8"/>
-
-      <!-- Tower 8: right edge frame -->
-      <polygon points="442,214 500,214 500,410 442,410"/>
-      <rect x="440" y="210" width="60" height="4" fill="var(--man-bld-front)"/>
-    </g>
-
-    <!-- Stone band texture — horizontal lines across towers -->
-    <g stroke="var(--man-bld-front)" stroke-width="0.4" opacity="0.55">
-      <line x1="18" y1="240" x2="70" y2="240"/><line x1="18" y1="280" x2="70" y2="280"/>
-      <line x1="18" y1="320" x2="70" y2="320"/><line x1="18" y1="360" x2="70" y2="360"/>
-      <line x1="80" y1="260" x2="136" y2="260"/><line x1="80" y1="300" x2="136" y2="300"/>
-      <line x1="80" y1="340" x2="136" y2="340"/><line x1="80" y1="380" x2="136" y2="380"/>
-      <line x1="146" y1="220" x2="200" y2="220"/><line x1="146" y1="270" x2="200" y2="270"/>
-      <line x1="146" y1="320" x2="200" y2="320"/><line x1="146" y1="370" x2="200" y2="370"/>
-      <line x1="256" y1="210" x2="308" y2="210"/><line x1="256" y1="260" x2="308" y2="260"/>
-      <line x1="256" y1="310" x2="308" y2="310"/><line x1="256" y1="360" x2="308" y2="360"/>
-      <line x1="316" y1="260" x2="366" y2="260"/><line x1="316" y1="310" x2="366" y2="310"/>
-      <line x1="316" y1="360" x2="366" y2="360"/>
-      <line x1="376" y1="270" x2="434" y2="270"/><line x1="376" y1="320" x2="434" y2="320"/>
-      <line x1="376" y1="370" x2="434" y2="370"/>
-    </g>
-
-    <!-- Rim lighting on the moon-facing edge (right at night) -->
-    <g class="man-night-only" stroke="var(--man-moon)" stroke-width="0.6" opacity="0.4" fill="none">
-      <line x1="70" y1="200" x2="70" y2="410"/>
-      <line x1="136" y1="222" x2="136" y2="410"/>
-      <line x1="200" y1="180" x2="200" y2="410"/>
-      <line x1="246" y1="238" x2="246" y2="410"/>
-      <line x1="308" y1="168" x2="308" y2="410"/>
-      <line x1="366" y1="220" x2="366" y2="410"/>
-      <line x1="434" y1="232" x2="434" y2="410"/>
-    </g>
-
-    <!-- Rim lighting on the sun-facing edge (left in day) -->
-    <g class="man-day-only" stroke="var(--man-sun)" stroke-width="0.8" opacity="0.55" fill="none">
-      <line x1="18" y1="200" x2="18" y2="410"/>
-      <line x1="80" y1="222" x2="80" y2="410"/>
-      <line x1="146" y1="180" x2="146" y2="410"/>
-      <line x1="208" y1="238" x2="208" y2="410"/>
-      <line x1="256" y1="168" x2="256" y2="410"/>
-      <line x1="316" y1="220" x2="316" y2="410"/>
-      <line x1="376" y1="232" x2="376" y2="410"/>
+      <!-- Building 6: tiered -->
+      <polygon points="318,215 372,215 372,240 380,240 380,265 368,265 368,410 318,410"/>
+      <!-- Building 7: with water tower -->
+      <polygon points="388,235 448,235 448,410 388,410"/>
+      <ellipse cx="410" cy="228" rx="7" ry="5" fill="var(--man-bld-mid)"/>
+      <line x1="404" y1="233" x2="404" y2="245" stroke="var(--man-bld-mid)" stroke-width="0.8"/>
+      <line x1="416" y1="233" x2="416" y2="245" stroke="var(--man-bld-mid)" stroke-width="0.8"/>
+      <!-- Building 8: right edge frame -->
+      <polygon points="458,220 500,220 500,410 458,410"/>
     </g>
 
     <!-- Window grids — cool white/warm mixed, varied -->
