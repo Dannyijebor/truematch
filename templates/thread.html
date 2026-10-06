@@ -1433,21 +1433,21 @@ html.light .chat-screen.theme-editorial {
     </button>
   </div>
 
-  <div class="chat-composer" style="display:flex !important;flex-direction:row !important;align-items:flex-end !important;flex-wrap:nowrap !important;gap:6px !important;">
-    <button class="composer-btn" onclick="tmToggleAttach(event)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+  <div class="chat-composer" style="display:flex;flex-direction:row;flex-wrap:nowrap;align-items:flex-end;gap:6px;padding:8px 8px calc(10px + env(safe-area-inset-bottom, 0px));background:rgba(11,20,26,0.98);backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0;width:100%;box-sizing:border-box;">
+    <button class="composer-btn" onclick="tmToggleAttach(event)" style="width:40px;height:40px;flex:0 0 40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:#8696a0;padding:0;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
     </button>
-    <div class="composer-input-wrap">
-      <textarea id="msg-input" class="composer-input" rows="1" placeholder="Message" maxlength="4000" oninput="tmAutoGrow(this); tmToggleSendMic();"></textarea>
-      <button class="composer-btn" onclick="tmOpenStickers()" style="width:32px;height:32px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+    <div class="composer-input-wrap" style="flex:1 1 auto;min-width:0;background:#202c33;border-radius:22px;padding:4px 6px 4px 14px;display:flex;align-items:center;gap:6px;box-sizing:border-box;">
+      <textarea id="msg-input" class="composer-input" rows="1" placeholder="Message" maxlength="4000" oninput="tmAutoGrow(this); tmToggleSendMic();" style="flex:1 1 auto;min-width:0;background:transparent;border:none;outline:none;color:#e9edef;font-size:15px;padding:8px 0;resize:none;max-height:100px;line-height:1.35;font-family:inherit;"></textarea>
+      <button class="composer-btn" onclick="tmOpenStickers()" style="width:32px;height:32px;flex:0 0 32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:#8696a0;padding:0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:22px;height:22px;"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
       </button>
     </div>
-    <button class="composer-send" id="send-btn" onclick="tmOnSendBtn(event)" style="display:none;">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    <button class="composer-send" id="send-btn" onclick="tmOnSendBtn(event)" style="display:none;width:44px;height:44px;flex:0 0 44px;border-radius:50%;background:var(--chat-accent,#00a884);color:#fff;align-items:center;justify-content:center;border:none;cursor:pointer;padding:0;">
+      <svg viewBox="0 0 24 24" fill="currentColor" style="width:20px;height:20px;"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
     </button>
-    <button class="composer-send" id="mic-btn" onpointerdown="tmMicDown(event)" onpointermove="tmMicMove(event)" onpointerup="tmMicUp(event)" onpointercancel="tmMicUp(event)" onclick="event.preventDefault();event.stopPropagation();">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
+    <button class="composer-send" id="mic-btn" onpointerdown="tmMicDown(event)" onpointermove="tmMicMove(event)" onpointerup="tmMicUp(event)" onpointercancel="tmMicUp(event)" onclick="event.preventDefault();event.stopPropagation();" style="width:44px;height:44px;flex:0 0 44px;border-radius:50%;background:var(--chat-accent,#00a884);color:#fff;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;padding:0;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;">
+      <svg viewBox="0 0 24 24" fill="currentColor" style="width:20px;height:20px;"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
     </button>
   </div>
 </div>
