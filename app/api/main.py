@@ -695,3 +695,30 @@ def debug_crash():
         info["setup_error"] = f"{type(e).__name__}: {e}"
         info["traceback"] = traceback.format_exc()
     return info
+
+
+@app.get("/debug-landing")
+def debug_landing():
+    """TEMPORARY: run the landing render and return any traceback."""
+    import traceback
+    try:
+        from app.api.web import templates, _ctx, current_user_web
+        from app.db.session import get_db
+        from starlette.requests import Request as R
+        scope = {"type":"http","method":"GET","path":"/","headers":[],"query_string":b"",
+                 "server":("x",80),"client":("x",0),"scheme":"https"}
+        req = R(scope)
+        gen = get_db()
+        db = next(gen)
+        try:
+            user = current_user_web(req, db)
+            ctx = _ctx(req)
+            # Try the same call the landing route makes
+            resp = templates.TemplateResponse(req, "landing.html", ctx)
+            body = resp.body.decode("utf-8", errors="replace")
+            return {"ok": True, "len": len(body), "head": body[:200]}
+        finally:
+            try: next(gen)
+            except StopIteration: pass
+    except Exception as e:
+        return {"error": f"{type(e).__name__}: {e}", "traceback": traceback.format_exc()}
