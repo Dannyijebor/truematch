@@ -2047,14 +2047,15 @@ async function tmRecSend(e) {
     const presign = await fetch('/api/media/presign', {method: 'POST', credentials: 'same-origin', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({filename: 'voice.webm', content_type: 'audio/webm', size: currentBlob.size, kind: 'audio'})});
     const pdata = await presign.json();
     if (!pdata.ok) throw new Error(pdata.error || 'presign failed');
-    await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open('PUT', pdata.upload_url);
-      xhr.setRequestHeader('Content-Type', 'audio/webm');
-      xhr.onload = () => (xhr.status >= 200 && xhr.status < 300) ? resolve() : reject(new Error('Upload failed'));
-      xhr.onerror = () => reject(new Error('Network error'));
-      xhr.send(currentBlob);
-    });
+    const upRes = await fetch(pdata.upload_url, {
+        method: 'PUT',
+        body: currentBlob,
+        headers: { 'Content-Type': 'audio/webm' },
+      });
+      if (!upRes.ok) {
+        const txt = await upRes.text().catch(() => '');
+        throw new Error('Upload failed (' + upRes.status + '): ' + txt.slice(0, 200));
+      }
     await tmSend({ kind: 'voice', media_url: pdata.public_url, media_duration: duration });
   } catch (err) { alert('Could not send voice: ' + err.message); }
   finally { currentBlob = null; audioChunks = []; }
@@ -2070,14 +2071,15 @@ document.getElementById('image-input').addEventListener('change', async function
     const presign = await fetch('/api/media/presign', {method: 'POST', credentials: 'same-origin', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({filename: file.name, content_type: file.type, size: file.size, kind: 'image'})});
     const pdata = await presign.json();
     if (!pdata.ok) throw new Error(pdata.error || 'presign failed');
-    await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open('PUT', pdata.upload_url);
-      xhr.setRequestHeader('Content-Type', file.type);
-      xhr.onload = () => xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error('upload failed'));
-      xhr.onerror = () => reject(new Error('network'));
-      xhr.send(file);
-    });
+    const upRes = await fetch(pdata.upload_url, {
+        method: 'PUT',
+        body: file,
+        headers: { 'Content-Type': file.type },
+      });
+      if (!upRes.ok) {
+        const txt = await upRes.text().catch(() => '');
+        throw new Error('Upload failed (' + upRes.status + '): ' + txt.slice(0, 200));
+      }
     await tmSend({ kind: 'image', media_url: pdata.public_url });
   } catch (err) { alert('Upload failed: ' + err.message); }
   finally { e.target.value = ''; }

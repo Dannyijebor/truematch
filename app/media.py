@@ -72,7 +72,8 @@ def presign_upload(user_id, filename: str, content_type: str, size: int, kind: s
         Params={
             "Bucket": bucket,
             "Key": key,
-            "ContentType": content_type,
+            # NOTE: ContentType intentionally omitted — R2 breaks the signature
+            # if the browser normalizes or appends a charset to the header.
         },
         ExpiresIn=600,  # 10 minutes
     )
