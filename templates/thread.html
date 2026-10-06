@@ -1435,4 +1435,14 @@ function tmToggleTheme(e) {
 console.log('[TrueMatch] chat loaded');
 </script>
 
+<script>
+(function(){
+  if (location.hash !== '#study') return;
+  var watch = document.querySelector('.wp-savile:not(.wp-savile-study)');
+  var study = document.querySelector('.wp-savile-study');
+  if (watch) watch.style.display = 'none';
+  if (study) study.style.display = '';
+  console.log('[TrueMatch] Study scene active');
+})();
+</script>
 {% endblock %}
