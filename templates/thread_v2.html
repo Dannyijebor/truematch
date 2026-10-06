@@ -1265,8 +1265,6 @@ html.light .chat-screen.theme-editorial {
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 22px;
   padding: 14px 18px !important;
-  min-height: 80px;
-  justify-content: center;
   z-index: 9100;
   box-shadow:
     0 20px 48px rgba(0, 0, 0, 0.5),
@@ -1467,6 +1465,8 @@ html.light .rec-pause {
 
 /* ---------- Locked state ---------- */
 .rec-bar.locked {
+  min-height: 92px !important;
+  justify-content: center !important;
   border-color: color-mix(in srgb, var(--chat-accent, #00a884) 40%, transparent);
   box-shadow:
     0 20px 48px rgba(0, 0, 0, 0.5),
@@ -2240,14 +2240,30 @@ async function tmMicUp(e) {
   if (recHoldTimer) { clearTimeout(recHoldTimer); recHoldTimer = null; }
   tmDetachDocListeners();
 
-  // If locked, do NOTHING on release — user must tap Send or Trash
+  const cur = document.getElementById('rec-cursor');
+  const micEl = document.getElementById('mic-btn');
+
+  // If locked, do NOTHING — user must tap Send or Trash
   if (recLocked) {
     recPointerId = null;
     return;
   }
 
-  const cur = document.getElementById('rec-cursor');
-  if (cur) cur.classList.remove('visible');
+  // Animate the cursor back to the mic position before hiding
+  if (cur && micEl) {
+    const mr = micEl.getBoundingClientRect();
+    cur.style.transition = 'left 0.34s cubic-bezier(0.4, 0, 0.2, 1), top 0.34s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.28s ease 0.14s';
+    cur.style.left = (mr.left + mr.width / 2) + 'px';
+    cur.style.top = (mr.top + mr.height / 2) + 'px';
+    setTimeout(() => {
+      cur.classList.remove('visible');
+      setTimeout(() => {
+        cur.style.transition = '';
+        cur.style.left = '';
+        cur.style.top = '';
+      }, 320);
+    }, 340);
+  }
 
   if (!recording) { recLockPending = false; return; }
 
@@ -2269,6 +2285,7 @@ async function tmMicUp(e) {
     if (t) t.textContent = 'Slide up to lock';
   }
 }
+
 
 function tmRecLock() {
   if (!recording || recLocked) return;
