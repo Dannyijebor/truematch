@@ -516,6 +516,80 @@ html.light .chat-screen.theme-editorial {
   .man-night-only { display: inline; }
   html.light .man-night-only { display: none; }
 
+  /* ---------- Aspen celestial ---------- */
+  .asp-celestial {
+    transform: translate(-20px, 0);
+    transition: transform 3.4s cubic-bezier(0.5, 0, 0.5, 1);
+    transform-box: view-box;
+    transform-origin: 0 0;
+  }
+  html:not(.light) .asp-celestial { transform: translate(50px, 0); }
+  .asp-celestial > .asp-cel-arc {
+    transform: translate(0, 14px);
+    transition: transform 1.7s cubic-bezier(0.5, 0, 0.5, 1);
+    transform-box: view-box;
+    transform-origin: 0 0;
+  }
+  html:not(.light) .asp-celestial > .asp-cel-arc { transform: translate(0, 12px); }
+  .asp-cel-sun { opacity: 1; transition: opacity 0.8s ease 1.4s; }
+  html:not(.light) .asp-cel-sun { opacity: 0; transition: opacity 0.7s ease 0.4s; }
+  .asp-cel-moon { opacity: 0; transition: opacity 0.7s ease 0.4s; }
+  html:not(.light) .asp-cel-moon { opacity: 1; transition: opacity 0.8s ease 1.4s; }
+  .asp-cel-bloom { animation: asp-bloom-pulse 3.4s ease-in-out; }
+  @keyframes asp-bloom-pulse {
+    0%, 100% { r: 0; opacity: 0; }
+    42%      { r: 22; opacity: 0.85; }
+    58%      { r: 26; opacity: 0.6; }
+  }
+  .asp-day-only { display: none; }
+  html.light .asp-day-only { display: inline; }
+  .asp-night-only { display: inline; }
+  html.light .asp-night-only { display: none; }
+
+  /* ---------- Aspen — DARK palette (gallery at night) ---------- */
+  .chat-wallpaper[data-wallpaper="editorial"] {
+    --asp-wall-1: #e8e2d4; --asp-wall-2: #cfc8b8;
+    --asp-moulding-1: #b8b0a0; --asp-moulding-2: #ddd6c4;
+    --asp-floor-1: #d8d0c0; --asp-floor-2: #b0a898; --asp-floor-edge: #8a8272;
+    --asp-floor-seam: #9a9282;
+    --asp-frame-1: #7a5a1e; --asp-frame-2: #d4b866; --asp-frame-3: #6a4a15; --asp-frame-edge: #3a2810;
+    --asp-mat: #f0ead8; --asp-mat-edge: #b8b0a0;
+    --asp-canvas-1: #f5e8d0; --asp-canvas-2: #e0d0b8;
+    --asp-paint-sky: #c8d8e0; --asp-paint-sea: #7a98a8; --asp-paint-sun: #f0c870; --asp-paint-mountain: #3a4858; --asp-paint-reflect: #a8c0c8; --asp-paint-sign: #6a5a48;
+    --asp-plinth-1: #a8a090; --asp-plinth-2: #d8d0c0; --asp-plinth-edge: #7a7264;
+    --asp-marble: #efe8d8; --asp-marble-shadow: #a8a090; --asp-marble-hair: #c8c0b0;
+    --asp-bench-1: #2a1a10; --asp-bench-2: #1a0e08; --asp-bench-cushion: #4a2010;
+    --asp-plaque: #b8903a; --asp-plaque-text: #3a2810;
+    --asp-picturelight: #d4b866;
+    --asp-spot: #ffe0a0; --asp-sunbeam: #fff0b0; --asp-daylight: #fff8e0;
+    --asp-sky: #0a1428;
+    --asp-skylight-frame: #3a3428; --asp-skylight-bar: #1a160e;
+    --asp-moon: #f0ead8; --asp-sun: #ffe8b0;
+    --asp-vignette: #3a3020;
+  }
+
+  /* ---------- Aspen — LIGHT palette (gallery, daylight) ---------- */
+  html.light .chat-wallpaper[data-wallpaper="editorial"] {
+    --asp-wall-1: #f8f4ea; --asp-wall-2: #e8e2d2;
+    --asp-moulding-1: #d0c8b8; --asp-moulding-2: #f0ead8;
+    --asp-floor-1: #f0e8d8; --asp-floor-2: #d0c8b8; --asp-floor-edge: #a89878;
+    --asp-floor-seam: #b8a890;
+    --asp-frame-1: #b8902a; --asp-frame-2: #f0d878; --asp-frame-3: #8a6820; --asp-frame-edge: #4a3818;
+    --asp-mat: #faf4e0; --asp-mat-edge: #d0c8b0;
+    --asp-canvas-1: #f8f0d8; --asp-canvas-2: #e8dcc0;
+    --asp-paint-sky: #d8e8f0; --asp-paint-sea: #9ac0d0; --asp-paint-sun: #fff0a0; --asp-paint-mountain: #5a6878; --asp-paint-reflect: #c8e0e8; --asp-paint-sign: #6a5a48;
+    --asp-plinth-1: #c8c0b0; --asp-plinth-2: #f0e8d8; --asp-plinth-edge: #8a8272;
+    --asp-marble: #f8f0e0; --asp-marble-shadow: #b8b0a0; --asp-marble-hair: #d8d0c0;
+    --asp-bench-1: #4a2a18; --asp-bench-2: #2a1810; --asp-bench-cushion: #8a4020;
+    --asp-plaque: #d4a840; --asp-plaque-text: #3a2810;
+    --asp-picturelight: #d4b866;
+    --asp-spot: #ffe0a0; --asp-sunbeam: #fff8d0; --asp-daylight: #fffbe8;
+    --asp-sky: #a8cce8;
+    --asp-skylight-frame: #5a4838; --asp-skylight-bar: #3a2818;
+    --asp-moon: #f0ead8; --asp-sun: #fff0b0;
+    --asp-vignette: #d8c8a8;
+  }
+
   /* ---------- Zurich — DARK palette (vault at night) ---------- */
   .chat-wallpaper[data-wallpaper="obsidian"] {
     --zur-wall-1: #0e0e12; --zur-wall-2: #050507;

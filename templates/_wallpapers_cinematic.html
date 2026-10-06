@@ -2432,57 +2432,274 @@
 
   {% elif key == 'editorial' %}
   {# ---------- ASPEN · The Curator · A gallery wall with soft shifting light ---------- #}
-  <svg viewBox="0 0 500 500" preserveAspectRatio="xMidYMid slice" class="wp-svg wp-aspen">
-    <defs>
-      <linearGradient id="aspen-light" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="currentColor" stop-opacity="0.25"/>
-        <stop offset="50%" stop-color="currentColor" stop-opacity="0"/>
-        <stop offset="100%" stop-color="currentColor" stop-opacity="0.1"/>
-      </linearGradient>
-      <radialGradient id="aspen-halo" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stop-color="currentColor" stop-opacity="0.28"/>
-        <stop offset="100%" stop-color="currentColor" stop-opacity="0"/>
-      </radialGradient>
-    </defs>
+  <svg viewBox="0 0 500 500" preserveAspectRatio="xMidYMid slice" class="wp-svg wp-asp">
+  <defs>
+    <linearGradient id="asp-wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--asp-wall-1)"/>
+      <stop offset="100%" stop-color="var(--asp-wall-2)"/>
+    </linearGradient>
+    <linearGradient id="asp-floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--asp-floor-1)"/>
+      <stop offset="100%" stop-color="var(--asp-floor-2)"/>
+    </linearGradient>
+    <linearGradient id="asp-frame" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="var(--asp-frame-1)"/>
+      <stop offset="50%" stop-color="var(--asp-frame-2)"/>
+      <stop offset="100%" stop-color="var(--asp-frame-3)"/>
+    </linearGradient>
+    <linearGradient id="asp-canvas" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--asp-canvas-1)"/>
+      <stop offset="100%" stop-color="var(--asp-canvas-2)"/>
+    </linearGradient>
+    <linearGradient id="asp-plinth" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="var(--asp-plinth-1)"/>
+      <stop offset="50%" stop-color="var(--asp-plinth-2)"/>
+      <stop offset="100%" stop-color="var(--asp-plinth-1)"/>
+    </linearGradient>
+    <radialGradient id="asp-spot" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="var(--asp-spot)" stop-opacity="0.75"/>
+      <stop offset="45%" stop-color="var(--asp-spot)" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="var(--asp-spot)" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="asp-sunbeam" cx="50%" cy="0%" r="80%">
+      <stop offset="0%" stop-color="var(--asp-sunbeam)" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="var(--asp-sunbeam)" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="asp-moonhalo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="var(--asp-moon)" stop-opacity="0.65"/>
+      <stop offset="45%" stop-color="var(--asp-moon)" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="var(--asp-moon)" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="asp-sunhalo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="var(--asp-sun)" stop-opacity="0.7"/>
+      <stop offset="45%" stop-color="var(--asp-sun)" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="var(--asp-sun)" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="asp-sun-core" cx="42%" cy="38%" r="60%">
+      <stop offset="0%" stop-color="#fff8dc"/>
+      <stop offset="55%" stop-color="#ffe090"/>
+      <stop offset="100%" stop-color="#e8a840"/>
+    </radialGradient>
+    <radialGradient id="asp-moon-face" cx="38%" cy="34%" r="65%">
+      <stop offset="0%" stop-color="#f5faff"/>
+      <stop offset="70%" stop-color="#dbe5f2"/>
+      <stop offset="100%" stop-color="#a8b8cc"/>
+    </radialGradient>
+    <radialGradient id="asp-bloom" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffe8a0" stop-opacity="0.9"/>
+      <stop offset="60%" stop-color="#ffb860" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#ffb860" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="asp-blur-xs"><feGaussianBlur stdDeviation="0.5"/></filter>
+    <filter id="asp-blur-sm"><feGaussianBlur stdDeviation="1.2"/></filter>
+    <filter id="asp-blur-md"><feGaussianBlur stdDeviation="2.8"/></filter>
+    <filter id="asp-blur-lg"><feGaussianBlur stdDeviation="7"/></filter>
+    <radialGradient id="asp-fade" cx="50%" cy="50%" r="80%">
+      <stop offset="0%" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="62%" stop-color="#fff" stop-opacity="0.94"/>
+      <stop offset="88%" stop-color="#fff" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="asp-mask"><rect width="500" height="500" fill="url(#asp-fade)"/></mask>
+  </defs>
 
-    <!-- Soft gallery wall -->
-    <rect width="500" height="500" fill="url(#aspen-light)"/>
-    <circle cx="250" cy="220" r="200" fill="url(#aspen-halo)"/>
+  <g mask="url(#asp-mask)">
+    <rect width="500" height="500" fill="url(#asp-wall)"/>
 
-    <!-- Framed artwork #1 (large) -->
-    <g stroke="currentColor" fill="none" stroke-width="1.6" opacity="0.75">
-      <rect x="110" y="100" width="180" height="240"/>
-      <rect x="122" y="112" width="156" height="216"/>
+    <!-- Crown moulding -->
+    <rect x="0" y="34" width="500" height="4" fill="var(--asp-moulding-1)"/>
+    <rect x="0" y="38" width="500" height="6" fill="var(--asp-moulding-2)"/>
+    <rect x="0" y="44" width="500" height="3" fill="var(--asp-moulding-1)"/>
+
+    <!-- Skylight (upper center — moon/sun visible through it) -->
+    <g>
+      <!-- Skylight frame -->
+      <rect x="180" y="0" width="140" height="34" fill="var(--asp-skylight-frame)"/>
+      <rect x="184" y="0" width="132" height="30" fill="url(#asp-canvas)" opacity="0.02"/>
+      <!-- Inner glow band -->
+      <rect x="186" y="0" width="128" height="28" fill="var(--asp-sky)" opacity="0.35"/>
+      <!-- Frame bars -->
+      <line x1="220" y1="0" x2="220" y2="34" stroke="var(--asp-skylight-bar)" stroke-width="1.5"/>
+      <line x1="250" y1="0" x2="250" y2="34" stroke="var(--asp-skylight-bar)" stroke-width="1.5"/>
+      <line x1="280" y1="0" x2="280" y2="34" stroke="var(--asp-skylight-bar)" stroke-width="1.5"/>
+      <line x1="180" y1="16" x2="320" y2="16" stroke="var(--asp-skylight-bar)" stroke-width="1.5"/>
     </g>
-    <!-- Inner geometric abstraction -->
-    <g stroke="currentColor" fill="none" stroke-width="0.6" opacity="0.5">
-      <circle cx="200" cy="200" r="40"/>
-      <circle cx="200" cy="200" r="28"/>
-      <line x1="160" y1="270" x2="240" y2="270"/>
-      <line x1="160" y1="285" x2="240" y2="285"/>
-      <line x1="160" y1="300" x2="220" y2="300"/>
+
+    <!-- Celestial body through the skylight -->
+    <g class="asp-celestial">
+      <g class="asp-cel-arc">
+        <g class="asp-cel-sun">
+          <circle r="22" fill="url(#asp-sunhalo)"/>
+          <circle r="10" fill="url(#asp-sun-core)"/>
+          <circle cx="-3" cy="-2" r="3" fill="#fff" opacity="0.8"/>
+        </g>
+        <g class="asp-cel-moon">
+          <circle r="18" fill="url(#asp-moonhalo)"/>
+          <circle r="8" fill="url(#asp-moon-face)"/>
+          <circle cx="-3" cy="-3" r="7.5" fill="var(--asp-sky)" opacity="0.98"/>
+        </g>
+        <circle r="0" fill="url(#asp-bloom)" opacity="0" class="asp-cel-bloom"/>
+      </g>
     </g>
 
-    <!-- Framed artwork #2 (small) -->
-    <g stroke="currentColor" fill="none" stroke-width="1.2" opacity="0.6">
-      <rect x="310" y="180" width="110" height="140"/>
-      <rect x="320" y="190" width="90" height="120"/>
-      <circle cx="365" cy="250" r="20"/>
-      <path d="M320 290 L365 260 L410 290"/>
+    <!-- Night-only stars through skylight -->
+    <g class="asp-night-only">
+      <circle cx="196" cy="8" r="0.5" fill="var(--asp-moon)" opacity="0.7"/>
+      <circle cx="240" cy="5" r="0.4" fill="var(--asp-moon)" opacity="0.5"/>
+      <circle cx="290" cy="9" r="0.5" fill="var(--asp-moon)" opacity="0.6"/>
+      <circle cx="308" cy="14" r="0.4" fill="var(--asp-moon)" opacity="0.55"/>
     </g>
 
-    <!-- Floor line -->
-    <line x1="0" y1="400" x2="500" y2="400" stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
-    <rect x="0" y="400" width="500" height="100" fill="currentColor" opacity="0.06"/>
-
-    <!-- Potted plant silhouette -->
-    <g fill="currentColor" opacity="0.35">
-      <path d="M400 400 L440 400 L432 450 L408 450 Z"/>
-      <ellipse cx="420" cy="360" rx="18" ry="42"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
-      <ellipse cx="408" cy="370" rx="12" ry="32"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
-      <ellipse cx="432" cy="372" rx="12" ry="32"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+    <!-- ===== The Hero Painting — huge, on far wall, lit ===== -->
+    <g>
+      <!-- Frame outer -->
+      <rect x="140" y="80" width="220" height="180" fill="url(#asp-frame)"/>
+      <rect x="140" y="80" width="220" height="180" fill="none" stroke="var(--asp-frame-edge)" stroke-width="1.2"/>
+      <!-- Inner mat/frame bevel -->
+      <rect x="152" y="92" width="196" height="156" fill="var(--asp-mat)"/>
+      <rect x="152" y="92" width="196" height="156" fill="none" stroke="var(--asp-mat-edge)" stroke-width="0.6"/>
+      <!-- Canvas -->
+      <rect x="162" y="102" width="176" height="136" fill="url(#asp-canvas)"/>
+      <!-- Painting: an abstract landscape — horizon, mountain, moon, calm sea -->
+      <rect x="162" y="102" width="176" height="90" fill="var(--asp-paint-sky)"/>
+      <rect x="162" y="192" width="176" height="46" fill="var(--asp-paint-sea)"/>
+      <!-- Sun/moon in the painting -->
+      <circle cx="290" cy="140" r="14" fill="var(--asp-paint-sun)" opacity="0.9"/>
+      <circle cx="290" cy="140" r="26" fill="var(--asp-paint-sun)" opacity="0.22" filter="url(#asp-blur-md)"/>
+      <!-- Mountain silhouette -->
+      <path d="M 162 180 L 200 148 L 226 172 L 254 138 L 290 178 L 320 152 L 338 180 L 338 192 L 162 192 Z" fill="var(--asp-paint-mountain)"/>
+      <!-- Water reflection -->
+      <line x1="162" y1="206" x2="338" y2="206" stroke="var(--asp-paint-reflect)" stroke-width="0.4" opacity="0.55"/>
+      <line x1="162" y1="216" x2="338" y2="216" stroke="var(--asp-paint-reflect)" stroke-width="0.4" opacity="0.4"/>
+      <line x1="162" y1="226" x2="338" y2="226" stroke="var(--asp-paint-reflect)" stroke-width="0.4" opacity="0.3"/>
+      <!-- Signature -->
+      <text x="330" y="232" font-size="3.5" fill="var(--asp-paint-sign)" text-anchor="end" font-family="Georgia, serif" font-style="italic" opacity="0.7">— Aspen, 1908</text>
+      <!-- Specular sheen on varnish -->
+      <rect x="162" y="102" width="176" height="136" fill="#fff" opacity="0.06"/>
+      <polygon points="162,102 220,102 162,180" fill="#fff" opacity="0.08"/>
     </g>
-  </svg>
+
+    <!-- Picture light (directional light above the painting) -->
+    <g>
+      <rect x="238" y="60" width="24" height="6" rx="2" fill="url(#asp-frame)"/>
+      <rect x="240" y="66" width="20" height="14" fill="var(--asp-picturelight)"/>
+      <!-- Light cone onto the painting -->
+      <polygon points="240,80 260,80 320,260 180,260" fill="var(--asp-spot)" opacity="0.35" class="asp-night-only" style="mix-blend-mode:screen"/>
+      <!-- Warm glow at the top of the painting -->
+      <ellipse cx="250" cy="110" rx="80" ry="40" fill="var(--asp-spot)" opacity="0.25" class="asp-night-only" style="mix-blend-mode:screen" filter="url(#asp-blur-lg)"/>
+    </g>
+
+    <!-- ===== Marble floor (lower third) ===== -->
+    <rect y="360" width="500" height="140" fill="url(#asp-floor)"/>
+    <line x1="0" y1="360" x2="500" y2="360" stroke="var(--asp-floor-edge)" stroke-width="0.7"/>
+    <!-- Floor seams — perspective floor tiles -->
+    <g stroke="var(--asp-floor-seam)" stroke-width="0.4" opacity="0.45">
+      <line x1="0" y1="380" x2="500" y2="380"/>
+      <line x1="0" y1="404" x2="500" y2="404"/>
+      <line x1="0" y1="432" x2="500" y2="432"/>
+      <line x1="0" y1="464" x2="500" y2="464"/>
+      <!-- Diagonal perspective lines converging upward -->
+      <line x1="-40" y1="500" x2="140" y2="360"/>
+      <line x1="90" y1="500" x2="200" y2="360"/>
+      <line x1="220" y1="500" x2="260" y2="360"/>
+      <line x1="350" y1="500" x2="320" y2="360"/>
+      <line x1="480" y1="500" x2="380" y2="360"/>
+      <line x1="610" y1="500" x2="440" y2="360"/>
+    </g>
+    <!-- Reflection of painting on marble floor -->
+    <ellipse cx="250" cy="382" rx="120" ry="14" fill="var(--asp-paint-sun)" opacity="0.14" filter="url(#asp-blur-md)"/>
+
+    <!-- ===== Sculpture — marble bust on a plinth ===== -->
+    <g>
+      <!-- Plinth shadow -->
+      <ellipse cx="100" cy="472" rx="52" ry="8" fill="#000" opacity="0.35" filter="url(#asp-blur-md)"/>
+      <!-- Plinth base (bottom wider step) -->
+      <rect x="62" y="452" width="76" height="18" fill="url(#asp-plinth)" stroke="var(--asp-plinth-edge)" stroke-width="0.5"/>
+      <!-- Plinth shaft -->
+      <rect x="70" y="392" width="60" height="62" fill="url(#asp-plinth)" stroke="var(--asp-plinth-edge)" stroke-width="0.5"/>
+      <!-- Plinth capital -->
+      <rect x="64" y="388" width="72" height="8" fill="url(#asp-plinth)" stroke="var(--asp-plinth-edge)" stroke-width="0.5"/>
+      <!-- Fluting detail -->
+      <line x1="84" y1="394" x2="84" y2="450" stroke="var(--asp-plinth-edge)" stroke-width="0.3" opacity="0.5"/>
+      <line x1="100" y1="394" x2="100" y2="450" stroke="var(--asp-plinth-edge)" stroke-width="0.3" opacity="0.5"/>
+      <line x1="116" y1="394" x2="116" y2="450" stroke="var(--asp-plinth-edge)" stroke-width="0.3" opacity="0.5"/>
+
+      <!-- Bust — classical marble head and neck silhouette -->
+      <g>
+        <!-- Head -->
+        <ellipse cx="100" cy="358" rx="18" ry="22" fill="url(#asp-marble)"/>
+        <!-- Face shading (soft) -->
+        <ellipse cx="108" cy="360" rx="10" ry="18" fill="var(--asp-marble-shadow)" opacity="0.5"/>
+        <!-- Hair -->
+        <path d="M 84 348 Q 88 336 100 334 Q 112 336 116 348 Q 112 340 100 338 Q 88 340 84 348 Z" fill="var(--asp-marble-hair)"/>
+        <path d="M 84 348 Q 82 354 84 360" fill="var(--asp-marble-hair)"/>
+        <path d="M 116 348 Q 118 354 116 360" fill="var(--asp-marble-hair)"/>
+        <!-- Nose ridge -->
+        <path d="M 98 356 Q 96 362 98 366 Q 100 368 102 366" fill="none" stroke="var(--asp-marble-shadow)" stroke-width="0.6" opacity="0.5"/>
+        <!-- Neck -->
+        <path d="M 92 378 Q 96 372 100 372 Q 104 372 108 378 L 110 388 L 90 388 Z" fill="url(#asp-marble)"/>
+        <!-- Shoulder block -->
+        <path d="M 82 388 Q 90 380 100 380 Q 110 380 118 388 L 120 392 L 80 392 Z" fill="url(#asp-marble)"/>
+        <path d="M 82 388 Q 90 380 100 380 Q 110 380 118 388" fill="none" stroke="var(--asp-marble-shadow)" stroke-width="0.4" opacity="0.5"/>
+        <!-- Highlight on cheek (light from painting) -->
+        <ellipse cx="94" cy="354" rx="4" ry="6" fill="#fff" opacity="0.3" filter="url(#asp-blur-xs)"/>
+      </g>
+    </g>
+
+    <!-- ===== Bench (right, in shadow) ===== -->
+    <g>
+      <ellipse cx="410" cy="454" rx="60" ry="8" fill="#000" opacity="0.4" filter="url(#asp-blur-md)"/>
+      <rect x="358" y="410" width="104" height="8" fill="var(--asp-bench-1)" stroke="var(--asp-bench-2)" stroke-width="0.5"/>
+      <rect x="358" y="418" width="104" height="10" fill="var(--asp-bench-2)"/>
+      <rect x="362" y="428" width="6" height="24" fill="var(--asp-bench-2)"/>
+      <rect x="452" y="428" width="6" height="24" fill="var(--asp-bench-2)"/>
+      <rect x="410" y="428" width="4" height="24" fill="var(--asp-bench-2)"/>
+      <!-- Cushion -->
+      <rect x="362" y="405" width="96" height="6" rx="2" fill="var(--asp-bench-cushion)"/>
+    </g>
+
+    <!-- ===== Wall label (small brass plaque beside the painting) ===== -->
+    <g>
+      <rect x="368" y="180" width="44" height="22" fill="var(--asp-plaque)" stroke="url(#asp-frame)" stroke-width="0.6"/>
+      <g stroke="var(--asp-plaque-text)" stroke-width="0.3" opacity="0.85">
+        <line x1="374" y1="186" x2="406" y2="186"/>
+        <line x1="374" y1="190" x2="400" y2="190"/>
+        <line x1="374" y1="194" x2="404" y2="194"/>
+        <line x1="374" y1="198" x2="396" y2="198"/>
+      </g>
+    </g>
+
+    <!-- Second smaller painting (right of hero) — abstract -->
+    <g>
+      <rect x="426" y="106" width="60" height="70" fill="url(#asp-frame)"/>
+      <rect x="426" y="106" width="60" height="70" fill="none" stroke="var(--asp-frame-edge)" stroke-width="1"/>
+      <rect x="432" y="112" width="48" height="58" fill="var(--asp-canvas-2)"/>
+      <!-- Abstract content -->
+      <circle cx="450" cy="130" r="8" fill="var(--asp-paint-mountain)" opacity="0.9"/>
+      <rect x="438" y="140" width="36" height="24" fill="var(--asp-paint-sea)" opacity="0.85"/>
+      <line x1="432" y1="140" x2="480" y2="140" stroke="var(--asp-paint-reflect)" stroke-width="0.4" opacity="0.6"/>
+    </g>
+
+    <!-- ===== Sunbeam through skylight (light mode) ===== -->
+    <g class="asp-day-only">
+      <!-- Sunbeam cone from skylight down onto the floor -->
+      <polygon points="180,34 320,34 380,500 120,500" fill="var(--asp-sunbeam)" opacity="0.18" filter="url(#asp-blur-md)"/>
+      <polygon points="196,34 304,34 340,500 160,500" fill="var(--asp-sunbeam)" opacity="0.12" filter="url(#asp-blur-md)"/>
+      <!-- Bright pool on the floor -->
+      <ellipse cx="250" cy="472" rx="130" ry="22" fill="var(--asp-sunbeam)" opacity="0.28" filter="url(#asp-blur-lg)"/>
+      <!-- Warm ambient wash -->
+      <rect width="500" height="500" fill="var(--asp-daylight)" opacity="0.08"/>
+    </g>
+
+    <!-- ===== Night: cool gallery spot on the painting ===== -->
+    <g class="asp-night-only">
+      <ellipse cx="250" cy="180" rx="160" ry="120" fill="url(#asp-spot)" opacity="0.45" style="mix-blend-mode:screen"/>
+    </g>
+
+    <!-- Vignette -->
+    <rect width="500" height="500" fill="var(--asp-vignette)" opacity="0.28" style="mix-blend-mode:multiply"/>
+  </g>
+</svg>
   {% endif %}
 </div>
 {% endmacro %}
