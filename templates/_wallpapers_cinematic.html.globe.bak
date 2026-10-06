@@ -79,218 +79,158 @@
   </svg>
 
   <svg viewBox="0 0 500 500" preserveAspectRatio="xMidYMid meet" class="wp-svg wp-savile-study">
-  <defs>
-    <linearGradient id="sv-wall" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#0a0805"/>
-      <stop offset="100%" stop-color="#1a120a"/>
-    </linearGradient>
-    <linearGradient id="sv-floor" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#0f0a06"/>
-      <stop offset="100%" stop-color="#030201"/>
-    </linearGradient>
-    <radialGradient id="sv-fire" cx="18%" cy="78%" r="62%">
-      <stop offset="0%" stop-color="#ff9d3a" stop-opacity="0.7"/>
-      <stop offset="40%" stop-color="#d4661a" stop-opacity="0.2"/>
-      <stop offset="100%" stop-color="#d4661a" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="sv-moon" cx="84%" cy="16%" r="58%">
-      <stop offset="0%" stop-color="#dbe5f2" stop-opacity="0.55"/>
-      <stop offset="60%" stop-color="#dbe5f2" stop-opacity="0.08"/>
-      <stop offset="100%" stop-color="#dbe5f2" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="sv-globe" cx="35%" cy="30%" r="75%">
-      <stop offset="0%" stop-color="#3b6a7a"/>
-      <stop offset="45%" stop-color="#1e4451"/>
-      <stop offset="85%" stop-color="#0a1f28"/>
-      <stop offset="100%" stop-color="#050f14"/>
-    </radialGradient>
-    <radialGradient id="sv-globe-spec" cx="30%" cy="25%" r="34%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
-      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
-    </radialGradient>
-    <linearGradient id="sv-brass" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#7a5a1e"/>
-      <stop offset="35%" stop-color="#d4b866"/>
-      <stop offset="55%" stop-color="#f0e0a0"/>
-      <stop offset="75%" stop-color="#c9a961"/>
-      <stop offset="100%" stop-color="#6a4a15"/>
-    </linearGradient>
-    <linearGradient id="sv-wood" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#3a2418"/>
-      <stop offset="100%" stop-color="#1a0f08"/>
-    </linearGradient>
-    <linearGradient id="sv-velvet" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#3a0e0e"/>
-      <stop offset="100%" stop-color="#1a0404"/>
-    </linearGradient>
-    <filter id="sv-blur-sm"><feGaussianBlur stdDeviation="1.1"/></filter>
-    <filter id="sv-blur-md"><feGaussianBlur stdDeviation="3.5"/></filter>
-    <filter id="sv-blur-lg"><feGaussianBlur stdDeviation="9"/></filter>
-    <clipPath id="sv-globe-clip"><circle cx="250" cy="278" r="70"/></clipPath>
-  </defs>
+    <defs>
+      <radialGradient id="study-fire" cx="18%" cy="78%" r="60%">
+        <stop offset="0%" stop-color="#ff9d3a" stop-opacity="0.65"/>
+        <stop offset="45%" stop-color="#d4661a" stop-opacity="0.18"/>
+        <stop offset="100%" stop-color="#d4661a" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="study-moonlight" cx="84%" cy="16%" r="55%">
+        <stop offset="0%" stop-color="#dbe5f2" stop-opacity="0.5"/>
+        <stop offset="60%" stop-color="#dbe5f2" stop-opacity="0.08"/>
+        <stop offset="100%" stop-color="#dbe5f2" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="study-floor" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#2a1e14"/>
+        <stop offset="100%" stop-color="#0a0603"/>
+      </linearGradient>
+      <linearGradient id="study-wall" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#1a120a"/>
+        <stop offset="100%" stop-color="#070504"/>
+      </linearGradient>
+      <radialGradient id="study-rug" cx="50%" cy="50%" r="65%">
+        <stop offset="0%" stop-color="#6b1e1e"/>
+        <stop offset="70%" stop-color="#3e1010"/>
+        <stop offset="100%" stop-color="#1a0707"/>
+      </radialGradient>
+      <filter id="study-blur-sm" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="0.9"/>
+      </filter>
+      <filter id="study-blur-md" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="3"/>
+      </filter>
+      <filter id="study-blur-lg" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="8"/>
+      </filter>
+    </defs>
 
-  <rect width="500" height="500" fill="url(#sv-wall)"/>
-  <g stroke="#3d2c1c" stroke-width="0.4" opacity="0.35">
-    <line x1="80" y1="0" x2="80" y2="380"/>
-    <line x1="180" y1="0" x2="180" y2="380"/>
-    <line x1="320" y1="0" x2="320" y2="380"/>
-    <line x1="420" y1="0" x2="420" y2="380"/>
-    <line x1="0" y1="120" x2="500" y2="120"/>
-    <line x1="0" y1="240" x2="500" y2="240"/>
-  </g>
-
-  <g>
-    <rect x="340" y="28" width="126" height="292" rx="3" fill="#0a1424" stroke="#2e2418" stroke-width="2.5"/>
-    <line x1="403" y1="28" x2="403" y2="320" stroke="#2e2418" stroke-width="2"/>
-    <line x1="340" y1="140" x2="466" y2="140" stroke="#2e2418" stroke-width="2"/>
-    <line x1="340" y1="228" x2="466" y2="228" stroke="#2e2418" stroke-width="2"/>
-    <circle cx="428" cy="76" r="16" fill="#e8eef5" opacity="0.95" filter="url(#sv-blur-sm)"/>
-    <circle cx="428" cy="76" r="30" fill="#e8eef5" opacity="0.2" filter="url(#sv-blur-lg)"/>
-    <g stroke="#8fa8c4" stroke-width="0.5" opacity="0.4">
-      <line x1="358" y1="40" x2="353" y2="90"/><line x1="380" y1="50" x2="375" y2="100"/>
-      <line x1="400" y1="30" x2="395" y2="80"/><line x1="420" y1="60" x2="415" y2="110"/>
-      <line x1="440" y1="40" x2="435" y2="90"/><line x1="455" y1="70" x2="450" y2="120"/>
-      <line x1="370" y1="160" x2="365" y2="210"/><line x1="395" y1="180" x2="390" y2="230"/>
-      <line x1="415" y1="150" x2="410" y2="200"/><line x1="435" y1="190" x2="430" y2="240"/>
-      <line x1="455" y1="170" x2="450" y2="220"/><line x1="360" y1="250" x2="355" y2="300"/>
-      <line x1="385" y1="260" x2="380" y2="310"/><line x1="410" y1="240" x2="405" y2="290"/>
-      <line x1="435" y1="280" x2="430" y2="320"/>
+    <rect width="500" height="500" fill="url(#study-wall)"/>
+    <g stroke="#3d2c1c" stroke-width="0.4" opacity="0.35">
+      <line x1="80" y1="0" x2="80" y2="380"/>
+      <line x1="180" y1="0" x2="180" y2="380"/>
+      <line x1="320" y1="0" x2="320" y2="380"/>
+      <line x1="420" y1="0" x2="420" y2="380"/>
+      <line x1="0" y1="120" x2="500" y2="120"/>
+      <line x1="0" y1="240" x2="500" y2="240"/>
     </g>
-  </g>
 
-  <polygon points="403,76 500,260 500,380 340,380 340,200" fill="url(#sv-moon)" opacity="0.4" style="mix-blend-mode:screen"/>
-
-  <g>
-    <rect x="18" y="268" width="144" height="132" fill="#150c06" stroke="#3a2a1a" stroke-width="2"/>
-    <rect x="34" y="288" width="112" height="102" fill="#030101"/>
-    <ellipse cx="90" cy="368" rx="72" ry="52" fill="url(#sv-fire)">
-      <animate attributeName="ry" values="52;56;52" dur="1.7s" repeatCount="indefinite"/>
-    </ellipse>
-    <g fill="#ffb35a" filter="url(#sv-blur-sm)">
-      <circle cx="70" cy="365" r="2.2"/><circle cx="95" cy="372" r="2.5"/>
-      <circle cx="110" cy="368" r="1.8"/><circle cx="82" cy="378" r="1.5"/>
-    </g>
-    <g fill="#ffbb6a">
-      <circle cx="80" cy="360" r="1.4">
-        <animate attributeName="cy" values="360;300;240" dur="5s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" values="0.9;0.4;0" dur="5s" repeatCount="indefinite"/>
-      </circle>
-      <circle cx="100" cy="360" r="1.2">
-        <animate attributeName="cy" values="360;290;230" dur="6.5s" begin="1.5s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" values="0.85;0.35;0" dur="6.5s" begin="1.5s" repeatCount="indefinite"/>
-      </circle>
-      <circle cx="90" cy="360" r="1" >
-        <animate attributeName="cy" values="360;310;250" dur="4.2s" begin="3s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" values="0.8;0.3;0" dur="4.2s" begin="3s" repeatCount="indefinite"/>
-      </circle>
-    </g>
-    <rect x="8" y="260" width="164" height="12" fill="#241809" stroke="#4a3520" stroke-width="1"/>
-  </g>
-
-  <rect y="380" width="500" height="120" fill="url(#sv-floor)"/>
-  <line x1="0" y1="380" x2="500" y2="380" stroke="#4a3520" stroke-width="1" opacity="0.5"/>
-  <ellipse cx="250" cy="458" rx="210" ry="40" fill="#3e1010"/>
-  <ellipse cx="250" cy="458" rx="210" ry="40" fill="none" stroke="currentColor" stroke-width="0.7" opacity="0.3"/>
-  <ellipse cx="250" cy="458" rx="175" ry="30" fill="none" stroke="currentColor" stroke-width="0.4" opacity="0.2"/>
-
-  <ellipse cx="250" cy="426" rx="150" ry="10" fill="#000" opacity="0.55" filter="url(#sv-blur-md)"/>
-  <rect x="110" y="395" width="280" height="22" rx="3" fill="url(#sv-wood)" stroke="#4a2e1a" stroke-width="1"/>
-  <path d="M 118 402 L 382 402 L 378 420 L 122 420 Z" fill="url(#sv-velvet)"/>
-  <line x1="118" y1="402" x2="382" y2="402" stroke="currentColor" stroke-width="0.6" opacity="0.6"/>
-
-  <ellipse cx="250" cy="395" rx="34" ry="5" fill="#1a0f08" stroke="#3a2418" stroke-width="1"/>
-  <ellipse cx="250" cy="395" rx="34" ry="5" fill="none" stroke="currentColor" stroke-width="0.4" opacity="0.5"/>
-  <rect x="248" y="360" width="4" height="35" fill="url(#sv-brass)"/>
-
-  <ellipse cx="250" cy="278" rx="80" ry="88" fill="none" stroke="url(#sv-brass)" stroke-width="2.5"/>
-  <ellipse cx="250" cy="278" rx="80" ry="88" fill="none" stroke="#f0e0a0" stroke-width="0.5" opacity="0.4"/>
-
-  <circle cx="250" cy="278" r="70" fill="url(#sv-globe)"/>
-
-  <g clip-path="url(#sv-globe-clip)">
     <g>
-      <animateTransform attributeName="transform" type="translate"
-        from="0 0" to="-500 0" dur="28s" repeatCount="indefinite"/>
-      <g fill="#c9a961" opacity="0.55" stroke="#f0e0a0" stroke-width="0.4">
-        <path d="M 60 210 Q 75 215 80 235 Q 78 260 90 285 Q 100 310 95 335 Q 88 355 75 350 Q 62 340 58 320 Q 50 295 52 270 Q 48 245 55 225 Z"/>
-        <path d="M 118 200 Q 138 205 145 230 Q 148 260 138 285 Q 128 305 118 300 Q 108 290 105 270 Q 100 240 108 218 Z"/>
-        <path d="M 190 200 Q 220 195 245 210 Q 265 225 262 250 Q 258 275 240 285 Q 220 290 200 280 Q 180 260 178 235 Q 180 212 190 200 Z"/>
-        <path d="M 270 195 Q 310 190 340 205 Q 365 220 370 245 Q 368 270 350 285 Q 325 295 300 290 Q 275 280 268 258 Q 260 230 270 195 Z"/>
-        <path d="M 380 205 Q 410 210 425 230 Q 432 250 425 268 Q 415 282 400 280 Q 385 272 380 255 Q 375 235 380 205 Z"/>
-        <path d="M 305 305 Q 325 310 330 330 Q 325 348 308 348 Q 292 345 290 328 Q 292 310 305 305 Z"/>
-        <path d="M 145 315 Q 165 320 168 340 Q 160 358 142 355 Q 128 350 128 332 Q 130 318 145 315 Z"/>
-        <path d="M 560 210 Q 575 215 580 235 Q 578 260 590 285 Q 600 310 595 335 Q 588 355 575 350 Q 562 340 558 320 Q 550 295 552 270 Q 548 245 555 225 Z"/>
-        <path d="M 618 200 Q 638 205 645 230 Q 648 260 638 285 Q 628 305 618 300 Q 608 290 605 270 Q 600 240 608 218 Z"/>
-        <path d="M 690 200 Q 720 195 745 210 Q 765 225 762 250 Q 758 275 740 285 Q 720 290 700 280 Q 680 260 678 235 Q 680 212 690 200 Z"/>
-        <path d="M 770 195 Q 810 190 840 205 Q 865 220 870 245 Q 868 270 850 285 Q 825 295 800 290 Q 775 280 768 258 Q 760 230 770 195 Z"/>
-        <path d="M 880 205 Q 910 210 925 230 Q 932 250 925 268 Q 915 282 900 280 Q 885 272 880 255 Q 875 235 880 205 Z"/>
-        <path d="M 805 305 Q 825 310 830 330 Q 825 348 808 348 Q 792 345 790 328 Q 792 310 805 305 Z"/>
-        <path d="M 645 315 Q 665 320 668 340 Q 660 358 642 355 Q 628 350 628 332 Q 630 318 645 315 Z"/>
+      <rect x="340" y="28" width="126" height="292" rx="3" fill="#0a1424" stroke="#2e2418" stroke-width="2.5"/>
+      <line x1="403" y1="28" x2="403" y2="320" stroke="#2e2418" stroke-width="2"/>
+      <line x1="340" y1="140" x2="466" y2="140" stroke="#2e2418" stroke-width="2"/>
+      <line x1="340" y1="228" x2="466" y2="228" stroke="#2e2418" stroke-width="2"/>
+      <circle cx="428" cy="76" r="16" fill="#e8eef5" opacity="0.95" filter="url(#study-blur-sm)"/>
+      <circle cx="428" cy="76" r="30" fill="#e8eef5" opacity="0.2" filter="url(#study-blur-lg)"/>
+      <g stroke="#8fa8c4" stroke-width="0.5" opacity="0.45" class="study-rain">
+        <line x1="358" y1="40" x2="353" y2="90"/><line x1="380" y1="50" x2="375" y2="100"/>
+        <line x1="400" y1="30" x2="395" y2="80"/><line x1="420" y1="60" x2="415" y2="110"/>
+        <line x1="440" y1="40" x2="435" y2="90"/><line x1="455" y1="70" x2="450" y2="120"/>
+        <line x1="370" y1="160" x2="365" y2="210"/><line x1="395" y1="180" x2="390" y2="230"/>
+        <line x1="415" y1="150" x2="410" y2="200"/><line x1="435" y1="190" x2="430" y2="240"/>
+        <line x1="455" y1="170" x2="450" y2="220"/><line x1="360" y1="250" x2="355" y2="300"/>
+        <line x1="385" y1="260" x2="380" y2="310"/><line x1="410" y1="240" x2="405" y2="290"/>
+        <line x1="435" y1="280" x2="430" y2="320"/>
       </g>
     </g>
-  </g>
 
-  <circle cx="250" cy="278" r="70" fill="url(#sv-globe-spec)"/>
-  <circle cx="250" cy="278" r="70" fill="none" stroke="#0a1a22" stroke-width="1.5" opacity="0.65"/>
-  <circle cx="250" cy="206" r="3.5" fill="url(#sv-brass)"/>
-  <circle cx="250" cy="350" r="3.5" fill="url(#sv-brass)"/>
+    <polygon points="403,76 500,260 500,380 340,380 340,200" fill="url(#study-moonlight)" opacity="0.5" style="mix-blend-mode:screen"/>
 
-  <g transform="translate(158, 352)">
-    <ellipse cx="0" cy="42" rx="10" ry="2.5" fill="#2a1a10"/>
-    <rect x="-6" y="10" width="12" height="34" rx="2" fill="#e8d9b0" stroke="#a08860" stroke-width="0.5"/>
-    <ellipse cx="0" cy="10" rx="6" ry="2" fill="#f0e8d8" stroke="#a08860" stroke-width="0.4"/>
-    <line x1="0" y1="8" x2="0" y2="4" stroke="#1a1008" stroke-width="0.8"/>
-    <ellipse cx="0" cy="-2" rx="3" ry="7" fill="#ffb84a" opacity="0.92">
-      <animate attributeName="ry" values="6;8;6" dur="1.3s" repeatCount="indefinite"/>
-    </ellipse>
-    <ellipse cx="0" cy="-2" rx="1.2" ry="4" fill="#ffe8a0">
-      <animate attributeName="ry" values="3.5;4.5;3.5" dur="1.3s" repeatCount="indefinite"/>
-    </ellipse>
-    <circle cx="0" cy="-2" r="14" fill="#ffb84a" opacity="0.18" filter="url(#sv-blur-md)"/>
-  </g>
+    <g>
+      <rect x="18" y="268" width="144" height="132" fill="#150c06" stroke="#3a2a1a" stroke-width="2"/>
+      <rect x="34" y="288" width="112" height="102" fill="#030101"/>
+      <ellipse cx="90" cy="368" rx="72" ry="52" fill="url(#study-fire)"/>
+      <g fill="#ffb35a" filter="url(#study-blur-sm)">
+        <circle cx="70" cy="365" r="2.2"/><circle cx="95" cy="372" r="2.5"/>
+        <circle cx="110" cy="368" r="1.8"/><circle cx="82" cy="378" r="1.5"/>
+      </g>
+      <rect x="8" y="260" width="164" height="12" fill="#241809" stroke="#4a3520" stroke-width="1"/>
+      <circle cx="60" cy="253" r="4" fill="currentColor" opacity="0.65"/>
+      <rect x="100" y="247" width="8" height="13" fill="#4a3520"/>
+    </g>
 
-  <g transform="translate(348, 395)">
-    <rect x="0" y="-18" width="42" height="8" fill="#5a2018" stroke="#2a0e08" stroke-width="0.5"/>
-    <rect x="0" y="-18" width="42" height="1" fill="currentColor" opacity="0.6"/>
-    <rect x="4" y="-9" width="38" height="8" fill="#2e2a52" stroke="#100e20" stroke-width="0.5"/>
-    <rect x="4" y="-9" width="38" height="1" fill="currentColor" opacity="0.6"/>
-    <rect x="2" y="0" width="40" height="8" fill="#3a4a2a" stroke="#1a2010" stroke-width="0.5"/>
-    <rect x="2" y="0" width="40" height="1" fill="currentColor" opacity="0.6"/>
-  </g>
+    <rect y="380" width="500" height="120" fill="url(#study-floor)"/>
+    <line x1="0" y1="380" x2="500" y2="380" stroke="#4a3520" stroke-width="1" opacity="0.55"/>
+    <ellipse cx="250" cy="442" rx="195" ry="44" fill="url(#study-rug)"/>
+    <ellipse cx="250" cy="442" rx="195" ry="44" fill="none" stroke="currentColor" stroke-width="0.7" opacity="0.35"/>
+    <ellipse cx="250" cy="442" rx="162" ry="34" fill="none" stroke="currentColor" stroke-width="0.4" opacity="0.22"/>
+    <path d="M 172 405 L 328 405 L 348 425 L 152 425 Z" fill="#1c1209" stroke="#3a2a1a" stroke-width="1"/>
+    <rect x="152" y="425" width="196" height="14" fill="#120a04" stroke="#2a1d0f" stroke-width="1"/>
 
-  <ellipse cx="90" cy="380" rx="170" ry="130" fill="url(#sv-fire)" style="mix-blend-mode:screen"/>
-  <ellipse cx="430" cy="150" rx="150" ry="180" fill="url(#sv-moon)" style="mix-blend-mode:screen"/>
+    <ellipse cx="253" cy="418" rx="82" ry="8" fill="#000" opacity="0.6" filter="url(#study-blur-md)"/>
 
-  <g fill="#ffd79a">
-    <circle cx="140" cy="300" r="1" opacity="0.7">
-      <animate attributeName="cy" values="300;275;255" dur="9s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" values="0.7;0.3;0.7" dur="9s" repeatCount="indefinite"/>
-    </circle>
-    <circle cx="170" cy="260" r="0.8" opacity="0.6">
-      <animate attributeName="cy" values="260;240;220" dur="7s" begin="1s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" values="0.6;0.2;0.6" dur="7s" begin="1s" repeatCount="indefinite"/>
-    </circle>
-    <circle cx="120" cy="330" r="1.2" opacity="0.75">
-      <animate attributeName="cy" values="330;305;280" dur="10s" begin="2s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" values="0.75;0.3;0.75" dur="10s" begin="2s" repeatCount="indefinite"/>
-    </circle>
-    <circle cx="200" cy="280" r="0.7" opacity="0.5">
-      <animate attributeName="cy" values="280;260;240" dur="8s" begin="0.5s" repeatCount="indefinite"/>
-    </circle>
-    <circle cx="160" cy="350" r="0.9" opacity="0.65">
-      <animate attributeName="cy" values="350;320;295" dur="11s" begin="3s" repeatCount="indefinite"/>
-    </circle>
-    <circle cx="185" cy="320" r="1.1" opacity="0.7">
-      <animate attributeName="cy" values="320;295;270" dur="9.5s" begin="1.5s" repeatCount="indefinite"/>
-    </circle>
-    <circle cx="145" cy="240" r="0.6" opacity="0.45">
-      <animate attributeName="cy" values="240;225;210" dur="6.5s" begin="4s" repeatCount="indefinite"/>
-    </circle>
-    <circle cx="210" cy="350" r="0.8" opacity="0.55">
-      <animate attributeName="cy" values="350;325;300" dur="8.5s" begin="2.5s" repeatCount="indefinite"/>
-    </circle>
-  </g>
-</svg>
+    <g>
+      <!-- Rear legs -->
+      <rect x="216" y="400" width="5" height="20" rx="1.5" fill="#0a0404"/>
+      <rect x="279" y="400" width="5" height="20" rx="1.5" fill="#0a0404"/>
+
+      <!-- Seat base -->
+      <path d="M 208 392 L 292 392 L 288 405 L 212 405 Z" fill="#230a0a" stroke="#5a1f1f" stroke-width="0.8"/>
+
+      <!-- Seat cushion -->
+      <rect x="212" y="383" width="76" height="11" rx="3" fill="#3a1010" stroke="#6b2828" stroke-width="0.9"/>
+
+      <!-- Front legs -->
+      <rect x="221" y="405" width="4" height="16" rx="1" fill="#120606"/>
+      <rect x="275" y="405" width="4" height="16" rx="1" fill="#120606"/>
+
+      <!-- High back panel -->
+      <path d="M 216 175 Q 216 154 250 154 Q 284 154 284 175 L 284 383 L 216 383 Z" fill="#3a1414" stroke="#6b2828" stroke-width="1.3"/>
+
+      <!-- Tufting grid -->
+      <g fill="currentColor" opacity="0.30">
+        <circle cx="232" cy="200" r="1.4"/><circle cx="250" cy="200" r="1.4"/><circle cx="268" cy="200" r="1.4"/>
+        <circle cx="232" cy="225" r="1.4"/><circle cx="250" cy="225" r="1.4"/><circle cx="268" cy="225" r="1.4"/>
+        <circle cx="232" cy="250" r="1.4"/><circle cx="250" cy="250" r="1.4"/><circle cx="268" cy="250" r="1.4"/>
+        <circle cx="232" cy="275" r="1.4"/><circle cx="250" cy="275" r="1.4"/><circle cx="268" cy="275" r="1.4"/>
+        <circle cx="232" cy="300" r="1.4"/><circle cx="250" cy="300" r="1.4"/><circle cx="268" cy="300" r="1.4"/>
+        <circle cx="232" cy="325" r="1.4"/><circle cx="250" cy="325" r="1.4"/><circle cx="268" cy="325" r="1.4"/>
+        <circle cx="232" cy="350" r="1.4"/><circle cx="250" cy="350" r="1.4"/><circle cx="268" cy="350" r="1.4"/>
+      </g>
+
+      <!-- Wings flaring outward -->
+      <path d="M 216 220 Q 194 245 194 300 Q 194 350 216 383" fill="#2a0c0c" stroke="#5a1f1f" stroke-width="1.1"/>
+      <path d="M 284 220 Q 306 245 306 300 Q 306 350 284 383" fill="#2a0c0c" stroke="#5a1f1f" stroke-width="1.1"/>
+
+      <!-- Rolled arms -->
+      <ellipse cx="194" cy="295" rx="9" ry="16" fill="#3a1010" stroke="#6b2828" stroke-width="0.9"/>
+      <ellipse cx="306" cy="295" rx="9" ry="16" fill="#3a1010" stroke="#6b2828" stroke-width="0.9"/>
+
+      <!-- Gold trim: top curve of back -->
+      <path d="M 216 175 Q 216 154 250 154 Q 284 154 284 175" fill="none" stroke="currentColor" stroke-width="2" opacity="0.85"/>
+
+      <!-- Gold trim: vertical edges of back -->
+      <line x1="216" y1="175" x2="216" y2="383" stroke="currentColor" stroke-width="0.7" opacity="0.45"/>
+      <line x1="284" y1="175" x2="284" y2="383" stroke="currentColor" stroke-width="0.7" opacity="0.45"/>
+
+      <!-- Gold caps on arms -->
+      <ellipse cx="194" cy="295" rx="9" ry="3" fill="currentColor" opacity="0.5"/>
+      <ellipse cx="306" cy="295" rx="9" ry="3" fill="currentColor" opacity="0.5"/>
+    </g>
+
+    <ellipse cx="90" cy="380" rx="170" ry="130" fill="url(#study-fire)" style="mix-blend-mode:screen"/>
+    <ellipse cx="430" cy="150" rx="150" ry="180" fill="url(#study-moonlight)" style="mix-blend-mode:screen"/>
+
+    <g fill="#ffd79a" class="study-motes">
+      <circle cx="140" cy="300" r="1" opacity="0.7"/>
+      <circle cx="170" cy="260" r="0.8" opacity="0.6"/>
+      <circle cx="120" cy="330" r="1.2" opacity="0.75"/>
+      <circle cx="200" cy="280" r="0.7" opacity="0.5"/>
+      <circle cx="160" cy="350" r="0.9" opacity="0.65"/>
+      <circle cx="185" cy="320" r="1.1" opacity="0.7"/>
+      <circle cx="145" cy="240" r="0.6" opacity="0.45"/>
+      <circle cx="210" cy="350" r="0.8" opacity="0.55"/>
+    </g>
+  </svg>
 
 
   {% elif key == 'boardroom' %}
