@@ -2161,7 +2161,7 @@ function tmMicDown(e) {
   }
 
   if (recHoldTimer) clearTimeout(recHoldTimer);
-  recHoldTimer = setTimeout(() => { tmStartRecording(); }, 120);
+  recHoldTimer = setTimeout(() => { tmStartRecording(); }, 60);
 
   tmAttachDocListeners();
 }
@@ -2448,7 +2448,7 @@ async function tmStartRecording() {
     mediaRecorder = new MediaRecorder(activeStream, {mimeType: mime});
   } catch (err) { try { activeStream.getTracks().forEach(t => t.stop()); } catch(e){} activeStream = null; alert('Could not start: ' + err.message); return; }
   audioChunks = []; currentBlob = null;
-  mediaRecorder.ondataavailable = ev => { if (ev.data.size) audioChunks.push(ev.data); };
+  mediaRecorder.ondataavailable = ev => { if (ev.data && ev.data.size > 0) audioChunks.push(ev.data); };
   mediaRecorder.onstop = () => {
       const _dim = document.getElementById('rec-dim');
       if (_dim) _dim.classList.remove('visible');
@@ -2460,7 +2460,7 @@ async function tmStartRecording() {
     if (audioChunks.length === 0) return;
     currentBlob = new Blob(audioChunks, {type: 'audio/webm'});
   };
-  try { mediaRecorder.start(); } catch (err) { try { activeStream.getTracks().forEach(t => t.stop()); } catch(e){} activeStream = null; alert('Recorder failed: ' + err.message); return; }
+  try { mediaRecorder.start(100); } catch (err) { try { activeStream.getTracks().forEach(t => t.stop()); } catch(e){} activeStream = null; alert('Recorder failed: ' + err.message); return; }
   recStart = Date.now(); recPausedTotal = 0; recording = true;
   const _mBtn = document.getElementById('mic-btn');
   if (_mBtn) _mBtn.classList.add('recording');
@@ -2515,8 +2515,8 @@ async function tmRecSend(e) {
   const duration = (Date.now() - recStart) / 1000;
   try { mediaRecorder.stop(); } catch(err){}
   const startedAt = Date.now();
-  while (!currentBlob && Date.now() - startedAt < 2000) await new Promise(r => setTimeout(r, 50));
-  if (!currentBlob || currentBlob.size < 100) { alert('Recording was too short.'); return; }
+  while (!currentBlob && Date.now() - startedAt < 3000) await new Promise(r => setTimeout(r, 20));
+  if (!currentBlob || currentBlob.size < 1) { alert('Recording was too short.'); return; }
   if (currentBlob.size > 15 * 1024 * 1024) { alert('Voice too large.'); return; }
   try {
     const presign = await fetch('/api/media/presign', {method: 'POST', credentials: 'same-origin', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({filename: 'voice.webm', content_type: 'audio/webm', size: currentBlob.size, kind: 'audio'})});
