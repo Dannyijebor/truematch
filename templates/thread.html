@@ -156,13 +156,27 @@ html.light .bubble-reply { background: rgba(0,0,0,0.06); }
 }
 
 .chat-composer {
-  display: flex; align-items: flex-end; gap: 6px;
-  padding: 8px 8px calc(10px + env(safe-area-inset-bottom, 0px));
-  background: rgba(11,20,26,0.98);
-  backdrop-filter: blur(16px);
-  border-top: 1px solid rgba(255,255,255,0.06);
-  flex-shrink: 0;
-}
+    display: flex !important;
+    align-items: flex-end !important;
+    flex-wrap: nowrap !important;
+    gap: 6px;
+    padding: 8px 8px calc(10px + env(safe-area-inset-bottom, 0px));
+    background: rgba(11,20,26,0.98);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+  }
+  /* COMPOSER-ENFORCE */
+  .chat-composer > * { flex-shrink: 0 !important; }
+  .chat-composer > .composer-input-wrap { flex: 1 1 auto !important; min-width: 0 !important; }
+  .chat-composer > #send-btn,
+  .chat-composer > #mic-btn,
+  .chat-composer > .composer-btn {
+    position: static !important;
+    float: none !important;
+    margin: 0 !important;
+    align-self: flex-end !important;
+  }
 html.light .chat-composer { background: rgba(240,242,245,0.98); border-top-color: rgba(0,0,0,0.06); }
 .composer-btn { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #8696a0; flex-shrink: 0; background: transparent; border: none; cursor: pointer; transition: background 0.15s, transform 0.1s; }
 .composer-btn:hover { background: rgba(255,255,255,0.06); }
@@ -1328,8 +1342,7 @@ html.light .chat-screen.theme-editorial {
           <span>{{ m.created_at[11:16] }}</span>
           {% if m.from_me %}
             <span class="tick {% if m.read %}read{% elif m.delivered %}delivered{% else %}pending{% endif %}">
-              <svg viewBox="0 0 13 11" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 6l3.5 3.5L11 3"/></svg>
-              <svg viewBox="0 0 13 11" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 6l3.5 3.5L11 3"/></svg>
+              <svg class="tick-a" viewBox="0 0 13 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6l3.5 3.5L11 3"/></svg><svg class="tick-b" viewBox="0 0 13 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6l3.5 3.5L11 3"/></svg>
             </span>
           {% endif %}
         </div>
