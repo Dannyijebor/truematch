@@ -869,288 +869,66 @@
 
   {% elif key == 'heritage' %}
   {# ---------- MAYFAIR · The Diplomat · An old estate with drifting fog ---------- #}
-  <svg viewBox="0 0 500 500" preserveAspectRatio="xMidYMid slice" class="wp-svg wp-may">
-  <defs>
-    <linearGradient id="may-sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="var(--may-sky-1)"/>
-      <stop offset="55%" stop-color="var(--may-sky-2)"/>
-      <stop offset="100%" stop-color="var(--may-sky-3)"/>
-    </linearGradient>
-    <radialGradient id="may-moonhalo" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="var(--may-moon)" stop-opacity="0.7"/>
-      <stop offset="45%" stop-color="var(--may-moon)" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="var(--may-moon)" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="may-sunhalo" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="var(--may-sun)" stop-opacity="0.7"/>
-      <stop offset="45%" stop-color="var(--may-sun)" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="var(--may-sun)" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="may-sun-core" cx="42%" cy="38%" r="60%">
-      <stop offset="0%" stop-color="#fff8dc"/>
-      <stop offset="55%" stop-color="#ffe090"/>
-      <stop offset="100%" stop-color="#e8a840"/>
-    </radialGradient>
-    <radialGradient id="may-moon-face" cx="38%" cy="34%" r="65%">
-      <stop offset="0%" stop-color="#f5faff"/>
-      <stop offset="70%" stop-color="#dbe5f2"/>
-      <stop offset="100%" stop-color="#a8b8cc"/>
-    </radialGradient>
-    <radialGradient id="may-bloom" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#ffe8a0" stop-opacity="0.9"/>
-      <stop offset="60%" stop-color="#ffb860" stop-opacity="0.35"/>
-      <stop offset="100%" stop-color="#ffb860" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="may-lantern-glow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="var(--may-lantern)" stop-opacity="0.85"/>
-      <stop offset="45%" stop-color="var(--may-lantern)" stop-opacity="0.2"/>
-      <stop offset="100%" stop-color="var(--may-lantern)" stop-opacity="0"/>
-    </radialGradient>
-    <linearGradient id="may-lawn" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="var(--may-lawn-1)"/>
-      <stop offset="100%" stop-color="var(--may-lawn-2)"/>
-    </linearGradient>
-    <linearGradient id="may-stone" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="var(--may-manor-1)"/>
-      <stop offset="100%" stop-color="var(--may-manor-2)"/>
-    </linearGradient>
-    <filter id="may-blur-xs"><feGaussianBlur stdDeviation="0.5"/></filter>
-    <filter id="may-blur-sm"><feGaussianBlur stdDeviation="1.2"/></filter>
-    <filter id="may-blur-md"><feGaussianBlur stdDeviation="2.8"/></filter>
-    <filter id="may-blur-lg"><feGaussianBlur stdDeviation="6.5"/></filter>
-    <filter id="may-blur-xl"><feGaussianBlur stdDeviation="12"/></filter>
-    <radialGradient id="may-fade" cx="50%" cy="50%" r="80%">
-      <stop offset="0%" stop-color="#fff" stop-opacity="1"/>
-      <stop offset="62%" stop-color="#fff" stop-opacity="0.94"/>
-      <stop offset="88%" stop-color="#fff" stop-opacity="0.35"/>
-      <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
-    </radialGradient>
-    <mask id="may-mask"><rect width="500" height="500" fill="url(#may-fade)"/></mask>
-  </defs>
+  <svg viewBox="0 0 500 500" preserveAspectRatio="xMidYMid slice" class="wp-svg wp-mayfair">
+    <defs>
+      <linearGradient id="mayfair-sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="currentColor" stop-opacity="0"/>
+        <stop offset="100%" stop-color="currentColor" stop-opacity="0.12"/>
+      </linearGradient>
+      <radialGradient id="mayfair-sun" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="currentColor" stop-opacity="0.28"/>
+        <stop offset="100%" stop-color="currentColor" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
 
-  <g mask="url(#may-mask)">
-    <rect width="500" height="500" fill="url(#may-sky)"/>
+    <rect width="500" height="500" fill="url(#mayfair-sky)"/>
+    <circle cx="380" cy="130" r="70" fill="url(#mayfair-sun)"/>
+    <circle cx="380" cy="130" r="28" fill="currentColor" opacity="0.4"/>
 
-    <g class="may-night-only">
-      <g fill="var(--may-moon)">
-        <circle cx="62" cy="42" r="0.6" opacity="0.5"/>
-        <circle cx="118" cy="30" r="0.5" opacity="0.4"/>
-        <circle cx="178" cy="58" r="0.7" opacity="0.5"/>
-        <circle cx="240" cy="34" r="0.5" opacity="0.35"/>
-        <circle cx="88" cy="96" r="0.5" opacity="0.4"/>
-        <circle cx="160" cy="82" r="0.6" opacity="0.45"/>
-        <circle cx="300" cy="48" r="0.5" opacity="0.4"/>
-      </g>
+    <!-- Distant hills -->
+    <path d="M0 340 Q100 280 200 320 T400 300 T500 330 V500 H0 Z" fill="currentColor" opacity="0.15"/>
+
+    <!-- Estate main block -->
+    <g stroke="currentColor" fill="none" stroke-width="1.2" opacity="0.75">
+      <path d="M140 380 V260 L250 190 L360 260 V380 Z"/>
+      <path d="M140 380 H360"/>
+      <path d="M180 380 V300 H220 V380"/>
+      <path d="M280 380 V300 H320 V380"/>
+      <line x1="250" y1="190" x2="250" y2="270"/>
+      <path d="M230 270 H270"/>
+      <line x1="160" y1="285" x2="340" y2="285"/>
     </g>
 
-    <g class="may-celestial">
-      <g class="may-cel-arc">
-        <g class="may-cel-sun">
-          <circle r="88" fill="url(#may-sunhalo)"/>
-          <circle r="52" fill="url(#may-sun-core)" opacity="0.55"/>
-          <circle r="34" fill="url(#may-sun-core)"/>
-          <circle cx="-10" cy="-8" r="10" fill="#fff" opacity="0.55"/>
-          <circle cx="-14" cy="-12" r="4" fill="#fff" opacity="0.9"/>
-          <g stroke="var(--may-sun-ray)" stroke-width="1.4" stroke-linecap="round" opacity="0.42">
-            <line x1="0" y1="-50" x2="0" y2="-66"/>
-            <line x1="0" y1="50" x2="0" y2="66"/>
-            <line x1="-50" y1="0" x2="-66" y2="0"/>
-            <line x1="50" y1="0" x2="66" y2="0"/>
-            <line x1="-36" y1="-36" x2="-48" y2="-48"/>
-            <line x1="36" y1="36" x2="48" y2="48"/>
-            <line x1="36" y1="-36" x2="48" y2="-48"/>
-            <line x1="-36" y1="36" x2="-48" y2="48"/>
-          </g>
-        </g>
-        <g class="may-cel-moon">
-          <circle r="78" fill="url(#may-moonhalo)"/>
-          <circle r="32" fill="url(#may-moon-face)"/>
-          <circle cx="-14" cy="-10" r="30" fill="var(--may-sky-1)" opacity="0.98"/>
-          <circle cx="-8" cy="-2" r="1.5" fill="var(--may-moon-shade)" opacity="0.35"/>
-          <circle cx="0" cy="8" r="1.1" fill="var(--may-moon-shade)" opacity="0.3"/>
-          <circle cx="8" cy="-4" r="0.9" fill="var(--may-moon-shade)" opacity="0.28"/>
-          <circle r="34" fill="none" stroke="var(--may-moon)" stroke-width="0.4" opacity="0.35"/>
-        </g>
-        <circle r="0" fill="url(#may-bloom)" opacity="0" class="may-cel-bloom"/>
-      </g>
+    <!-- Windows -->
+    <g fill="currentColor" opacity="0.4">
+      <rect x="160" y="300" width="10" height="14"/>
+      <rect x="160" y="330" width="10" height="14"/>
+      <rect x="330" y="300" width="10" height="14"/>
+      <rect x="330" y="330" width="10" height="14"/>
+      <rect x="240" y="300" width="10" height="14"/>
+      <rect x="250" y="220" width="0" height="0"/>
+    </g>
+    <circle cx="250" cy="245" r="6" fill="currentColor" opacity="0.7"/>
+
+    <!-- Chimneys -->
+    <rect x="170" y="240" width="8" height="30" fill="currentColor" opacity="0.6"/>
+    <rect x="320" y="240" width="8" height="30" fill="currentColor" opacity="0.6"/>
+
+    <!-- Fog layers drifting -->
+    <g class="mayfair-fog" fill="currentColor" opacity="0.2">
+      <ellipse cx="150" cy="400" rx="160" ry="18"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="350" cy="420" rx="180" ry="22"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="250" cy="440" rx="220" ry="20"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
     </g>
 
-    <g class="may-day-only">
-      <g fill="var(--may-cloud)" opacity="0.85">
-        <animateTransform attributeName="transform" type="translate" values="0 0; 26 0; 0 0" dur="62s" repeatCount="indefinite"/>
-        <ellipse cx="190" cy="80" rx="40" ry="13"/>
-        <ellipse cx="168" cy="78" rx="20" ry="11"/>
-        <ellipse cx="214" cy="78" rx="24" ry="12"/>
-        <ellipse cx="190" cy="72" rx="18" ry="10"/>
-      </g>
-      <g fill="var(--may-cloud-2)" opacity="0.7">
-        <animateTransform attributeName="transform" type="translate" values="0 0; -22 0; 0 0" dur="78s" repeatCount="indefinite"/>
-        <ellipse cx="340" cy="48" rx="32" ry="10"/>
-        <ellipse cx="324" cy="46" rx="16" ry="8"/>
-        <ellipse cx="356" cy="46" rx="18" ry="9"/>
-      </g>
-      <g fill="var(--may-cloud-3)" opacity="0.55">
-        <animateTransform attributeName="transform" type="translate" values="0 0; 18 0; 0 0" dur="95s" repeatCount="indefinite"/>
-        <ellipse cx="430" cy="130" rx="44" ry="12"/>
-      </g>
-      <g stroke="var(--may-bird)" stroke-width="0.9" fill="none" opacity="0.55">
-        <animateTransform attributeName="transform" type="translate" values="0 0; 55 -8; 0 0" dur="48s" repeatCount="indefinite"/>
-        <path d="M 280 96 q 3 -3 6 0 q 3 -3 6 0"/>
-        <path d="M 295 104 q 3 -3 6 0 q 3 -3 6 0"/>
-        <path d="M 286 112 q 3 -3 6 0 q 3 -3 6 0"/>
-      </g>
+    <!-- Trees -->
+    <g fill="currentColor" opacity="0.3">
+      <ellipse cx="80" cy="380" rx="30" ry="45"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="80" cy="390" rx="6" ry="25"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="420" cy="380" rx="28" ry="42"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
+      <ellipse cx="420" cy="392" rx="6" ry="25"><animateTransform attributeName="transform" type="translate" values="0 0; -25 180; -10 380" dur="12s" repeatCount="indefinite"/></ellipse>
     </g>
-
-    <g fill="var(--may-tree-back)" filter="url(#may-blur-sm)" opacity="0.75">
-      <path d="M 0 320 Q 20 260 40 320 Q 60 240 80 320 Q 100 270 120 320 Q 140 230 160 320 Q 180 275 200 320 Q 220 245 240 320 Q 260 265 280 320 Q 300 250 320 320 Q 340 280 360 320 Q 380 240 400 320 Q 420 275 440 320 Q 460 255 480 320 Q 495 280 500 320 L 500 410 L 0 410 Z"/>
-    </g>
-
-    <g fill="var(--may-tree-front)">
-      <path d="M 22 400 Q 30 320 42 260 Q 50 245 58 260 Q 70 320 78 400 Z"/>
-      <ellipse cx="50" cy="270" rx="26" ry="35"/>
-      <rect x="46" y="395" width="8" height="20" fill="var(--may-tree-front)"/>
-      <path d="M 400 400 Q 410 340 420 310 Q 435 280 450 310 Q 460 340 468 400 Z"/>
-      <ellipse cx="435" cy="300" rx="38" ry="30"/>
-      <rect x="430" y="395" width="10" height="22" fill="var(--may-tree-front)"/>
-    </g>
-
-    <g>
-      <rect x="120" y="308" width="60" height="90" fill="url(#may-stone)" stroke="var(--may-manor-edge)" stroke-width="0.8"/>
-      <polygon points="120,308 150,290 180,308" fill="var(--may-manor-roof)"/>
-      <rect x="132" y="330" width="10" height="14" fill="var(--may-window-warm)" opacity="0.9">
-        <animate attributeName="opacity" values="0.9;0.7;0.9" dur="6s" repeatCount="indefinite"/>
-      </rect>
-      <rect x="158" y="330" width="10" height="14" fill="var(--may-window-warm)" opacity="0.75"/>
-      <rect x="132" y="360" width="10" height="14" fill="var(--may-window-warm)" opacity="0.6"/>
-      <rect x="158" y="360" width="10" height="14" fill="var(--may-window-cool)" opacity="0.6"/>
-
-      <rect x="180" y="270" width="140" height="128" fill="url(#may-stone)" stroke="var(--may-manor-edge)" stroke-width="0.9"/>
-      <polygon points="174,270 250,235 326,270" fill="var(--may-manor-roof)" stroke="var(--may-manor-edge)" stroke-width="0.6"/>
-      <polygon points="220,270 250,248 280,270" fill="var(--may-manor-pediment)"/>
-      <line x1="220" y1="270" x2="280" y2="270" stroke="var(--may-manor-edge)" stroke-width="0.6"/>
-      <rect x="196" y="242" width="8" height="26" fill="var(--may-manor-roof)"/>
-      <rect x="296" y="242" width="8" height="26" fill="var(--may-manor-roof)"/>
-      <rect x="194" y="240" width="12" height="3" fill="var(--may-manor-edge)"/>
-      <rect x="294" y="240" width="12" height="3" fill="var(--may-manor-edge)"/>
-
-      <g fill="var(--may-window-warm)">
-        <rect x="196" y="290" width="12" height="18" opacity="0.95"/>
-        <rect x="244" y="290" width="12" height="18" opacity="0.85">
-          <animate attributeName="opacity" values="0.85;0.5;0.85" dur="8s" repeatCount="indefinite"/>
-        </rect>
-        <rect x="292" y="290" width="12" height="18" opacity="0.9"/>
-        <rect x="196" y="320" width="12" height="18" opacity="0.7"/>
-        <rect x="244" y="320" width="12" height="18" opacity="0.8"/>
-        <rect x="292" y="320" width="12" height="18" opacity="0.5"/>
-        <rect x="196" y="350" width="12" height="18" opacity="0.9">
-          <animate attributeName="opacity" values="0.9;0.4;0.9" dur="12s" repeatCount="indefinite"/>
-        </rect>
-        <rect x="244" y="350" width="12" height="18" opacity="0.95"/>
-        <rect x="292" y="350" width="12" height="18" opacity="0.75"/>
-      </g>
-      <rect x="240" y="378" width="20" height="20" fill="var(--may-door)" stroke="var(--may-manor-edge)" stroke-width="0.5"/>
-      <circle cx="256" cy="390" r="1" fill="var(--may-lantern)"/>
-
-      <rect x="320" y="308" width="60" height="90" fill="url(#may-stone)" stroke="var(--may-manor-edge)" stroke-width="0.8"/>
-      <polygon points="320,308 350,290 380,308" fill="var(--may-manor-roof)"/>
-      <rect x="332" y="330" width="10" height="14" fill="var(--may-window-warm)" opacity="0.85"/>
-      <rect x="358" y="330" width="10" height="14" fill="var(--may-window-cool)" opacity="0.6"/>
-      <rect x="332" y="360" width="10" height="14" fill="var(--may-window-warm)" opacity="0.65"/>
-      <rect x="358" y="360" width="10" height="14" fill="var(--may-window-warm)" opacity="0.75">
-        <animate attributeName="opacity" values="0.75;0.4;0.75" dur="9s" repeatCount="indefinite"/>
-      </rect>
-    </g>
-
-    <g style="mix-blend-mode:screen">
-      <ellipse cx="248" cy="380" rx="60" ry="20" fill="var(--may-window-warm)" opacity="0.28" filter="url(#may-blur-lg)"/>
-      <ellipse cx="150" cy="380" rx="34" ry="14" fill="var(--may-window-warm)" opacity="0.22" filter="url(#may-blur-lg)"/>
-      <ellipse cx="350" cy="380" rx="34" ry="14" fill="var(--may-window-warm)" opacity="0.22" filter="url(#may-blur-lg)"/>
-    </g>
-
-    <rect y="398" width="500" height="102" fill="url(#may-lawn)"/>
-    <line x1="0" y1="398" x2="500" y2="398" stroke="var(--may-lawn-edge)" stroke-width="0.6" opacity="0.6"/>
-
-    <rect x="90" y="392" width="320" height="10" fill="var(--may-hedge-1)" opacity="0.9"/>
-    <rect x="90" y="390" width="320" height="3" fill="var(--may-hedge-2)"/>
-
-    <g fill="var(--may-topiary)">
-      <ellipse cx="60" cy="440" rx="9" ry="3" fill="var(--may-topiary-shadow)"/>
-      <path d="M 52 440 Q 60 400 68 440 Z"/>
-      <path d="M 54 440 Q 60 412 66 440 Z" opacity="0.5"/>
-      <ellipse cx="60" cy="454" rx="12" ry="6"/>
-      <ellipse cx="440" cy="446" rx="10" ry="3" fill="var(--may-topiary-shadow)"/>
-      <path d="M 431 446 Q 440 400 449 446 Z"/>
-      <ellipse cx="440" cy="460" rx="13" ry="7"/>
-    </g>
-
-    <path d="M 220 500 L 250 400 L 270 400 L 290 500 Z" fill="var(--may-path)"/>
-    <path d="M 220 500 L 250 400 L 270 400 L 290 500 Z" fill="none" stroke="var(--may-path-edge)" stroke-width="0.6" opacity="0.7"/>
-
-    <g>
-      <ellipse cx="140" cy="470" rx="42" ry="10" fill="var(--may-fountain-water)"/>
-      <ellipse cx="140" cy="470" rx="42" ry="10" fill="none" stroke="var(--may-fountain-edge)" stroke-width="0.7"/>
-      <ellipse cx="140" cy="470" rx="30" ry="6" fill="none" stroke="var(--may-fountain-edge)" stroke-width="0.4" opacity="0.5"/>
-      <rect x="138" y="440" width="4" height="30" fill="var(--may-manor-1)" stroke="var(--may-manor-edge)" stroke-width="0.4"/>
-      <ellipse cx="140" cy="440" rx="12" ry="3.5" fill="var(--may-manor-1)" stroke="var(--may-manor-edge)" stroke-width="0.5"/>
-      <g fill="var(--may-fountain-spray)" opacity="0.55">
-        <circle cx="140" cy="425" r="0.9">
-          <animate attributeName="cy" values="435;410;435" dur="2.5s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0.8;0;0.8" dur="2.5s" repeatCount="indefinite"/>
-        </circle>
-        <circle cx="134" cy="428" r="0.7">
-          <animate attributeName="cy" values="435;415;435" dur="2.1s" begin="0.6s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0.7;0;0.7" dur="2.1s" begin="0.6s" repeatCount="indefinite"/>
-        </circle>
-        <circle cx="146" cy="430" r="0.8">
-          <animate attributeName="cy" values="435;412;435" dur="2.8s" begin="1.1s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0.75;0;0.75" dur="2.8s" begin="1.1s" repeatCount="indefinite"/>
-        </circle>
-      </g>
-    </g>
-
-    <g class="may-night-only">
-      <circle cx="88" cy="420" r="60" fill="url(#may-lantern-glow)" style="mix-blend-mode:screen"/>
-      <line x1="88" y1="400" x2="88" y2="420" stroke="var(--may-manor-edge)" stroke-width="1"/>
-      <rect x="82" y="418" width="12" height="16" fill="var(--may-manor-edge)"/>
-      <rect x="84" y="421" width="8" height="10" fill="var(--may-lantern)">
-        <animate attributeName="opacity" values="1;0.85;1" dur="3.2s" repeatCount="indefinite"/>
-      </rect>
-    </g>
-
-    <g class="may-day-only" opacity="0.85">
-      <circle cx="188" cy="470" r="1.6" fill="var(--may-flower-1)"/>
-      <circle cx="196" cy="474" r="1.4" fill="var(--may-flower-2)"/>
-      <circle cx="204" cy="468" r="1.5" fill="var(--may-flower-1)"/>
-      <circle cx="312" cy="472" r="1.6" fill="var(--may-flower-2)"/>
-      <circle cx="320" cy="468" r="1.4" fill="var(--may-flower-1)"/>
-      <circle cx="328" cy="474" r="1.5" fill="var(--may-flower-2)"/>
-      <circle cx="80" cy="480" r="1.4" fill="var(--may-flower-1)"/>
-      <circle cx="410" cy="482" r="1.4" fill="var(--may-flower-1)"/>
-    </g>
-
-    <g class="may-day-only" fill="var(--may-butterfly)" opacity="0.75">
-      <g>
-        <ellipse cx="0" cy="0" rx="3" ry="1.5"/>
-        <ellipse cx="0" cy="0" rx="1" ry="1.8" fill="#000" opacity="0.4"/>
-        <animateTransform attributeName="transform" type="translate" values="180 400; 220 380; 180 400" dur="14s" repeatCount="indefinite"/>
-      </g>
-      <g>
-        <ellipse cx="0" cy="0" rx="2.6" ry="1.3"/>
-        <ellipse cx="0" cy="0" rx="0.8" ry="1.5" fill="#000" opacity="0.4"/>
-        <animateTransform attributeName="transform" type="translate" values="320 410; 350 395; 320 410" dur="11s" repeatCount="indefinite"/>
-      </g>
-    </g>
-
-    <g class="may-night-only" fill="var(--may-fog)" filter="url(#may-blur-xl)" opacity="0.35">
-      <ellipse cx="120" cy="400" rx="180" ry="16">
-        <animate attributeName="cx" values="120;160;120" dur="24s" repeatCount="indefinite"/>
-      </ellipse>
-      <ellipse cx="380" cy="405" rx="200" ry="18">
-        <animate attributeName="cx" values="380;340;380" dur="28s" repeatCount="indefinite"/>
-      </ellipse>
-    </g>
-  </g>
-</svg>
+  </svg>
 
   {% elif key == 'sovereign' %}
   {# ---------- SOHO · The Founder · A brownstone row at dusk ---------- #}
