@@ -419,15 +419,62 @@ html.light .chat-screen.theme-editorial {
     transition: opacity 0.35s ease;
   }
   .wp-svg {
-    width: min(115vw, 620px);
-    height: min(115vw, 620px);
+    width: 100%;
+    height: 100%;
     flex-shrink: 0;
     transform-origin: 50% 55%;
-    animation: wp-breathe 14s ease-in-out infinite;
-    will-change: transform, filter;
-    filter:
-      drop-shadow(0 22px 44px rgba(0,0,0,0.12))
-      drop-shadow(0 3px 10px rgba(0,0,0,0.06));
+    animation: wp-breathe 18s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  /* ---------- Savile Study — DARK palette ---------- */
+  .chat-wallpaper {
+    --sv-wall-1: #0d0e12; --sv-wall-2: #14161c;
+    --sv-floor-1: #0a0806; --sv-floor-2: #030201;
+    --sv-fire-hi: #ff9d3a; --sv-fire-lo: #d4661a;
+    --sv-ember-hi: #ffb35a; --sv-ember-lo: #ffbb6a;
+    --sv-moon: #dbe5f2; --sv-window: #e8eef5;
+    --sv-window-bg: #0a1424; --sv-window-frame: #2e2418;
+    --sv-rain: #8fa8c4; --sv-panel-line: #3d2c1c;
+    --sv-globe-1: #3b6a7a; --sv-globe-2: #1e4451;
+    --sv-globe-3: #0a1f28; --sv-globe-4: #050f14;
+    --sv-globe-edge: #0a1a22;
+    --sv-accent: #c9a961; --sv-accent-hi: #f0e0a0;
+    --sv-brass-1: #7a5a1e; --sv-brass-2: #d4b866; --sv-brass-4: #6a4a15;
+    --sv-wood-1: #3a2418; --sv-wood-2: #1a0f08; --sv-wood-edge: #4a2e1a;
+    --sv-velvet-1: #3a0e0e; --sv-velvet-2: #1a0404;
+    --sv-fire-bg: #150c06; --sv-fire-frame: #3a2a1a;
+    --sv-fire-interior: #030101;
+    --sv-mantel-1: #241809; --sv-mantel-2: #4a3520;
+    --sv-rug-1: #3e1010;
+    --sv-candle-1: #e8d9b0; --sv-candle-2: #a08860; --sv-candle-3: #f0e8d8;
+    --sv-flame-hi: #ffb84a; --sv-flame-lo: #ffe8a0;
+    --sv-book1: #5a2018; --sv-book2: #2e2a52; --sv-book3: #3a4a2a;
+  }
+
+  /* ---------- Savile Study — LIGHT palette (daytime) ---------- */
+  html.light .chat-wallpaper {
+    --sv-wall-1: #f6f1e4; --sv-wall-2: #eadfc4;
+    --sv-floor-1: #d8c298; --sv-floor-2: #b89870;
+    --sv-fire-hi: #ffc878; --sv-fire-lo: #d49a5a;
+    --sv-ember-hi: #e0a850; --sv-ember-lo: #f0c070;
+    --sv-moon: #b8cce0; --sv-window: #fffdf0;
+    --sv-window-bg: #b8d0e8; --sv-window-frame: #8a6a48;
+    --sv-rain: #7898b8; --sv-panel-line: #a89878;
+    --sv-globe-1: #5a90a8; --sv-globe-2: #3a7088;
+    --sv-globe-3: #1a4860; --sv-globe-4: #0a2a3a;
+    --sv-globe-edge: #2a5068;
+    --sv-accent: #8a6a20; --sv-accent-hi: #b89030;
+    --sv-brass-1: #8a6a28; --sv-brass-2: #c8a848; --sv-brass-4: #6a4a18;
+    --sv-wood-1: #6a4830; --sv-wood-2: #3a2010; --sv-wood-edge: #8a6040;
+    --sv-velvet-1: #7a2828; --sv-velvet-2: #4a1010;
+    --sv-fire-bg: #d8c8a8; --sv-fire-frame: #8a6a48;
+    --sv-fire-interior: #4a2a18;
+    --sv-mantel-1: #b89870; --sv-mantel-2: #8a6a48;
+    --sv-rug-1: #8a3030;
+    --sv-candle-1: #e8d9b0; --sv-candle-2: #a08860; --sv-candle-3: #fff8e8;
+    --sv-flame-hi: #ffb84a; --sv-flame-lo: #ffe8a0;
+    --sv-book1: #8a4030; --sv-book2: #4a4670; --sv-book3: #5a6a40;
   }
 
   /* ---------- PHASE 1: CINEMATIC LAYER (all themes) ---------- */

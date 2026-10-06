@@ -78,69 +78,59 @@
     <circle cx="250" cy="250" r="3" fill="#0d0e12"/>
   </svg>
 
-  <svg viewBox="0 0 500 500" preserveAspectRatio="xMidYMid slice" class="wp-svg wp-savile-study">
+  <svg viewBox="0 0 500 500" preserveAspectRatio="xMidYMid meet" class="wp-svg wp-savile-study">
   <defs>
     <linearGradient id="sv-wall" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="var(--sv-wall-1)"/>
-      <stop offset="100%" stop-color="var(--sv-wall-2)"/>
+      <stop offset="0%" stop-color="#0a0805"/>
+      <stop offset="100%" stop-color="#1a120a"/>
     </linearGradient>
     <linearGradient id="sv-floor" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="var(--sv-floor-1)"/>
-      <stop offset="100%" stop-color="var(--sv-floor-2)"/>
+      <stop offset="0%" stop-color="#0f0a06"/>
+      <stop offset="100%" stop-color="#030201"/>
     </linearGradient>
     <radialGradient id="sv-fire" cx="18%" cy="78%" r="62%">
-      <stop offset="0%" stop-color="var(--sv-fire-hi)" stop-opacity="0.7"/>
-      <stop offset="40%" stop-color="var(--sv-fire-lo)" stop-opacity="0.2"/>
-      <stop offset="100%" stop-color="var(--sv-fire-lo)" stop-opacity="0"/>
+      <stop offset="0%" stop-color="#ff9d3a" stop-opacity="0.7"/>
+      <stop offset="40%" stop-color="#d4661a" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#d4661a" stop-opacity="0"/>
     </radialGradient>
     <radialGradient id="sv-moon" cx="84%" cy="16%" r="58%">
-      <stop offset="0%" stop-color="var(--sv-moon)" stop-opacity="0.55"/>
-      <stop offset="60%" stop-color="var(--sv-moon)" stop-opacity="0.08"/>
-      <stop offset="100%" stop-color="var(--sv-moon)" stop-opacity="0"/>
+      <stop offset="0%" stop-color="#dbe5f2" stop-opacity="0.55"/>
+      <stop offset="60%" stop-color="#dbe5f2" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#dbe5f2" stop-opacity="0"/>
     </radialGradient>
     <radialGradient id="sv-globe" cx="35%" cy="30%" r="75%">
-      <stop offset="0%" stop-color="var(--sv-globe-1)"/>
-      <stop offset="45%" stop-color="var(--sv-globe-2)"/>
-      <stop offset="85%" stop-color="var(--sv-globe-3)"/>
-      <stop offset="100%" stop-color="var(--sv-globe-4)"/>
+      <stop offset="0%" stop-color="#3b6a7a"/>
+      <stop offset="45%" stop-color="#1e4451"/>
+      <stop offset="85%" stop-color="#0a1f28"/>
+      <stop offset="100%" stop-color="#050f14"/>
     </radialGradient>
     <radialGradient id="sv-globe-spec" cx="30%" cy="25%" r="34%">
       <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
       <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="sv-brass" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="var(--sv-brass-1)"/>
-      <stop offset="35%" stop-color="var(--sv-brass-2)"/>
-      <stop offset="55%" stop-color="var(--sv-accent-hi)"/>
-      <stop offset="75%" stop-color="var(--sv-accent)"/>
-      <stop offset="100%" stop-color="var(--sv-brass-4)"/>
+      <stop offset="0%" stop-color="#7a5a1e"/>
+      <stop offset="35%" stop-color="#d4b866"/>
+      <stop offset="55%" stop-color="#f0e0a0"/>
+      <stop offset="75%" stop-color="#c9a961"/>
+      <stop offset="100%" stop-color="#6a4a15"/>
     </linearGradient>
     <linearGradient id="sv-wood" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="var(--sv-wood-1)"/>
-      <stop offset="100%" stop-color="var(--sv-wood-2)"/>
+      <stop offset="0%" stop-color="#3a2418"/>
+      <stop offset="100%" stop-color="#1a0f08"/>
     </linearGradient>
     <linearGradient id="sv-velvet" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="var(--sv-velvet-1)"/>
-      <stop offset="100%" stop-color="var(--sv-velvet-2)"/>
+      <stop offset="0%" stop-color="#3a0e0e"/>
+      <stop offset="100%" stop-color="#1a0404"/>
     </linearGradient>
     <filter id="sv-blur-sm"><feGaussianBlur stdDeviation="1.1"/></filter>
     <filter id="sv-blur-md"><feGaussianBlur stdDeviation="3.5"/></filter>
     <filter id="sv-blur-lg"><feGaussianBlur stdDeviation="9"/></filter>
     <clipPath id="sv-globe-clip"><circle cx="250" cy="278" r="70"/></clipPath>
-      <radialGradient id="sv-edge-fade" cx="50%" cy="50%" r="78%">
-      <stop offset="0%" stop-color="#fff" stop-opacity="1"/>
-      <stop offset="62%" stop-color="#fff" stop-opacity="0.92"/>
-      <stop offset="88%" stop-color="#fff" stop-opacity="0.35"/>
-      <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
-    </radialGradient>
-    <mask id="sv-edge-mask">
-      <rect width="500" height="500" fill="url(#sv-edge-fade)"/>
-    </mask>
-</defs>
-<g mask="url(#sv-edge-mask)">
+  </defs>
 
   <rect width="500" height="500" fill="url(#sv-wall)"/>
-  <g stroke="var(--sv-panel-line)" stroke-width="0.4" opacity="0.35">
+  <g stroke="#3d2c1c" stroke-width="0.4" opacity="0.35">
     <line x1="80" y1="0" x2="80" y2="380"/>
     <line x1="180" y1="0" x2="180" y2="380"/>
     <line x1="320" y1="0" x2="320" y2="380"/>
@@ -150,13 +140,13 @@
   </g>
 
   <g>
-    <rect x="340" y="28" width="126" height="292" rx="3" fill="var(--sv-window-bg)" stroke="var(--sv-window-frame)" stroke-width="2.5"/>
-    <line x1="403" y1="28" x2="403" y2="320" stroke="var(--sv-window-frame)" stroke-width="2"/>
-    <line x1="340" y1="140" x2="466" y2="140" stroke="var(--sv-window-frame)" stroke-width="2"/>
-    <line x1="340" y1="228" x2="466" y2="228" stroke="var(--sv-window-frame)" stroke-width="2"/>
-    <circle cx="428" cy="76" r="16" fill="var(--sv-window)" opacity="0.95" filter="url(#sv-blur-sm)"/>
-    <circle cx="428" cy="76" r="30" fill="var(--sv-window)" opacity="0.2" filter="url(#sv-blur-lg)"/>
-    <g stroke="var(--sv-rain)" stroke-width="0.5" opacity="0.4">
+    <rect x="340" y="28" width="126" height="292" rx="3" fill="#0a1424" stroke="#2e2418" stroke-width="2.5"/>
+    <line x1="403" y1="28" x2="403" y2="320" stroke="#2e2418" stroke-width="2"/>
+    <line x1="340" y1="140" x2="466" y2="140" stroke="#2e2418" stroke-width="2"/>
+    <line x1="340" y1="228" x2="466" y2="228" stroke="#2e2418" stroke-width="2"/>
+    <circle cx="428" cy="76" r="16" fill="#e8eef5" opacity="0.95" filter="url(#sv-blur-sm)"/>
+    <circle cx="428" cy="76" r="30" fill="#e8eef5" opacity="0.2" filter="url(#sv-blur-lg)"/>
+    <g stroke="#8fa8c4" stroke-width="0.5" opacity="0.4">
       <line x1="358" y1="40" x2="353" y2="90"/><line x1="380" y1="50" x2="375" y2="100"/>
       <line x1="400" y1="30" x2="395" y2="80"/><line x1="420" y1="60" x2="415" y2="110"/>
       <line x1="440" y1="40" x2="435" y2="90"/><line x1="455" y1="70" x2="450" y2="120"/>
@@ -171,16 +161,16 @@
   <polygon points="403,76 500,260 500,380 340,380 340,200" fill="url(#sv-moon)" opacity="0.4" style="mix-blend-mode:screen"/>
 
   <g>
-    <rect x="18" y="268" width="144" height="132" fill="var(--sv-fire-bg)" stroke="var(--sv-fire-frame)" stroke-width="2"/>
-    <rect x="34" y="288" width="112" height="102" fill="var(--sv-fire-interior)"/>
+    <rect x="18" y="268" width="144" height="132" fill="#150c06" stroke="#3a2a1a" stroke-width="2"/>
+    <rect x="34" y="288" width="112" height="102" fill="#030101"/>
     <ellipse cx="90" cy="368" rx="72" ry="52" fill="url(#sv-fire)">
       <animate attributeName="ry" values="52;56;52" dur="1.7s" repeatCount="indefinite"/>
     </ellipse>
-    <g fill="var(--sv-ember-hi)" filter="url(#sv-blur-sm)">
+    <g fill="#ffb35a" filter="url(#sv-blur-sm)">
       <circle cx="70" cy="365" r="2.2"/><circle cx="95" cy="372" r="2.5"/>
       <circle cx="110" cy="368" r="1.8"/><circle cx="82" cy="378" r="1.5"/>
     </g>
-    <g fill="var(--sv-ember-lo)">
+    <g fill="#ffbb6a">
       <circle cx="80" cy="360" r="1.4">
         <animate attributeName="cy" values="360;300;240" dur="5s" repeatCount="indefinite"/>
         <animate attributeName="opacity" values="0.9;0.4;0" dur="5s" repeatCount="indefinite"/>
@@ -194,26 +184,26 @@
         <animate attributeName="opacity" values="0.8;0.3;0" dur="4.2s" begin="3s" repeatCount="indefinite"/>
       </circle>
     </g>
-    <rect x="8" y="260" width="164" height="12" fill="var(--sv-mantel-1)" stroke="var(--sv-mantel-2)" stroke-width="1"/>
+    <rect x="8" y="260" width="164" height="12" fill="#241809" stroke="#4a3520" stroke-width="1"/>
   </g>
 
   <rect y="380" width="500" height="120" fill="url(#sv-floor)"/>
-  <line x1="0" y1="380" x2="500" y2="380" stroke="var(--sv-mantel-2)" stroke-width="1" opacity="0.5"/>
-  <ellipse cx="250" cy="458" rx="210" ry="40" fill="var(--sv-rug-1)"/>
+  <line x1="0" y1="380" x2="500" y2="380" stroke="#4a3520" stroke-width="1" opacity="0.5"/>
+  <ellipse cx="250" cy="458" rx="210" ry="40" fill="#3e1010"/>
   <ellipse cx="250" cy="458" rx="210" ry="40" fill="none" stroke="currentColor" stroke-width="0.7" opacity="0.3"/>
   <ellipse cx="250" cy="458" rx="175" ry="30" fill="none" stroke="currentColor" stroke-width="0.4" opacity="0.2"/>
 
   <ellipse cx="250" cy="426" rx="150" ry="10" fill="#000" opacity="0.55" filter="url(#sv-blur-md)"/>
-  <rect x="110" y="395" width="280" height="22" rx="3" fill="url(#sv-wood)" stroke="var(--sv-wood-edge)" stroke-width="1"/>
+  <rect x="110" y="395" width="280" height="22" rx="3" fill="url(#sv-wood)" stroke="#4a2e1a" stroke-width="1"/>
   <path d="M 118 402 L 382 402 L 378 420 L 122 420 Z" fill="url(#sv-velvet)"/>
   <line x1="118" y1="402" x2="382" y2="402" stroke="currentColor" stroke-width="0.6" opacity="0.6"/>
 
-  <ellipse cx="250" cy="395" rx="34" ry="5" fill="var(--sv-wood-2)" stroke="var(--sv-wood-1)" stroke-width="1"/>
+  <ellipse cx="250" cy="395" rx="34" ry="5" fill="#1a0f08" stroke="#3a2418" stroke-width="1"/>
   <ellipse cx="250" cy="395" rx="34" ry="5" fill="none" stroke="currentColor" stroke-width="0.4" opacity="0.5"/>
   <rect x="248" y="360" width="4" height="35" fill="url(#sv-brass)"/>
 
   <ellipse cx="250" cy="278" rx="80" ry="88" fill="none" stroke="url(#sv-brass)" stroke-width="2.5"/>
-  <ellipse cx="250" cy="278" rx="80" ry="88" fill="none" stroke="var(--sv-accent-hi)" stroke-width="0.5" opacity="0.4"/>
+  <ellipse cx="250" cy="278" rx="80" ry="88" fill="none" stroke="#f0e0a0" stroke-width="0.5" opacity="0.4"/>
 
   <circle cx="250" cy="278" r="70" fill="url(#sv-globe)"/>
 
@@ -221,7 +211,7 @@
     <g>
       <animateTransform attributeName="transform" type="translate"
         from="0 0" to="-500 0" dur="28s" repeatCount="indefinite"/>
-      <g fill="var(--sv-accent)" opacity="0.55" stroke="var(--sv-accent-hi)" stroke-width="0.4">
+      <g fill="#c9a961" opacity="0.55" stroke="#f0e0a0" stroke-width="0.4">
         <path d="M 60 210 Q 75 215 80 235 Q 78 260 90 285 Q 100 310 95 335 Q 88 355 75 350 Q 62 340 58 320 Q 50 295 52 270 Q 48 245 55 225 Z"/>
         <path d="M 118 200 Q 138 205 145 230 Q 148 260 138 285 Q 128 305 118 300 Q 108 290 105 270 Q 100 240 108 218 Z"/>
         <path d="M 190 200 Q 220 195 245 210 Q 265 225 262 250 Q 258 275 240 285 Q 220 290 200 280 Q 180 260 178 235 Q 180 212 190 200 Z"/>
@@ -241,30 +231,30 @@
   </g>
 
   <circle cx="250" cy="278" r="70" fill="url(#sv-globe-spec)"/>
-  <circle cx="250" cy="278" r="70" fill="none" stroke="var(--sv-globe-edge)" stroke-width="1.5" opacity="0.65"/>
+  <circle cx="250" cy="278" r="70" fill="none" stroke="#0a1a22" stroke-width="1.5" opacity="0.65"/>
   <circle cx="250" cy="206" r="3.5" fill="url(#sv-brass)"/>
   <circle cx="250" cy="350" r="3.5" fill="url(#sv-brass)"/>
 
   <g transform="translate(158, 352)">
     <ellipse cx="0" cy="42" rx="10" ry="2.5" fill="#2a1a10"/>
-    <rect x="-6" y="10" width="12" height="34" rx="2" fill="var(--sv-candle-1)" stroke="var(--sv-candle-2)" stroke-width="0.5"/>
-    <ellipse cx="0" cy="10" rx="6" ry="2" fill="var(--sv-candle-3)" stroke="var(--sv-candle-2)" stroke-width="0.4"/>
+    <rect x="-6" y="10" width="12" height="34" rx="2" fill="#e8d9b0" stroke="#a08860" stroke-width="0.5"/>
+    <ellipse cx="0" cy="10" rx="6" ry="2" fill="#f0e8d8" stroke="#a08860" stroke-width="0.4"/>
     <line x1="0" y1="8" x2="0" y2="4" stroke="#1a1008" stroke-width="0.8"/>
-    <ellipse cx="0" cy="-2" rx="3" ry="7" fill="var(--sv-flame-hi)" opacity="0.92">
+    <ellipse cx="0" cy="-2" rx="3" ry="7" fill="#ffb84a" opacity="0.92">
       <animate attributeName="ry" values="6;8;6" dur="1.3s" repeatCount="indefinite"/>
     </ellipse>
-    <ellipse cx="0" cy="-2" rx="1.2" ry="4" fill="var(--sv-flame-lo)">
+    <ellipse cx="0" cy="-2" rx="1.2" ry="4" fill="#ffe8a0">
       <animate attributeName="ry" values="3.5;4.5;3.5" dur="1.3s" repeatCount="indefinite"/>
     </ellipse>
-    <circle cx="0" cy="-2" r="14" fill="var(--sv-flame-hi)" opacity="0.18" filter="url(#sv-blur-md)"/>
+    <circle cx="0" cy="-2" r="14" fill="#ffb84a" opacity="0.18" filter="url(#sv-blur-md)"/>
   </g>
 
   <g transform="translate(348, 395)">
-    <rect x="0" y="-18" width="42" height="8" fill="var(--sv-book1)" stroke="#2a0e08" stroke-width="0.5"/>
+    <rect x="0" y="-18" width="42" height="8" fill="#5a2018" stroke="#2a0e08" stroke-width="0.5"/>
     <rect x="0" y="-18" width="42" height="1" fill="currentColor" opacity="0.6"/>
-    <rect x="4" y="-9" width="38" height="8" fill="var(--sv-book2)" stroke="#100e20" stroke-width="0.5"/>
+    <rect x="4" y="-9" width="38" height="8" fill="#2e2a52" stroke="#100e20" stroke-width="0.5"/>
     <rect x="4" y="-9" width="38" height="1" fill="currentColor" opacity="0.6"/>
-    <rect x="2" y="0" width="40" height="8" fill="var(--sv-book3)" stroke="#1a2010" stroke-width="0.5"/>
+    <rect x="2" y="0" width="40" height="8" fill="#3a4a2a" stroke="#1a2010" stroke-width="0.5"/>
     <rect x="2" y="0" width="40" height="1" fill="currentColor" opacity="0.6"/>
   </g>
 
@@ -300,7 +290,6 @@
       <animate attributeName="cy" values="350;325;300" dur="8.5s" begin="2.5s" repeatCount="indefinite"/>
     </circle>
   </g>
-</g>
 </svg>
 
 
