@@ -1260,11 +1260,13 @@ html.light .chat-screen.theme-editorial {
   box-sizing: border-box !important;
   position: fixed;
   bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
-  left: 16px; right: 16px;
+  left: 14px; right: 14px;
+  max-width: 480px;
+  margin: 0 auto;
   background: rgba(22, 28, 32, 0.98);
   border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 24px;
-  padding: 16px 18px;
+  border-radius: 28px;
+  padding: 14px 16px;
   z-index: 9100;
   box-shadow:
     0 20px 48px rgba(0, 0, 0, 0.5),
@@ -1280,29 +1282,23 @@ html.light .chat-screen.theme-editorial {
     opacity 0.22s ease;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
 }
 html.light .rec-bar {
   background: rgba(252, 252, 252, 0.99);
   border-color: rgba(0,0,0,0.07);
-  box-shadow:
-    0 20px 48px rgba(0,0,0,0.14),
-    0 3px 10px rgba(0,0,0,0.06);
+  box-shadow: 0 20px 48px rgba(0,0,0,0.14), 0 3px 10px rgba(0,0,0,0.06);
 }
-.rec-bar.active {
-  transform: translateY(0) scale(1);
-  opacity: 1;
-  pointer-events: auto;
-}
+.rec-bar.active { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
 .rec-bar.cancelling { background: rgba(120, 22, 22, 0.98) !important; }
 
-/* ---------- Top row: dot + timer + waveform ---------- */
+/* ---------- Top row ---------- */
 .rec-top {
   display: flex;
   align-items: center;
-  gap: 12px;
-  height: 32px;
+  gap: 10px;
+  height: 30px;
 }
 .rec-dot {
   width: 10px; height: 10px;
@@ -1316,10 +1312,10 @@ html.light .rec-bar {
   50%      { transform: scale(1.18); box-shadow: 0 0 0 9px rgba(255,74,74,0);  }
 }
 .rec-time {
-  font-size: 16px;
+  font-size: 15px;
   color: #f2f6f8;
   font-weight: 700;
-  min-width: 46px;
+  min-width: 44px;
   letter-spacing: 0.4px;
   flex-shrink: 0;
   font-variant-numeric: tabular-nums;
@@ -1345,18 +1341,17 @@ html.light .rec-time { color: #0f1720; }
   min-height: 3px;
 }
 
-/* ---------- Hint (only visible when unlocked) ---------- */
+/* ---------- Hint row (unlocked only) ---------- */
 .rec-hint {
   display: block;
   font-size: 13px;
   color: #8a97a2;
   white-space: nowrap;
   text-align: right;
-  padding-right: 6px;
+  padding-right: 4px;
   font-weight: 500;
   letter-spacing: 0.2px;
   line-height: 1;
-  padding-bottom: 6px;
 }
 .rec-hint::before {
   content: '\2039  ';
@@ -1372,9 +1367,10 @@ html.light .rec-time { color: #0f1720; }
 .rec-bottom {
   display: none;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  height: 56px;
+  justify-content: center;
+  gap: 10px;
+  height: 52px;
+  width: 100%;
 }
 .rec-bar.locked .rec-bottom { display: flex; }
 
@@ -1395,7 +1391,7 @@ html.light .rec-time { color: #0f1720; }
 .rec-trash:active, .rec-pause:active, .rec-send:active { transform: scale(0.92); }
 
 .rec-trash {
-  width: 52px; height: 52px;
+  width: 48px; height: 48px;
   border-radius: 50%;
   background: rgba(255,74,74,0.14);
   border: 1.5px solid rgba(255,74,74,0.42);
@@ -1406,31 +1402,31 @@ html.light .rec-trash {
   border-color: rgba(220,50,50,0.4);
   color: #d63030;
 }
-.rec-trash svg { width: 24px; height: 24px; }
+.rec-trash svg { width: 22px; height: 22px; }
 
 .rec-pause {
   flex: 1;
-  height: 52px;
-  border-radius: 28px;
+  max-width: 170px;
+  height: 48px;
+  border-radius: 24px;
   background: rgba(255,255,255,0.09);
   border: 1.5px solid rgba(255,255,255,0.14);
   color: #eef3f6;
-  gap: 10px;
-  font-size: 15px;
+  gap: 8px;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.3px;
-  max-width: 200px;
-  padding: 0 22px;
+  padding: 0 18px;
 }
 html.light .rec-pause {
   background: rgba(0,0,0,0.05);
   border-color: rgba(0,0,0,0.1);
   color: #0f1720;
 }
-.rec-pause svg { width: 18px; height: 18px; }
+.rec-pause svg { width: 16px; height: 16px; }
 
 .rec-send {
-  width: 52px; height: 52px;
+  width: 48px; height: 48px;
   border-radius: 50%;
   background: var(--chat-accent, #00a884);
   color: #ffffff;
@@ -1438,11 +1434,9 @@ html.light .rec-pause {
     0 6px 20px color-mix(in srgb, var(--chat-accent, #00a884) 45%, transparent),
     inset 0 1px 0 rgba(255,255,255,0.22);
 }
-.rec-send svg { width: 24px; height: 24px; margin-left: 2px; }
+.rec-send svg { width: 22px; height: 22px; margin-left: 2px; }
 
-/* ============================================================
-   LOCKED STATE — bar grows naturally (no height transition)
-   ============================================================ */
+/* ---------- Locked state ---------- */
 .rec-bar.locked {
   border-color: color-mix(in srgb, var(--chat-accent, #00a884) 40%, transparent);
   box-shadow:
@@ -1450,7 +1444,7 @@ html.light .rec-pause {
     0 0 0 1px color-mix(in srgb, var(--chat-accent, #00a884) 20%, transparent);
 }
 
-/* Paused state */
+/* ---------- Paused state ---------- */
 .rec-bar.paused .rec-dot {
   background: #ffd27a;
   animation: none;
@@ -2376,8 +2370,17 @@ function tmRecCancelInternal() {
   recLocked = false;
   recPaused = false;
   recPausedTotal = 0;
+  // Clear all recorder UI
+  const _dim = document.getElementById('rec-dim');
+  if (_dim) _dim.classList.remove('visible');
   const _bar = document.getElementById('rec-bar');
-  if (_bar) _bar.classList.remove('paused', 'locked', 'active');
+  if (_bar) _bar.classList.remove('paused', 'locked', 'active', 'cancelling');
+  const _cursor = document.getElementById('rec-cursor');
+  if (_cursor) _cursor.classList.remove('visible', 'locked');
+  const _lock = document.getElementById('rec-lock-field');
+  if (_lock) _lock.classList.remove('visible', 'armed', 'locked');
+  const _rail = document.getElementById('rec-rail');
+  if (_rail) _rail.classList.remove('visible', 'armed', 'locked');
   audioChunks = [];
   currentBlob = null;
   try { mediaRecorder.stop(); } catch(err){}
@@ -2443,6 +2446,17 @@ async function tmRecSend(e) {
   recLocked = false;
   recPaused = false;
   recPausedTotal = 0;
+  // Clear all recorder UI immediately
+  const _dimSend = document.getElementById('rec-dim');
+  if (_dimSend) _dimSend.classList.remove('visible');
+  const _barSend = document.getElementById('rec-bar');
+  if (_barSend) _barSend.classList.remove('active', 'locked', 'paused', 'cancelling');
+  const _cursorSend = document.getElementById('rec-cursor');
+  if (_cursorSend) _cursorSend.classList.remove('visible', 'locked');
+  const _lockSend = document.getElementById('rec-lock-field');
+  if (_lockSend) _lockSend.classList.remove('visible', 'armed', 'locked');
+  const _railSend = document.getElementById('rec-rail');
+  if (_railSend) _railSend.classList.remove('visible', 'armed', 'locked');
   const _bar0 = document.getElementById('rec-bar');
   if (_bar0) _bar0.classList.remove('paused', 'locked');
   const duration = (Date.now() - recStart) / 1000;
