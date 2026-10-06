@@ -548,25 +548,24 @@ html.light .chat-screen.theme-editorial {
 
   /* ---------- Aspen — DARK palette (gallery at night) ---------- */
   .chat-wallpaper[data-wallpaper="editorial"] {
-    /* Dark gallery — near-black room, only the art and skylight are lit */
-    --asp-wall-1: #14120e; --asp-wall-2: #060504;
-    --asp-moulding-1: #2a2620; --asp-moulding-2: #3a342a;
-    --asp-floor-1: #0e0c08; --asp-floor-2: #040302; --asp-floor-edge: #1e1c16;
-    --asp-floor-seam: #24221a;
-    --asp-frame-1: #7a5a1e; --asp-frame-2: #d4b866; --asp-frame-3: #6a4a15; --asp-frame-edge: #1a1008;
-    --asp-mat: #8a7a58; --asp-mat-edge: #3a3228;
-    --asp-canvas-1: #d8ccb0; --asp-canvas-2: #b8a888;
-    --asp-paint-sky: #7088a0; --asp-paint-sea: #3a5568; --asp-paint-sun: #ffe890; --asp-paint-mountain: #1a2838; --asp-paint-reflect: #6a8898; --asp-paint-sign: #3a2818;
-    --asp-plinth-1: #5a5448; --asp-plinth-2: #7a7264; --asp-plinth-edge: #2a2620;
-    --asp-marble: #c8c0b0; --asp-marble-shadow: #3a3428; --asp-marble-hair: #9a9080;
-    --asp-bench-1: #120904; --asp-bench-2: #060302; --asp-bench-cushion: #2a1208;
-    --asp-plaque: #8a6820; --asp-plaque-text: #1a1410;
-    --asp-picturelight: #c8a850;
+    --asp-wall-1: #e8e2d4; --asp-wall-2: #cfc8b8;
+    --asp-moulding-1: #b8b0a0; --asp-moulding-2: #ddd6c4;
+    --asp-floor-1: #d8d0c0; --asp-floor-2: #b0a898; --asp-floor-edge: #8a8272;
+    --asp-floor-seam: #9a9282;
+    --asp-frame-1: #7a5a1e; --asp-frame-2: #d4b866; --asp-frame-3: #6a4a15; --asp-frame-edge: #3a2810;
+    --asp-mat: #f0ead8; --asp-mat-edge: #b8b0a0;
+    --asp-canvas-1: #f5e8d0; --asp-canvas-2: #e0d0b8;
+    --asp-paint-sky: #c8d8e0; --asp-paint-sea: #7a98a8; --asp-paint-sun: #f0c870; --asp-paint-mountain: #3a4858; --asp-paint-reflect: #a8c0c8; --asp-paint-sign: #6a5a48;
+    --asp-plinth-1: #a8a090; --asp-plinth-2: #d8d0c0; --asp-plinth-edge: #7a7264;
+    --asp-marble: #efe8d8; --asp-marble-shadow: #a8a090; --asp-marble-hair: #c8c0b0;
+    --asp-bench-1: #2a1a10; --asp-bench-2: #1a0e08; --asp-bench-cushion: #4a2010;
+    --asp-plaque: #b8903a; --asp-plaque-text: #3a2810;
+    --asp-picturelight: #d4b866;
     --asp-spot: #ffe0a0; --asp-sunbeam: #fff0b0; --asp-daylight: #fff8e0;
-    --asp-sky: #050a18;
-    --asp-skylight-frame: #1a160e; --asp-skylight-bar: #0a0806;
+    --asp-sky: #0a1428;
+    --asp-skylight-frame: #3a3428; --asp-skylight-bar: #1a160e;
     --asp-moon: #f0ead8; --asp-sun: #ffe8b0;
-    --asp-vignette: #000000;
+    --asp-vignette: #3a3020;
   }
 
   /* ---------- Aspen — LIGHT palette (gallery, daylight) ---------- */

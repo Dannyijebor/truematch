@@ -2494,6 +2494,13 @@
     <filter id="asp-blur-sm"><feGaussianBlur stdDeviation="1.2"/></filter>
     <filter id="asp-blur-md"><feGaussianBlur stdDeviation="2.8"/></filter>
     <filter id="asp-blur-lg"><feGaussianBlur stdDeviation="7"/></filter>
+    <radialGradient id="asp-bgb" cx="50%" cy="50%" r="82%">
+      <stop offset="0%" stop-color="var(--chat-bg)" stop-opacity="0"/>
+      <stop offset="48%" stop-color="var(--chat-bg)" stop-opacity="0"/>
+      <stop offset="72%" stop-color="var(--chat-bg)" stop-opacity="0.55"/>
+      <stop offset="90%" stop-color="var(--chat-bg)" stop-opacity="0.92"/>
+      <stop offset="100%" stop-color="var(--chat-bg)" stop-opacity="1"/>
+    </radialGradient>
     <radialGradient id="asp-fade" cx="50%" cy="50%" r="80%">
       <stop offset="0%" stop-color="#fff" stop-opacity="1"/>
       <stop offset="62%" stop-color="#fff" stop-opacity="0.94"/>
@@ -2698,6 +2705,9 @@
 
     <!-- Vignette -->
     <rect width="500" height="500" fill="var(--asp-vignette)" opacity="0.28" style="mix-blend-mode:multiply"/>
+  
+    <!-- Chat background blend — melts scene edges into chat bg -->
+    <rect width="500" height="500" fill="url(#asp-bgb)" pointer-events="none"/>
   </g>
 </svg>
   {% endif %}
