@@ -2136,22 +2136,6 @@ function tmToggleVoice(btn, url) {
   }
 }
 
-// Event delegation — catches any click on .voice-play, even if onclick attr is missing
-document.addEventListener('click', function(ev){
-  var el = ev.target.closest && ev.target.closest('.voice-play');
-  if (!el) return;
-  ev.preventDefault();
-  ev.stopPropagation();
-  var url = el.getAttribute('data-url');
-  if (!url) {
-    // Try reading from onclick attribute (fallback)
-    var oc = el.getAttribute('onclick') || '';
-    var m = oc.match(/tmToggleVoice\(this,\s*'([^']+)'\)/) || oc.match(/tmToggleVoice\(this,\s*"([^"]+)"\)/);
-    if (m) url = m[1];
-  }
-  if (url) tmToggleVoice(el, url);
-  else console.warn('voice-play clicked but no URL found');
-}, true);
 const ME_ID = "{{ user.id }}";
 let lastTs = "{{ msgs[-1].created_at if msgs else '' }}";
 let currentTheme = "{{ chat_theme }}";
