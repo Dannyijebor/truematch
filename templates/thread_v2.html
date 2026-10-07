@@ -81,13 +81,44 @@ html.light .chat-name-title { color: #111b21; }
 }
 .bubble.mine { background: var(--bubble-mine, #005c4b); color: var(--bubble-mine-text, #e9edef); border-top-right-radius: 2px; }
 .bubble.theirs { background: var(--bubble-them, #202c33); color: var(--bubble-them-text, #e9edef); border-top-left-radius: 2px; }
-.bubble.mine::before { content: ''; position: absolute; top: 0; right: -8px; width: 8px; height: 13px; background: var(--bubble-mine, #005c4b); clip-path: polygon(0 0, 100% 0, 0 100%); transition: background-color 0.4s; }
-.bubble.theirs::before { content: ''; position: absolute; top: 0; left: -8px; width: 8px; height: 13px; background: var(--bubble-them, #202c33); clip-path: polygon(0 0, 100% 0, 100% 100%); transition: background-color 0.4s; }
+.msg-row.first-of-day .bubble.mine::before { content: ''; position: absolute; top: 0; right: -8px; width: 8px; height: 13px; background: var(--bubble-mine, #005c4b); clip-path: polygon(0 0, 100% 0, 0 100%); transition: background-color 0.4s; }
+.msg-row.first-of-day .bubble.theirs::before { content: ''; position: absolute; top: 0; left: -8px; width: 8px; height: 13px; background: var(--bubble-them, #202c33); clip-path: polygon(0 0, 100% 0, 100% 100%); transition: background-color 0.4s; }
+.msg-row.first-of-day .bubble.mine { border-top-right-radius: 2px; }
+.msg-row.first-of-day .bubble.theirs { border-top-left-radius: 2px; }
+.bubble.mine { border-top-right-radius: 8px; }
+.bubble.theirs { border-top-left-radius: 8px; }
 
 .bubble-reply { background: rgba(0,0,0,0.18); border-left: 3px solid var(--chat-accent, #10b981); padding: 5px 8px; border-radius: 6px; margin-bottom: 4px; font-size: 12.5px; overflow: hidden; }
 html.light .bubble-reply { background: rgba(0,0,0,0.06); }
 .bubble-reply-name { font-weight: 600; color: var(--chat-accent, #10b981); font-size: 12px; margin-bottom: 2px; }
 .bubble-reply-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: 0.75; }
+
+/* ---------- Swipe-to-reply ---------- */
+.msg-row .bubble { will-change: transform; touch-action: pan-y; }
+.swipe-reply-hint {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%) scale(0.6);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+.msg-row.mine .swipe-reply-hint { right: 6px; }
+.msg-row.theirs .swipe-reply-hint { left: 6px; }
+.msg-row.swipe-active .swipe-reply-hint { opacity: 0.85; transform: translateY(-50%) scale(1); }
+.msg-row.swipe-ready .swipe-reply-hint { opacity: 1; transform: translateY(-50%) scale(1.14); background: var(--chat-accent, #00a884); color: #fff; }
+.swipe-reply-hint svg { width: 16px; height: 16px; color: currentColor; }
+.msg-row.theirs .swipe-reply-hint svg { transform: scaleX(-1); }
+.msg-row.swipe-released .bubble { transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
 
 .bubble img.msg-media { max-width: 100%; border-radius: 6px; margin: 2px 0 4px; display: block; cursor: pointer; }
 .bubble .sticker-img { width: 92px; height: 92px; object-fit: contain; }
@@ -1831,8 +1862,12 @@ html.light .rec-pause {
     {{ wallpaper(_tk, theme_accents.get(_tk, '#00a884')) }}
     {% endfor %}
     <div class="tm-theme-bloom" aria-hidden="true"></div>
+    {% set ns = namespace(prev_date='') %}
     {% for m in msgs %}
-    <div class="msg-row {% if m.from_me %}mine{% else %}theirs{% endif %}" data-msg-id="{{ m.id }}" data-kind="{{ m.kind or 'text' }}" data-body="{{ m.body|e }}">
+    {% set cur_date = (m.created_at or '')[:10] %}
+    {% set first_day = cur_date != ns.prev_date %}
+    {% set ns.prev_date = cur_date %}
+    <div class="msg-row {% if m.from_me %}mine{% else %}theirs{% endif %}{% if first_day %} first-of-day{% endif %}" data-msg-id="{{ m.id }}" data-kind="{{ m.kind or 'text' }}" data-body="{{ m.body|e }}" data-created-at="{{ m.created_at or '' }}">
       <div class="bubble {% if m.from_me %}mine{% else %}theirs{% endif %}" data-bubble-id="{{ m.id }}">
         {% if m.reply %}
           <div class="bubble-reply">
@@ -2129,8 +2164,15 @@ function tmRenderBubble(m) {
 function tmAppendMessage(m) {
   const chat = document.getElementById('chat-messages');
   const row = document.createElement('div');
-  row.className = 'msg-row ' + (m.from_me ? 'mine' : 'theirs') + ' ' + (m.from_me ? 'just-sent' : 'just-received');
-  row.dataset.msgId = m.id; row.dataset.kind = m.kind; row.dataset.body = m.body;
+  var prev = chat.lastElementChild;
+  var curDate = (m.created_at || '').substring(0, 10);
+  var prevDate = prev ? (prev.dataset.createdAt || '').substring(0, 10) : '';
+  var firstDay = curDate && curDate !== prevDate;
+  row.className = 'msg-row ' + (m.from_me ? 'mine' : 'theirs') + ' ' + (m.from_me ? 'just-sent' : 'just-received') + (firstDay ? ' first-of-day' : '');
+  row.dataset.msgId = m.id;
+  row.dataset.kind = m.kind;
+  row.dataset.body = m.body;
+  row.dataset.createdAt = m.created_at || '';
   row.innerHTML = tmRenderBubble(m);
   chat.appendChild(row);
   setTimeout(() => row.classList.remove('just-sent', 'just-received'), 700);
@@ -2925,6 +2967,96 @@ function tmToggleTheme(e) {
 }
 
 console.log('[TrueMatch] chat loaded');
+
+// ---------- Swipe to reply ----------
+(function(){
+  var SWIPE_MAX = 78;
+  var SWIPE_THRESHOLD = 55;
+  var SWIPE_LOCK = 12;
+  function hintSVG(){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17l-5-5 5-5"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>';}
+  function ensureHint(row){
+    var h = row.querySelector('.swipe-reply-hint');
+    if (!h) { h = document.createElement('div'); h.className='swipe-reply-hint'; h.innerHTML=hintSVG(); row.appendChild(h); }
+    return h;
+  }
+  function attachSwipe(row){
+    if (row.dataset.swipeBound === '1') return;
+    row.dataset.swipeBound = '1';
+    var bubble = row.querySelector('.bubble');
+    if (!bubble) return;
+    var startX=0, startY=0, dx=0, dy=0;
+    var tracking=false, locked=false, active=false;
+    var isMine = row.classList.contains('mine');
+    function onStart(e){
+      if (row.dataset._deleting==='1') return;
+      var t = e.touches ? e.touches[0] : e;
+      startX = t.clientX; startY = t.clientY;
+      dx=0; dy=0; tracking=true; locked=false; active=false;
+    }
+    function onMove(e){
+      if (!tracking) return;
+      var t = e.touches ? e.touches[0] : e;
+      dx = t.clientX - startX; dy = t.clientY - startY;
+      if (!locked){
+        if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > SWIPE_LOCK){ tracking=false; return; }
+        if (Math.abs(dx) > SWIPE_LOCK){
+          locked=true; active=true;
+          row.classList.add('swipe-active'); ensureHint(row);
+        } else return;
+      }
+      var eff = isMine ? Math.min(0,dx) : Math.max(0,dx);
+      if (Math.abs(eff) > SWIPE_MAX) eff = isMine ? -SWIPE_MAX : SWIPE_MAX;
+      bubble.style.transform = 'translateX(' + eff + 'px)';
+      bubble.style.transition = 'none';
+      if (Math.abs(eff) >= SWIPE_THRESHOLD) row.classList.add('swipe-ready');
+      else row.classList.remove('swipe-ready');
+    }
+    function onEnd(){
+      if (!tracking && !active) return;
+      tracking = false;
+      if (!active) return;
+      var trigger = Math.abs(dx) >= SWIPE_THRESHOLD;
+      var direction = isMine ? dx < 0 : dx > 0;
+      var valid = trigger && direction;
+      bubble.style.transition = '';
+      row.classList.add('swipe-released');
+      if (valid){
+        bubble.style.transform = 'translateX(' + (isMine ? -90 : 90) + 'px)';
+        if (navigator.vibrate) try { navigator.vibrate(15); } catch(_){}
+        var msgId = row.dataset.msgId;
+        var body = row.dataset.body || '';
+        setTimeout(function(){
+          bubble.style.transform = '';
+          row.classList.remove('swipe-active','swipe-ready');
+          setTimeout(function(){ row.classList.remove('swipe-released'); }, 260);
+          if (typeof tmSetReply === 'function') tmSetReply(msgId, body, isMine);
+        }, 160);
+      } else {
+        bubble.style.transform = '';
+        row.classList.remove('swipe-active','swipe-ready');
+        setTimeout(function(){ row.classList.remove('swipe-released'); }, 260);
+      }
+      active=false; locked=false;
+    }
+    row.addEventListener('touchstart', onStart, { passive: true });
+    row.addEventListener('touchmove', onMove, { passive: false });
+    row.addEventListener('touchend', onEnd, { passive: true });
+    row.addEventListener('touchcancel', onEnd, { passive: true });
+  }
+  document.querySelectorAll('.msg-row').forEach(attachSwipe);
+  var chat = document.getElementById('chat-messages');
+  if (chat){
+    var mo = new MutationObserver(function(muts){
+      muts.forEach(function(mu){
+        mu.addedNodes.forEach(function(n){
+          if (n.nodeType===1 && n.classList && n.classList.contains('msg-row')) attachSwipe(n);
+        });
+      });
+    });
+    mo.observe(chat, { childList: true });
+  }
+})();
+
 </script>
 
 <script>
