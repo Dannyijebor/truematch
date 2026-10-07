@@ -786,3 +786,27 @@ def api_call_reaction(call_id: str, payload: dict = Body(...),
     except ValueError as e:
         raise HTTPException(400, str(e))
     return {"ok": True}
+
+
+@app.get("/debug-template-check")
+def debug_template_check():
+    import pathlib
+    try:
+        text = pathlib.Path("templates/thread_v2.html").read_text()
+        base = pathlib.Path("templates/base.html").read_text()
+        calls = pathlib.Path("templates/_calls.html").read_text()
+        js = pathlib.Path("static/calls.js").read_text()
+    except Exception as e:
+        return {"error": str(e)}
+    return {
+        "thread_v2_len": len(text),
+        "thread_v2_has_tmVoiceState": "tmVoiceState" in text,
+        "thread_v2_has_decodeAudioData": "decodeAudioData" in text,
+        "base_has_tm_sound": "tm-sound.js" in base,
+        "base_has_calls_include": "_calls.html" in base,
+        "calls_has_incall": 'id="tm-incall"' in calls,
+        "calls_has_local_video": 'id="tm-local-video"' in calls,
+        "calls_js_len": len(js),
+        "calls_js_has_force_display": "el.style.display = 'flex'" in js,
+        "calls_js_has_video_mode": "tm-video-mode" in js,
+    }
