@@ -25,9 +25,29 @@ engine = create_engine(
     pool_size=2,
     max_overflow=2,
     future=True,
-    connect_args={"connect_timeout": 10},
+    connect_args={"connect_timeout": 6, "keepalives": 1, "keepalives_idle": 30},
 )
 SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
+
+
+# Warm up the Neon connection at module import time.
+# This runs once when the Vercel function cold-starts, so that by the time
+# a real request hits an endpoint, both Vercel and Neon are already warm.
+def _warm_up():
+    try:
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+    except Exception:
+        # Silent — the app still works if warm-up fails (a later request retries)
+        pass
+
+
+try:
+    _warm_up()
+except Exception:
+    pass
+
 
 def get_db():
     db = SessionLocal()
