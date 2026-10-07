@@ -118,16 +118,43 @@ window.TMSound = {
 };
 
 // Premium haptics
-window.TMHaptic = {
-  tap: function(){ try { navigator.vibrate && navigator.vibrate(12); } catch(_){} },
-  send: function(){ try { navigator.vibrate && navigator.vibrate([8, 22, 8]); } catch(_){} },
-  receive: function(){ try { navigator.vibrate && navigator.vibrate([14, 40, 14]); } catch(_){} },
-  lock: function(){ try { navigator.vibrate && navigator.vibrate([18, 30, 50]); } catch(_){} },
-  reply: function(){ try { navigator.vibrate && navigator.vibrate(10); } catch(_){} },
-  long: function(){ try { navigator.vibrate && navigator.vibrate(45); } catch(_){} },
-  error: function(){ try { navigator.vibrate && navigator.vibrate([65, 40, 65]); } catch(_){} },
-  incoming: function(){ try { navigator.vibrate && navigator.vibrate([400, 200, 400]); } catch(_){} },
-};
+window.TMHaptic = (function(){
+  function vib(pattern){ try { if (navigator.vibrate) navigator.vibrate(pattern); } catch(_){} }
+  return {
+    // ---- subtle UI ----
+    tick:  function(){ vib(6); },              // theme picker tap, toggle
+    tap:   function(){ vib(10); },             // generic tap
+    soft:  function(){ vib(14); },             // picker selection
+    // ---- messaging ----
+    send:  function(){ vib([8, 22, 8]); },     // outgoing message
+    receive: function(){ vib([12, 35, 12, 35, 12]); }, // incoming message
+    reply: function(){ vib(12); },             // reply action
+    deleted: function(){ vib([25, 50, 25]); },
+    // ---- voice ----
+    voiceStart: function(){ vib([10, 20, 10]); },
+    voiceSend: function(){ vib([10, 30, 10, 30, 10]); },
+    voiceCancel: function(){ vib([40, 60, 40]); },
+    lock:  function(){ vib([18, 30, 50]); },
+    swipeReady: function(){ vib(18); },
+    swipeTrigger: function(){ vib([12, 25, 12]); },
+    // ---- feedback ----
+    success: function(){ vib([15, 40, 15]); },
+    warn:  function(){ vib([30, 60, 30]); },
+    error: function(){ vib([60, 45, 60, 45, 60]); },
+    long:  function(){ vib(45); },
+    // ---- calls ----
+    incoming: function(){ vib([400, 200, 400]); },
+    ring: function(){ vib([250, 150, 250, 150, 250]); },
+    connect: function(){ vib([8, 30, 8]); },
+    end: function(){ vib([20, 50, 20]); },
+    mute: function(){ vib([10, 30, 10]); },
+    camera: function(){ vib(12); },
+    reaction: function(){ vib([8, 20, 8]); },
+    // ---- social ----
+    like: function(){ vib([8, 18, 8]); },
+    follow: function(){ vib([14, 30, 14]); },
+  };
+})();
 
 // Auto-unlock on first interaction
 ['touchstart','click','keydown'].forEach(function(ev){

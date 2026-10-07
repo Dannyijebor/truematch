@@ -489,9 +489,9 @@ html.light .chat-screen.theme-editorial {
      WALLPAPER — layout, sizing, animations
      ============================================================ */
   .chat-wallpaper {
-    position: absolute;
-    top: 50%;
-    left: 50%;
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
     transform: translate(-50%, -50%);
     width: 100%;
     height: 100%;
@@ -2566,7 +2566,7 @@ function tmRecCancelFromLock(e) {
 
 function tmRecCancelInternal() {
   if (!recording) return;
-  try { if (window.TMSound) TMSound.voiceCancel(); if (window.TMHaptic) TMHaptic.error(); } catch(_){}
+  try { if (window.TMSound) TMSound.voiceCancel(); if (window.TMHaptic) TMHaptic.voiceCancel(); } catch(_){}
   recLocked = false;
   recPaused = false;
   recPausedTotal = 0;
@@ -2620,7 +2620,7 @@ async function tmStartRecording() {
   };
   try { mediaRecorder.start(100); } catch (err) { try { activeStream.getTracks().forEach(t => t.stop()); } catch(e){} activeStream = null; alert('Recorder failed: ' + err.message); return; }
   recStart = Date.now(); recPausedTotal = 0; recording = true;
-  try { if (window.TMSound) TMSound.voiceStart(); if (window.TMHaptic) TMHaptic.tap(); } catch(_){}
+  try { if (window.TMSound) TMSound.voiceStart(); if (window.TMHaptic) TMHaptic.voiceStart(); } catch(_){}
   const _mBtn = document.getElementById('mic-btn');
   if (_mBtn) _mBtn.classList.add('recording');
   document.getElementById('rec-time').textContent = '0:00';
@@ -2713,12 +2713,12 @@ async function tmRecSend(e) {
         throw new Error('Upload failed (' + upRes.status + '): ' + txt.slice(0, 200));
       }
     await tmSend({ kind: 'voice', media_url: pdata.public_url, media_duration: duration });
-          try { if (window.TMSound) TMSound.voiceSend(); if (window.TMHaptic) TMHaptic.send(); } catch(_){}
+          try { if (window.TMSound) TMSound.voiceSend(); if (window.TMHaptic) TMHaptic.voiceSend(); } catch(_){}
   } catch (err) { alert('Could not send voice: ' + err.message); }
   finally { currentBlob = null; audioChunks = []; }
 }
 
-function tmToggleAttach(e) { if (e) e.stopPropagation(); document.getElementById('attach-menu').classList.toggle('hidden'); }
+function tmToggleAttach(e) { try { if (window.TMHaptic) TMHaptic.tap(); } catch(_){} if (e) e.stopPropagation(); document.getElementById('attach-menu').classList.toggle('hidden'); }
 function tmPickImage() { document.getElementById('attach-menu').classList.add('hidden'); document.getElementById('image-input').click(); }
 document.getElementById('image-input').addEventListener('change', async function(e) {
   const file = e.target.files && e.target.files[0];
@@ -2743,10 +2743,11 @@ document.getElementById('image-input').addEventListener('change', async function
 });
 
 const TM_STICKERS = ['😀','😂','🥰','😎','🤔','👍','🙏','🔥','💯','🎉','❤️','✨','🚀','💪','☕','🎯','📈','💡','🤝','🌟','😅','🥳','👏','🙌','😍','🤩','💼','🏆','⚡','🌈','🦾','🧠'];
-function tmOpenStickers() { document.getElementById('attach-menu').classList.add('hidden'); const grid = document.getElementById('emoji-grid'); grid.innerHTML = TM_STICKERS.map(e => `<button class="emoji-cell" onclick="tmSendSticker('${e}')">${e}</button>`).join(''); document.getElementById('sticker-sheet').classList.remove('hidden'); }
+function tmOpenStickers() { try { if (window.TMHaptic) TMHaptic.tap(); } catch(_){} document.getElementById('attach-menu').classList.add('hidden'); const grid = document.getElementById('emoji-grid'); grid.innerHTML = TM_STICKERS.map(e => `<button class="emoji-cell" onclick="tmSendSticker('${e}')">${e}</button>`).join(''); document.getElementById('sticker-sheet').classList.remove('hidden'); }
 function tmCloseStickers() { document.getElementById('sticker-sheet').classList.add('hidden'); }
-async function tmSendSticker(emoji) { tmCloseStickers(); await tmSend({ kind: 'sticker', body: emoji, media_url: emoji }); }
+async function tmSendSticker(emoji) { try { if (window.TMHaptic) TMHaptic.send(); } catch(_){} tmCloseStickers(); await tmSend({ kind: 'sticker', body: emoji, media_url: emoji }); }
 
+if (window.TMHaptic) try { TMHaptic.tap(); } catch(_){}
 function tmOpenMsgMenu(event, msgId, isMine) {
   event.preventDefault();
   const holder = document.getElementById('msg-menu-holder');
@@ -2764,8 +2765,8 @@ function tmOpenMsgMenu(event, msgId, isMine) {
 }
 function tmCloseMsgMenu() { document.getElementById('msg-menu-holder').innerHTML = ''; }
 function tmReplyAction(msgId) { const row = document.querySelector('[data-msg-id="' + msgId + '"]'); if (!row) return; tmSetReply(msgId, row.dataset.body || '[media]', row.classList.contains('mine')); tmCloseMsgMenu(); }
-function tmCopyAction(text) { if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => tmToast('Copied')); tmCloseMsgMenu(); }
-async function tmDeleteAction(msgId) { tmCloseMsgMenu(); if (!confirm('Delete this message?')) return; const r = await fetch('/api/chat/messages/' + msgId + '/delete', {method: 'POST', credentials: 'same-origin'}); const data = await r.json(); if (data.ok) { const row = document.querySelector('[data-msg-id="' + msgId + '"]'); if (row) row.remove(); } }
+function tmCopyAction(text) { try { if (window.TMHaptic) TMHaptic.tap(); } catch(_){} if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => tmToast('Copied')); tmCloseMsgMenu(); }
+async function tmDeleteAction(msgId) { try { if (window.TMHaptic) TMHaptic.deleted(); } catch(_){} tmCloseMsgMenu(); if (!confirm('Delete this message?')) return; const r = await fetch('/api/chat/messages/' + msgId + '/delete', {method: 'POST', credentials: 'same-origin'}); const data = await r.json(); if (data.ok) { const row = document.querySelector('[data-msg-id="' + msgId + '"]'); if (row) row.remove(); } }
 function tmToast(msg) {
   var old = document.querySelector('.tm-toast-pro');
   if (old) old.remove();
@@ -2782,7 +2783,7 @@ function tmToast(msg) {
 }
 function tmLightbox(url) { document.getElementById('lightbox-img').src = url; document.getElementById('lightbox').classList.remove('hidden'); }
 
-function tmOpenChatMenu(e) { if (e) e.stopPropagation(); document.getElementById('cm-backdrop').classList.remove('hidden'); document.getElementById('cm-panel').classList.remove('hidden'); var label = document.getElementById('cm-mute-label'); if (label) label.textContent = tmIsMuted() ? 'Unmute notifications' : 'Mute notifications'; }
+function tmOpenChatMenu(e) { try { if (window.TMHaptic) TMHaptic.tap(); } catch(_){} if (e) e.stopPropagation(); document.getElementById('cm-backdrop').classList.remove('hidden'); document.getElementById('cm-panel').classList.remove('hidden'); var label = document.getElementById('cm-mute-label'); if (label) label.textContent = tmIsMuted() ? 'Unmute notifications' : 'Mute notifications'; }
 function tmCloseChatMenu() { document.getElementById('cm-backdrop').classList.add('hidden'); document.getElementById('cm-panel').classList.add('hidden'); }
 function tmSearchChat() {
   tmCloseChatMenu();
@@ -2821,7 +2822,7 @@ function tmReportUser() {
   fetch('/api/chat/report', {method: 'POST', credentials: 'same-origin', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user_id: OTHER_ID, name: OTHER_NAME, reason: reason.trim().slice(0, 500)})}).then(function() { tmToast('Report sent'); }).catch(function() { tmToast('Report logged'); });
 }
 
-async function pickTheme(key) {
+async function pickTheme(key) { try { if (window.TMHaptic) TMHaptic.soft(); } catch(_){}
   currentTheme = key;
   tmCloseThemePicker();
 
@@ -2971,11 +2972,11 @@ function tmToggleTheme(e) {
   var isLight = html.classList.contains('light');
   if (isLight) {
     html.classList.remove('light');
-    html.classList.add('dark');
+    html.classList.add('dark'); try { if (window.TMHaptic) TMHaptic.tap(); } catch(_){}
     try { document.cookie = 'tm_theme=dark; path=/; max-age=' + (60*60*24*365); } catch(e){}
     tmToast('Dark mode');
   } else {
-    html.classList.add('light');
+    html.classList.add('light'); try { if (window.TMHaptic) TMHaptic.tap(); } catch(_){}
     html.classList.remove('dark');
     try { document.cookie = 'tm_theme=light; path=/; max-age=' + (60*60*24*365); } catch(e){}
     tmToast('Light mode');
@@ -3046,6 +3047,7 @@ console.log('[TrueMatch] chat loaded');
           row.classList.remove('swipe-active','swipe-ready');
           setTimeout(function(){ row.classList.remove('swipe-released'); }, 260);
           if (window.TMSound) TMSound.reply();
+        if (window.TMHaptic) TMHaptic.reply();
         if (window.TMHaptic) TMHaptic.reply();
         if (typeof tmSetReply === 'function') tmSetReply(msgId, body, isMine);
         }, 160);
@@ -3197,47 +3199,94 @@ console.log('[TrueMatch] chat loaded');
 
 // ---------- Voice player ----------
 var tmCurrentAudio = null, tmCurrentAudioBtn = null;
-function tmToggleVoice(btn, url) {
-  try { if (window.TMSound) TMSound.play();
-    // Same button tapped → toggle
-    if (tmCurrentAudio && tmCurrentAudioBtn === btn) {
-      if (tmCurrentAudio.paused) {
-        tmCurrentAudio.play().catch(function(e){ console.warn('audio play', e); });
-        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
-      } else {
-        tmCurrentAudio.pause();
+var tmVoiceState = { ctx: null, src: null, btn: null, url: null, buffer: null, startedAt: 0, offset: 0 };
+
+async function tmToggleVoice(btn, url) {
+  try {
+    if (!url) { alert('No audio URL.'); return; }
+
+    // Same voice tapped → pause/resume
+    if (tmVoiceState.btn === btn && tmVoiceState.src) {
+      if (tmVoiceState.src._playing) {
+        // Pause
+        tmVoiceState.offset += (tmVoiceState.ctx.currentTime - tmVoiceState.startedAt);
+        try { tmVoiceState.src.stop(); } catch(_){}
+        tmVoiceState.src._playing = false;
         btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+      } else {
+        // Resume
+        try { tmVoiceState.src = playBuffer(tmVoiceState.buffer, tmVoiceState.offset); } catch(_){}
+        tmVoiceState.startedAt = tmVoiceState.ctx.currentTime;
+        tmVoiceState.src._playing = true;
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
       }
       return;
     }
-    // Different button — stop old, start new
-    if (tmCurrentAudio) {
-      try { tmCurrentAudio.pause(); } catch(_){}
-      try { tmCurrentAudio.remove(); } catch(_){}
-      if (tmCurrentAudioBtn) tmCurrentAudioBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+
+    // Stop any current playback
+    if (tmVoiceState.src) { try { tmVoiceState.src.stop(); } catch(_){} }
+    if (tmVoiceState.btn && tmVoiceState.btn !== btn) {
+      tmVoiceState.btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
     }
-    tmCurrentAudio = new Audio(url);
-    tmCurrentAudio.preload = 'auto';
-    tmCurrentAudio.setAttribute('playsinline', 'true');
-    // Android Chrome sometimes refuses to play audio not attached to DOM
-    try { tmCurrentAudio.style.display = 'none'; document.body.appendChild(tmCurrentAudio); } catch(_){}
-    tmCurrentAudioBtn = btn;
-    tmCurrentAudio.onended = function(){
-      if (tmCurrentAudioBtn) tmCurrentAudioBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
-    };
-    tmCurrentAudio.onerror = function(e){
-      console.warn('audio error', e);
-      if (tmCurrentAudioBtn) tmCurrentAudioBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
-    };
-    var playPromise = tmCurrentAudio.play();
-    if (playPromise && playPromise.then) {
-      playPromise.then(function(){
-        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
-      }).catch(function(e){ console.warn('play failed', e); });
+
+    // Show loading state
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8" stroke-dasharray="12 40" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/></circle></svg>';
+
+    // Init audio context
+    if (!tmVoiceState.ctx) {
+      tmVoiceState.ctx = new (window.AudioContext || window.webkitAudioContext)();
     }
-  } catch(e) {
-    console.warn('tmToggleVoice', e);
+    var ctx = tmVoiceState.ctx;
+    if (ctx.state === 'suspended') await ctx.resume();
+
+    // Fetch the file
+    var resp = await fetch(url, { credentials: 'omit' });
+    if (!resp.ok) throw new Error('Fetch ' + resp.status);
+    var arr = await resp.arrayBuffer();
+
+    // Decode
+    var buf;
+    try {
+      buf = await ctx.decodeAudioData(arr.slice(0));
+    } catch(e) {
+      // Some Chrome builds need a callback-style decode
+      buf = await new Promise(function(resolve, reject){
+        ctx.decodeAudioData(arr.slice(0), resolve, reject);
+      });
+    }
+
+    // Play
+    tmVoiceState.buffer = buf;
+    tmVoiceState.offset = 0;
+    tmVoiceState.btn = btn;
+    tmVoiceState.url = url;
+    tmVoiceState.src = playBuffer(buf, 0);
+    tmVoiceState.startedAt = ctx.currentTime;
+    tmVoiceState.src._playing = true;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
+    try { if (window.TMSound) TMSound.play(); } catch(_){}
+
+  } catch(err) {
+    console.warn('voice play failed', err);
+    if (btn) btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+    alert('Could not play: ' + err.message);
   }
+}
+
+function playBuffer(buf, offset) {
+  var ctx = tmVoiceState.ctx;
+  var src = ctx.createBufferSource();
+  src.buffer = buf;
+  src.connect(ctx.destination);
+  src.onended = function(){
+    if (tmVoiceState.src === src) {
+      tmVoiceState.src._playing = false;
+      tmVoiceState.offset = 0;
+      if (tmVoiceState.btn) tmVoiceState.btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+    }
+  };
+  src.start(0, offset || 0);
+  return src;
 }
 
 {% endblock %}

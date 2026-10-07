@@ -113,17 +113,30 @@ function showIncoming(p){
 }
 function hideIncoming(){ var el=$('tm-incoming'); if(el) el.classList.remove('tm-show'); }
 function showInCall(name,kind,avatarUrl){
-  var ct=$('tm-c-type'), cn=$('tm-c-name'), ca=$('tm-c-avatar'), pip=$('tm-self-pip');
-  if(ct) ct.textContent=(kind==='video'?'VIDEO CALL':'AUDIO CALL');
-  if(cn) cn.textContent=name||'Unknown';
-  if(ca){ if(avatarUrl){ca.innerHTML='<img src="'+avatarUrl+'" alt="">';}else{ca.textContent=init(name);} }
-  if(pip){
-    if(window.TM_USER_AVATAR){pip.innerHTML='<img src="'+window.TM_USER_AVATAR+'" alt="">';}
-    else{pip.textContent=init(window.TM_USER_NAME);}
+  try {
+    var ct=$('tm-c-type'), cn=$('tm-c-name'), ca=$('tm-c-avatar'), pip=$('tm-self-pip');
+    if(ct) ct.textContent=(kind==='video'?'VIDEO CALL':'AUDIO CALL');
+    if(cn) cn.textContent=name||'Unknown';
+    if(ca){ if(avatarUrl){ca.innerHTML='<img src="'+avatarUrl+'" alt="">';}else{ca.textContent=init(name);} }
+    if(pip){
+      if(window.TM_USER_AVATAR){pip.innerHTML='<img src="'+window.TM_USER_AVATAR+'" alt="">';}
+      else{pip.textContent=init(window.TM_USER_NAME);}
+    }
+    try { buildMeter($('tm-c-meter'),48); } catch(e){ console.warn('meter', e); }
+    document.body.classList.add('tm-in-call');
+    var el=$('tm-incall');
+    if (el) {
+      el.classList.add('tm-show');
+      // Bulletproof: force inline display as fallback
+      el.style.display = 'flex';
+    } else {
+      console.error('tm-incall element missing!');
+      alert('Call screen missing from DOM. Please reload.');
+    }
+  } catch(e) {
+    console.error('showInCall threw', e);
+    alert('Call UI error: ' + e.message);
   }
-  buildMeter($('tm-c-meter'),48);
-  document.body.classList.add('tm-in-call');
-  var el=$('tm-incall'); if(el) el.classList.add('tm-show');
 }
 function hideInCall(){
   var el=$('tm-incall'); if(el) el.classList.remove('tm-show');
@@ -152,7 +165,7 @@ async function setupPeer(){
   };
   pc.onconnectionstatechange=function(){
     var s=pc.connectionState, st=$('tm-c-status');
-    if(s==='connected'){ if(!state.connectedAt){ startTimer(); if(window.TMSound) window.TMSound.callConnect(); if(window.TMHaptic) window.TMHaptic.send(); } if(st) st.classList.remove('ringing'); }
+    if(s==='connected'){ if(!state.connectedAt){ startTimer(); if(window.TMSound) window.TMSound.callConnect(); if(window.TMHaptic) window.TMHaptic.connect(); } if(st) st.classList.remove('ringing'); }
     else if(s==='failed'){ if(st) st.textContent='Connection lost'; setTimeout(function(){tmEndCall(true);},1500); }
     else if(s==='disconnected'){ if(st) st.textContent='Reconnecting...'; }
   };
@@ -248,7 +261,8 @@ window.tmStartCall=async function(kind){
 
 window.tmAcceptIncoming=async function(){
   if(!state.incomingPayload) return;
-  ringStop(); vib(0); hideIncoming();
+  ringStop(); vib(0); if (window.TMHaptic) window.TMHaptic.tap();
+  hideIncoming();
   state.active=true; state.role='callee';
   state.kind=state.incomingPayload.kind||'audio';
   state.callId=state.incomingPayload.call_id;
@@ -297,13 +311,14 @@ window.tmAcceptIncoming=async function(){
 window.tmDeclineIncoming=async function(){
   if(!state.incomingPayload) return;
   var id=state.incomingPayload.call_id;
-  ringStop(); vib(0); hideIncoming(); cleanup();
+  ringStop(); vib(0); if (window.TMHaptic) window.TMHaptic.warn();
+  hideIncoming(); cleanup();
   try{ await fetch('/api/calls/'+id+'/decline',{method:'POST',credentials:'same-origin'}); }catch(_){}
   state.incomingPayload=null;
 };
 
 window.tmEndCall=async function(silent){
-  if (window.TMSound) window.TMSound.callEnd(); if (window.TMHaptic) window.TMHaptic.long();
+  if (window.TMSound) window.TMSound.callEnd(); if (window.TMHaptic) window.TMHaptic.end();
   var id=state.callId, role=state.role;
   cleanup();
   if(id&&role&&!silent){
@@ -351,7 +366,7 @@ async function pollIncoming(){
         state.incomingPayload=d.call;
         showIncoming(d.call);
         ringStart();
-        vib([400,200,400]);
+        if (window.TMHaptic) window.TMHaptic.incoming(); else vib([400,200,400]);
       }
     }
   }catch(e){}
@@ -391,7 +406,7 @@ window.tmToggleMute=function(){
   state.localStream.getAudioTracks().forEach(function(t){t.enabled=!state.micMuted;});
   var b=$('tm-btn-mute'); if(b) b.classList.toggle('tm-active',state.micMuted);
   var w=$('tm-c-avatar-wrap'); if(w) w.classList.toggle('tm-muted',state.micMuted);
-  if (window.TMSound) window.TMSound[state.micMuted?'mute':'unmute']();
+  if (window.TMSound) window.TMSound[state.micMuted?'mute':'unmute'](); if (window.TMHaptic) window.TMHaptic.mute();
 };
 
 window.tmToggleSpeaker=function(){
@@ -400,7 +415,7 @@ window.tmToggleSpeaker=function(){
   var ra=$('tm-remote-audio');
   if(ra&&ra.setSinkId){ try{ra.setSinkId(state.speakerOn?'speaker':'default').catch(function(){});}catch(_){} }
   if(ra) ra.volume=state.speakerOn?1.0:0.85;
-  if (window.TMSound) window.TMSound.toggle();
+  if (window.TMSound) window.TMSound.toggle(); if (window.TMHaptic) window.TMHaptic.tap();
 };
 
 window.tmToggleEmojiRow=function(){
@@ -409,7 +424,7 @@ window.tmToggleEmojiRow=function(){
 
 window.tmSendReaction=async function(emoji){
   if(!state.callId) return;
-  floatEmoji(emoji); if (window.TMSound) window.TMSound.reaction();
+  floatEmoji(emoji); if (window.TMSound) window.TMSound.reaction(); if (window.TMHaptic) window.TMHaptic.reaction();
   try{
     await fetch('/api/calls/'+state.callId+'/reaction',{method:'POST',credentials:'same-origin',
       headers:{'Content-Type':'application/json'},body:JSON.stringify({emoji:emoji})});
@@ -441,7 +456,7 @@ window.tmToggleCamera = async function(){
     var lvOff = $('tm-local-video'); if(lvOff) lvOff.classList.remove('tm-on');
     var screenOff = $('tm-incall'); if(screenOff) screenOff.classList.add('tm-no-cam');
     if (cb) cb.classList.add('tm-active');
-    if (window.TMSound) window.TMSound.camera();
+    if (window.TMSound) window.TMSound.camera(); if (window.TMHaptic) window.TMHaptic.camera();
   } else {
     try {
       var ns = await navigator.mediaDevices.getUserMedia({video:{facingMode:state.facingMode,width:{ideal:1280},height:{ideal:720}}});
@@ -465,7 +480,7 @@ window.tmToggleCamera = async function(){
 // ---------- Minimize / expand ----------
 function minimizeCall(){
   if (!state.active) return;
-  if (window.TMSound) window.TMSound.minimize();
+  if (window.TMSound) window.TMSound.minimize(); if (window.TMHaptic) window.TMHaptic.tick();
   state.minimized = true;
   var incall = $('tm-incall'); if(incall) incall.classList.remove('tm-show');
   var incoming = $('tm-incoming'); if(incoming) incoming.classList.remove('tm-show');
@@ -491,7 +506,7 @@ function minimizeCall(){
 
 function expandCall(){
   if (!state.active) return;
-  if (window.TMSound) window.TMSound.expand();
+  if (window.TMSound) window.TMSound.expand(); if (window.TMHaptic) window.TMHaptic.tick();
   state.minimized = false;
   var pill = $('tm-call-pill'); if(pill) pill.classList.remove('tm-show');
   if (state.incomingPayload && !state.connectedAt) {
