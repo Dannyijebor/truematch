@@ -115,12 +115,12 @@ html.light .bubble-reply { background: rgba(0,0,0,0.06); }
   line-height: 0;
 }
 .tick svg {
-  width: 13px;
-  height: 11px;
+  width: 11px;
+  height: 10px;
   overflow: visible;
   flex-shrink: 0;
 }
-.tick svg.tick-b { margin-left: -4px; }
+.tick svg.tick-b { margin-left: -6px; }
 
 /* By default the second tick is visible (delivered state) */
 .tick svg.tick-b path {
@@ -451,11 +451,7 @@ html.light .chat-screen.theme-editorial {
   html.light .chat-wallpaper .wp-svg .wp-manh-windows [fill] { fill: #ffffff; }
 
 
-  #call-overlay.hidden,
-  #incoming-overlay.hidden {
-    display: none !important;
-    visibility: hidden !important;
-  }
+
 
 
   /* ============================================================
@@ -1869,7 +1865,7 @@ html.light .rec-pause {
           <span>{{ m.created_at[11:16] }}</span>
           {% if m.from_me %}
             <span class="tick {% if m.read %}read{% elif m.delivered %}delivered{% else %}pending{% endif %}">
-              <svg class="tick-a" viewBox="0 0 13 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6l3.5 3.5L11 3"/></svg><svg class="tick-b" viewBox="0 0 13 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6l3.5 3.5L11 3"/></svg>
+              <svg class="tick-a" viewBox="0 0 13 11" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6l3.5 3.5L11 3"/></svg><svg class="tick-b" viewBox="0 0 13 11" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6l3.5 3.5L11 3"/></svg>
             </span>
           {% endif %}
         </div>
@@ -2044,29 +2040,9 @@ html.light .rec-pause {
 <input type="file" id="image-input" accept="image/*" style="display:none;">
 <div id="msg-menu-holder"></div>
 
-<div id="call-overlay" class="hidden" style="position:fixed;inset:0;z-index:100;background:#000;display:flex;flex-direction:column;">
-  <div style="flex:1;position:relative;">
-    <video id="remote-video" autoplay playsinline style="width:100%;height:100%;object-fit:cover;background:#000;"></video>
-    <video id="local-video" autoplay playsinline muted style="position:absolute;bottom:16px;right:16px;width:112px;border-radius:12px;border:1px solid #334155;object-fit:cover;"></video>
-    <div id="call-status" style="position:absolute;top:24px;left:50%;transform:translateX(-50%);color:#fff;font-size:14px;background:rgba(0,0,0,0.7);padding:8px 16px;border-radius:999px;backdrop-filter:blur(8px);">Connecting…</div>
-  </div>
-  <div style="padding:24px;display:flex;align-items:center;justify-content:center;gap:16px;">
-    <button id="mute-btn" onclick="toggleMute()" style="padding:16px;border-radius:50%;background:#1e293b;color:#fff;border:none;cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:24px;height:24px;"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v4"/></svg></button>
-    <button onclick="hangUp()" style="padding:20px;border-radius:50%;background:#ef4444;color:#fff;border:none;cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:24px;height:24px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13 1.05.37 2.07.7 3.06a2 2 0 0 1-.45 2.11L8.09 10.91a16 16 0 0 0 6 6l2.02-2.02a2 2 0 0 1 2.11-.45c.99.33 2.01.57 3.06.7A2 2 0 0 1 22 16.92z"/></svg></button>
-  </div>
-</div>
 
-<div id="incoming-overlay" class="hidden" style="position:fixed;inset:0;z-index:100;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
-  <div style="text-align:center;">
-    <div id="incoming-avatar" style="width:96px;height:96px;margin:0 auto 16px;border-radius:50%;background:linear-gradient(135deg,#10b981,#065f46);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:#052e16;">?</div>
-    <div id="incoming-name" style="color:#fff;font-size:20px;font-weight:700;">Someone</div>
-    <div id="incoming-kind" style="color:#94a3b8;font-size:14px;margin-top:4px;">Incoming call</div>
-  </div>
-  <div style="margin-top:48px;display:flex;gap:24px;">
-    <button onclick="declineIncoming()" style="padding:20px;border-radius:50%;background:#ef4444;color:#fff;border:none;cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:24px;height:24px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13 1.05.37 2.07.7 3.06a2 2 0 0 1-.45 2.11L8.09 10.91a16 16 0 0 0 6 6l2.02-2.02a2 2 0 0 1 2.11-.45c.99.33 2.01.57 3.06.7A2 2 0 0 1 22 16.92z"/></svg></button>
-    <button onclick="acceptIncoming()" style="padding:20px;border-radius:50%;background:#10b981;color:#052e16;border:none;cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:24px;height:24px;"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></button>
-  </div>
-</div>
+
+
 <!-- P3 continues -->
 
 <script>
@@ -2075,6 +2051,7 @@ document.body.style.overflow = 'hidden';
 
 const OTHER_ID = "{{ other.user_id }}";
 const OTHER_NAME = {{ other.name|tojson }};
+const OTHER_AVATAR = {{ (other.avatar_url or '')|tojson }};
 const ME_ID = "{{ user.id }}";
 let lastTs = "{{ msgs[-1].created_at if msgs else '' }}";
 let currentTheme = "{{ chat_theme }}";
@@ -2146,7 +2123,7 @@ function tmRenderBubble(m) {
   } else if (m.kind === 'sticker') {
     contentHTML = (m.media_url && m.media_url.startsWith('http')) ? `<img src="${m.media_url}" class="sticker-img">` : `<span class="sticker-emoji">${m.body || m.media_url || '🙂'}</span>`;
   } else contentHTML = `<span class="msg-text">${(m.body||'').replace(/</g,'&lt;')}</span>`;
-  const ticksHTML = isMine ? `<span class="tick ${m.read ? 'read' : (m.delivered ? 'delivered' : 'pending')}"><svg class="tick-a" viewBox="0 0 13 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6l3.5 3.5L11 3"/></svg><svg class="tick-b" viewBox="0 0 13 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6l3.5 3.5L11 3"/></svg></span>` : '';
+  const ticksHTML = isMine ? `<span class="tick ${m.read ? 'read' : (m.delivered ? 'delivered' : 'pending')}"><svg class="tick-a" viewBox="0 0 13 11" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6l3.5 3.5L11 3"/></svg><svg class="tick-b" viewBox="0 0 13 11" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6l3.5 3.5L11 3"/></svg></span>` : '';
   return `<div class="bubble ${isMine ? 'mine' : 'theirs'}" data-bubble-id="${m.id}">${replyHTML}${contentHTML}<div class="msg-meta"><span>${(m.created_at || '').substring(11, 16)}</span>${ticksHTML}</div></div>`;
 }
 function tmAppendMessage(m) {
@@ -2325,8 +2302,30 @@ function tmMicMove(e) {
 }
 
 async function tmMicUp(e) {
+  var _wasPending = !!recHoldTimer;
   if (recHoldTimer) { clearTimeout(recHoldTimer); recHoldTimer = null; }
   tmDetachDocListeners();
+
+  // If recording never started (fast tap/swipe), force-hide everything immediately
+  if (_wasPending && !recording) {
+    try {
+      var _b = document.getElementById('rec-bar');
+      if (_b) {
+        _b.style.transition = 'none';
+        _b.classList.remove('active', 'locked', 'paused', 'cancelling', 'lock-hint');
+        setTimeout(function(){ if (_b) _b.style.transition = ''; }, 50);
+      }
+      var _lf = document.getElementById('rec-lock-field');
+      if (_lf) { _lf.style.transition = 'none'; _lf.classList.remove('visible','armed','locked'); setTimeout(function(){ if (_lf) _lf.style.transition=''; }, 50); }
+      var _cu = document.getElementById('rec-cursor');
+      if (_cu) { _cu.style.transition = 'none'; _cu.classList.remove('visible','locked'); setTimeout(function(){ if (_cu) _cu.style.transition=''; }, 50); }
+      var _rm = document.getElementById('rec-dim');
+      if (_rm) { _rm.style.transition = 'none'; _rm.classList.remove('visible'); setTimeout(function(){ if (_rm) _rm.style.transition=''; }, 50); }
+      var _rl = document.getElementById('rec-rail');
+      if (_rl) { _rl.style.transition = 'none'; _rl.classList.remove('visible','armed','locked'); setTimeout(function(){ if (_rl) _rl.style.transition=''; }, 50); }
+    } catch(_){}
+    return;
+  }
 
   const cur = document.getElementById('rec-cursor');
   const micEl = document.getElementById('mic-btn');
@@ -2851,162 +2850,25 @@ function tmStopRingback() {
   RINGBACK_CTX = null;
 }
 
-async function startCall(kind) {
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { alert('Calling is not supported on this browser.'); return; }
-  currentCallKind = kind;
-  try { localStream = await navigator.mediaDevices.getUserMedia({audio: true, video: kind === 'video'}); }
-  catch (e) {
-    alert('Microphone/camera permission is required to make calls.\n\nTap the lock icon → Permissions → Allow.');
-    return;
+// Call integration — global call manager handles the UI + WebRTC
+window.TM_CALL_TARGET = OTHER_ID;
+window.TM_CALL_NAME = OTHER_NAME;
+window.TM_CALL_AVATAR = OTHER_AVATAR || "";
+
+function startCall(kind) {
+  window.TM_CALL_TARGET = OTHER_ID;
+  window.TM_CALL_NAME = OTHER_NAME;
+  window.TM_CALL_AVATAR = OTHER_AVATAR || "";
+  if (window.tmStartCall) {
+    window.tmStartCall(kind);
+  } else {
+    setTimeout(function(){
+      if (window.tmStartCall) window.tmStartCall(kind);
+      else alert('Call system is still loading. Try again.');
+    }, 500);
   }
-  const r = await fetch('/api/calls/start/' + OTHER_ID + '?kind=' + kind, {method: 'POST', credentials: 'same-origin'});
-  if (!r.ok) {
-    // Read the actual reason from the API instead of showing a generic message
-    var reason = 'unknown error';
-    try { var j = await r.json(); reason = j.detail || j.error || reason; } catch(_) {}
-    alert('Could not start the call: ' + reason);
-    try { if (localStream) localStream.getTracks().forEach(t => t.stop()); } catch(_){}
-    localStream = null;
-    return;
-  }
-  const data = await r.json();
-  currentCallId = data.call_id;
-  CALL_START_AT = Date.now();
-  showCallOverlay('Calling…');
-  await setupPeer(true);
-  const offer = await pc.createOffer(); await pc.setLocalDescription(offer);
-  await fetch('/api/calls/' + currentCallId + '/offer', {method: 'POST', credentials: 'same-origin', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({sdp: offer.sdp, type: offer.type})});
-  startSignalPolling();
-  tmStartRingback();
-  // Timeout if no answer in 45s
-  setTimeout(function(){
-    if (currentCallId && !pc.currentRemoteDescription) {
-      tmStopRingback();
-      showCallOverlay('No answer');
-      setTimeout(function(){ hangUp(); }, 1200);
-    }
-  }, CALL_TIMEOUT_MS);
-}
-async function setupPeer(isCaller) {
-  pc = new RTCPeerConnection({
-    iceServers: [
-      { urls: 'stun:stun.l.google.com:19302' },
-      { urls: 'stun:stun1.l.google.com:19302' },
-      // Free TURN relay — makes calls work across networks
-      { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
-      { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
-      { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
-    ],
-    iceCandidatePoolSize: 10,
-  });
-  localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
-  document.getElementById('local-video').srcObject = localStream;
-  pc.ontrack = ev => { document.getElementById('remote-video').srcObject = ev.streams[0]; showCallOverlay('Connected'); };
-  pc.onicecandidate = ev => {
-    if (ev.candidate) {
-      const side = isCaller ? 'caller' : 'callee';
-      fetch('/api/calls/' + currentCallId + '/ice?side=' + side, {method: 'POST', credentials: 'same-origin', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({candidate: ev.candidate.toJSON()})});
-    }
-  };
-  pc.onconnectionstatechange = () => {
-    if (pc.connectionState === 'connected') showCallOverlay('Connected');
-    if (pc.connectionState === 'failed') { showCallOverlay('Failed'); setTimeout(() => hangUp(), 2000); }
-  };
-}
-let lastIceCount = {caller: 0, callee: 0};
-async function startSignalPolling() {
-  pollInterval = setInterval(async () => {
-    if (!currentCallId || !pc) return;
-    const r = await fetch('/api/calls/' + currentCallId + '/state', {credentials: 'same-origin'});
-    if (!r.ok) return;
-    const s = await r.json(); const me = s.you_are;
-    if (s.status === 'declined') { showCallOverlay('Declined'); setTimeout(() => hangUp(true), 1200); return; }
-    if (s.status === 'ended') { hangUp(true); return; }
-    if (me === 'caller' && s.answer && pc && !pc.currentRemoteDescription) { try { await pc.setRemoteDescription(new RTCSessionDescription(s.answer)); } catch(e){} }
-    const list = (me === 'caller' ? s.ice_callee : s.ice_caller) || [];
-    const seen = me === 'caller' ? lastIceCount.callee : lastIceCount.caller;
-    for (let i = seen; i < list.length; i++) { try { await pc.addIceCandidate(new RTCIceCandidate(list[i])); } catch(e){} }
-    if (me === 'caller') lastIceCount.callee = list.length; else lastIceCount.caller = list.length;
-  }, 1500);
-}
-function showCallOverlay(s) { document.getElementById('call-overlay').classList.remove('hidden'); document.getElementById('call-status').textContent = s; }
-function hideCallOverlay() { document.getElementById('call-overlay').classList.add('hidden'); }
-async function hangUp(silent) {
-  tmStopRingback();
-  if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
-  if (pc) { try { pc.close(); } catch(e){} pc = null; }
-  if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
-  if (currentCallId && !silent) await fetch('/api/calls/' + currentCallId + '/end', {method: 'POST', credentials: 'same-origin'}).catch(()=>{});
-  currentCallId = null; hideCallOverlay();
-  try { if (typeof tmResetCallUI === 'function') tmResetCallUI(); } catch(_){}
-}
-async function pollIncoming() {
-  try {
-    const r = await fetch('/api/calls/incoming', {credentials: 'same-origin'});
-    if (r.ok) {
-      const data = await r.json();
-      if (data.call && !currentCallId && !incomingCall) {
-        incomingCall = data.call;
-        document.getElementById('incoming-name').textContent = data.call.from.name;
-        document.getElementById('incoming-kind').textContent = data.call.kind === 'video' ? 'Incoming video call' : 'Incoming voice call';
-        document.getElementById('incoming-avatar').textContent = (data.call.from.name || '?')[0].toUpperCase();
-        document.getElementById('incoming-overlay').classList.remove('hidden');
-        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-      }
-    }
-  } catch(e) {}
-  setTimeout(pollIncoming, 3000);
-}
-pollIncoming();
-async function acceptIncoming() {
-  if (!incomingCall) return;
-  currentCallId = incomingCall.call_id; currentCallKind = incomingCall.kind;
-  document.getElementById('incoming-overlay').classList.add('hidden');
-  await fetch('/api/calls/' + currentCallId + '/accept', {method: 'POST', credentials: 'same-origin'}).catch(()=>{});
-  try { localStream = await navigator.mediaDevices.getUserMedia({audio: true, video: currentCallKind === 'video'}); }
-  catch (e) { alert('Permission denied'); await fetch('/api/calls/' + currentCallId + '/decline', {method: 'POST', credentials: 'same-origin'}); incomingCall = null; return; }
-  showCallOverlay('Connecting…'); await setupPeer(false);
-  let tries = 0;
-  const waitOffer = setInterval(async () => {
-    tries++;
-    const r = await fetch('/api/calls/' + currentCallId + '/state', {credentials: 'same-origin'});
-    if (!r.ok) return;
-    const s = await r.json();
-    if (s.offer) {
-      clearInterval(waitOffer);
-      try {
-        await pc.setRemoteDescription(new RTCSessionDescription(s.offer));
-        const ans = await pc.createAnswer(); await pc.setLocalDescription(ans);
-        await fetch('/api/calls/' + currentCallId + '/answer', {method: 'POST', credentials: 'same-origin', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({sdp: ans.sdp, type: ans.type})});
-        startSignalPolling();
-      } catch(e) { hangUp(); }
-    }
-    if (tries > 15) { clearInterval(waitOffer); hangUp(); }
-  }, 800);
-  incomingCall = null;
-}
-async function declineIncoming() {
-  if (!incomingCall) return;
-  await fetch('/api/calls/' + incomingCall.call_id + '/decline', {method: 'POST', credentials: 'same-origin'}).catch(()=>{});
-  document.getElementById('incoming-overlay').classList.add('hidden');
-  incomingCall = null;
-}
-let muted = false;
-function toggleMute() {
-  if (!localStream) return;
-  muted = !muted;
-  localStream.getAudioTracks().forEach(t => t.enabled = !muted);
-  document.getElementById('mute-btn').style.opacity = muted ? '0.4' : '1';
 }
 
-document.addEventListener('click', function(e) {
-  if (!e.target.closest('#attach-menu') && !e.target.closest('.composer-btn')) {
-    document.getElementById('attach-menu').classList.add('hidden');
-  }
-});
-
-
-// ============================================================
 // Wallpaper opacity control
 // ============================================================
 var WP_KEY = 'tm_wallpaper_opacity_' + OTHER_ID;
@@ -3181,5 +3043,47 @@ console.log('[TrueMatch] chat loaded');
   document.addEventListener('touchstart', unlock, { passive: true });
   document.addEventListener('click', unlock);
 })();
+
+
+// ---------- Voice player ----------
+var tmCurrentAudio = null, tmCurrentAudioBtn = null;
+function tmToggleVoice(btn, url) {
+  try {
+    // Same button tapped → toggle
+    if (tmCurrentAudio && tmCurrentAudioBtn === btn) {
+      if (tmCurrentAudio.paused) {
+        tmCurrentAudio.play().catch(function(e){ console.warn('audio play', e); });
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
+      } else {
+        tmCurrentAudio.pause();
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+      }
+      return;
+    }
+    // Different button — stop old, start new
+    if (tmCurrentAudio) {
+      try { tmCurrentAudio.pause(); } catch(_){}
+      if (tmCurrentAudioBtn) tmCurrentAudioBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+    }
+    tmCurrentAudio = new Audio(url);
+    tmCurrentAudio.preload = 'auto';
+    tmCurrentAudioBtn = btn;
+    tmCurrentAudio.onended = function(){
+      if (tmCurrentAudioBtn) tmCurrentAudioBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+    };
+    tmCurrentAudio.onerror = function(e){
+      console.warn('audio error', e);
+      if (tmCurrentAudioBtn) tmCurrentAudioBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+    };
+    var playPromise = tmCurrentAudio.play();
+    if (playPromise && playPromise.then) {
+      playPromise.then(function(){
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
+      }).catch(function(e){ console.warn('play failed', e); });
+    }
+  } catch(e) {
+    console.warn('tmToggleVoice', e);
+  }
+}
 
 {% endblock %}

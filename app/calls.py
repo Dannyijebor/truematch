@@ -198,3 +198,16 @@ def add_ice(db: Session, call_id, user_id, candidate: dict, side: str) -> Call:
         c.ice_callee = (c.ice_callee or []) + [candidate]
     db.commit()
     return c
+
+
+def set_reaction(db: Session, call_id, user_id, emoji: str) -> Call:
+    c = db.get(Call, call_id)
+    if not c or user_id not in (c.caller_id, c.callee_id):
+        raise ValueError("not yours")
+    c.reaction = {
+        "emoji": emoji[:8],
+        "at": datetime.now(timezone.utc).isoformat(),
+        "from": str(user_id),
+    }
+    db.commit()
+    return c

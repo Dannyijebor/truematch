@@ -189,6 +189,7 @@ class Call(Base):
     answer: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     ice_caller: Mapped[list] = mapped_column(JSON, default=list)
     ice_callee: Mapped[list] = mapped_column(JSON, default=list)
+    reaction: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 

@@ -1,6 +1,7 @@
 import os
 from datetime import datetime, timezone
 from fastapi import FastAPI, Query, Depends, HTTPException, UploadFile, File, Header, status, Request, Body
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import select, desc, func
 from sqlalchemy.orm import Session
@@ -16,6 +17,9 @@ from app.notify import send_telegram, notify_match
 from app.api.web import router as web_router
 
 app = FastAPI(title="TrueMatch API", version="0.3.0")
+
+# Serve static assets (calls.js, etc.)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 from fastapi.middleware.cors import CORSMiddleware
 app.add_middleware(
@@ -458,6 +462,7 @@ def api_call_state(call_id: str, user: User = Depends(current_user),
         "ice_caller": c.ice_caller or [],
         "ice_callee": c.ice_callee or [],
         "you_are": "caller" if c.caller_id == user.id else "callee",
+        "reaction": c.reaction,
     }
 
 
@@ -759,3 +764,19 @@ def debug_login(payload: LoginIn, db: Session = Depends(get_db)):
         return {"ok": True, "user_found": True, "password_match": ok, "hash_prefix": user.password_hash.split("$")[0]}
     except Exception as e:
         return {"error": f"{type(e).__name__}: {e}", "traceback": traceback.format_exc()}
+
+
+@app.post("/api/calls/{call_id}/reaction")
+def api_call_reaction(call_id: str, payload: dict = Body(...),
+                       user: User = Depends(current_user),
+                       db: Session = Depends(get_db)):
+    from uuid import UUID
+    from app.calls import set_reaction
+    try:
+        emoji = (payload.get("emoji") or "").strip()
+        if not emoji:
+            raise HTTPException(400, "emoji required")
+        set_reaction(db, UUID(call_id), user.id, emoji)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    return {"ok": True}
