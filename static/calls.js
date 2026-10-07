@@ -14,6 +14,7 @@ var state={
   lastReactionAt:"", audioCtx:null,
   analyserLocal:null, analyserRemote:null, meterRAF:null,
   ringInt:null, timeoutInt:null, incomingPayload:null,
+  facingMode:'user', videoEnabled:false,
 };
 
 var TURN=[
@@ -136,6 +137,12 @@ async function setupPeer(){
   if(state.localStream){ state.localStream.getTracks().forEach(function(t){pc.addTrack(t,state.localStream);}); }
   pc.ontrack=function(ev){ state.remoteStream=ev.streams[0];
     var ra=$('tm-remote-audio'); if(ra) ra.srcObject=ev.streams[0];
+    var rv=$('tm-remote-video');
+    if (rv && ev.track.kind === 'video') {
+      rv.srcObject = ev.streams[0];
+      rv.classList.add('tm-on');
+      rv.play().catch(function(){});
+    }
     try{attachAnalyser(ev.streams[0],'remote');}catch(_){} };
   pc.onicecandidate=function(ev){ if(!ev.candidate) return;
     var side=(state.role==='caller')?'caller':'callee';
@@ -192,10 +199,18 @@ window.tmStartCall=async function(kind){
   state.active=true; state.role='caller'; state.kind=kind||'audio';
   state.startedAt=Date.now(); state.lastIceCount={caller:0,callee:0};
   ctx();
+  var isVideo = (state.kind === 'video');
+  state.videoEnabled = isVideo;
   try{
-    state.localStream=await navigator.mediaDevices.getUserMedia({
-      audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false});
-  }catch(e){ state.active=false; alert('Microphone permission is required.\n\nTap the lock icon -> Permissions -> Allow.'); return; }
+    var constraints = { audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true} };
+    if (isVideo) {
+      constraints.video = { facingMode: state.facingMode, width:{ideal:1280}, height:{ideal:720} };
+    } else {
+      constraints.video = false;
+    }
+    state.localStream = await navigator.mediaDevices.getUserMedia(constraints);
+  }catch(e){ state.active=false; alert('Permission is required.\n\nTap the lock icon -> Permissions -> Allow.'); return; }
+  if (isVideo) { activateVideoMode(); }
   try{attachAnalyser(state.localStream,'local');}catch(_){}
   showInCall(window.TM_CALL_NAME||'Unknown',state.kind,window.TM_CALL_AVATAR||'');
   var st=$('tm-c-status'); if(st){st.textContent='Calling...';st.classList.add('ringing');}
@@ -224,10 +239,18 @@ window.tmAcceptIncoming=async function(){
   state.callId=state.incomingPayload.call_id;
   state.lastIceCount={caller:0,callee:0};
   state.startedAt=Date.now();
+  var isVideo = (state.kind === 'video');
+  state.videoEnabled = isVideo;
   try{
-    state.localStream=await navigator.mediaDevices.getUserMedia({
-      audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false});
-  }catch(e){ alert('Microphone permission required.'); tmDeclineIncoming(); return; }
+    var constraints2 = { audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true} };
+    if (isVideo) {
+      constraints2.video = { facingMode: state.facingMode, width:{ideal:1280}, height:{ideal:720} };
+    } else {
+      constraints2.video = false;
+    }
+    state.localStream = await navigator.mediaDevices.getUserMedia(constraints2);
+  }catch(e){ alert('Permission required.'); tmDeclineIncoming(); return; }
+  if (isVideo) { activateVideoMode(); }
   try{attachAnalyser(state.localStream,'local');}catch(_){}
   var p=state.incomingPayload;
   showInCall(p.from.name,state.kind,p.from.avatar_url||'');
@@ -285,6 +308,7 @@ function cleanup(){
   state.remoteStream=null;
   var ra=$('tm-remote-audio'); if(ra) ra.srcObject=null;
   var la=$('tm-local-audio'); if(la) la.srcObject=null;
+  try{ deactivateVideoMode(); }catch(_){}
   hideInCall(); hideIncoming();
   state.analyserLocal=null; state.analyserRemote=null;
   state.micMuted=false; state.speakerOn=false; state.holdOn=false;
