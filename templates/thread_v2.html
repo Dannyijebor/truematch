@@ -1879,7 +1879,7 @@ html.light .rec-pause {
           <img src="{{ m.media_url }}" class="msg-media" onclick="tmLightbox('{{ m.media_url }}')" alt="">
         {% elif m.kind == 'voice' %}
           <div class="voice-player">
-            <div class="voice-play" onclick="tmToggleVoice(this, '{{ m.media_url }}')">
+            <div class="voice-play" data-url="{{ m.media_url }}" onclick="tmToggleVoice(this, '{{ m.media_url }}')">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
             </div>
             <div class="voice-wave">
@@ -2087,6 +2087,71 @@ document.body.style.overflow = 'hidden';
 const OTHER_ID = "{{ other.user_id }}";
 const OTHER_NAME = {{ other.name|tojson }};
 const OTHER_AVATAR = {{ (other.avatar_url or '')|tojson }};
+
+
+// ---------- Voice player (single clean implementation) ----------
+var _tmAudio = null, _tmAudioBtn = null;
+var _PLAY_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+var _PAUSE_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
+
+function tmToggleVoice(btn, url) {
+  console.log('[voice] tap', url);
+  try {
+    if (!url) { alert('No URL'); return; }
+    if (_tmAudio && _tmAudioBtn === btn) {
+      if (_tmAudio.paused) {
+        _tmAudio.play().then(function(){ btn.innerHTML = _PAUSE_SVG; });
+      } else {
+        _tmAudio.pause();
+        btn.innerHTML = _PLAY_SVG;
+      }
+      return;
+    }
+    if (_tmAudio) {
+      try { _tmAudio.pause(); _tmAudio.remove(); } catch(_){}
+      if (_tmAudioBtn) _tmAudioBtn.innerHTML = _PLAY_SVG;
+    }
+    var a = document.createElement('audio');
+    a.src = url;
+    a.preload = 'auto';
+    a.setAttribute('playsinline', '');
+    a.setAttribute('webkit-playsinline', '');
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    _tmAudio = a;
+    _tmAudioBtn = btn;
+    a.onended = function(){ btn.innerHTML = _PLAY_SVG; };
+    a.onerror = function(){
+      var code = a.error ? a.error.code : '?';
+      alert('Audio failed (code ' + code + ')');
+      btn.innerHTML = _PLAY_SVG;
+    };
+    a.play().then(function(){
+      btn.innerHTML = _PAUSE_SVG;
+    }).catch(function(e){
+      alert('Play blocked: ' + (e.message || e.name));
+    });
+  } catch(err) {
+    alert('Voice player error: ' + err.message);
+  }
+}
+
+// Event delegation — catches any click on .voice-play, even if onclick attr is missing
+document.addEventListener('click', function(ev){
+  var el = ev.target.closest && ev.target.closest('.voice-play');
+  if (!el) return;
+  ev.preventDefault();
+  ev.stopPropagation();
+  var url = el.getAttribute('data-url');
+  if (!url) {
+    // Try reading from onclick attribute (fallback)
+    var oc = el.getAttribute('onclick') || '';
+    var m = oc.match(/tmToggleVoice\(this,\s*'([^']+)'\)/) || oc.match(/tmToggleVoice\(this,\s*"([^"]+)"\)/);
+    if (m) url = m[1];
+  }
+  if (url) tmToggleVoice(el, url);
+  else console.warn('voice-play clicked but no URL found');
+}, true);
 const ME_ID = "{{ user.id }}";
 let lastTs = "{{ msgs[-1].created_at if msgs else '' }}";
 let currentTheme = "{{ chat_theme }}";
@@ -2170,7 +2235,7 @@ function tmRenderBubble(m) {
   else if (m.kind === 'voice') {
     const dur = Math.round(m.media_duration || 0);
     let wave = ''; for (let i = 0; i < 28; i++) wave += `<span style="height:${6 + (i*5)%12}px"></span>`;
-    contentHTML = `<div class="voice-player"><div class="voice-play" onclick="tmToggleVoice(this, '${m.media_url}')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div><div class="voice-wave">${wave}</div><span class="voice-time">${dur}s</span></div>`;
+    contentHTML = `<div class="voice-player"><div class="voice-play" data-url="${m.media_url}" onclick="tmToggleVoice(this, '${m.media_url}')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div><div class="voice-wave">${wave}</div><span class="voice-time">${dur}s</span></div>`;
   } else if (m.kind === 'sticker') {
     contentHTML = (m.media_url && m.media_url.startsWith('http')) ? `<img src="${m.media_url}" class="sticker-img">` : `<span class="sticker-emoji">${m.body || m.media_url || '🙂'}</span>`;
   } else contentHTML = `<span class="msg-text">${(m.body||'').replace(/</g,'&lt;')}</span>`;
@@ -3204,49 +3269,6 @@ var tmVoiceState = { ctx: null, src: null, btn: null, url: null, buffer: null, s
 async var _tmAudio = null, _tmAudioBtn = null;
 var _PLAY_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
 var _PAUSE_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
-
-function tmToggleVoice(btn, url) {
-  alert('VOICE TAP\nURL: ' + url.substring(0, 60));
-  try {
-    if (!url) { alert('No URL'); return; }
-    if (_tmAudio && _tmAudioBtn === btn) {
-      if (_tmAudio.paused) {
-        _tmAudio.play().then(function(){ btn.innerHTML = _PAUSE_SVG; });
-      } else {
-        _tmAudio.pause();
-        btn.innerHTML = _PLAY_SVG;
-      }
-      return;
-    }
-    if (_tmAudio) {
-      try { _tmAudio.pause(); _tmAudio.remove(); } catch(_){}
-      if (_tmAudioBtn) _tmAudioBtn.innerHTML = _PLAY_SVG;
-    }
-    var a = document.createElement('audio');
-    a.src = url;
-    a.preload = 'auto';
-    a.setAttribute('playsinline', '');
-    a.setAttribute('webkit-playsinline', '');
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    _tmAudio = a;
-    _tmAudioBtn = btn;
-    a.onended = function(){ btn.innerHTML = _PLAY_SVG; };
-    a.onerror = function(){
-      var code = a.error ? a.error.code : '?';
-      alert('AUDIO ERROR code ' + code + '\nURL: ' + url.substring(0, 80));
-      btn.innerHTML = _PLAY_SVG;
-    };
-    a.play().then(function(){
-      btn.innerHTML = _PAUSE_SVG;
-      try { if (window.TMSound) TMSound.play(); } catch(_){}
-    }).catch(function(e){
-      alert('PLAY BLOCKED: ' + (e.message || e.name));
-    });
-  } catch(err) {
-    alert('PLAYER THREW: ' + err.message);
-  }
-}
 
 function playBuffer(buf, offset) {
   var ctx = tmVoiceState.ctx;

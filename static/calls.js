@@ -144,6 +144,89 @@ function hideInCall(){
   var row=$('tm-emoji-row'); if(row) row.classList.remove('tm-show');
 }
 
+function activateVideoMode(){
+  console.log('[video] activating video mode');
+  var screen=$('tm-incall'); if(screen) screen.classList.add('tm-video-mode');
+  function attachLocal(){
+    var lv=$('tm-local-video');
+    if(!lv || !state.localStream) return;
+    if(lv.srcObject !== state.localStream){
+      try { lv.srcObject = state.localStream; } catch(e){ console.warn('srcObject', e); }
+    }
+    lv.muted = true;
+    lv.setAttribute('autoplay','');
+    lv.setAttribute('playsinline','');
+    lv.classList.add('tm-on');
+    var p = lv.play();
+    if (p && p.catch) p.catch(function(e){ console.warn('lv play', e); });
+  }
+  attachLocal();
+  setTimeout(attachLocal, 300);
+  setTimeout(attachLocal, 1200);
+  var pip=$('tm-self-pip'); if(pip) pip.classList.add('tm-has-video');
+  var cb=$('tm-btn-cam'); if(cb){ cb.classList.remove('tm-active'); cb.style.display=''; }
+}
+
+function deactivateVideoMode(){
+  var screen=$('tm-incall'); if(screen){ screen.classList.remove('tm-video-mode','tm-no-cam'); }
+  var lv=$('tm-local-video'); if(lv){ lv.classList.remove('tm-on'); lv.srcObject=null; }
+  var pip=$('tm-self-pip'); if(pip) pip.classList.remove('tm-has-video');
+  var rv=$('tm-remote-video'); if(rv){ rv.classList.remove('tm-on'); rv.srcObject=null; }
+  var cb=$('tm-btn-cam'); if(cb){ cb.style.display='none'; cb.classList.remove('tm-active'); }
+}
+
+window.tmToggleCamera = async function(){
+  if (state.kind !== 'video' || !state.localStream) return;
+  var cb = $('tm-btn-cam');
+  if (state.videoEnabled) {
+    state.videoEnabled = false;
+    state.localStream.getVideoTracks().forEach(function(t){
+      try{t.stop();}catch(_){}
+      try{state.localStream.removeTrack(t);}catch(_){}
+    });
+    try {
+      var senderOff = state.pc && state.pc.getSenders().find(function(s){ return s.track && s.track.kind === 'video'; });
+      if (senderOff) await senderOff.replaceTrack(null);
+    } catch(_){}
+    var lvOff = $('tm-local-video'); if(lvOff) lvOff.classList.remove('tm-on');
+    var screenOff = $('tm-incall'); if(screenOff) screenOff.classList.add('tm-no-cam');
+    if (cb) cb.classList.add('tm-active');
+  } else {
+    try {
+      var ns = await navigator.mediaDevices.getUserMedia({video:{facingMode:state.facingMode,width:{ideal:1280},height:{ideal:720}}});
+      var nt = ns.getVideoTracks()[0];
+      state.localStream.addTrack(nt);
+      state.videoEnabled = true;
+      try {
+        var existing = state.pc && state.pc.getSenders().find(function(s){ return s.track && s.track.kind === 'video'; });
+        if (existing) { await existing.replaceTrack(nt); }
+        else if (state.pc) { state.pc.addTrack(nt, state.localStream); }
+      } catch(_){}
+      var lvOn = $('tm-local-video');
+      if (lvOn) { lvOn.srcObject = state.localStream; lvOn.classList.add('tm-on'); try{lvOn.play().catch(function(){});}catch(_){} }
+      var screenOn = $('tm-incall'); if(screenOn) screenOn.classList.remove('tm-no-cam');
+      if (cb) cb.classList.remove('tm-active');
+    } catch(e) { alert('Could not access camera.'); }
+  }
+};
+
+window.tmFlipCamera = async function(){
+  if (!state.localStream) return;
+  try {
+    state.facingMode = (state.facingMode === 'user') ? 'environment' : 'user';
+    var newStream = await navigator.mediaDevices.getUserMedia({
+      audio: false,
+      video: { facingMode: state.facingMode, width:{ideal:1280}, height:{ideal:720} }
+    });
+    var newTrack = newStream.getVideoTracks()[0];
+    var sender = state.pc && state.pc.getSenders().find(function(s){ return s.track && s.track.kind === 'video'; });
+    if (sender) await sender.replaceTrack(newTrack);
+    state.localStream.getVideoTracks().forEach(function(t){ t.stop(); });
+    state.localStream.addTrack(newTrack);
+    var lv = $('tm-local-video'); if (lv) { lv.srcObject = state.localStream; lv.play().catch(function(){}); }
+  } catch(e) { console.warn('flip', e); }
+};
+
 async function setupPeer(){
   var pc=new RTCPeerConnection({iceServers:TURN,iceCandidatePoolSize:10});
   state.pc=pc;
@@ -440,42 +523,6 @@ window.tmAddPerson=function(){
 window.startCall=function(kind){ window.tmStartCall(kind); };
 
 // ---------- Camera toggle ----------
-window.tmToggleCamera = async function(){
-  if (state.kind !== 'video' || !state.localStream) return;
-  var cb = $('tm-btn-cam');
-  if (state.videoEnabled) {
-    state.videoEnabled = false;
-    state.localStream.getVideoTracks().forEach(function(t){
-      try{t.stop();}catch(_){}
-      try{state.localStream.removeTrack(t);}catch(_){}
-    });
-    try {
-      var senderOff = state.pc && state.pc.getSenders().find(function(s){ return s.track && s.track.kind === 'video'; });
-      if (senderOff) await senderOff.replaceTrack(null);
-    } catch(_){}
-    var lvOff = $('tm-local-video'); if(lvOff) lvOff.classList.remove('tm-on');
-    var screenOff = $('tm-incall'); if(screenOff) screenOff.classList.add('tm-no-cam');
-    if (cb) cb.classList.add('tm-active');
-    if (window.TMSound) window.TMSound.camera(); if (window.TMHaptic) window.TMHaptic.camera();
-  } else {
-    try {
-      var ns = await navigator.mediaDevices.getUserMedia({video:{facingMode:state.facingMode,width:{ideal:1280},height:{ideal:720}}});
-      var nt = ns.getVideoTracks()[0];
-      state.localStream.addTrack(nt);
-      state.videoEnabled = true;
-      try {
-        var existing = state.pc && state.pc.getSenders().find(function(s){ return s.track && s.track.kind === 'video'; });
-        if (existing) { await existing.replaceTrack(nt); }
-        else if (state.pc) { state.pc.addTrack(nt, state.localStream); }
-      } catch(_){}
-      var lvOn = $('tm-local-video');
-      if (lvOn) { lvOn.srcObject = state.localStream; lvOn.classList.add('tm-on'); try{lvOn.play().catch(function(){});}catch(_){} }
-      var screenOn = $('tm-incall'); if(screenOn) screenOn.classList.remove('tm-no-cam');
-      if (cb) cb.classList.remove('tm-active');
-      if (window.TMSound) window.TMSound.camera();
-    } catch(e) { alert('Could not access camera.'); }
-  }
-};
 
 // ---------- Minimize / expand ----------
 function minimizeCall(){
