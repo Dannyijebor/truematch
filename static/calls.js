@@ -14,7 +14,7 @@ var state={
   lastReactionAt:"", audioCtx:null,
   analyserLocal:null, analyserRemote:null, meterRAF:null,
   ringInt:null, timeoutInt:null, incomingPayload:null,
-  facingMode:'user', videoEnabled:false,
+  facingMode:'user', videoEnabled:false, minimized:false,
 };
 
 var TURN=[
@@ -209,8 +209,23 @@ window.tmStartCall=async function(kind){
       constraints.video = false;
     }
     state.localStream = await navigator.mediaDevices.getUserMedia(constraints);
-  }catch(e){ state.active=false; alert('Permission is required.\n\nTap the lock icon -> Permissions -> Allow.'); return; }
+  } catch(e){
+    state.active = false;
+    var nm = (e && e.name) || '';
+    if (nm === 'NotAllowedError' || nm === 'PermissionDeniedError') {
+      alert('Camera and microphone permission is required.\n\nTap the lock icon -> Permissions -> Allow.');
+    } else if (nm === 'NotFoundError') {
+      alert('No camera or microphone found on this device.');
+    } else if (nm === 'NotReadableError') {
+      alert('Camera is already in use by another app. Close it and try again.');
+    } else {
+      alert('Could not start call: ' + nm + (e && e.message ? '\n' + e.message : ''));
+    }
+    return;
+  }
   if (isVideo) { activateVideoMode(); }
+  // Push history so back minimizes
+  try { history.pushState({tmCall:true}, '', location.href); } catch(_){}
   try{attachAnalyser(state.localStream,'local');}catch(_){}
   showInCall(window.TM_CALL_NAME||'Unknown',state.kind,window.TM_CALL_AVATAR||'');
   var st=$('tm-c-status'); if(st){st.textContent='Calling...';st.classList.add('ringing');}
@@ -251,6 +266,8 @@ window.tmAcceptIncoming=async function(){
     state.localStream = await navigator.mediaDevices.getUserMedia(constraints2);
   }catch(e){ alert('Permission required.'); tmDeclineIncoming(); return; }
   if (isVideo) { activateVideoMode(); }
+  try { history.pushState({tmCall:true}, '', location.href); } catch(_){}
+  try { history.pushState({tmCall:true}, '', location.href); } catch(_){}
   try{attachAnalyser(state.localStream,'local');}catch(_){}
   var p=state.incomingPayload;
   showInCall(p.from.name,state.kind,p.from.avatar_url||'');
@@ -315,7 +332,11 @@ function cleanup(){
   var mb=$('tm-btn-mute'); if(mb) mb.classList.remove('tm-active');
   var sb=$('tm-btn-speaker'); if(sb) sb.classList.remove('tm-active');
   var wrap=$('tm-c-avatar-wrap'); if(wrap) wrap.classList.remove('tm-muted');
-  state.active=false; state.role=null; state.callId=null;
+  // Remove pill
+  var pill = $('tm-call-pill'); if(pill) pill.classList.remove('tm-show');
+  // Pop the pushed history if still ours
+  try { if (history.state && history.state.tmCall) { history.back(); } } catch(_){}
+  state.active=false; state.role=null; state.callId=null; state.minimized=false;
   state.connectedAt=0; state.lastReactionAt=""; state.incomingPayload=null;
 }
 window.tmCleanupCall=cleanup;
@@ -334,9 +355,35 @@ async function pollIncoming(){
       }
     }
   }catch(e){}
+  // Also refresh pill timer if minimized
+  if (state.minimized && state.connectedAt) {
+    var pt = $('tm-pill-status'); if (pt) pt.textContent = fmt(Math.floor((Date.now() - state.connectedAt) / 1000));
+  }
   setTimeout(pollIncoming,2200);
 }
 setTimeout(pollIncoming,1200);
+
+// Back button minimizes the call
+window.addEventListener('popstate', function(e){
+  if (state.active && !state.minimized) {
+    minimizeCall();
+  }
+});
+
+// Immediate poll when tab becomes visible
+document.addEventListener('visibilitychange', function(){
+  if (document.visibilityState === 'visible' && !state.active) {
+    try { pollIncoming(); } catch(_){}
+  }
+});
+
+// Unlock audio on first interaction (for incoming ringtone)
+['touchstart','click','keydown'].forEach(function(ev){
+  document.addEventListener(ev, function once(){
+    try { ctx(); } catch(_){}
+    document.removeEventListener(ev, once);
+  }, { once: true, passive: true });
+});
 
 window.tmToggleMute=function(){
   if(!state.localStream) return;
@@ -376,4 +423,88 @@ window.tmAddPerson=function(){
 
 // Expose for chat button
 window.startCall=function(kind){ window.tmStartCall(kind); };
+
+// ---------- Camera toggle ----------
+window.tmToggleCamera = async function(){
+  if (state.kind !== 'video' || !state.localStream) return;
+  var cb = $('tm-btn-cam');
+  if (state.videoEnabled) {
+    state.videoEnabled = false;
+    state.localStream.getVideoTracks().forEach(function(t){
+      try{t.stop();}catch(_){}
+      try{state.localStream.removeTrack(t);}catch(_){}
+    });
+    try {
+      var senderOff = state.pc && state.pc.getSenders().find(function(s){ return s.track && s.track.kind === 'video'; });
+      if (senderOff) await senderOff.replaceTrack(null);
+    } catch(_){}
+    var lvOff = $('tm-local-video'); if(lvOff) lvOff.classList.remove('tm-on');
+    var screenOff = $('tm-incall'); if(screenOff) screenOff.classList.add('tm-no-cam');
+    if (cb) cb.classList.add('tm-active');
+    beep(400,0.06,0.1);
+  } else {
+    try {
+      var ns = await navigator.mediaDevices.getUserMedia({video:{facingMode:state.facingMode,width:{ideal:1280},height:{ideal:720}}});
+      var nt = ns.getVideoTracks()[0];
+      state.localStream.addTrack(nt);
+      state.videoEnabled = true;
+      try {
+        var existing = state.pc && state.pc.getSenders().find(function(s){ return s.track && s.track.kind === 'video'; });
+        if (existing) { await existing.replaceTrack(nt); }
+        else if (state.pc) { state.pc.addTrack(nt, state.localStream); }
+      } catch(_){}
+      var lvOn = $('tm-local-video');
+      if (lvOn) { lvOn.srcObject = state.localStream; lvOn.classList.add('tm-on'); try{lvOn.play().catch(function(){});}catch(_){} }
+      var screenOn = $('tm-incall'); if(screenOn) screenOn.classList.remove('tm-no-cam');
+      if (cb) cb.classList.remove('tm-active');
+      beep(900,0.06,0.1);
+    } catch(e) { alert('Could not access camera.'); }
+  }
+};
+
+// ---------- Minimize / expand ----------
+function minimizeCall(){
+  if (!state.active) return;
+  state.minimized = true;
+  var incall = $('tm-incall'); if(incall) incall.classList.remove('tm-show');
+  var incoming = $('tm-incoming'); if(incoming) incoming.classList.remove('tm-show');
+  document.body.classList.remove('tm-in-call');
+  var pill = $('tm-call-pill');
+  if(pill){
+    var pn = $('tm-pill-name');
+    if(pn) pn.textContent = (state.role === 'caller'
+      ? (window.TM_CALL_NAME || 'Call')
+      : ((state.incomingPayload && state.incomingPayload.from.name) || 'Call'));
+    var pa = $('tm-pill-avatar');
+    if(pa){
+      var avatarUrl = state.role === 'caller' ? window.TM_CALL_AVATAR : (state.incomingPayload && state.incomingPayload.from.avatar_url);
+      var nm = state.role === 'caller' ? (window.TM_CALL_NAME || '?') : ((state.incomingPayload && state.incomingPayload.from.name) || '?');
+      if (avatarUrl) { pa.innerHTML = '<img src="' + avatarUrl + '" alt="">'; }
+      else { pa.textContent = init(nm); }
+    }
+    pill.classList.add('tm-show');
+  }
+  var pmb = $('tm-pill-mute');
+  if(pmb) pmb.classList.toggle('tm-active', state.micMuted);
+}
+
+function expandCall(){
+  if (!state.active) return;
+  state.minimized = false;
+  var pill = $('tm-call-pill'); if(pill) pill.classList.remove('tm-show');
+  if (state.incomingPayload && !state.connectedAt) {
+    var inc = $('tm-incoming'); if(inc) inc.classList.add('tm-show');
+  } else {
+    var inc2 = $('tm-incall'); if(inc2) inc2.classList.add('tm-show');
+  }
+  document.body.classList.add('tm-in-call');
+}
+window.tmExpandCall = expandCall;
+
+setInterval(function(){
+  if (state.minimized && state.connectedAt) {
+    var pt = $('tm-pill-status');
+    if (pt) pt.textContent = fmt(Math.floor((Date.now() - state.connectedAt) / 1000));
+  }
+}, 500);
 })();
