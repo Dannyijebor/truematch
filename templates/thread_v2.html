@@ -3201,75 +3201,50 @@ console.log('[TrueMatch] chat loaded');
 var tmCurrentAudio = null, tmCurrentAudioBtn = null;
 var tmVoiceState = { ctx: null, src: null, btn: null, url: null, buffer: null, startedAt: 0, offset: 0 };
 
-async function tmToggleVoice(btn, url) {
-  try {
-    if (!url) { alert('No audio URL.'); return; }
+async var _tmAudio = null, _tmAudioBtn = null;
+var _PLAY_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+var _PAUSE_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
 
-    // Same voice tapped → pause/resume
-    if (tmVoiceState.btn === btn && tmVoiceState.src) {
-      if (tmVoiceState.src._playing) {
-        // Pause
-        tmVoiceState.offset += (tmVoiceState.ctx.currentTime - tmVoiceState.startedAt);
-        try { tmVoiceState.src.stop(); } catch(_){}
-        tmVoiceState.src._playing = false;
-        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+function tmToggleVoice(btn, url) {
+  alert('VOICE TAP\nURL: ' + url.substring(0, 60));
+  try {
+    if (!url) { alert('No URL'); return; }
+    if (_tmAudio && _tmAudioBtn === btn) {
+      if (_tmAudio.paused) {
+        _tmAudio.play().then(function(){ btn.innerHTML = _PAUSE_SVG; });
       } else {
-        // Resume
-        try { tmVoiceState.src = playBuffer(tmVoiceState.buffer, tmVoiceState.offset); } catch(_){}
-        tmVoiceState.startedAt = tmVoiceState.ctx.currentTime;
-        tmVoiceState.src._playing = true;
-        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
+        _tmAudio.pause();
+        btn.innerHTML = _PLAY_SVG;
       }
       return;
     }
-
-    // Stop any current playback
-    if (tmVoiceState.src) { try { tmVoiceState.src.stop(); } catch(_){} }
-    if (tmVoiceState.btn && tmVoiceState.btn !== btn) {
-      tmVoiceState.btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+    if (_tmAudio) {
+      try { _tmAudio.pause(); _tmAudio.remove(); } catch(_){}
+      if (_tmAudioBtn) _tmAudioBtn.innerHTML = _PLAY_SVG;
     }
-
-    // Show loading state
-    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8" stroke-dasharray="12 40" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/></circle></svg>';
-
-    // Init audio context
-    if (!tmVoiceState.ctx) {
-      tmVoiceState.ctx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    var ctx = tmVoiceState.ctx;
-    if (ctx.state === 'suspended') await ctx.resume();
-
-    // Fetch the file
-    var resp = await fetch(url, { credentials: 'omit' });
-    if (!resp.ok) throw new Error('Fetch ' + resp.status);
-    var arr = await resp.arrayBuffer();
-
-    // Decode
-    var buf;
-    try {
-      buf = await ctx.decodeAudioData(arr.slice(0));
-    } catch(e) {
-      // Some Chrome builds need a callback-style decode
-      buf = await new Promise(function(resolve, reject){
-        ctx.decodeAudioData(arr.slice(0), resolve, reject);
-      });
-    }
-
-    // Play
-    tmVoiceState.buffer = buf;
-    tmVoiceState.offset = 0;
-    tmVoiceState.btn = btn;
-    tmVoiceState.url = url;
-    tmVoiceState.src = playBuffer(buf, 0);
-    tmVoiceState.startedAt = ctx.currentTime;
-    tmVoiceState.src._playing = true;
-    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
-    try { if (window.TMSound) TMSound.play(); } catch(_){}
-
+    var a = document.createElement('audio');
+    a.src = url;
+    a.preload = 'auto';
+    a.setAttribute('playsinline', '');
+    a.setAttribute('webkit-playsinline', '');
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    _tmAudio = a;
+    _tmAudioBtn = btn;
+    a.onended = function(){ btn.innerHTML = _PLAY_SVG; };
+    a.onerror = function(){
+      var code = a.error ? a.error.code : '?';
+      alert('AUDIO ERROR code ' + code + '\nURL: ' + url.substring(0, 80));
+      btn.innerHTML = _PLAY_SVG;
+    };
+    a.play().then(function(){
+      btn.innerHTML = _PAUSE_SVG;
+      try { if (window.TMSound) TMSound.play(); } catch(_){}
+    }).catch(function(e){
+      alert('PLAY BLOCKED: ' + (e.message || e.name));
+    });
   } catch(err) {
-    console.warn('voice play failed', err);
-    if (btn) btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
-    alert('Could not play: ' + err.message);
+    alert('PLAYER THREW: ' + err.message);
   }
 }
 
