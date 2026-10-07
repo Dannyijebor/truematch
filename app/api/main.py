@@ -57,10 +57,16 @@ class ProfileIn(BaseModel):
 
 
 # ---------- auth helpers ----------
-def current_user(authorization: str = Header(None), db: Session = Depends(get_db)) -> User:
-    if not authorization or not authorization.lower().startswith("bearer "):
+def current_user(request: Request, authorization: str = Header(None), db: Session = Depends(get_db)) -> User:
+    token = None
+    # Prefer explicit Authorization header
+    if authorization and authorization.lower().startswith("bearer "):
+        token = authorization.split(" ", 1)[1].strip()
+    # Fall back to session cookie (set on web login)
+    if not token:
+        token = request.cookies.get("tm_token")
+    if not token:
         raise HTTPException(401, "missing token")
-    token = authorization.split(" ", 1)[1].strip()
     uid = decode_token(token)
     if not uid:
         raise HTTPException(401, "invalid token")
