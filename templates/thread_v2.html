@@ -2128,7 +2128,23 @@ async function tmSend(payload) {
   if (replyTo) payload.reply_to_id = replyTo;
   const r = await fetch('/api/chat/send', {method: 'POST', credentials: 'same-origin', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)});
   const data = await r.json();
-  if (data.ok) { tmAppendMessage(data.message); tmCancelReply(); lastTs = data.message.created_at; return true; }
+  if (data.ok) {
+      var sentReply = null;
+      if (replyTo) {
+        var _row = document.querySelector('[data-msg-id="' + replyTo + '"]');
+        if (_row) {
+          var _previewEl = _row.querySelector('.msg-text, .voice-time, .sticker-emoji');
+          var _preview = _row.dataset.body || (_previewEl ? _previewEl.textContent : '[media]');
+          sentReply = { id: replyTo, preview: (_preview||'').substring(0,80), from_me: _row.classList.contains('mine') };
+        }
+      }
+      var msg = data.message || {};
+      if (sentReply && !msg.reply) msg.reply = sentReply;
+      tmAppendMessage(msg);
+      tmCancelReply();
+      lastTs = msg.created_at;
+      return true;
+    }
   alert(data.error || 'Send failed');
   return false;
 }
@@ -2140,7 +2156,7 @@ function tmOnSendBtn(e) {
   if (!body) return;
   input.value = ''; input.style.height = 'auto'; tmToggleSendMic();
   tmSend({ kind: 'text', body });
-  try { tmSound.send(); tmHaptic.tap(); } catch(_){}
+  try { if (window.TMSound) TMSound.send(); if (window.TMHaptic) TMHaptic.send(); } catch(_){}
 }
 document.getElementById('msg-input').addEventListener('keydown', function(e) {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); tmOnSendBtn(e); }
@@ -2186,7 +2202,7 @@ async function tmPoll() {
       const data = await r.json();
       for (const m of data.messages || []) {
         const existing = document.querySelector('[data-msg-id="' + m.id + '"]');
-        if (!existing) tmAppendMessage(m);
+        if (!existing) { tmAppendMessage(m); if (!m.from_me) { try { if (window.TMSound) TMSound.receive(); if (window.TMHaptic) TMHaptic.receive(); } catch(_){} } }
         else if (m.from_me) {
           const tick = existing.querySelector('.tick');
           if (tick && m.delivered && !tick.classList.contains('read') && tick.classList.contains('pending')) {
@@ -2419,7 +2435,7 @@ async function tmMicUp(e) {
 function tmRecLock() {
   if (!recording || recLocked) return;
   recLocked = true;
-  try { tmSound.lock(); tmHaptic.lock(); } catch(_){}
+  try { if (window.TMSound) TMSound.lock(); if (window.TMHaptic) TMHaptic.lock(); } catch(_){}
 
   const bar = document.getElementById('rec-bar');
   if (bar) bar.classList.add('locked');
@@ -2550,7 +2566,7 @@ function tmRecCancelFromLock(e) {
 
 function tmRecCancelInternal() {
   if (!recording) return;
-  try { tmSound.cancel(); tmHaptic.double(); } catch(_){}
+  try { if (window.TMSound) TMSound.voiceCancel(); if (window.TMHaptic) TMHaptic.error(); } catch(_){}
   recLocked = false;
   recPaused = false;
   recPausedTotal = 0;
@@ -2604,7 +2620,7 @@ async function tmStartRecording() {
   };
   try { mediaRecorder.start(100); } catch (err) { try { activeStream.getTracks().forEach(t => t.stop()); } catch(e){} activeStream = null; alert('Recorder failed: ' + err.message); return; }
   recStart = Date.now(); recPausedTotal = 0; recording = true;
-  try { tmSound.recStart(); tmHaptic.tap(); } catch(_){}
+  try { if (window.TMSound) TMSound.voiceStart(); if (window.TMHaptic) TMHaptic.tap(); } catch(_){}
   const _mBtn = document.getElementById('mic-btn');
   if (_mBtn) _mBtn.classList.add('recording');
   document.getElementById('rec-time').textContent = '0:00';
@@ -2697,7 +2713,7 @@ async function tmRecSend(e) {
         throw new Error('Upload failed (' + upRes.status + '): ' + txt.slice(0, 200));
       }
     await tmSend({ kind: 'voice', media_url: pdata.public_url, media_duration: duration });
-          try { tmSound.send(); tmHaptic.tap(); } catch(_){}
+          try { if (window.TMSound) TMSound.voiceSend(); if (window.TMHaptic) TMHaptic.send(); } catch(_){}
   } catch (err) { alert('Could not send voice: ' + err.message); }
   finally { currentBlob = null; audioChunks = []; }
 }
@@ -3029,7 +3045,9 @@ console.log('[TrueMatch] chat loaded');
           bubble.style.transform = '';
           row.classList.remove('swipe-active','swipe-ready');
           setTimeout(function(){ row.classList.remove('swipe-released'); }, 260);
-          if (typeof tmSetReply === 'function') tmSetReply(msgId, body, isMine);
+          if (window.TMSound) TMSound.reply();
+        if (window.TMHaptic) TMHaptic.reply();
+        if (typeof tmSetReply === 'function') tmSetReply(msgId, body, isMine);
         }, 160);
       } else {
         bubble.style.transform = '';
@@ -3180,7 +3198,7 @@ console.log('[TrueMatch] chat loaded');
 // ---------- Voice player ----------
 var tmCurrentAudio = null, tmCurrentAudioBtn = null;
 function tmToggleVoice(btn, url) {
-  try {
+  try { if (window.TMSound) TMSound.play();
     // Same button tapped → toggle
     if (tmCurrentAudio && tmCurrentAudioBtn === btn) {
       if (tmCurrentAudio.paused) {
@@ -3195,10 +3213,14 @@ function tmToggleVoice(btn, url) {
     // Different button — stop old, start new
     if (tmCurrentAudio) {
       try { tmCurrentAudio.pause(); } catch(_){}
+      try { tmCurrentAudio.remove(); } catch(_){}
       if (tmCurrentAudioBtn) tmCurrentAudioBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
     }
     tmCurrentAudio = new Audio(url);
     tmCurrentAudio.preload = 'auto';
+    tmCurrentAudio.setAttribute('playsinline', 'true');
+    // Android Chrome sometimes refuses to play audio not attached to DOM
+    try { tmCurrentAudio.style.display = 'none'; document.body.appendChild(tmCurrentAudio); } catch(_){}
     tmCurrentAudioBtn = btn;
     tmCurrentAudio.onended = function(){
       if (tmCurrentAudioBtn) tmCurrentAudioBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';

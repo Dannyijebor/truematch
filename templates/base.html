@@ -1837,6 +1837,7 @@ window.TM_USER_ID = "{{ user.id if user else '' }}";
 window.TM_USER_NAME = "{{ user.full_name if user else '' }}";
 window.TM_USER_AVATAR = "{% if user_profile and user_profile.avatar_url %}{{ user_profile.avatar_url }}{% endif %}";
 </script>
+<script src="/static/tm-sound.js" defer></script>
 {% include "_calls.html" %}
 </body>
 </html>

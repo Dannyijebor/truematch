@@ -1641,6 +1641,29 @@ async def api_chat_send(request: Request, db: Session = Depends(get_db)):
         except Exception:
             pass
 
+        # Build reply preview if this message replies to another
+        reply_obj = None
+        if reply_uuid:
+            try:
+                from app.db.models import DirectMessage as _DM
+                parent = db.get(_DM, reply_uuid)
+                if parent:
+                    if parent.kind == "image":
+                        preview = "[image]"
+                    elif parent.kind == "voice":
+                        preview = "[voice]"
+                    elif parent.kind == "sticker":
+                        preview = parent.body or "[sticker]"
+                    else:
+                        preview = (parent.body or "")[:80]
+                    reply_obj = {
+                        "id": str(parent.id),
+                        "preview": preview,
+                        "from_me": parent.from_user_id == user.id,
+                    }
+            except Exception:
+                reply_obj = None
+
         return JSONResponse({
             "ok": True,
             "message": {
@@ -1652,7 +1675,8 @@ async def api_chat_send(request: Request, db: Session = Depends(get_db)):
                 "from_me": True,
                 "created_at": msg.created_at.isoformat() if msg.created_at else None,
                 "read": False,
-                "reply": None,
+                "delivered": False,
+                "reply": reply_obj,
             }
         })
     except Exception as e:

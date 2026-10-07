@@ -42,7 +42,7 @@ function beep(freq,dur,vol){
 }
 function ringStart(){
   ringStop();
-  var doRing=function(){ beep(880,0.35,0.14); setTimeout(function(){beep(660,0.35,0.14);},350); };
+  var doRing=function(){ if (window.TMSound && window.TMSound.incoming) window.TMSound.incoming(); };
   doRing();
   state.ringInt=setInterval(doRing,2200);
 }
@@ -140,7 +140,8 @@ async function setupPeer(){
     var rv=$('tm-remote-video');
     if (rv && ev.track.kind === 'video') {
       rv.srcObject = ev.streams[0];
-      rv.classList.add('tm-on');
+      // Only reveal once we get an actual frame
+      rv.onloadeddata = function(){ rv.classList.add('tm-on'); };
       rv.play().catch(function(){});
     }
     try{attachAnalyser(ev.streams[0],'remote');}catch(_){} };
@@ -151,7 +152,7 @@ async function setupPeer(){
   };
   pc.onconnectionstatechange=function(){
     var s=pc.connectionState, st=$('tm-c-status');
-    if(s==='connected'){ if(!state.connectedAt) startTimer(); if(st) st.classList.remove('ringing'); }
+    if(s==='connected'){ if(!state.connectedAt){ startTimer(); if(window.TMSound) window.TMSound.callConnect(); if(window.TMHaptic) window.TMHaptic.send(); } if(st) st.classList.remove('ringing'); }
     else if(s==='failed'){ if(st) st.textContent='Connection lost'; setTimeout(function(){tmEndCall(true);},1500); }
     else if(s==='disconnected'){ if(st) st.textContent='Reconnecting...'; }
   };
@@ -223,14 +224,13 @@ window.tmStartCall=async function(kind){
     }
     return;
   }
-  if (isVideo) { activateVideoMode(); }
-  // Push history so back minimizes
+  try { if (isVideo) activateVideoMode(); } catch(e){ console.warn('activateVideoMode', e); }
   try { history.pushState({tmCall:true}, '', location.href); } catch(_){}
   try{attachAnalyser(state.localStream,'local');}catch(_){}
-  showInCall(window.TM_CALL_NAME||'Unknown',state.kind,window.TM_CALL_AVATAR||'');
+  try { showInCall(window.TM_CALL_NAME||'Unknown',state.kind,window.TM_CALL_AVATAR||''); } catch(e){ console.warn('showInCall', e); }
   var st=$('tm-c-status'); if(st){st.textContent='Calling...';st.classList.add('ringing');}
-  state.ringInt=setInterval(function(){beep(440,0.9,0.05);},3200);
-  setTimeout(function(){beep(440,0.9,0.05);},100);
+  state.ringInt=setInterval(function(){ if (window.TMSound) window.TMSound.callRing(); },3200);
+  setTimeout(function(){ if (window.TMSound) window.TMSound.callRing(); },100);
   startMeter();
   var r=await fetch('/api/calls/start/'+window.TM_CALL_TARGET+'?kind='+state.kind,{method:'POST',credentials:'same-origin'});
   if(!r.ok){ var reason='unknown'; try{var j=await r.json();reason=j.detail||reason;}catch(_){}
@@ -265,7 +265,7 @@ window.tmAcceptIncoming=async function(){
     }
     state.localStream = await navigator.mediaDevices.getUserMedia(constraints2);
   }catch(e){ alert('Permission required.'); tmDeclineIncoming(); return; }
-  if (isVideo) { activateVideoMode(); }
+  try { if (isVideo) activateVideoMode(); } catch(e){ console.warn('activateVideoMode', e); }
   try { history.pushState({tmCall:true}, '', location.href); } catch(_){}
   try { history.pushState({tmCall:true}, '', location.href); } catch(_){}
   try{attachAnalyser(state.localStream,'local');}catch(_){}
@@ -303,7 +303,7 @@ window.tmDeclineIncoming=async function(){
 };
 
 window.tmEndCall=async function(silent){
-  beep(320,0.14,0.12); vib(30);
+  if (window.TMSound) window.TMSound.callEnd(); if (window.TMHaptic) window.TMHaptic.long();
   var id=state.callId, role=state.role;
   cleanup();
   if(id&&role&&!silent){
@@ -391,7 +391,7 @@ window.tmToggleMute=function(){
   state.localStream.getAudioTracks().forEach(function(t){t.enabled=!state.micMuted;});
   var b=$('tm-btn-mute'); if(b) b.classList.toggle('tm-active',state.micMuted);
   var w=$('tm-c-avatar-wrap'); if(w) w.classList.toggle('tm-muted',state.micMuted);
-  beep(state.micMuted?400:800,0.08,0.1);
+  if (window.TMSound) window.TMSound[state.micMuted?'mute':'unmute']();
 };
 
 window.tmToggleSpeaker=function(){
@@ -400,7 +400,7 @@ window.tmToggleSpeaker=function(){
   var ra=$('tm-remote-audio');
   if(ra&&ra.setSinkId){ try{ra.setSinkId(state.speakerOn?'speaker':'default').catch(function(){});}catch(_){} }
   if(ra) ra.volume=state.speakerOn?1.0:0.85;
-  beep(state.speakerOn?900:600,0.08,0.1);
+  if (window.TMSound) window.TMSound.toggle();
 };
 
 window.tmToggleEmojiRow=function(){
@@ -409,7 +409,7 @@ window.tmToggleEmojiRow=function(){
 
 window.tmSendReaction=async function(emoji){
   if(!state.callId) return;
-  floatEmoji(emoji); beep(1200,0.06,0.08);
+  floatEmoji(emoji); if (window.TMSound) window.TMSound.reaction();
   try{
     await fetch('/api/calls/'+state.callId+'/reaction',{method:'POST',credentials:'same-origin',
       headers:{'Content-Type':'application/json'},body:JSON.stringify({emoji:emoji})});
@@ -441,7 +441,7 @@ window.tmToggleCamera = async function(){
     var lvOff = $('tm-local-video'); if(lvOff) lvOff.classList.remove('tm-on');
     var screenOff = $('tm-incall'); if(screenOff) screenOff.classList.add('tm-no-cam');
     if (cb) cb.classList.add('tm-active');
-    beep(400,0.06,0.1);
+    if (window.TMSound) window.TMSound.camera();
   } else {
     try {
       var ns = await navigator.mediaDevices.getUserMedia({video:{facingMode:state.facingMode,width:{ideal:1280},height:{ideal:720}}});
@@ -457,7 +457,7 @@ window.tmToggleCamera = async function(){
       if (lvOn) { lvOn.srcObject = state.localStream; lvOn.classList.add('tm-on'); try{lvOn.play().catch(function(){});}catch(_){} }
       var screenOn = $('tm-incall'); if(screenOn) screenOn.classList.remove('tm-no-cam');
       if (cb) cb.classList.remove('tm-active');
-      beep(900,0.06,0.1);
+      if (window.TMSound) window.TMSound.camera();
     } catch(e) { alert('Could not access camera.'); }
   }
 };
@@ -465,6 +465,7 @@ window.tmToggleCamera = async function(){
 // ---------- Minimize / expand ----------
 function minimizeCall(){
   if (!state.active) return;
+  if (window.TMSound) window.TMSound.minimize();
   state.minimized = true;
   var incall = $('tm-incall'); if(incall) incall.classList.remove('tm-show');
   var incoming = $('tm-incoming'); if(incoming) incoming.classList.remove('tm-show');
@@ -490,6 +491,7 @@ function minimizeCall(){
 
 function expandCall(){
   if (!state.active) return;
+  if (window.TMSound) window.TMSound.expand();
   state.minimized = false;
   var pill = $('tm-call-pill'); if(pill) pill.classList.remove('tm-show');
   if (state.incomingPayload && !state.connectedAt) {
