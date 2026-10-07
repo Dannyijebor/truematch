@@ -80,6 +80,12 @@ html.light .chat-name-title { color: #111b21; }
   transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .bubble.mine { background: var(--bubble-mine, #005c4b); color: var(--bubble-mine-text, #e9edef); border-top-right-radius: 2px; }
+.bubble:active { transform: scale(0.985); transition: transform 0.08s ease; }
+.msg-row.mine .bubble { box-shadow: 0 1px 0.5px rgba(11,20,26,0.13); }
+.msg-row.theirs .bubble { box-shadow: 0 1px 0.5px rgba(11,20,26,0.13); }
+.msg-row { transition: background 0.15s ease; }
+.msg-row.tm-hover { background: rgba(255,255,255,0.03); }
+html.light .msg-row.tm-hover { background: rgba(0,0,0,0.02); }
 .bubble.theirs { background: var(--bubble-them, #202c33); color: var(--bubble-them-text, #e9edef); border-top-left-radius: 2px; }
 .msg-row.first-of-day .bubble.mine::before { content: ''; position: absolute; top: 0; right: -8px; width: 8px; height: 13px; background: var(--bubble-mine, #005c4b); clip-path: polygon(0 0, 100% 0, 0 100%); transition: background-color 0.4s; }
 .msg-row.first-of-day .bubble.theirs::before { content: ''; position: absolute; top: 0; left: -8px; width: 8px; height: 13px; background: var(--bubble-them, #202c33); clip-path: polygon(0 0, 100% 0, 100% 100%); transition: background-color 0.4s; }
@@ -208,7 +214,8 @@ html.light .bubble-reply { background: rgba(0,0,0,0.06); }
     margin: 0 !important;
     align-self: flex-end !important;
   }
-html.light .chat-composer { background: rgba(240,242,245,0.98); border-top-color: rgba(0,0,0,0.06); }
+html.light .chat-composer { background: #efeae2 !important; border-top-color: rgba(0,0,0,0.06); }
+html.light .chat-composer .composer-btn { color: #54656f; }
 .composer-btn { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #8696a0; flex-shrink: 0; background: transparent; border: none; cursor: pointer; transition: background 0.15s, transform 0.1s; }
 .composer-btn:hover { background: rgba(255,255,255,0.06); }
 .composer-btn:active { transform: scale(0.92); }
@@ -223,9 +230,11 @@ html.light .composer-input { color: #111b21; }
 .composer-send:active { transform: scale(0.9); }
 .composer-send svg { width: 20px; height: 20px; }
 
-.reply-bar { display: none; align-items: center; gap: 10px; padding: 8px 14px; background: #1f2c33; border-left: 4px solid var(--chat-accent, #10b981); margin: 8px 8px 0; border-radius: 8px; }
-html.light .reply-bar { background: #ffffff; }
-.reply-bar.active { display: flex; }
+.reply-bar { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #1f2c33; border-left: 4px solid var(--chat-accent, #10b981); margin: 6px 8px 0; border-radius: 10px 10px 4px 4px; opacity: 0; max-height: 0; overflow: hidden; transform: translateY(8px); transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.16,1,0.3,1), max-height 0.24s cubic-bezier(0.16,1,0.3,1), margin 0.24s ease; }
+html.light .reply-bar { background: #f0f2f5; }
+.reply-bar.active { opacity: 1; max-height: 100px; transform: translateY(0); }
+.reply-bar-thumb { width: 36px; height: 36px; border-radius: 6px; background: rgba(255,255,255,0.06); flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--chat-accent, #10b981); font-size: 16px; }
+html.light .reply-bar-thumb { background: rgba(0,0,0,0.04); }
 .reply-bar-content { flex: 1; min-width: 0; }
 .reply-bar-name { font-size: 12px; font-weight: 600; color: var(--chat-accent, #10b981); }
 .reply-bar-text { font-size: 13px; color: #8696a0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -258,12 +267,14 @@ html.light .sticker-sheet { background: #ffffff; }
 .emoji-cell:hover { background: rgba(255,255,255,0.06); }
 .emoji-cell:active { transform: scale(0.9); }
 
-.msg-actions { position: fixed; z-index: 260; background: #233138; border-radius: 12px; padding: 6px; box-shadow: 0 16px 48px rgba(0,0,0,0.5); min-width: 180px; animation: bubble-slide 0.14s ease-out both; }
+.msg-actions { position: fixed; z-index: 260; background: rgba(35,49,56,0.98); backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%); border-radius: 14px; padding: 6px; box-shadow: 0 20px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.05); min-width: 210px; animation: tm-menu-in 0.18s cubic-bezier(0.34,1.56,0.64,1) both; }
 html.light .msg-actions { background: #ffffff; }
 .msg-action { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 14px; border-radius: 8px; color: #e9edef; font-size: 14px; text-align: left; background: transparent; border: none; cursor: pointer; transition: background 0.12s; }
 html.light .msg-action { color: #111b21; }
 .msg-action:hover { background: rgba(255,255,255,0.06); }
 .msg-action.danger { color: #f87171; }
+.msg-action-icon { width: 20px; text-align: center; font-size: 15px; flex-shrink: 0; }
+@keyframes tm-menu-in { from { opacity: 0; transform: scale(0.9) translateY(6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
 .lightbox { position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; padding: 20px; }
 .lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; }
@@ -503,6 +514,7 @@ html.light .chat-screen.theme-editorial {
     overflow: hidden;
     opacity: var(--wallpaper-opacity, 0.10);
     transition: opacity 0.35s ease;
+    pointer-events: none;
   }
   /* ---------- Theme transition: crossfade + cinematic bloom ---------- */
   .chat-screen .chat-wallpaper {
@@ -522,7 +534,7 @@ html.light .chat-screen.theme-editorial {
   .chat-screen.theme-obsidian  .chat-wallpaper[data-wallpaper="obsidian"],
   .chat-screen.theme-bordeaux  .chat-wallpaper[data-wallpaper="bordeaux"],
   .chat-screen.theme-editorial .chat-wallpaper[data-wallpaper="editorial"] {
-    opacity: 1;
+    opacity: var(--wallpaper-opacity, 0.10);
     transform: translate(-50%, -50%) scale(1.0);
   }
 
@@ -2798,20 +2810,104 @@ async function tmSendSticker(emoji) { try { if (window.TMHaptic) TMHaptic.send()
 
 if (window.TMHaptic) try { TMHaptic.tap(); } catch(_){}
 function tmOpenMsgMenu(event, msgId, isMine) {
-  event.preventDefault();
+  if (event) event.preventDefault();
+  tmCloseMsgMenu();
   const holder = document.getElementById('msg-menu-holder');
-  holder.innerHTML = '';
-  const row = document.querySelector('[data-msg-id="' + msgId + '"]');
-  const body = row ? row.dataset.body || '' : '';
   const menu = document.createElement('div');
   menu.className = 'msg-actions';
-  menu.innerHTML = `<button class="msg-action" onclick="tmReplyAction('${msgId}')">↩ Reply</button><button class="msg-action" onclick="tmCopyAction('${body.replace(/'/g,"\\'")}')">📋 Copy</button>${isMine ? `<button class="msg-action danger" onclick="tmDeleteAction('${msgId}')">🗑 Delete</button>` : ''}`;
-  const x = Math.min(event.clientX || 100, window.innerWidth - 200);
-  const y = Math.min(event.clientY || 100, window.innerHeight - 180);
-  menu.style.left = Math.max(12, x) + 'px'; menu.style.top = Math.max(12, y) + 'px';
+  const row = document.querySelector('[data-msg-id="' + msgId + '"]');
+  const body = (row && row.dataset.body) || '';
+  const kind = (row && row.dataset.kind) || 'text';
+  const isText = kind === 'text';
+  const safeBody = body.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  const btns = [];
+  btns.push('<button class="msg-action" onclick="tmReplyAction(\'' + msgId + '\')"><span class="msg-action-icon">↩</span> Reply</button>');
+  if (isMine && isText) {
+    btns.push('<button class="msg-action" onclick="tmEditAction(\'' + msgId + '\')"><span class="msg-action-icon">✏️</span> Edit</button>');
+  }
+  btns.push('<button class="msg-action" onclick="tmCopyAction(\'' + safeBody + '\')"><span class="msg-action-icon">📋</span> Copy</button>');
+  btns.push('<button class="msg-action" onclick="tmForwardAction(\'' + msgId + '\')"><span class="msg-action-icon">➡️</span> Forward</button>');
+  if (isMine) {
+    btns.push('<button class="msg-action danger" onclick="tmDeleteAction(\'' + msgId + '\')"><span class="msg-action-icon">🗑</span> Delete for everyone</button>');
+  } else {
+    btns.push('<button class="msg-action danger" onclick="tmDeleteForMeAction(\'' + msgId + '\')"><span class="msg-action-icon">🗑</span> Delete for me</button>');
+  }
+  menu.innerHTML = btns.join('');
   holder.appendChild(menu);
-  setTimeout(() => document.addEventListener('click', tmCloseMsgMenu, {once: true}), 10);
+
+  // Position near the tap point
+  var x = (event && (event.clientX || (event.touches && event.touches[0].clientX))) || window.innerWidth / 2;
+  var y = (event && (event.clientY || (event.touches && event.touches[0].clientY))) || window.innerHeight / 2;
+  var mw = 200, mh = menu.offsetHeight || 240;
+  var px = Math.min(Math.max(12, x - mw / 2), window.innerWidth - mw - 12);
+  var py = Math.max(12, y - mh - 10);
+  if (py + mh > window.innerHeight - 12) py = Math.min(window.innerHeight - mh - 12, y + 10);
+  menu.style.left = px + 'px';
+  menu.style.top = py + 'px';
+
+  setTimeout(() => document.addEventListener('click', tmCloseMsgMenu, { once: true }), 10);
 }
+function tmEditAction(msgId) {
+  tmCloseMsgMenu();
+  const row = document.querySelector('[data-msg-id="' + msgId + '"]');
+  if (!row) return;
+  const current = row.dataset.body || '';
+  const next = prompt('Edit message:', current);
+  if (next === null) return;
+  const trimmed = next.trim();
+  if (!trimmed || trimmed === current) return;
+  fetch('/api/chat/messages/' + msgId + '/edit', {
+    method: 'POST', credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ body: trimmed })
+  }).then(r => r.json()).then(data => {
+    if (data.ok) {
+      const bubble = row.querySelector('.msg-text');
+      if (bubble) bubble.textContent = trimmed;
+      row.dataset.body = trimmed;
+      tmToast('Message edited');
+    } else {
+      tmToast(data.error || 'Edit failed');
+    }
+  }).catch(() => tmToast('Edit failed'));
+  try { if (window.TMHaptic) TMHaptic.tap(); } catch(_){}
+}
+
+function tmDeleteForMeAction(msgId) {
+  tmCloseMsgMenu();
+  const row = document.querySelector('[data-msg-id="' + msgId + '"]');
+  if (!row) return;
+  row.dataset._deleting = '1';
+  row.style.transition = 'opacity 0.22s ease, transform 0.22s ease';
+  row.style.opacity = '0';
+  row.style.transform = 'translateX(-20px)';
+  fetch('/api/chat/messages/' + msgId + '/delete', { method: 'POST', credentials: 'same-origin' })
+    .then(r => r.json()).then(data => {
+      if (data.ok) { row.remove(); tmToast('Deleted for you'); }
+      else { row.style.opacity = '1'; row.style.transform = ''; row.dataset._deleting = '0'; tmToast('Delete failed'); }
+    }).catch(() => { row.style.opacity = '1'; row.style.transform = ''; row.dataset._deleting = '0'; });
+  try { if (window.TMHaptic) TMHaptic.deleted(); } catch(_){}
+}
+
+function tmForwardAction(msgId) {
+  tmCloseMsgMenu();
+  const row = document.querySelector('[data-msg-id="' + msgId + '"]');
+  const body = (row && row.dataset.body) || '';
+  const kind = (row && row.dataset.kind) || 'text';
+  // Simple prompt-based forward: ask for the chat URL of the target
+  const target = prompt('Forward to user ID (or leave blank to forward to this chat):', '');
+  if (target === null) return;
+  const to = target.trim() || OTHER_ID;
+  fetch('/api/chat/send', {
+    method: 'POST', credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ to: to, kind: kind, body: body, forwarded: true })
+  }).then(r => r.json()).then(data => {
+    if (data.ok) tmToast('Forwarded');
+    else tmToast(data.error || 'Forward failed');
+  }).catch(() => tmToast('Forward failed'));
+}
+
 function tmCloseMsgMenu() { document.getElementById('msg-menu-holder').innerHTML = ''; }
 function tmReplyAction(msgId) { const row = document.querySelector('[data-msg-id="' + msgId + '"]'); if (!row) return; tmSetReply(msgId, row.dataset.body || '[media]', row.classList.contains('mine')); tmCloseMsgMenu(); }
 function tmCopyAction(text) { try { if (window.TMHaptic) TMHaptic.tap(); } catch(_){} if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => tmToast('Copied')); tmCloseMsgMenu(); }

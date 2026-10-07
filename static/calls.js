@@ -119,8 +119,19 @@ function showInCall(name,kind,avatarUrl){
     if(cn) cn.textContent=name||'Unknown';
     if(ca){ if(avatarUrl){ca.innerHTML='<img src="'+avatarUrl+'" alt="">';}else{ca.textContent=init(name);} }
     if(pip){
-      if(window.TM_USER_AVATAR){pip.innerHTML='<img src="'+window.TM_USER_AVATAR+'" alt="">';}
-      else{pip.textContent=init(window.TM_USER_NAME);}
+      // Only update the initials span, NEVER overwrite the whole pip
+      // (it contains the local <video> element)
+      var initSpan = pip.querySelector('.tm-self-pip-init');
+      if (initSpan) {
+        if (window.TM_USER_AVATAR) {
+          initSpan.style.backgroundImage = 'url(' + window.TM_USER_AVATAR + ')';
+          initSpan.style.backgroundSize = 'cover';
+          initSpan.style.backgroundPosition = 'center';
+          initSpan.textContent = '';
+        } else {
+          initSpan.textContent = init(window.TM_USER_NAME);
+        }
+      }
     }
     try { buildMeter($('tm-c-meter'),48); } catch(e){ console.warn('meter', e); }
     document.body.classList.add('tm-in-call');
@@ -324,6 +335,10 @@ window.tmStartCall=async function(kind){
   try { history.pushState({tmCall:true}, '', location.href); } catch(_){}
   try{attachAnalyser(state.localStream,'local');}catch(_){}
   try { showInCall(window.TM_CALL_NAME||'Unknown',state.kind,window.TM_CALL_AVATAR||''); } catch(e){ console.warn('showInCall', e); }
+  // Re-attach the local video stream (showInCall may have reset the DOM)
+  setTimeout(function(){
+    try { if (isVideo) activateVideoMode(); } catch(e){ console.warn('re-activate', e); }
+  }, 100);
   var st=$('tm-c-status'); if(st){st.textContent='Calling...';st.classList.add('ringing');}
   state.ringInt=setInterval(function(){ if (window.TMSound) window.TMSound.callRing(); },3200);
   setTimeout(function(){ if (window.TMSound) window.TMSound.callRing(); },100);

@@ -1683,6 +1683,34 @@ async def api_chat_send(request: Request, db: Session = Depends(get_db)):
         return JSONResponse({"ok": False, "error": str(e)}, status_code=400)
 
 
+@router.post("/api/chat/messages/{message_id}/edit")
+async def api_edit_message(message_id: str, request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    user = current_user_web(request, db)
+    if not user:
+        return JSONResponse({"ok": False, "error": "auth"}, status_code=401)
+    from uuid import UUID
+    from app.db.models import DirectMessage
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"ok": False, "error": "bad json"}, status_code=400)
+    text = (body.get("body") or "").strip()
+    if not text:
+        return JSONResponse({"ok": False, "error": "empty"}, status_code=400)
+    try:
+        m = db.get(DirectMessage, UUID(message_id))
+        if not m or m.from_user_id != user.id:
+            return JSONResponse({"ok": False, "error": "not yours"}, status_code=403)
+        if m.kind != "text":
+            return JSONResponse({"ok": False, "error": "only text editable"}, status_code=400)
+        m.body = text[:4000]
+        db.commit()
+        return JSONResponse({"ok": True, "body": m.body})
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=400)
+
+
 @router.post("/api/chat/messages/{message_id}/delete")
 def api_delete_message(message_id: str, request: Request, db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
