@@ -3130,6 +3130,76 @@ function tmToggleTheme(e) {
 
 console.log('[TrueMatch] chat loaded');
 
+// ============================================================
+// Long-press / right-click to open message menu
+// ============================================================
+(function(){
+  var LONG_PRESS_MS = 450;
+  var longPressTimer = null;
+  var startX = 0, startY = 0;
+
+  function findMsgRow(el) {
+    while (el && el !== document.body) {
+      if (el.dataset && el.dataset.msgId) return el;
+      el = el.parentElement;
+    }
+    return null;
+  }
+
+  function openMenuAt(el, ev) {
+    var row = findMsgRow(el);
+    if (!row) return;
+    var msgId = row.dataset.msgId;
+    var isMine = row.classList.contains('mine');
+    if (typeof tmOpenMsgMenu === 'function') {
+      tmOpenMsgMenu(ev, msgId, isMine);
+      if (navigator.vibrate) try { navigator.vibrate(15); } catch(_){}
+    }
+  }
+
+  // Right-click (desktop / long-press on some Androids)
+  document.addEventListener('contextmenu', function(ev){
+    var row = findMsgRow(ev.target);
+    if (row) {
+      ev.preventDefault();
+      openMenuAt(ev.target, ev);
+    }
+  });
+
+  // Touch-and-hold (mobile primary trigger)
+  document.addEventListener('touchstart', function(ev){
+    var t = ev.touches[0];
+    startX = t.clientX;
+    startY = t.clientY;
+    var target = ev.target;
+    if (longPressTimer) clearTimeout(longPressTimer);
+    longPressTimer = setTimeout(function(){
+      longPressTimer = null;
+      openMenuAt(target, {
+        clientX: startX,
+        clientY: startY,
+        preventDefault: function(){}
+      });
+    }, LONG_PRESS_MS);
+  }, { passive: true });
+
+  document.addEventListener('touchmove', function(ev){
+    var t = ev.touches[0];
+    if (Math.abs(t.clientX - startX) > 8 || Math.abs(t.clientY - startY) > 8) {
+      if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchend', function(){
+    if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+  }, { passive: true });
+
+  document.addEventListener('touchcancel', function(){
+    if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+  }, { passive: true });
+})();
+
+
 // ---------- Swipe to reply ----------
 (function(){
   var SWIPE_MAX = 78;

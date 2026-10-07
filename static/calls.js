@@ -150,7 +150,10 @@ function showInCall(name,kind,avatarUrl){
   }
 }
 function hideInCall(){
-  var el=$('tm-incall'); if(el) el.classList.remove('tm-show');
+  var el=$('tm-incall');
+  if(el){ el.classList.remove('tm-show'); el.style.display=''; }
+  var el2=$('tm-incoming');
+  if(el2){ el2.classList.remove('tm-show'); el2.style.display=''; }
   document.body.classList.remove('tm-in-call');
   var row=$('tm-emoji-row'); if(row) row.classList.remove('tm-show');
 }
@@ -427,11 +430,45 @@ window.tmEndCall=async function(silent){
 function friendlyEnd(m){
   var st=$('tm-c-status'); if(st) st.textContent=m||'Call ended';
   var st2=$('tm-in-status'); if(st2) st2.textContent=m||'Call ended';
-  setTimeout(function(){ tmEndCall(true); },1200);
+  // Show the message for 1.2s, then force-hide + cleanup
+  setTimeout(function(){
+    try {
+      var incall = $('tm-incall');
+      if (incall) { incall.classList.remove('tm-show'); incall.style.display=''; }
+      var incoming = $('tm-incoming');
+      if (incoming) { incoming.classList.remove('tm-show'); incoming.style.display=''; }
+      var pill = $('tm-call-pill'); if(pill) pill.classList.remove('tm-show');
+      document.body.classList.remove('tm-in-call');
+    } catch(_){}
+    tmEndCall(true);
+  },1200);
 }
 
 function cleanup(){
   ringStop(); stopTimer(); stopPolling(); stopMeter(); vib(0);
+  // Force-hide both call screens (removing inline display:flex we set earlier)
+  try {
+    var incall = $('tm-incall');
+    if (incall) {
+      incall.classList.remove('tm-show');
+      incall.style.display = '';
+      incall.classList.remove('tm-video-mode','tm-no-cam');
+    }
+    var incoming = $('tm-incoming');
+    if (incoming) {
+      incoming.classList.remove('tm-show');
+      incoming.style.display = '';
+    }
+    var pill = $('tm-call-pill');
+    if (pill) pill.classList.remove('tm-show');
+    document.body.classList.remove('tm-in-call');
+  } catch(_){}
+  // Remove the pushed history entries from this call
+  try {
+    if (history.state && history.state.tmCall) {
+      history.replaceState(null, '', location.href);
+    }
+  } catch(_){}
   if(state.timeoutInt){ clearTimeout(state.timeoutInt); state.timeoutInt=null; }
   if(state.pc){ try{state.pc.close();}catch(_){} state.pc=null; }
   if(state.localStream){ try{state.localStream.getTracks().forEach(function(t){t.stop();});}catch(_){} state.localStream=null; }
@@ -478,9 +515,12 @@ setTimeout(pollIncoming,1200);
 
 // Back button minimizes the call
 window.addEventListener('popstate', function(e){
-  if (state.active && !state.minimized) {
+  if (!state.active) return;
+  if (!state.minimized) {
     minimizeCall();
   }
+  // Re-push so the next back press also triggers this handler
+  try { history.pushState({tmCall:true}, '', location.href); } catch(_){}
 });
 
 // Immediate poll when tab becomes visible
