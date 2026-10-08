@@ -13,6 +13,25 @@ from app.matching import find_matches
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
+# --- Starlette signature compatibility shim ---
+# Modern Starlette (>=0.29): TemplateResponse(request, name, context)
+# Old Starlette (<=0.28):    TemplateResponse(name, context) — request inside context
+import starlette as _starlette_mod
+try:
+    _sv = tuple(int(x) for x in _starlette_mod.__version__.split(".")[:2])
+except Exception:
+    _sv = (0, 29)
+
+if _sv < (0, 29):
+    _orig_response = templates.TemplateResponse
+    def _compat_response(request, name, context=None, **kwargs):
+        ctx = dict(context) if context else {}
+        if "request" not in ctx:
+            ctx["request"] = request
+        return _orig_response(name, ctx, **kwargs)
+    templates.TemplateResponse = _compat_response
+# --- end shim ---
+
 COOKIE_NAME = "tm_token"
 
 
