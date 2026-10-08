@@ -260,9 +260,35 @@ async function setupPeer(){
   };
   pc.onconnectionstatechange=function(){
     var s=pc.connectionState, st=$('tm-c-status');
-    if(s==='connected'){ if(!state.connectedAt){ startTimer(); if(window.TMSound) window.TMSound.callConnect(); if(window.TMHaptic) window.TMHaptic.connect(); } if(st) st.classList.remove('ringing'); }
-    else if(s==='failed'){ if(st) st.textContent='Connection lost'; setTimeout(function(){tmEndCall(true);},1500); }
-    else if(s==='disconnected'){ if(st) st.textContent='Reconnecting...'; }
+    if(s==='connected'){
+      state.retryCount = 0;
+      if(!state.connectedAt){
+        startTimer();
+        if(window.TMSound) window.TMSound.callConnect();
+        if(window.TMHaptic) window.TMHaptic.connect();
+      }
+      if(st) st.classList.remove('ringing');
+    } else if(s==='disconnected'){
+      // Transient — WebRTC usually reconnects on its own. Just show status.
+      if(st) st.textContent='Reconnecting…';
+      state.retryCount = (state.retryCount || 0) + 1;
+      if(state.retryCount > 20) { // ~30s of continuous failure
+        if(window.TMSound) window.TMSound.error();
+        friendlyEnd('Connection lost');
+      }
+    } else if(s==='failed'){
+      // Only end if we can't ICE-restart after multiple tries
+      if(st) st.textContent='Reconnecting…';
+      try {
+        if (state.pc && state.role === 'caller') {
+          state.pc.restartIce && state.pc.restartIce();
+        }
+      } catch(_){}
+      state.retryCount = (state.retryCount || 0) + 1;
+      if(state.retryCount > 12) {
+        friendlyEnd('Connection lost');
+      }
+    }
   };
   return pc;
 }
@@ -354,8 +380,12 @@ window.tmStartCall=async function(kind){
     headers:{'Content-Type':'application/json'},body:JSON.stringify({sdp:offer.sdp,type:offer.type})});
   startPolling();
   state.timeoutInt=setTimeout(function(){
-    if(state.pc&&!state.pc.currentRemoteDescription){ friendlyEnd('No answer'); }
-  },45000);
+    // Only fire if we're still ringing (no connection yet)
+    if (state.connectedAt) return;
+    if (state.pc && !state.pc.currentRemoteDescription) {
+      friendlyEnd('No answer');
+    }
+  }, 60000);
 };
 
 window.tmAcceptIncoming=async function(){
@@ -651,6 +681,94 @@ function expandCall(){
   try { history.pushState({tmCall:true}, '', location.href); } catch(_){}
 }
 window.tmExpandCall = expandCall;
+
+// ---------- Draggable pill ----------
+(function(){
+  var pill = null;
+  var startX=0, startY=0, baseX=0, baseY=0, dragging=false;
+  var POS_KEY = 'tm_pill_pos';
+
+  function ensurePill() {
+    if (pill) return pill;
+    pill = document.getElementById('tm-call-pill');
+    if (!pill) return null;
+    return pill;
+  }
+
+  function applyPos(x, y) {
+    var p = ensurePill(); if (!p) return;
+    p.style.left = x + 'px';
+    p.style.right = 'auto';
+    p.style.top = y + 'px';
+    try { sessionStorage.setItem(POS_KEY, JSON.stringify({ x: x, y: y })); } catch(_){}
+  }
+
+  function restorePos() {
+    var p = ensurePill(); if (!p) return;
+    try {
+      var v = sessionStorage.getItem(POS_KEY);
+      if (!v) return;
+      var pos = JSON.parse(v);
+      if (typeof pos.x === 'number' && typeof pos.y === 'number') {
+        p.style.left = pos.x + 'px';
+        p.style.right = 'auto';
+        p.style.top = pos.y + 'px';
+      }
+    } catch(_){}
+  }
+
+  document.addEventListener('touchstart', function(e){
+    var t = e.target.closest && e.target.closest('.tm-call-pill');
+    if (!t) return;
+    // don't drag if tapping on the end/mute buttons
+    if (e.target.closest('.tm-call-pill-end') || e.target.closest('.tm-call-pill-btn')) return;
+    var p = ensurePill(); if (!p) return;
+    var r = p.getBoundingClientRect();
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    baseX = r.left;
+    baseY = r.top;
+    dragging = true;
+    p.style.transition = 'none';
+    try { p.style.left = baseX + 'px'; p.style.right = 'auto'; p.style.top = baseY + 'px'; } catch(_){}
+  }, { passive: true });
+
+  document.addEventListener('touchmove', function(e){
+    if (!dragging) return;
+    var dx = e.touches[0].clientX - startX;
+    var dy = e.touches[0].clientY - startY;
+    if (Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
+    var p = ensurePill(); if (!p) return;
+    var w = window.innerWidth, h = window.innerHeight;
+    var pr = p.getBoundingClientRect();
+    var pw = pr.width, ph = pr.height;
+    var x = Math.max(6, Math.min(w - pw - 6, baseX + dx));
+    var y = Math.max(60, Math.min(h - ph - 60, baseY + dy));
+    p.style.left = x + 'px';
+    p.style.top = y + 'px';
+    if (e.cancelable) e.preventDefault();
+  }, { passive: false });
+
+  document.addEventListener('touchend', function(){
+    if (!dragging) return;
+    dragging = false;
+    var p = ensurePill(); if (!p) return;
+    p.style.transition = '';
+    var r = p.getBoundingClientRect();
+    try { sessionStorage.setItem(POS_KEY, JSON.stringify({ x: r.left, y: r.top })); } catch(_){}
+  }, { passive: true });
+
+  // Restore position when pill shows
+  document.addEventListener('transitionend', function(){ restorePos(); }, true);
+  var obs = new MutationObserver(function(){
+    var p = ensurePill();
+    if (p && p.classList.contains('tm-show')) restorePos();
+  });
+  setTimeout(function(){
+    var p = ensurePill();
+    if (p) obs.observe(p, { attributes: true, attributeFilter: ['class'] });
+  }, 500);
+})();
 
 setInterval(function(){
   if (!state.minimized) return;
