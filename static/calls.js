@@ -5,6 +5,42 @@
 "use strict";
 function $(id){return document.getElementById(id);}
 
+// ---------- Back button guard (installed at module load) ----------
+// Push a state the moment we enter a call so the browser's back button
+// pops OUR state instead of navigating away.
+function tmInstallHistoryGuard(){
+  try {
+    if (!history.state || !history.state.tmCall) {
+      history.pushState({tmCall:true}, '', location.href);
+    }
+  } catch(_){}
+}
+
+window.addEventListener('popstate', function(e){
+  // If a call is active, re-push immediately to block navigation,
+  // then minimize the UI.
+  if (window.TM_CALL_STATE && window.TM_CALL_STATE.active) {
+    try { history.pushState({tmCall:true}, '', location.href); } catch(_){}
+    try {
+      if (!window.TM_CALL_STATE.minimized) {
+        if (typeof window.tmMinimizeCall === 'function') window.tmMinimizeCall();
+      }
+    } catch(_){}
+  }
+}, false);
+
+// Extra safety net — if the browser tries to unload during a call,
+// warn the user so the call isn't lost silently.
+window.addEventListener('beforeunload', function(e){
+  if (window.TM_CALL_STATE && window.TM_CALL_STATE.active) {
+    e.preventDefault();
+    e.returnValue = '';
+    return '';
+  }
+});
+
+
+
 var state={
   active:false, role:null, callId:null, kind:'audio',
   startedAt:0, connectedAt:0, timerInt:null, signalInt:null,
@@ -331,8 +367,16 @@ window.tmStartCall=async function(kind){
   if(state.active) return;
   if(!window.TM_CALL_TARGET){ alert('Open a chat first to call someone.'); return; }
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ alert('Calling not supported on this browser.'); return; }
+
+  // --- CRITICAL: push history state FIRST (synchronous, before any await) ---
+  // This guarantees the back button is trapped the moment a call starts.
   state.active=true; state.role='caller'; state.kind=kind||'audio';
   state.startedAt=Date.now(); state.lastIceCount={caller:0,callee:0};
+  state.minimized=false;
+  window.TM_CALL_STATE = state;
+  try { history.pushState({tmCall:true}, '', location.href); } catch(_){}
+  // ---
+
   ctx();
   var isVideo = (state.kind === 'video');
   state.videoEnabled = isVideo;
@@ -359,7 +403,6 @@ window.tmStartCall=async function(kind){
     return;
   }
   try { if (isVideo) activateVideoMode(); } catch(e){ console.warn('activateVideoMode', e); }
-  try { history.pushState({tmCall:true}, '', location.href); } catch(_){}
   try{attachAnalyser(state.localStream,'local');}catch(_){}
   try { showInCall(window.TM_CALL_NAME||'Unknown',state.kind,window.TM_CALL_AVATAR||''); } catch(e){ console.warn('showInCall', e); }
   // Re-attach the local video stream (showInCall may have reset the DOM)
@@ -409,7 +452,6 @@ window.tmAcceptIncoming=async function(){
     state.localStream = await navigator.mediaDevices.getUserMedia(constraints2);
   }catch(e){ alert('Permission required.'); tmDeclineIncoming(); return; }
   try { if (isVideo) activateVideoMode(); } catch(e){ console.warn('activateVideoMode', e); }
-  try { history.pushState({tmCall:true}, '', location.href); } catch(_){}
   try { history.pushState({tmCall:true}, '', location.href); } catch(_){}
   try{attachAnalyser(state.localStream,'local');}catch(_){}
   var p=state.incomingPayload;
@@ -542,14 +584,7 @@ async function pollIncoming(){
 setTimeout(pollIncoming,1200);
 
 // Back button minimizes the call
-window.addEventListener('popstate', function(e){
-  if (!state.active) return;
-  if (!state.minimized) {
-    minimizeCall();
-  }
-  // Re-push so the next back press also triggers this handler
-  try { history.pushState({tmCall:true}, '', location.href); } catch(_){}
-});
+
 
 // Immediate poll when tab becomes visible
 document.addEventListener('visibilitychange', function(){
