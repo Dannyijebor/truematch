@@ -18,15 +18,33 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app import config
 
-engine = create_engine(
-    config.DATABASE_URL,
-    pool_pre_ping=True,
-    pool_recycle=180,
-    pool_size=2,
-    max_overflow=2,
-    future=True,
-    connect_args={"connect_timeout": 6, "keepalives": 1, "keepalives_idle": 30},
-)
+import os as _os
+
+# Serverless platforms (Vercel, Lambda) run each request in its own process
+# with its own connection pool. Aiven free tier caps total connections at 20,
+# so pooling quickly exhausts the limit. NullPool = one connection per request,
+# closed immediately — safe under any concurrency.
+_IS_SERVERLESS = bool(_os.getenv("VERCEL") or _os.getenv("AWS_LAMBDA_FUNCTION_NAME"))
+
+if _IS_SERVERLESS:
+    from sqlalchemy.pool import NullPool
+    engine = create_engine(
+        config.DATABASE_URL,
+        poolclass=NullPool,
+        pool_pre_ping=True,
+        future=True,
+        connect_args={"connect_timeout": 10},
+    )
+else:
+    engine = create_engine(
+        config.DATABASE_URL,
+        pool_pre_ping=True,
+        pool_recycle=180,
+        pool_size=2,
+        max_overflow=2,
+        future=True,
+        connect_args={"connect_timeout": 6, "keepalives": 1, "keepalives_idle": 30},
+    )
 SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
 
 
