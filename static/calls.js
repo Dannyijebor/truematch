@@ -655,6 +655,13 @@ function minimizeCall(){
   pill.classList.add('tm-show');
 }
 
+window.tmMinimizeFromButton = function(e){
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  if (!state.active) return;
+  try { minimizeCall(); } catch(err) { console.warn('minimize failed', err); }
+};
+
+
 function expandCall(){
   if (!state.active) return;
   if (window.TMSound) window.TMSound.expand();
