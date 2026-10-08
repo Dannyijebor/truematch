@@ -138,11 +138,9 @@ function showInCall(name,kind,avatarUrl){
     var el=$('tm-incall');
     if (el) {
       el.classList.add('tm-show');
-      // Bulletproof: force inline display as fallback
-      el.style.display = 'flex';
+      el.style.display = '';   // rely on .tm-show class, no inline overrides
     } else {
       console.error('tm-incall element missing!');
-      alert('Call screen missing from DOM. Please reload.');
     }
   } catch(e) {
     console.error('showInCall threw', e);
@@ -582,48 +580,86 @@ window.startCall=function(kind){ window.tmStartCall(kind); };
 // ---------- Minimize / expand ----------
 function minimizeCall(){
   if (!state.active) return;
-  if (window.TMSound) window.TMSound.minimize(); if (window.TMHaptic) window.TMHaptic.tick();
+  if (window.TMSound) window.TMSound.minimize();
+  if (window.TMHaptic) window.TMHaptic.tick();
   state.minimized = true;
-  var incall = $('tm-incall'); if(incall) incall.classList.remove('tm-show');
-  var incoming = $('tm-incoming'); if(incoming) incoming.classList.remove('tm-show');
+  var incall = $('tm-incall');
+  if (incall) { incall.classList.remove('tm-show'); incall.style.display = ''; }
+  var incoming = $('tm-incoming');
+  if (incoming) { incoming.classList.remove('tm-show'); incoming.style.display = ''; }
   document.body.classList.remove('tm-in-call');
   var pill = $('tm-call-pill');
-  if(pill){
-    var pn = $('tm-pill-name');
-    if(pn) pn.textContent = (state.role === 'caller'
-      ? (window.TM_CALL_NAME || 'Call')
-      : ((state.incomingPayload && state.incomingPayload.from.name) || 'Call'));
-    var pa = $('tm-pill-avatar');
-    if(pa){
-      var avatarUrl = state.role === 'caller' ? window.TM_CALL_AVATAR : (state.incomingPayload && state.incomingPayload.from.avatar_url);
-      var nm = state.role === 'caller' ? (window.TM_CALL_NAME || '?') : ((state.incomingPayload && state.incomingPayload.from.name) || '?');
-      if (avatarUrl) { pa.innerHTML = '<img src="' + avatarUrl + '" alt="">'; }
-      else { pa.textContent = init(nm); }
+  if (!pill) return;
+  var name, avatarUrl;
+  if (state.role === 'caller') {
+    name = window.TM_CALL_NAME || 'Call';
+    avatarUrl = window.TM_CALL_AVATAR || '';
+  } else {
+    name = (state.incomingPayload && state.incomingPayload.from.name) || 'Call';
+    avatarUrl = (state.incomingPayload && state.incomingPayload.from.avatar_url) || '';
+  }
+  var pn = $('tm-pill-name'); if (pn) pn.textContent = name;
+  var pav = $('tm-pill-avatar');
+  if (pav) {
+    var wantVideo = (state.kind === 'video' && state.remoteStream);
+    if (wantVideo) {
+      pav.classList.add('tm-pill-avatar--video');
+      pav.innerHTML = '<video class="tm-pill-video" autoplay playsinline muted></video>';
+      var v = pav.querySelector('video');
+      if (v) { v.srcObject = state.remoteStream; v.play().catch(function(){}); }
+    } else {
+      pav.classList.remove('tm-pill-avatar--video');
+      if (avatarUrl) pav.innerHTML = '<img src="' + avatarUrl + '" alt="">';
+      else pav.textContent = init(name);
     }
-    pill.classList.add('tm-show');
+  }
+  var pt = $('tm-pill-status');
+  if (pt) {
+    if (state.connectedAt) pt.textContent = fmt(Math.floor((Date.now() - state.connectedAt) / 1000));
+    else pt.textContent = (state.role === 'caller' ? 'Calling...' : 'Connecting...');
   }
   var pmb = $('tm-pill-mute');
-  if(pmb) pmb.classList.toggle('tm-active', state.micMuted);
+  if (pmb) pmb.classList.toggle('tm-active', state.micMuted);
+  pill.classList.toggle('tm-call-pill--video', state.kind === 'video');
+  pill.classList.add('tm-show');
 }
 
 function expandCall(){
   if (!state.active) return;
-  if (window.TMSound) window.TMSound.expand(); if (window.TMHaptic) window.TMHaptic.tick();
+  if (window.TMSound) window.TMSound.expand();
+  if (window.TMHaptic) window.TMHaptic.tick();
   state.minimized = false;
-  var pill = $('tm-call-pill'); if(pill) pill.classList.remove('tm-show');
+  var pill = $('tm-call-pill');
+  if (pill) pill.classList.remove('tm-show');
   if (state.incomingPayload && !state.connectedAt) {
-    var inc = $('tm-incoming'); if(inc) inc.classList.add('tm-show');
+    var inc = $('tm-incoming');
+    if (inc) { inc.classList.add('tm-show'); inc.style.display = ''; }
   } else {
-    var inc2 = $('tm-incall'); if(inc2) inc2.classList.add('tm-show');
+    var inc2 = $('tm-incall');
+    if (inc2) { inc2.classList.add('tm-show'); inc2.style.display = ''; }
+    if (state.kind === 'video' && state.localStream) {
+      try {
+        var lv = $('tm-local-video');
+        if (lv) {
+          if (lv.srcObject !== state.localStream) lv.srcObject = state.localStream;
+          lv.play().catch(function(){});
+        }
+      } catch(_){}
+    }
   }
   document.body.classList.add('tm-in-call');
+  try { history.pushState({tmCall:true}, '', location.href); } catch(_){}
 }
 window.tmExpandCall = expandCall;
 
 setInterval(function(){
-  if (state.minimized && state.connectedAt) {
-    var pt = $('tm-pill-status');
-    if (pt) pt.textContent = fmt(Math.floor((Date.now() - state.connectedAt) / 1000));
+  if (!state.minimized) return;
+  var pt = $('tm-pill-status');
+  if (!pt) return;
+  if (state.connectedAt) {
+    pt.textContent = fmt(Math.floor((Date.now() - state.connectedAt) / 1000));
+  } else {
+    pt.textContent = (state.role === 'caller' ? 'Calling…' : 'Connecting…');
   }
 }, 500);
 })();

@@ -60,7 +60,7 @@ body.tm-in-call nav,body.tm-in-call header.app-header,body.tm-in-call footer{vis
 .tm-call-screen.tm-video-mode .tm-call-center{padding:0}
 .tm-call-btn.tm-flip{display:none}
 .tm-call-screen.tm-video-mode .tm-flip{display:flex}
-.tm-call-pill{position:fixed;bottom:20px;right:16px;left:16px;display:none;align-items:center;gap:12px;padding:12px 14px;background:rgba(22,28,32,0.98);border:1px solid rgba(255,255,255,0.08);border-radius:22px;box-shadow:0 20px 48px rgba(0,0,0,0.5);z-index:9997;color:#fff}.tm-call-pill.tm-show{display:flex}.tm-call-pill-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#00a884,#0b6b56);color:#fff;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}.tm-call-pill-avatar img{width:100%;height:100%;object-fit:cover}.tm-call-pill-info{flex:1;min-width:0}.tm-call-pill-name{font-size:14px;font-weight:700}.tm-call-pill-status{font-size:12px;color:rgba(255,255,255,0.6)}.tm-call-pill-btn,.tm-call-pill-end{width:42px;height:42px;border-radius:50%;border:none;background:rgba(255,255,255,0.12);color:#fff;flex-shrink:0}.tm-call-pill-end{background:#ef4444}.tm-call-pill-btn.tm-active{background:#fff;color:#0a1418}.tm-call-screen.tm-video-mode .tm-call-avatar-wrap{display:none}.tm-call-screen.tm-video-mode .tm-remote-video{display:block}
+
 
 /* ---------- Video call buttons: fit all 7, never clip End ---------- */
 .tm-call-screen.tm-video-mode .tm-call-controls {
@@ -101,6 +101,155 @@ body.tm-in-call nav,body.tm-in-call header.app-header,body.tm-in-call footer{vis
   background: #ef4444 !important;
   box-shadow: 0 6px 18px rgba(239,68,68,0.5) !important;
 }
+
+/* ---------- Premium call pill ---------- */
+.tm-call-pill {
+  position: fixed;
+  top: 74px;
+  left: 14px;
+  right: 14px;
+  max-width: 440px;
+  margin: 0 auto;
+  display: none;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: linear-gradient(135deg, rgba(22,28,32,0.98) 0%, rgba(15,20,24,0.98) 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  box-shadow:
+    0 20px 50px rgba(0,0,0,0.55),
+    0 4px 12px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  z-index: 9997;
+  cursor: pointer;
+  color: #fff;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+html.light .tm-call-pill {
+  background: linear-gradient(135deg, rgba(255,255,255,0.99) 0%, rgba(240,244,248,0.99) 100%);
+  border-color: rgba(0,0,0,0.08);
+  color: #0f1720;
+  box-shadow:
+    0 20px 50px rgba(0,0,0,0.18),
+    0 4px 12px rgba(0,0,0,0.08);
+}
+.tm-call-pill:active { transform: scale(0.98); }
+.tm-call-pill.tm-show {
+  display: flex;
+  animation: tmpillIn 0.36s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes tmpillIn {
+  from { opacity: 0; transform: translateY(-18px) scale(0.94); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.tm-call-pill::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: -6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #00a884;
+  box-shadow: 0 0 0 0 rgba(0,168,132,0.6);
+  animation: tmpillDot 1.8s ease-in-out infinite;
+}
+@keyframes tmpillDot {
+  0%,100% { box-shadow: 0 0 0 0 rgba(0,168,132,0.6); }
+  50%     { box-shadow: 0 0 0 6px rgba(0,168,132,0); }
+}
+
+.tm-call-pill-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00a884, #0b6b56);
+  color: #fff;
+  font-weight: 700;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  position: relative;
+}
+.tm-call-pill-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.tm-call-pill-avatar--video {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #000;
+}
+.tm-call-pill-avatar--video .tm-pill-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.tm-call-pill-info {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  line-height: 1.2;
+}
+.tm-call-pill-name {
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.1px;
+}
+.tm-call-pill-status {
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+  font-variant-numeric: tabular-nums;
+  margin-top: 2px;
+  letter-spacing: 0.3px;
+}
+html.light .tm-call-pill-status { color: rgba(0,0,0,0.5); }
+
+.tm-call-pill-btn,
+.tm-call-pill-end {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.tm-call-pill-btn {
+  background: rgba(255,255,255,0.12);
+}
+html.light .tm-call-pill-btn { background: rgba(0,0,0,0.06); color: #0f1720; }
+.tm-call-pill-btn svg { width: 18px; height: 18px; }
+.tm-call-pill-btn:active { transform: scale(0.9); }
+.tm-call-pill-btn.tm-active {
+  background: #fff;
+  color: #0a1418;
+}
+html.light .tm-call-pill-btn.tm-active { background: #0f1720; color: #fff; }
+
+.tm-call-pill-end {
+  background: #ef4444;
+  box-shadow: 0 6px 18px rgba(239,68,68,0.5);
+}
+.tm-call-pill-end svg { width: 20px; height: 20px; transform: rotate(135deg); }
+.tm-call-pill-end:active { transform: scale(0.9); }
 </style>
 
 <div id="tm-incoming" class="tm-call-screen" aria-hidden="true">
