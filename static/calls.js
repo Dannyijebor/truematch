@@ -5,40 +5,6 @@
 "use strict";
 function $(id){return document.getElementById(id);}
 
-// ---------- Back button guard (installed at module load) ----------
-// Push a state the moment we enter a call so the browser's back button
-// pops OUR state instead of navigating away.
-function tmInstallHistoryGuard(){
-  try {
-    if (!history.state || !history.state.tmCall) {
-      history.pushState({tmCall:true}, '', location.href);
-    }
-  } catch(_){}
-}
-
-window.addEventListener('popstate', function(e){
-  // If a call is active, re-push immediately to block navigation,
-  // then minimize the UI.
-  if (window.TM_CALL_STATE && window.TM_CALL_STATE.active) {
-    try { history.pushState({tmCall:true}, '', location.href); } catch(_){}
-    try {
-      if (!window.TM_CALL_STATE.minimized) {
-        if (typeof window.tmMinimizeCall === 'function') window.tmMinimizeCall();
-      }
-    } catch(_){}
-  }
-}, false);
-
-// Extra safety net — if the browser tries to unload during a call,
-// warn the user so the call isn't lost silently.
-window.addEventListener('beforeunload', function(e){
-  if (window.TM_CALL_STATE && window.TM_CALL_STATE.active) {
-    e.preventDefault();
-    e.returnValue = '';
-    return '';
-  }
-});
-
 
 
 var state={
@@ -815,4 +781,115 @@ setInterval(function(){
     pt.textContent = (state.role === 'caller' ? 'Calling…' : 'Connecting…');
   }
 }, 500);
+
+// ============================================================
+// BACK BUTTON GUARD — closure-based, references state directly
+// ============================================================
+try {
+  window.addEventListener('popstate', function(e){
+    // No active call → let the browser navigate normally
+    if (!state.active) return;
+
+    // Active call → trap the navigation and minimize
+    try { history.pushState({tmCall:true}, '', location.href); } catch(_){}
+
+    // Force-minimize (direct DOM ops + class swaps)
+    try {
+      // If already minimized, do nothing extra
+      if (state.minimized) return;
+
+      // Set state
+      state.minimized = true;
+
+      // Hide full-screen UI
+      var incall = document.getElementById('tm-incall');
+      if (incall) {
+        incall.classList.remove('tm-show');
+        incall.style.display = 'none';
+        setTimeout(function(){ if (incall) incall.style.display = ''; }, 20);
+      }
+      var incoming = document.getElementById('tm-incoming');
+      if (incoming) {
+        incoming.classList.remove('tm-show');
+        incoming.style.display = 'none';
+        setTimeout(function(){ if (incoming) incoming.style.display = ''; }, 20);
+      }
+      document.body.classList.remove('tm-in-call');
+
+      // Populate + show the pill
+      var pill = document.getElementById('tm-call-pill');
+      if (pill) {
+        // Name
+        var nm = (state.role === 'caller')
+          ? (window.TM_CALL_NAME || 'Call')
+          : ((state.incomingPayload && state.incomingPayload.from.name) || 'Call');
+        var av = (state.role === 'caller')
+          ? (window.TM_CALL_AVATAR || '')
+          : ((state.incomingPayload && state.incomingPayload.from.avatar_url) || '');
+
+        var nameEl = document.getElementById('tm-pill-name');
+        if (nameEl) nameEl.textContent = nm;
+
+        var avEl = document.getElementById('tm-pill-avatar');
+        if (avEl) {
+          if (state.kind === 'video' && state.remoteStream) {
+            avEl.classList.add('tm-pill-avatar--video');
+            avEl.innerHTML = '<video class="tm-pill-video" autoplay playsinline muted></video>';
+            var v = avEl.querySelector('video');
+            if (v) { v.srcObject = state.remoteStream; v.play().catch(function(){}); }
+          } else {
+            avEl.classList.remove('tm-pill-avatar--video');
+            if (av) avEl.innerHTML = '<img src="' + av + '" alt="">';
+            else {
+              var ini = (nm || '?').trim().split(/\s+/);
+              avEl.textContent = ((ini[0] || '?')[0] || '?').toUpperCase();
+            }
+          }
+        }
+
+        var stEl = document.getElementById('tm-pill-status');
+        if (stEl) {
+          if (state.connectedAt) {
+            var sec = Math.floor((Date.now() - state.connectedAt) / 1000);
+            var m = Math.floor(sec / 60), s = sec % 60;
+            stEl.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+          } else {
+            stEl.textContent = (state.role === 'caller' ? 'Calling…' : 'Connecting…');
+          }
+        }
+
+        var muteBtn = document.getElementById('tm-pill-mute');
+        if (muteBtn) muteBtn.classList.toggle('tm-active', state.micMuted);
+
+        pill.classList.add('tm-show');
+      }
+
+      // Also run the full minimize for sound/vibration/haptic consistency
+      if (typeof minimizeCall === 'function') {
+        try { minimizeCall(); } catch(_) { /* silent — DOM already handled above */ }
+      }
+    } catch(err) {
+      console.warn('popstate minimize failed:', err);
+    }
+  }, false);
+
+  // Push a state now so the back button has something to pop
+  try {
+    if (!history.state || !history.state.tmCall) {
+      history.pushState({tmCall:true}, '', location.href);
+    }
+  } catch(_){}
+
+  // Before unload safety
+  window.addEventListener('beforeunload', function(e){
+    if (state.active) {
+      e.preventDefault();
+      e.returnValue = '';
+      return '';
+    }
+  });
+} catch(err) {
+  console.warn('history guard setup failed:', err);
+}
+
 })();
