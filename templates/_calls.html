@@ -60,7 +60,34 @@ body.tm-in-call nav,body.tm-in-call header.app-header,body.tm-in-call footer{vis
 .tm-call-screen.tm-video-mode .tm-call-center{padding:0}
 .tm-call-btn.tm-flip{display:none}
 .tm-call-screen.tm-video-mode .tm-flip{display:flex}
-.tm-call-pill{position:fixed;bottom:20px;right:16px;left:16px;display:none;align-items:center;gap:12px;padding:12px 14px;background:rgba(22,28,32,0.98);border:1px solid rgba(255,255,255,0.08);border-radius:22px;box-shadow:0 20px 48px rgba(0,0,0,0.5);z-index:9997;color:#fff}.tm-call-pill.tm-show{display:flex}.tm-call-pill-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#00a884,#0b6b56);color:#fff;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}.tm-call-pill-avatar img{width:100%;height:100%;object-fit:cover}.tm-call-pill-info{flex:1;min-width:0}.tm-call-pill-name{font-size:14px;font-weight:700}.tm-call-pill-status{font-size:12px;color:rgba(255,255,255,0.6)}.tm-call-pill-btn,.tm-call-pill-end{width:42px;height:42px;border-radius:50%;border:none;background:rgba(255,255,255,0.12);color:#fff;flex-shrink:0}.tm-call-pill-end{background:#ef4444}.tm-call-pill-btn.tm-active{background:#fff;color:#0a1418}.tm-call-screen.tm-video-mode .tm-call-avatar-wrap{display:none}.tm-call-screen.tm-video-mode .tm-remote-video{display:block}</style>
+.tm-call-pill{position:fixed;bottom:20px;right:16px;left:16px;display:none;align-items:center;gap:12px;padding:12px 14px;background:rgba(22,28,32,0.98);border:1px solid rgba(255,255,255,0.08);border-radius:22px;box-shadow:0 20px 48px rgba(0,0,0,0.5);z-index:9997;color:#fff}.tm-call-pill.tm-show{display:flex}.tm-call-pill-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#00a884,#0b6b56);color:#fff;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}.tm-call-pill-avatar img{width:100%;height:100%;object-fit:cover}.tm-call-pill-info{flex:1;min-width:0}.tm-call-pill-name{font-size:14px;font-weight:700}.tm-call-pill-status{font-size:12px;color:rgba(255,255,255,0.6)}.tm-call-pill-btn,.tm-call-pill-end{width:42px;height:42px;border-radius:50%;border:none;background:rgba(255,255,255,0.12);color:#fff;flex-shrink:0}.tm-call-pill-end{background:#ef4444}.tm-call-pill-btn.tm-active{background:#fff;color:#0a1418}.tm-call-screen.tm-video-mode .tm-call-avatar-wrap{display:none}.tm-call-screen.tm-video-mode .tm-remote-video{display:block}
+/* ---------- Video mode: fit all 7 buttons ---------- */
+.tm-call-screen.tm-video-mode .tm-call-buttons {
+  gap: 8px !important;
+  flex-wrap: nowrap !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  padding: 0 4px !important;
+}
+.tm-call-screen.tm-video-mode .tm-call-btn {
+  width: 52px !important;
+  height: 52px !important;
+  flex: 0 0 52px !important;
+}
+.tm-call-screen.tm-video-mode .tm-call-btn svg {
+  width: 20px !important;
+  height: 20px !important;
+}
+.tm-call-screen.tm-video-mode .tm-call-btn-label {
+  font-size: 9px !important;
+  letter-spacing: 0.4px !important;
+  bottom: -16px !important;
+}
+.tm-call-screen.tm-video-mode .tm-call-controls {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+</style>
 
 <div id="tm-incoming" class="tm-call-screen" aria-hidden="true">
 <div class="tm-call-bg"></div>
