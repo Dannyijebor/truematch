@@ -22,9 +22,15 @@
 <div class="grid md:grid-cols-2 gap-3 stagger-in">
   {% for p in people %}
   <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 flex items-start gap-3">
-    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center font-bold text-slate-950 shrink-0">
-      {{ (p.name or "?")[0]|upper }}
-    </div>
+    {% if p.username %}<a href="/u/{{ p.username }}" class="shrink-0">{% endif %}
+    {% if p.avatar_url %}
+      <img src="{{ p.avatar_url }}" class="w-10 h-10 rounded-full object-cover ring-1 ring-slate-700/50">
+    {% else %}
+      <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center font-bold text-slate-950">
+        {{ (p.name or "?")[0]|upper }}
+      </div>
+    {% endif %}
+    {% if p.username %}</a>{% endif %}
     <div class="min-w-0 flex-1">
       {% if p.username %}
         <a href="/u/{{ p.username }}" class="font-semibold hover:underline truncate block">{{ p.name }}</a>
