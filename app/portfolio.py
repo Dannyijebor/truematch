@@ -147,3 +147,63 @@ def move_item(db: Session, user_id, item_id, direction: str):
         item.sort_order = (item.sort_order or 0) + 1
     db.commit()
     return item
+
+
+# ---------- public portfolio (for /p/{username}) ----------
+
+def public_portfolio(db: Session, username: str) -> dict | None:
+    """Return a dict of everything needed to render a public portfolio.
+    Returns None if the username doesn't exist or the portfolio is private."""
+    from app.db.models import User
+
+    p = db.execute(
+        select(Profile).where(Profile.username == username)
+    ).scalar_one_or_none()
+    if not p:
+        return None
+    if not p.portfolio_is_public:
+        return None
+
+    u = db.get(User, p.user_id)
+
+    items = list_items(db, p.user_id, only_visible=True)
+
+    # Group items by kind
+    projects = [i for i in items if i["kind"] == "project"]
+    experience = [i for i in items if i["kind"] == "experience"]
+    education = [i for i in items if i["kind"] == "education"]
+    certifications = [i for i in items if i["kind"] == "certification"]
+    links = [i for i in items if i["kind"] == "link"]
+
+    settings = get_portfolio_settings(db, p.user_id)
+
+    return {
+        "user": {
+            "id": str(u.id) if u else None,
+            "full_name": u.full_name if u else None,
+            "email": u.email if u else None,
+            "country": u.country if u else None,
+        },
+        "profile": {
+            "username": p.username,
+            "avatar_url": p.avatar_url,
+            "title": p.title,
+            "company_name": p.company_name,
+            "headline": p.headline,
+            "bio": p.bio,
+            "location": p.location,
+            "seniority": p.seniority,
+            "years_experience": p.years_experience,
+            "skills": p.skills or [],
+            "remote_ok": bool(p.remote_ok),
+        },
+        "settings": settings,
+        "items": {
+            "projects": projects,
+            "experience": experience,
+            "education": education,
+            "certifications": certifications,
+            "links": links,
+            "all": items,
+        },
+    }

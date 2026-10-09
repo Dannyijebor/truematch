@@ -150,6 +150,14 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     if not user:
         return RedirectResponse("/login", status_code=302)
 
+    # GATE: no resume = no matches. Send them to build one.
+    from app.db.models import Resume as _Resume
+    has_resume = db.execute(
+        select(_Resume).where(_Resume.user_id == user.id).limit(1)
+    ).first()
+    if not has_resume:
+        return RedirectResponse("/app/resume?welcome=1", status_code=302)
+
     profile = db.get(Profile, user.id)
 
     # Show-more pattern: ?show=N starts at 20, grows by 20 up to 100
