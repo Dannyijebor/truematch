@@ -885,35 +885,102 @@
 </section>
 
 <script>
-  function ppShare() {
-    var url = window.location.href;
-    var title = "{{ target.name }} on TrueMatch";
-    if (navigator.share) {
-      navigator.share({ title: title, url: url }).catch(function(){});
-    } else if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(function(){
-        ppToast('Profile link copied');
-      }).catch(function(){ ppFallback(url); });
+function ppShare() {
+  var url = window.location.href;
+  var title = "{{ target.name }} on TrueMatch";
+  if (navigator.share) {
+    navigator.share({ title: title, url: url }).catch(function(){});
+  } else if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(function(){
+      ppToast('Profile link copied');
+    }).catch(function(){ ppFallback(url); });
+  } else {
+    ppFallback(url);
+  }
+}
+function ppFallback(txt) {
+  var ta = document.createElement('textarea');
+  ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); ppToast('Profile link copied'); } catch(_){}
+  document.body.removeChild(ta);
+}
+function ppToast(msg) {
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;z-index:9999;backdrop-filter:blur(12px);';
+  document.body.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 1800);
+}
+
+// ---------- Scroll progress ----------
+(function(){
+  var bar = document.getElementById('pp-progress');
+  function onScroll(){
+    var h = document.documentElement;
+    var scrolled = h.scrollTop || document.body.scrollTop;
+    var height = h.scrollHeight - h.clientHeight;
+    var pct = height > 0 ? (scrolled / height) * 100 : 0;
+    if (bar) bar.style.width = pct + '%';
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+
+// ---------- Cursor glow ----------
+(function(){
+  var glow = document.getElementById('pp-cursor');
+  if (!glow || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+  var gx = 0, gy = 0, tx = 0, ty = 0, raf = null;
+  document.addEventListener('mousemove', function(e){
+    tx = e.clientX; ty = e.clientY;
+    glow.classList.add('pp-active');
+    if (!raf) loop();
+  });
+  document.addEventListener('mouseleave', function(){ glow.classList.remove('pp-active'); });
+  function loop(){
+    gx += (tx - gx) * 0.08;
+    gy += (ty - gy) * 0.08;
+    glow.style.transform = 'translate(' + gx + 'px, ' + gy + 'px) translate(-50%, -50%)';
+    if (Math.abs(tx - gx) > 0.5 || Math.abs(ty - gy) > 0.5) {
+      raf = requestAnimationFrame(loop);
     } else {
-      ppFallback(url);
+      raf = null;
     }
   }
-  function ppFallback(txt) {
-    var ta = document.createElement('textarea');
-    ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
-    document.body.appendChild(ta); ta.select();
-    try { document.execCommand('copy'); ppToast('Profile link copied'); } catch(_){}
-    document.body.removeChild(ta);
-  }
-  function ppToast(msg) {
-    var t = document.createElement('div');
-    t.textContent = msg;
-    t.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;z-index:9999;backdrop-filter:blur(12px);';
-    document.body.appendChild(t);
-    setTimeout(function(){ t.remove(); }, 1800);
-  }
+})();
 
-<!-- ===== Edit profile modal ===== -->
+// ---------- Reveal on scroll ----------
+(function(){
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (e.isIntersecting) {
+        e.target.classList.add('pp-in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { rootMargin: '0px 0px -80px 0px', threshold: 0.08 });
+  document.querySelectorAll('.pp-reveal').forEach(function(el){ io.observe(el); });
+})();
+
+// ---------- Card cursor-glow + tilt ----------
+document.querySelectorAll('.pp-item').forEach(function(card){
+  card.addEventListener('mousemove', function(e){
+    var r = card.getBoundingClientRect();
+    var x = ((e.clientX - r.left) / r.width) * 100;
+    var y = ((e.clientY - r.top) / r.height) * 100;
+    card.style.setProperty('--mx', x + '%');
+    card.style.setProperty('--my', y + '%');
+    var rx = ((e.clientY - r.top) / r.height - 0.5) * -3;
+    var ry = ((e.clientX - r.left) / r.width - 0.5) * 3;
+    card.style.transform = 'translateY(-4px) perspective(900px) rotateX(' + rx + 'deg) rotateY(' + ry + 'deg)';
+  });
+  card.addEventListener('mouseleave', function(){
+    card.style.transform = '';
+  });
+});
+</script>
+
 {% if is_me %}
 <div class="pp-modal-backdrop" id="pp-modal" onclick="if(event.target===this)ppCloseEdit()">
   <div class="pp-modal">
@@ -963,90 +1030,19 @@
 </div>
 
 <script>
-  function ppOpenEdit() {
-    var m = document.getElementById('pp-modal');
-    if (m) m.classList.add('pp-open');
-    document.body.style.overflow = 'hidden';
-  }
-  function ppCloseEdit() {
-    var m = document.getElementById('pp-modal');
-    if (m) m.classList.remove('pp-open');
-    document.body.style.overflow = '';
-  }
-  // Close on Escape
-  document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape') ppCloseEdit();
-  });
+function ppOpenEdit() {
+  var m = document.getElementById('pp-modal');
+  if (m) m.classList.add('pp-open');
+  document.body.style.overflow = 'hidden';
+}
+function ppCloseEdit() {
+  var m = document.getElementById('pp-modal');
+  if (m) m.classList.remove('pp-open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape') ppCloseEdit();
+});
 </script>
 {% endif %}
-
-
-  // ---------- Scroll progress ----------
-  (function(){
-    var bar = document.getElementById('pp-progress');
-    function onScroll(){
-      var h = document.documentElement;
-      var scrolled = h.scrollTop || document.body.scrollTop;
-      var height = h.scrollHeight - h.clientHeight;
-      var pct = height > 0 ? (scrolled / height) * 100 : 0;
-      if (bar) bar.style.width = pct + '%';
-    }
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-  })();
-
-  // ---------- Cursor glow ----------
-  (function(){
-    var glow = document.getElementById('pp-cursor');
-    if (!glow || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-    var gx = 0, gy = 0, tx = 0, ty = 0, raf = null;
-    document.addEventListener('mousemove', function(e){
-      tx = e.clientX; ty = e.clientY;
-      glow.classList.add('pp-active');
-      if (!raf) loop();
-    });
-    document.addEventListener('mouseleave', function(){ glow.classList.remove('pp-active'); });
-    function loop(){
-      gx += (tx - gx) * 0.08;
-      gy += (ty - gy) * 0.08;
-      glow.style.transform = 'translate(' + gx + 'px, ' + gy + 'px) translate(-50%, -50%)';
-      if (Math.abs(tx - gx) > 0.5 || Math.abs(ty - gy) > 0.5) {
-        raf = requestAnimationFrame(loop);
-      } else {
-        raf = null;
-      }
-    }
-  })();
-
-  // ---------- Reveal on scroll ----------
-  (function(){
-    var io = new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        if (e.isIntersecting) {
-          e.target.classList.add('pp-in');
-          io.unobserve(e.target);
-        }
-      });
-    }, { rootMargin: '0px 0px -80px 0px', threshold: 0.08 });
-    document.querySelectorAll('.pp-reveal').forEach(function(el){ io.observe(el); });
-  })();
-
-  // ---------- Card cursor-glow + tilt ----------
-  document.querySelectorAll('.pp-item').forEach(function(card){
-    card.addEventListener('mousemove', function(e){
-      var r = card.getBoundingClientRect();
-      var x = ((e.clientX - r.left) / r.width) * 100;
-      var y = ((e.clientY - r.top) / r.height) * 100;
-      card.style.setProperty('--mx', x + '%');
-      card.style.setProperty('--my', y + '%');
-      var rx = ((e.clientY - r.top) / r.height - 0.5) * -3;
-      var ry = ((e.clientX - r.left) / r.width - 0.5) * 3;
-      card.style.transform = 'translateY(-4px) perspective(900px) rotateX(' + rx + 'deg) rotateY(' + ry + 'deg)';
-    });
-    card.addEventListener('mouseleave', function(){
-      card.style.transform = '';
-    });
-  });
-
-</script>
 {% endblock %}
