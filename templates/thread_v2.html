@@ -4,6 +4,9 @@
 {% from "_wallpapers_cinematic.html" import wallpaper %}
 {% block overlays %}
 <style>
+/* Kill the flash of JS source text during progressive render */
+script, noscript { display: none !important; visibility: hidden !important; height: 0 !important; overflow: hidden !important; }
+
 body.chat-page { background: #0b141a; }
 html.light body.chat-page { background: #efeae2; }
 body.tm-mode-immersive > nav,
