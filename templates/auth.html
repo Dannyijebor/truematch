@@ -8,13 +8,23 @@
   body.tm-auth-page header.app-header,
   body.tm-auth-page footer,
   body.tm-auth-page .tm-cmd { display: none !important; }
-  body.tm-auth-page { overflow-x: hidden; }
+  body.tm-auth-page {
+    overflow: hidden !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+  }
+  html:has(body.tm-auth-page) { overflow: hidden !important; }
 
   /* ============ Auth layout ============ */
   .tm-auth {
     box-sizing: border-box;
     width: 100%;
-    min-height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
     display: grid;
     grid-template-columns: 1fr;
     background: #0a1418;
@@ -172,9 +182,14 @@
     justify-content: center;
     box-sizing: border-box;
     width: 100%;
-    padding: 28px 16px;
+    padding: 16px;
     background: #0a1418;
     position: relative;
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
   }
   @media (min-width: 900px) {
     .tm-auth-form-panel { padding: 56px 48px; background: #0d1a1f; }
@@ -185,7 +200,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-bottom: 28px;
+    padding-bottom: 14px;
   }
   @media (min-width: 900px) {
     .tm-auth-mobile-brand { display: none; }
@@ -203,18 +218,24 @@
   }
 
   .tm-auth-heading {
-    font-size: 30px;
+    font-size: 26px;
     line-height: 1.15;
     font-weight: 800;
-    letter-spacing: -0.6px;
+    letter-spacing: -0.5px;
     color: #ffffff;
-    margin: 0 0 8px;
+    margin: 0 0 6px;
+  }
+  @media (min-width: 900px) {
+    .tm-auth-heading { font-size: 30px; letter-spacing: -0.6px; margin-bottom: 8px; }
   }
   .tm-auth-subheading {
-    font-size: 14.5px;
+    font-size: 13.5px;
     color: #8a97a2;
-    margin: 0 0 28px;
+    margin: 0 0 20px;
     line-height: 1.5;
+  }
+  @media (min-width: 900px) {
+    .tm-auth-subheading { font-size: 14.5px; margin-bottom: 28px; }
   }
 
   /* Field group — floating label */
@@ -237,7 +258,7 @@
     box-sizing: border-box;
     width: 100%;
     max-width: 100%;
-    height: 56px;
+    height: 52px;
     background: #162025;
     border: 1.5px solid #243038;
     border-radius: 14px;
@@ -416,7 +437,7 @@
   /* Switch mode */
   .tm-auth-switch {
     text-align: center;
-    margin-top: 22px;
+    margin-top: 14px;
     font-size: 14px;
     color: #8a97a2;
   }
@@ -482,8 +503,8 @@
   /* Terms */
   .tm-auth-terms {
     text-align: center;
-    margin-top: 20px;
-    font-size: 12px;
+    margin-top: 14px;
+    font-size: 11.5px;
     line-height: 1.5;
     color: #6d7a82;
   }
