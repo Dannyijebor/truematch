@@ -12,6 +12,35 @@ from app.matching import find_matches
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
+def _ago(dt):
+    if not dt: return ""
+    from datetime import datetime, timezone
+    if isinstance(dt, str):
+        try: dt = datetime.fromisoformat(dt.replace("Z","+00:00"))
+        except Exception: return ""
+    if dt.tzinfo is None: dt = dt.replace(tzinfo=timezone.utc)
+    s = int((datetime.now(timezone.utc)-dt).total_seconds())
+    if s<60: return "just now"
+    if s<3600: return f"{s//60}m ago"
+    if s<86400: return f"{s//3600}h ago"
+    if s<604800: return f"{s//86400}d ago"
+    if s<2592000: return f"{s//604800}w ago"
+    if s<31536000: return f"{s//2592000}mo ago"
+    return f"{s//31536000}y ago"
+templates.env.filters["ago"] = _ago
+
+_SC = {"t": 0, "v": None}
+def _stats(db):
+    import time
+    if _SC["v"] and time.time() - _SC["t"] < 300: return _SC["v"]
+    from sqlalchemy import func, select
+    from app.db.models import Job, Company
+    j = db.execute(select(func.count(Job.id)).where(Job.is_active == True)).scalar() or 0
+    c = db.execute(select(func.count(Company.id))).scalar() or 0
+    _SC["t"] = time.time()
+    _SC["v"] = {"jobs": j, "jobs_rounded": (j // 100) * 100, "companies": c}
+    return _SC["v"]
+
 
 # --- Starlette signature compatibility shim ---
 # Modern Starlette (>=0.29): TemplateResponse(request, name, context)
@@ -97,7 +126,7 @@ def landing(request: Request, db: Session = Depends(get_db)):
     user = current_user_web(request, db)
     if user:
         return RedirectResponse("/app", status_code=302)
-    return templates.TemplateResponse(request, "landing.html", _ctx(request))
+    return templates.TemplateResponse(request, "landing.html", _ctx(request, stats=_stats(db)))
 
 
 @router.post("/logout")

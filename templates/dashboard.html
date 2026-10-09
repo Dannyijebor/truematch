@@ -106,6 +106,7 @@
                 <p class="text-slate-400 text-sm mt-1">
                   {{ m.company or "Company" }}{% if m.location %} · {{ m.location }}{% endif %}
                   {% if m.remote %} · <span class="text-emerald-400">Remote</span>{% endif %}
+                  {% if m.posted_at %} · <span class="text-slate-500 text-xs">{{ m.posted_at|ago }}</span>{% endif %}
                 </p>
 
                 {% if m.reason.matched_skills %}

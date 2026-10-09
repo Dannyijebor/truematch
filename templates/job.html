@@ -12,6 +12,8 @@
     {% if job.remote %} · <span class="text-emerald-400">Remote</span>{% endif %}
   </p>
 </div>
+{% if job.posted_at %}<p class="text-slate-500 text-xs mt-1">Posted {{ job.posted_at|ago }}</p>{% endif %}
+{% if not job.is_active %}<span class="inline-block text-[11px] uppercase tracking-wider bg-red-500/10 text-red-400 border border-red-500/30 rounded-full px-3 py-1 mt-2">Closed</span>{% endif %}
 
 {% if fit %}
 <div class="mt-6 grid grid-cols-2 gap-3 max-w-md">

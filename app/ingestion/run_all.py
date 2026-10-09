@@ -36,6 +36,16 @@ async def run(pairs):
         db.close()
 
 
+
+def mark_stale(db):
+    from datetime import datetime, timedelta, timezone
+    from sqlalchemy import update
+    from app.db.models import Job
+    cutoff = datetime.now(timezone.utc) - timedelta(days=60)
+    r = db.execute(update(Job).where(Job.posted_at < cutoff, Job.is_active == True).values(is_active=False))
+    db.commit()
+    return r.rowcount or 0
+
 if __name__ == "__main__":
     pairs = all_pairs()
     if len(sys.argv) > 1:

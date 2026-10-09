@@ -701,7 +701,7 @@
     <div class="lm-hero-text">
       <div class="lm-eyebrow">
         <span class="lm-eyebrow-dot"></span>
-        Live · 9,700+ verified jobs
+        Live · {{ stats.jobs_rounded }}+ verified jobs
       </div>
 
       <h1 class="lm-h1">
@@ -777,11 +777,11 @@
 <section class="lm-stats">
   <div class="lm-wrap lm-stats-inner">
     <div>
-      <div class="lm-stat-num" data-count="9700" data-suffix="+">0</div>
+      <div class="lm-stat-num" data-count="{{ stats.jobs_rounded }}" data-suffix="+">0</div>
       <div class="lm-stat-label">Verified jobs</div>
     </div>
     <div>
-      <div class="lm-stat-num" data-count="143">0</div>
+      <div class="lm-stat-num" data-count="{{ stats.companies }}">0</div>
       <div class="lm-stat-label">Companies</div>
     </div>
     <div>
