@@ -783,13 +783,45 @@ def public_profile(username: str, request: Request, db: Session = Depends(get_db
     profile = db.get(Profile, target_user.id)
 
     from app.social import is_following, followers_count, following_count, display_name, _serialize_post
-    from app.db.models import Post
+    from app.db.models import Post, Resume, PortfolioItem
 
     posts = db.execute(
         select(Post).where(Post.user_id == target_user.id).order_by(desc(Post.created_at)).limit(50)
     ).scalars().all()
-
     posts_data = [_serialize_post(db, p, viewer.id if viewer else target_user.id) for p in posts]
+
+    # Feed from resume
+    resume = db.execute(
+        select(Resume).where(Resume.user_id == target_user.id).order_by(Resume.uploaded_at.desc()).limit(1)
+    ).scalar_one_or_none()
+    resume_skills = (resume.parsed_skills or []) if resume else []
+    seen = set()
+    merged_skills = []
+    for s in ((profile.skills or []) if profile else []) + resume_skills:
+        k = (s or "").strip().lower()
+        if k and k not in seen:
+            seen.add(k)
+            merged_skills.append(s)
+
+    # Feed from portfolio
+    portfolio_items = []
+    portfolio_count = 0
+    has_public_portfolio = False
+    if profile and profile.portfolio_is_public and profile.username:
+        has_public_portfolio = True
+        rows = db.execute(
+            select(PortfolioItem).where(PortfolioItem.user_id == target_user.id, PortfolioItem.visible == True)
+            .order_by(PortfolioItem.sort_order).limit(20)
+        ).scalars().all()
+        portfolio_items = [{
+            "id": str(i.id), "kind": i.kind, "title": i.title, "subtitle": i.subtitle,
+            "description": i.description, "image_url": i.image_url, "link_url": i.link_url,
+            "tags": i.tags or [],
+        } for i in rows]
+        portfolio_count = len(portfolio_items)
+
+    years_exp = (profile.years_experience if profile else None) or 0
+    seniority = (profile.seniority if profile else None) or None
 
     return templates.TemplateResponse(request, "profile_public.html", _ctx(
         request,
@@ -804,8 +836,17 @@ def public_profile(username: str, request: Request, db: Session = Depends(get_db
             "avatar_url": profile.avatar_url if profile else None,
             "headline": profile.headline if profile else None,
             "location": profile.location if profile else None,
-            "skills": (profile.skills or []) if profile else [],
+            "seniority": seniority,
+            "years_experience": years_exp,
+            "remote_ok": bool(profile.remote_ok) if profile else False,
+            "skills": merged_skills,
+            "portfolio_theme": profile.portfolio_theme if profile else "editorial",
+            "portfolio_accent": (profile.portfolio_accent if profile and profile.portfolio_accent else "#10b981"),
         },
+        portfolio_items=portfolio_items,
+        portfolio_count=portfolio_count,
+        has_public_portfolio=has_public_portfolio,
+        has_resume=bool(resume),
         posts=posts_data,
         followers=followers_count(db, target_user.id),
         following=following_count(db, target_user.id),
