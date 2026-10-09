@@ -626,13 +626,13 @@
     {% endif %}
   </div>
 
-  {% if user.email %}
+  {% if portfolio_user.email %}
   <div class="pf-hero-cta">
-    <a href="mailto:{{ user.email }}" class="pf-btn pf-btn-primary">
+    <a href="mailto:{{ portfolio_user.email }}" class="pf-btn pf-btn-primary">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
       Get in touch
     </a>
-    <button class="pf-btn pf-btn-ghost" onclick="pfCopyEmail('{{ user.email }}')">
+    <button class="pf-btn pf-btn-ghost" onclick="pfCopyEmail('{{ portfolio_user.email }}')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
       <span id="pf-copy-label">Copy email</span>
     </button>
@@ -789,8 +789,8 @@
 <footer class="pf-footer pf-wrap">
   <p class="pf-footer-quote">Let's build something together.</p>
   <div class="pf-footer-actions">
-    {% if user.email %}
-    <a href="mailto:{{ user.email }}" class="pf-btn pf-btn-primary">
+    {% if portfolio_user.email %}
+    <a href="mailto:{{ portfolio_user.email }}" class="pf-btn pf-btn-primary">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
       Email me
     </a>

@@ -178,7 +178,7 @@ def public_portfolio(db: Session, username: str) -> dict | None:
     settings = get_portfolio_settings(db, p.user_id)
 
     return {
-        "user": {
+        "portfolio_user": {
             "id": str(u.id) if u else None,
             "full_name": u.full_name if u else None,
             "email": u.email if u else None,
