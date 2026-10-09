@@ -1,52 +1,1026 @@
 {% extends "base.html" %}
-{% block title %}TrueMatch — Find work that fits{% endblock %}
+{% block title %}TrueMatch · The right job, matched to you{% endblock %}
+
 {% block content %}
+<style>
+  body.tm-landing nav, body.tm-landing header.app-header { display: none !important; }
+  body.tm-landing { background: #0a1418; color: #f0f4f6; overflow-x: hidden; }
+  html.light body.tm-landing { background: #f6f1e4; color: #0f1720; }
+  html:has(body.tm-landing) { overflow-x: hidden; }
 
-<section class="text-center py-10 md:py-16">
-  <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
-    Your next job,<br>
-    <span class="text-emerald-400">matched to you.</span>
-  </h1>
-  <p class="mt-6 text-lg text-slate-400 max-w-2xl mx-auto">
-    TrueMatch scans thousands of verified jobs from real companies every 6 hours,
-    learns your skills, and writes your application for you.
-  </p>
-  <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
-    <a href="/signup" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-6 py-3 rounded-xl text-lg">
-      Get started free
+  .lm-wrap { max-width: 1180px; margin: 0 auto; padding: 0 22px; }
+  .lm-ease { transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+
+  /* ---------- Scroll progress ---------- */
+  .lm-scroll-progress {
+    position: fixed; top: 0; left: 0; height: 2px;
+    background: linear-gradient(90deg, #00d99a, #00a884);
+    width: 0%; z-index: 9999;
+    transition: width 0.05s linear;
+    box-shadow: 0 0 12px rgba(0,217,154,0.6);
+  }
+
+  /* ---------- Cursor glow (desktop only) ---------- */
+  .lm-cursor-glow {
+    position: fixed;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,217,154,0.10) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 1;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.4s ease;
+    opacity: 0;
+    will-change: transform;
+    filter: blur(40px);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .lm-cursor-glow.tm-active { opacity: 1; }
+  }
+
+  /* ---------- NAV ---------- */
+  .lm-nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(10, 20, 24, 0.78);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    border-bottom: 1px solid rgba(0, 217, 154, 0.06);
+    transition: background 0.3s ease, border-color 0.3s ease;
+  }
+  html.light .lm-nav { background: rgba(246, 241, 228, 0.85); border-bottom-color: rgba(0, 168, 132, 0.12); }
+  .lm-nav.tm-scrolled { border-bottom-color: rgba(0, 217, 154, 0.14); }
+  .lm-nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .lm-logo {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-weight: 800; font-size: 19px; letter-spacing: -0.4px;
+    color: #ffffff; text-decoration: none;
+  }
+  html.light .lm-logo { color: #0f1720; }
+  .lm-logo-dot {
+    display: inline-block; width: 8px; height: 8px;
+    border-radius: 50%; background: #00d99a;
+    box-shadow: 0 0 0 0 rgba(0,217,154,0.6);
+    animation: lmPulse 2.2s ease-in-out infinite;
+  }
+  @keyframes lmPulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(0,217,154,0.6); }
+    50%     { box-shadow: 0 0 0 9px rgba(0,217,154,0); }
+  }
+  .lm-nav-links { display: flex; align-items: center; gap: 10px; }
+  .lm-nav-login {
+    color: #d8dfe3; font-weight: 600; font-size: 14px;
+    text-decoration: none; padding: 8px 14px; border-radius: 10px;
+    transition: background 0.15s ease;
+  }
+  html.light .lm-nav-login { color: #2a3640; }
+  .lm-nav-login:hover { background: rgba(255,255,255,0.06); }
+  html.light .lm-nav-login:hover { background: rgba(0,0,0,0.05); }
+  .lm-nav-cta {
+    background: #00a884; color: #ffffff; font-weight: 700; font-size: 14px;
+    text-decoration: none; padding: 9px 16px; border-radius: 10px;
+    transition: background 0.15s ease, transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+    box-shadow: 0 6px 20px rgba(0,168,132,0.32);
+  }
+  .lm-nav-cta:hover { background: #00c197; box-shadow: 0 10px 28px rgba(0,168,132,0.5); transform: translateY(-1px); }
+  .lm-nav-cta:active { transform: scale(0.97); }
+
+  /* ---------- HERO ---------- */
+  .lm-hero {
+    position: relative;
+    padding: 128px 0 60px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  @media (min-width: 960px) {
+    .lm-hero { padding: 160px 0 100px; }
+  }
+  .lm-hero-bg {
+    position: absolute; inset: 0; z-index: -1;
+    pointer-events: none;
+  }
+  .lm-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.55;
+    will-change: transform;
+  }
+  .lm-orb-1 {
+    width: 520px; height: 520px;
+    background: radial-gradient(circle, rgba(0,217,154,0.55), transparent 70%);
+    top: -120px; left: -80px;
+    animation: lmOrb1 22s ease-in-out infinite alternate;
+  }
+  .lm-orb-2 {
+    width: 460px; height: 460px;
+    background: radial-gradient(circle, rgba(83,189,235,0.35), transparent 70%);
+    top: 30%; right: -100px;
+    animation: lmOrb2 28s ease-in-out infinite alternate;
+  }
+  .lm-orb-3 {
+    width: 380px; height: 380px;
+    background: radial-gradient(circle, rgba(0,168,132,0.30), transparent 70%);
+    bottom: -140px; left: 40%;
+    animation: lmOrb3 26s ease-in-out infinite alternate;
+  }
+  @keyframes lmOrb1 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(80px,60px) scale(1.12); } }
+  @keyframes lmOrb2 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(-60px,40px) scale(1.08); } }
+  @keyframes lmOrb3 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(-40px,-60px) scale(1.1); } }
+  .lm-hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,217,154,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,217,154,0.05) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, #000 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, #000 30%, transparent 75%);
+    opacity: 0.7;
+  }
+  html.light .lm-hero-grid {
+    background-image:
+      linear-gradient(rgba(0,168,132,0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,168,132,0.07) 1px, transparent 1px);
+  }
+
+  .lm-hero-grid-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+  @media (min-width: 960px) {
+    .lm-hero-grid-layout {
+      grid-template-columns: 1.05fr 1fr;
+      gap: 60px;
+    }
+  }
+
+  .lm-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px;
+    background: rgba(0,168,132,0.10);
+    border: 1px solid rgba(0,168,132,0.26);
+    border-radius: 999px;
+    color: #00d99a;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.4px;
+    text-transform: uppercase; margin-bottom: 22px;
+    animation: lmFadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both;
+  }
+  html.light .lm-eyebrow { background: rgba(0,168,132,0.10); color: #008a6b; }
+  .lm-eyebrow-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #00d99a;
+    box-shadow: 0 0 0 0 rgba(0,217,154,0.6);
+    animation: lmPulse 2s ease-in-out infinite;
+  }
+
+  .lm-h1 {
+    font-size: clamp(36px, 6.4vw, 68px);
+    line-height: 1.02;
+    font-weight: 800;
+    letter-spacing: -1.8px;
+    color: #ffffff;
+    margin: 0 0 22px;
+    overflow: hidden;
+  }
+  html.light .lm-h1 { color: #0f1720; }
+  .lm-h1 .lm-line { display: block; overflow: hidden; }
+  .lm-h1 .lm-word {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(110%);
+    animation: lmWordIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    margin-right: 0.24em;
+  }
+  .lm-h1 .lm-word:last-child { margin-right: 0; }
+  @keyframes lmWordIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .lm-h1-accent {
+    background: linear-gradient(120deg, #00d99a 0%, #00a884 55%, #53bdeb 120%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: lmGradientShift 6s ease-in-out infinite alternate;
+  }
+  @keyframes lmGradientShift {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+  }
+
+  .lm-sub {
+    font-size: 16.5px;
+    line-height: 1.6;
+    color: #8a97a2;
+    max-width: 520px;
+    margin: 0 0 32px;
+    animation: lmFadeUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.5s both;
+  }
+  @media (min-width: 960px) { .lm-sub { font-size: 18px; } }
+
+  @keyframes lmFadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .lm-ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    animation: lmFadeUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.65s both;
+  }
+  .lm-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 14px 22px; border-radius: 12px;
+    font-size: 15px; font-weight: 700; letter-spacing: 0.1px;
+    text-decoration: none; border: none; cursor: pointer;
+    transition: background 0.15s ease, transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, border-color 0.15s ease;
+    font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+    overflow: hidden;
+  }
+  .lm-btn-primary {
+    background: #00a884; color: #ffffff;
+    box-shadow: 0 10px 30px rgba(0,168,132,0.38);
+  }
+  .lm-btn-primary:hover { background: #00c197; box-shadow: 0 14px 42px rgba(0,168,132,0.55); transform: translateY(-1px); }
+  .lm-btn-primary:active { transform: scale(0.98); }
+  .lm-btn-ghost {
+    background: transparent; color: #d8dfe3;
+    border: 1.5px solid rgba(255,255,255,0.14);
+  }
+  html.light .lm-btn-ghost { color: #2a3640; border-color: rgba(15,23,32,0.16); }
+  .lm-btn-ghost:hover { border-color: #00d99a; color: #00d99a; }
+
+  .lm-trust {
+    margin-top: 20px; font-size: 13px; color: #6d7a82;
+    letter-spacing: 0.2px;
+    animation: lmFadeUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.8s both;
+  }
+  .lm-trust strong { color: #d8dfe3; font-weight: 600; }
+  html.light .lm-trust { color: #667580; }
+  html.light .lm-trust strong { color: #2a3640; }
+
+  /* ---------- Floating job card ---------- */
+  .lm-hero-card {
+    perspective: 1000px;
+    animation: lmFadeUp 1s cubic-bezier(0.16,1,0.3,1) 0.85s both;
+  }
+  .lm-jobcard {
+    position: relative;
+    padding: 22px;
+    background: linear-gradient(180deg, rgba(22, 32, 37, 0.95) 0%, rgba(13, 26, 31, 0.95) 100%);
+    border: 1px solid rgba(0, 217, 154, 0.14);
+    border-radius: 20px;
+    box-shadow:
+      0 30px 80px -30px rgba(0, 168, 132, 0.35),
+      0 10px 30px -10px rgba(0,0,0,0.4),
+      inset 0 1px 0 rgba(255,255,255,0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    animation: lmFloat 6s ease-in-out infinite;
+    transform-style: preserve-3d;
+  }
+  html.light .lm-jobcard {
+    background: #ffffff;
+    border-color: rgba(0, 168, 132, 0.14);
+    box-shadow: 0 30px 80px -40px rgba(0, 168, 132, 0.28), 0 10px 30px -10px rgba(0,0,0,0.08);
+  }
+  @keyframes lmFloat {
+    0%,100% { transform: translateY(0); }
+    50%     { transform: translateY(-10px); }
+  }
+  .lm-jobcard-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: #00d99a;
+    background: rgba(0,168,132,0.12);
+    border: 1px solid rgba(0,168,132,0.26);
+    padding: 4px 10px; border-radius: 999px;
+    margin-bottom: 16px;
+  }
+  .lm-jobcard-badge::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%;
+    background: #00d99a;
+    animation: lmPulse 2s ease-in-out infinite;
+  }
+  html.light .lm-jobcard-badge { color: #008a6b; }
+
+  .lm-jobcard-head {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 18px;
+  }
+  .lm-jobcard-logo {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 17px;
+    color: #ffffff;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  }
+  .lm-jobcard-logo::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.22) 0%, transparent 50%);
+  }
+  .lm-jobcard-role {
+    min-width: 0;
+    flex: 1;
+  }
+  .lm-jobcard-title {
+    font-size: 16px; font-weight: 700; letter-spacing: -0.2px;
+    color: #ffffff;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin: 0 0 4px;
+  }
+  html.light .lm-jobcard-title { color: #0f1720; }
+  .lm-jobcard-meta {
+    font-size: 13px; color: #8a97a2;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .lm-jobcard-fit {
+    margin-bottom: 18px;
+  }
+  .lm-jobcard-fit-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 8px;
+    font-size: 12.5px;
+  }
+  .lm-jobcard-fit-label { color: #8a97a2; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase; }
+  .lm-jobcard-fit-num {
+    font-size: 20px; font-weight: 800;
+    color: #00d99a;
+    letter-spacing: -0.4px;
+    font-variant-numeric: tabular-nums;
+  }
+  .lm-jobcard-fit-bar {
+    height: 6px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+  }
+  html.light .lm-jobcard-fit-bar { background: rgba(15,23,32,0.08); }
+  .lm-jobcard-fit-fill {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    background: linear-gradient(90deg, #00a884, #00d99a);
+    border-radius: 3px;
+    width: 0%;
+    transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 0 12px rgba(0,217,154,0.5);
+  }
+  .lm-jobcard-skills {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(0, 217, 154, 0.08);
+  }
+  html.light .lm-jobcard-skills { border-top-color: rgba(0, 168, 132, 0.12); }
+  .lm-jobcard-skill {
+    font-size: 11.5px; font-weight: 600;
+    padding: 4px 10px;
+    background: rgba(0, 217, 154, 0.08);
+    border: 1px solid rgba(0, 217, 154, 0.18);
+    color: #00d99a;
+    border-radius: 999px;
+    letter-spacing: 0.2px;
+  }
+  html.light .lm-jobcard-skill { color: #008a6b; background: rgba(0,168,132,0.07); }
+
+  .lm-jobcard-dots {
+    display: flex; gap: 4px; justify-content: center;
+    margin-top: 16px;
+  }
+  .lm-jobcard-dots span {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: rgba(255,255,255,0.14);
+    transition: background 0.3s ease, width 0.3s ease;
+  }
+  .lm-jobcard-dots span.tm-active {
+    width: 16px;
+    border-radius: 3px;
+    background: #00d99a;
+  }
+
+  /* ---------- STATS ---------- */
+  .lm-stats {
+    padding: 40px 0;
+    border-top: 1px solid rgba(0, 217, 154, 0.08);
+    border-bottom: 1px solid rgba(0, 217, 154, 0.08);
+    background: rgba(22, 32, 37, 0.35);
+    position: relative;
+  }
+  html.light .lm-stats { background: rgba(240, 235, 224, 0.4); border-color: rgba(0, 168, 132, 0.12); }
+  .lm-stats-inner {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px 12px;
+    text-align: center;
+  }
+  @media (min-width: 640px) { .lm-stats-inner { grid-template-columns: repeat(4, 1fr); } }
+  .lm-stat-num {
+    font-size: 28px; font-weight: 800;
+    letter-spacing: -0.6px; color: #ffffff;
+    font-variant-numeric: tabular-nums;
+    display: inline-block;
+  }
+  html.light .lm-stat-num { color: #0f1720; }
+  @media (min-width: 640px) { .lm-stat-num { font-size: 34px; } }
+  .lm-stat-label {
+    font-size: 11.5px; color: #6d7a82;
+    letter-spacing: 0.6px; text-transform: uppercase;
+    font-weight: 600; margin-top: 6px;
+  }
+
+  /* ---------- Sections ---------- */
+  .lm-section { padding: 76px 0; }
+  @media (min-width: 960px) { .lm-section { padding: 110px 0; } }
+  .lm-section-head { text-align: center; max-width: 640px; margin: 0 auto 48px; }
+  .lm-section-label {
+    display: inline-block; font-size: 11.5px; font-weight: 700;
+    letter-spacing: 1.4px; text-transform: uppercase;
+    color: #00d99a; margin-bottom: 12px;
+  }
+  html.light .lm-section-label { color: #008a6b; }
+  .lm-section-title {
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.12; font-weight: 800;
+    letter-spacing: -1px; color: #ffffff;
+    margin: 0 0 12px;
+  }
+  html.light .lm-section-title { color: #0f1720; }
+  .lm-section-sub {
+    font-size: 16px; color: #8a97a2;
+    line-height: 1.55; margin: 0;
+  }
+
+  /* ---------- Cards ---------- */
+  .lm-grid {
+    display: grid; gap: 20px;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 780px) { .lm-grid { grid-template-columns: repeat(3, 1fr); gap: 22px; } }
+  .lm-card {
+    padding: 32px 26px;
+    background: linear-gradient(180deg, rgba(22, 32, 37, 0.85) 0%, rgba(13, 26, 31, 0.85) 100%);
+    border: 1px solid rgba(0, 217, 154, 0.09);
+    border-radius: 20px;
+    transform-style: preserve-3d;
+    transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.24s ease, box-shadow 0.32s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .lm-card::before {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(0,217,154,0.08) 0%, transparent 40%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  .lm-card:hover::before { opacity: 1; }
+  html.light .lm-card {
+    background: #ffffff;
+    border-color: rgba(15, 23, 32, 0.07);
+    box-shadow: 0 2px 12px rgba(15,23,32,0.04);
+  }
+  .lm-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(0, 217, 154, 0.28);
+    box-shadow: 0 22px 50px -20px rgba(0,168,132,0.32), 0 8px 20px -8px rgba(0,0,0,0.35);
+  }
+  .lm-card-icon {
+    width: 48px; height: 48px; border-radius: 14px;
+    background: rgba(0,168,132,0.12);
+    border: 1px solid rgba(0,168,132,0.24);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 22px;
+    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.24s ease;
+  }
+  .lm-card:hover .lm-card-icon {
+    transform: scale(1.08) rotate(-4deg);
+    background: rgba(0,168,132,0.20);
+  }
+  .lm-card-icon svg { width: 22px; height: 22px; color: #00d99a; }
+  html.light .lm-card-icon { background: rgba(0,168,132,0.08); }
+  .lm-card-title {
+    font-size: 18px; font-weight: 700;
+    letter-spacing: -0.2px; color: #ffffff;
+    margin: 0 0 10px;
+  }
+  html.light .lm-card-title { color: #0f1720; }
+  .lm-card-body {
+    font-size: 14.5px; line-height: 1.62;
+    color: #8a97a2; margin: 0;
+  }
+
+  /* ---------- Steps ---------- */
+  .lm-steps {
+    display: grid; gap: 22px;
+    grid-template-columns: 1fr;
+    position: relative;
+  }
+  @media (min-width: 780px) { .lm-steps { grid-template-columns: repeat(3, 1fr); gap: 26px; } }
+  .lm-step {
+    position: relative;
+    padding: 30px 26px;
+    background: rgba(22, 32, 37, 0.5);
+    border: 1px solid rgba(0, 217, 154, 0.08);
+    border-radius: 20px;
+    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.24s ease;
+  }
+  html.light .lm-step { background: #ffffff; border-color: rgba(15, 23, 32, 0.07); }
+  .lm-step:hover { transform: translateY(-3px); border-color: rgba(0, 217, 154, 0.22); }
+  .lm-step-num {
+    font-size: 48px; font-weight: 800; line-height: 1;
+    letter-spacing: -2.4px;
+    background: linear-gradient(135deg, rgba(0,217,154,0.5), rgba(0,168,132,0.24));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 14px;
+    font-variant-numeric: tabular-nums;
+  }
+  .lm-step-title {
+    font-size: 17px; font-weight: 700; color: #ffffff;
+    margin: 0 0 8px; letter-spacing: -0.2px;
+  }
+  html.light .lm-step-title { color: #0f1720; }
+  .lm-step-body {
+    font-size: 14px; line-height: 1.62;
+    color: #8a97a2; margin: 0;
+  }
+
+  /* ---------- Final CTA ---------- */
+  .lm-final-cta {
+    margin: 40px 0 90px;
+    padding: 64px 28px;
+    text-align: center;
+    border-radius: 28px;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(0,217,154,0.22) 0%, transparent 65%),
+      linear-gradient(180deg, rgba(22, 32, 37, 0.9) 0%, rgba(13, 26, 31, 0.9) 100%);
+    border: 1px solid rgba(0, 217, 154, 0.14);
+    position: relative;
+    overflow: hidden;
+  }
+  .lm-final-cta::before {
+    content: "";
+    position: absolute;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,217,154,0.16), transparent 70%);
+    filter: blur(60px);
+    top: -200px; left: 50%;
+    transform: translateX(-50%);
+    animation: lmOrb1 18s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+  html.light .lm-final-cta {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(0,217,154,0.14) 0%, transparent 65%),
+      #ffffff;
+    border-color: rgba(0, 168, 132, 0.14);
+    box-shadow: 0 24px 70px -40px rgba(0,168,132,0.3);
+  }
+  .lm-final-cta h2 {
+    font-size: clamp(26px, 4vw, 40px);
+    line-height: 1.14; font-weight: 800;
+    letter-spacing: -1px; color: #ffffff;
+    margin: 0 0 14px;
+    position: relative;
+  }
+  html.light .lm-final-cta h2 { color: #0f1720; }
+  .lm-final-cta p {
+    font-size: 16px; color: #8a97a2;
+    max-width: 480px; margin: 0 auto 30px;
+    line-height: 1.55; position: relative;
+  }
+  .lm-final-cta .lm-btn {
+    position: relative;
+    padding: 16px 30px;
+    font-size: 16px;
+  }
+
+  /* ---------- Footer ---------- */
+  .lm-footer {
+    padding: 32px 0;
+    border-top: 1px solid rgba(0, 217, 154, 0.08);
+    text-align: center; font-size: 13px;
+    color: #6d7a82;
+  }
+  html.light .lm-footer { border-color: rgba(0, 168, 132, 0.12); }
+  .lm-footer a { color: #8a97a2; text-decoration: none; margin: 0 8px; transition: color 0.15s ease; }
+  .lm-footer a:hover { color: #00d99a; }
+
+  /* ---------- Reveal ---------- */
+  .lm-reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1); }
+  .lm-reveal.tm-in { opacity: 1; transform: translateY(0); }
+  .lm-reveal.tm-delay-1 { transition-delay: 0.08s; }
+  .lm-reveal.tm-delay-2 { transition-delay: 0.16s; }
+  .lm-reveal.tm-delay-3 { transition-delay: 0.24s; }
+</style>
+
+<div class="lm-scroll-progress" id="lm-scroll-progress"></div>
+<div class="lm-cursor-glow" id="lm-cursor-glow"></div>
+
+<!-- ============ NAV ============ -->
+<div class="lm-nav" id="lm-nav">
+  <div class="lm-wrap lm-nav-inner">
+    <a href="/" class="lm-logo">TrueMatch<span class="lm-logo-dot"></span></a>
+    <div class="lm-nav-links">
+      <a href="/login" class="lm-nav-login">Log in</a>
+      <a href="/signup" class="lm-nav-cta">Create account</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ HERO ============ -->
+<section class="lm-hero">
+  <div class="lm-hero-bg">
+    <div class="lm-orb lm-orb-1"></div>
+    <div class="lm-orb lm-orb-2"></div>
+    <div class="lm-orb lm-orb-3"></div>
+    <div class="lm-hero-grid"></div>
+  </div>
+
+  <div class="lm-wrap lm-hero-grid-layout">
+    <div class="lm-hero-text">
+      <div class="lm-eyebrow">
+        <span class="lm-eyebrow-dot"></span>
+        Live · 9,700+ verified jobs
+      </div>
+
+      <h1 class="lm-h1">
+        <span class="lm-line">
+          <span class="lm-word" style="animation-delay:0.05s;">Your</span>
+          <span class="lm-word" style="animation-delay:0.14s;">career,</span>
+        </span>
+        <span class="lm-line">
+          <span class="lm-word lm-h1-accent" style="animation-delay:0.24s;">matched</span>
+          <span class="lm-word lm-h1-accent" style="animation-delay:0.33s;">to</span>
+          <span class="lm-word lm-h1-accent" style="animation-delay:0.42s;">you.</span>
+        </span>
+      </h1>
+
+      <p class="lm-sub">
+        TrueMatch scans verified jobs from real company career pages, learns your skills and seniority, and writes each application for you. No noise. No spam. Just the right roles — and the materials to land them.
+      </p>
+
+      <div class="lm-ctas">
+        <a href="/signup" class="lm-btn lm-btn-primary">
+          Create free account
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a href="#how" class="lm-btn lm-btn-ghost">
+          See how it works
+        </a>
+      </div>
+
+      <p class="lm-trust">
+        Free forever for job seekers · <strong>No credit card</strong> · Cancel anytime
+      </p>
+    </div>
+
+    <div class="lm-hero-card">
+      <div class="lm-jobcard" id="lm-jobcard">
+        <div class="lm-jobcard-badge">New match</div>
+
+        <div class="lm-jobcard-head">
+          <div class="lm-jobcard-logo" id="lm-jc-logo" style="background: linear-gradient(135deg, #635bff, #3d34d6);">S</div>
+          <div class="lm-jobcard-role">
+            <div class="lm-jobcard-title" id="lm-jc-title">Senior Product Designer</div>
+            <div class="lm-jobcard-meta" id="lm-jc-meta">Stripe · Remote · Full-time</div>
+          </div>
+        </div>
+
+        <div class="lm-jobcard-fit">
+          <div class="lm-jobcard-fit-row">
+            <span class="lm-jobcard-fit-label">Fit score</span>
+            <span class="lm-jobcard-fit-num"><span id="lm-jc-fit">94</span>%</span>
+          </div>
+          <div class="lm-jobcard-fit-bar">
+            <div class="lm-jobcard-fit-fill" id="lm-jc-bar" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <div class="lm-jobcard-skills" id="lm-jc-skills">
+          <span class="lm-jobcard-skill">Figma</span>
+          <span class="lm-jobcard-skill">Design systems</span>
+          <span class="lm-jobcard-skill">8+ yrs</span>
+        </div>
+
+        <div class="lm-jobcard-dots" id="lm-jc-dots">
+          <span class="tm-active"></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATS ============ -->
+<section class="lm-stats">
+  <div class="lm-wrap lm-stats-inner">
+    <div>
+      <div class="lm-stat-num" data-count="9700" data-suffix="+">0</div>
+      <div class="lm-stat-label">Verified jobs</div>
+    </div>
+    <div>
+      <div class="lm-stat-num" data-count="143">0</div>
+      <div class="lm-stat-label">Companies</div>
+    </div>
+    <div>
+      <div class="lm-stat-num" data-count="6" data-suffix=" hrs">0</div>
+      <div class="lm-stat-label">Refresh cycle</div>
+    </div>
+    <div>
+      <div class="lm-stat-num" data-count="100" data-suffix="%">0</div>
+      <div class="lm-stat-label">ATS-sourced</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VALUE PROPS ============ -->
+<section class="lm-section">
+  <div class="lm-wrap">
+    <div class="lm-section-head lm-reveal">
+      <span class="lm-section-label">Why TrueMatch</span>
+      <h2 class="lm-section-title">Built for the modern job hunt</h2>
+      <p class="lm-section-sub">Everything you need to find the right role, apply smarter, and get noticed faster — in one platform.</p>
+    </div>
+
+    <div class="lm-grid">
+      <div class="lm-card lm-reveal tm-delay-1">
+        <div class="lm-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><polyline points="9 12 11 14 15 10"/></svg>
+        </div>
+        <h3 class="lm-card-title">Verified sources only</h3>
+        <p class="lm-card-body">Every job is pulled directly from official company career pages and applicant tracking systems. No recruiters scraping your inbox — real openings from real teams.</p>
+      </div>
+
+      <div class="lm-card lm-reveal tm-delay-2">
+        <div class="lm-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.5 6.5L21 11l-6.5 2.5L12 20l-2.5-6.5L3 11l6.5-2.5z"/></svg>
+        </div>
+        <h3 class="lm-card-title">AI-written applications</h3>
+        <p class="lm-card-body">Every application gets tailored cover letters and resume bullets built from your actual experience and the specific role. Apply in seconds, not hours.</p>
+      </div>
+
+      <div class="lm-card lm-reveal tm-delay-3">
+        <div class="lm-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="3" x2="12" y2="8"/></svg>
+        </div>
+        <h3 class="lm-card-title">Matched to your fit</h3>
+        <p class="lm-card-body">We score every role against your skills, seniority, and location. Only the ones that make sense reach your feed — with a clear probability you'll get through.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section class="lm-section" id="how" style="padding-top: 0;">
+  <div class="lm-wrap">
+    <div class="lm-section-head lm-reveal">
+      <span class="lm-section-label">How it works</span>
+      <h2 class="lm-section-title">From resume to interview in three steps</h2>
+      <p class="lm-section-sub">No endless forms. No cover letter drafts. Just a workflow that respects your time.</p>
+    </div>
+
+    <div class="lm-steps">
+      <div class="lm-step lm-reveal tm-delay-1">
+        <div class="lm-step-num">01</div>
+        <h3 class="lm-step-title">Upload your resume</h3>
+        <p class="lm-step-body">Drop in a PDF or paste your experience. We extract your skills, seniority, and preferences automatically — no manual entry.</p>
+      </div>
+      <div class="lm-step lm-reveal tm-delay-2">
+        <div class="lm-step-num">02</div>
+        <h3 class="lm-step-title">Get matched instantly</h3>
+        <p class="lm-step-body">Browse roles scored specifically for you. See fit probability, gaps, and exactly why each job was recommended before you commit.</p>
+      </div>
+      <div class="lm-step lm-reveal tm-delay-3">
+        <div class="lm-step-num">03</div>
+        <h3 class="lm-step-title">Apply with one tap</h3>
+        <p class="lm-step-body">Generate a tailored cover letter and adjusted resume, then apply — either by email or directly through the company's portal.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<div class="lm-wrap">
+  <div class="lm-final-cta lm-reveal">
+    <h2>Ready to meet your next role?</h2>
+    <p>Set up your profile in under two minutes. Free forever for job seekers — no credit card, no hidden fees.</p>
+    <a href="/signup" class="lm-btn lm-btn-primary">
+      Create your free account
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
     </a>
-    <a href="/login" class="border border-slate-700 hover:border-slate-500 text-slate-200 px-6 py-3 rounded-xl text-lg">
-      I have an account
-    </a>
   </div>
-</section>
+</div>
 
-<section class="grid md:grid-cols-3 gap-4 mt-10">
-  <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
-    <div class="text-3xl">🎯</div>
-    <h3 class="font-bold mt-3">Only real jobs</h3>
-    <p class="text-slate-400 mt-2 text-sm">
-      Straight from company career pages and verified ATS boards. No scams, no dead links.
-    </p>
+<!-- ============ FOOTER ============ -->
+<footer class="lm-footer">
+  <div class="lm-wrap">
+    <div style="margin-bottom:10px;">
+      <a href="/">Home</a>
+      <a href="/login">Log in</a>
+      <a href="/signup">Sign up</a>
+    </div>
+    <div>© {{ now_year|default(2026) }} TrueMatch · Built for the modern career</div>
   </div>
-  <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
-    <div class="text-3xl">🧠</div>
-    <h3 class="font-bold mt-3">Matched to your skills</h3>
-    <p class="text-slate-400 mt-2 text-sm">
-      We read your resume, understand your level, and rank every job by real fit.
-    </p>
-  </div>
-  <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
-    <div class="text-3xl">✍️</div>
-    <h3 class="font-bold mt-3">Apply in 1 tap</h3>
-    <p class="text-slate-400 mt-2 text-sm">
-      Tailored resume bullets and a cover letter written for each job. You just review and send.
-    </p>
-  </div>
-</section>
+</footer>
 
-<section class="mt-16 text-center text-slate-500 text-sm">
-  Free to start. No credit card.
-</section>
+<script>
+(function(){
+  document.body.classList.add('tm-landing');
 
+  // ---------- Scroll progress + nav shadow ----------
+  var prog = document.getElementById('lm-scroll-progress');
+  var nav = document.getElementById('lm-nav');
+  function onScroll(){
+    var h = document.documentElement;
+    var scrolled = h.scrollTop || document.body.scrollTop;
+    var height = h.scrollHeight - h.clientHeight;
+    var pct = height > 0 ? (scrolled / height) * 100 : 0;
+    if (prog) prog.style.width = pct + '%';
+    if (nav) nav.classList.toggle('tm-scrolled', scrolled > 20);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // ---------- Cursor glow (desktop) ----------
+  var glow = document.getElementById('lm-cursor-glow');
+  var gx = 0, gy = 0, tx = 0, ty = 0, glowRAF = null;
+  if (glow && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    document.addEventListener('mousemove', function(e){
+      tx = e.clientX; ty = e.clientY;
+      glow.classList.add('tm-active');
+      if (!glowRAF) glowLoop();
+    });
+    document.addEventListener('mouseleave', function(){ glow.classList.remove('tm-active'); });
+    function glowLoop(){
+      gx += (tx - gx) * 0.08;
+      gy += (ty - gy) * 0.08;
+      glow.style.transform = 'translate(' + gx + 'px, ' + gy + 'px) translate(-50%, -50%)';
+      if (Math.abs(tx - gx) > 0.5 || Math.abs(ty - gy) > 0.5) {
+        glowRAF = requestAnimationFrame(glowLoop);
+      } else {
+        glowRAF = null;
+      }
+    }
+  }
+
+  // ---------- Reveal on scroll ----------
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (e.isIntersecting) {
+        e.target.classList.add('tm-in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { rootMargin: '0px 0px -80px 0px', threshold: 0.08 });
+  document.querySelectorAll('.lm-reveal').forEach(function(el){ io.observe(el); });
+
+  // ---------- Count-up stats ----------
+  var statIO = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (!e.isIntersecting) return;
+      var el = e.target;
+      statIO.unobserve(el);
+      var target = parseInt(el.dataset.count || '0', 10);
+      var suffix = el.dataset.suffix || '';
+      var dur = 1400;
+      var start = performance.now();
+      function step(now){
+        var t = Math.min(1, (now - start) / dur);
+        var eased = 1 - Math.pow(1 - t, 3);
+        var val = Math.floor(target * eased);
+        el.textContent = val.toLocaleString() + suffix;
+        if (t < 1) requestAnimationFrame(step);
+        else el.textContent = target.toLocaleString() + suffix;
+      }
+      requestAnimationFrame(step);
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('.lm-stat-num').forEach(function(el){ statIO.observe(el); });
+
+  // ---------- Card cursor-tracked glow + subtle tilt ----------
+  document.querySelectorAll('.lm-card').forEach(function(card){
+    card.addEventListener('mousemove', function(e){
+      var r = card.getBoundingClientRect();
+      var x = ((e.clientX - r.left) / r.width) * 100;
+      var y = ((e.clientY - r.top) / r.height) * 100;
+      card.style.setProperty('--mx', x + '%');
+      card.style.setProperty('--my', y + '%');
+      var rx = ((e.clientY - r.top) / r.height - 0.5) * -4;
+      var ry = ((e.clientX - r.left) / r.width - 0.5) * 4;
+      card.style.transform = 'translateY(-4px) perspective(900px) rotateX(' + rx + 'deg) rotateY(' + ry + 'deg)';
+    });
+    card.addEventListener('mouseleave', function(){
+      card.style.transform = '';
+    });
+  });
+
+  // ---------- Floating job card rotation ----------
+  var jobs = [
+    {
+      initials: 'S',
+      color: 'linear-gradient(135deg, #635bff, #3d34d6)',
+      title: 'Senior Product Designer',
+      meta: 'Stripe · Remote · Full-time',
+      fit: 94,
+      skills: ['Figma', 'Design systems', '8+ yrs']
+    },
+    {
+      initials: 'N',
+      color: 'linear-gradient(135deg, #00a884, #006b56)',
+      title: 'Full Stack Engineer',
+      meta: 'Notion · Hybrid, London · Full-time',
+      fit: 88,
+      skills: ['TypeScript', 'Node.js', 'React']
+    },
+    {
+      initials: 'V',
+      color: 'linear-gradient(135deg, #f59e0b, #b45309)',
+      title: 'Growth Marketing Lead',
+      meta: 'Vercel · Remote, EU · Full-time',
+      fit: 91,
+      skills: ['B2B SaaS', 'SEO', 'Analytics']
+    }
+  ];
+  var jcIdx = 0;
+  var jcLogo = document.getElementById('lm-jc-logo');
+  var jcTitle = document.getElementById('lm-jc-title');
+  var jcMeta = document.getElementById('lm-jc-meta');
+  var jcFit = document.getElementById('lm-jc-fit');
+  var jcBar = document.getElementById('lm-jc-bar');
+  var jcSkills = document.getElementById('lm-jc-skills');
+  var jcDots = document.getElementById('lm-jc-dots');
+
+  function renderJob(i){
+    var j = jobs[i];
+    if (!j || !jcTitle) return;
+    if (jcLogo) { jcLogo.textContent = j.initials; jcLogo.style.background = j.color; }
+    if (jcTitle) jcTitle.textContent = j.title;
+    if (jcMeta) jcMeta.textContent = j.meta;
+    if (jcSkills) {
+      jcSkills.innerHTML = j.skills.map(function(s){ return '<span class="lm-jobcard-skill">' + s + '</span>'; }).join('');
+    }
+    // Animate fit bar
+    if (jcBar) {
+      jcBar.style.width = '0%';
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          if (jcBar) jcBar.style.width = j.fit + '%';
+        });
+      });
+    }
+    // Animate fit number
+    if (jcFit) {
+      var start = performance.now();
+      var target = j.fit;
+      var fromVal = parseInt(jcFit.textContent || '0', 10);
+      function step(now){
+        var t = Math.min(1, (now - start) / 700);
+        var eased = 1 - Math.pow(1 - t, 3);
+        var v = Math.round(fromVal + (target - fromVal) * eased);
+        if (jcFit) jcFit.textContent = v;
+        if (t < 1) requestAnimationFrame(step);
+        else if (jcFit) jcFit.textContent = target;
+      }
+      requestAnimationFrame(step);
+    }
+    // Update dots
+    if (jcDots) {
+      var kids = jcDots.children;
+      for (var k = 0; k < kids.length; k++) kids[k].classList.toggle('tm-active', k === i);
+    }
+  }
+  renderJob(0);
+  setInterval(function(){
+    jcIdx = (jcIdx + 1) % jobs.length;
+    renderJob(jcIdx);
+  }, 4500);
+
+  // ---------- Smooth anchor scroll ----------
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      var href = a.getAttribute('href');
+      if (href === '#' || href.length < 2) return;
+      var el = document.querySelector(href);
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+})();
+</script>
 {% endblock %}
