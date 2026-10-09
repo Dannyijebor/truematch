@@ -15,6 +15,69 @@
 {% if job.posted_at %}<p class="text-slate-500 text-xs mt-1">Posted {{ job.posted_at|ago }}</p>{% endif %}
 {% if not job.is_active %}<span class="inline-block text-[11px] uppercase tracking-wider bg-red-500/10 text-red-400 border border-red-500/30 rounded-full px-3 py-1 mt-2">Closed</span>{% endif %}
 
+{% if odds %}
+<div class="tm-odds-card mt-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5 max-w-3xl">
+  <div class="flex items-center justify-between">
+    <div>
+      <div class="text-[10px] uppercase tracking-[0.14em] text-emerald-300/80">Real interview odds</div>
+      <div class="mt-1 text-4xl font-extrabold text-emerald-400 leading-none">{{ odds.odds_pct }}<span class="text-lg">%</span></div>
+      <div class="mt-1 text-xs text-slate-400">{{ odds.family_display }} · HR-grade assessment</div>
+    </div>
+  </div>
+
+  {% if odds.why %}
+  <div class="mt-4 pt-4 border-t border-emerald-500/20">
+    <div class="text-[10px] uppercase tracking-[0.14em] text-slate-400 mb-2">Why this score</div>
+    <ul class="space-y-1.5">
+      {% for w in odds.why[:6] %}
+      <li class="flex gap-2 text-[13px] leading-relaxed">
+        <span class="shrink-0 font-mono {% if w.contribution > 0 %}text-emerald-400{% elif w.contribution < 0 %}text-amber-400{% else %}text-slate-500{% endif %}">{% if w.contribution > 0 %}+{% endif %}{{ w.contribution }}</span>
+        <span class="text-slate-300">{{ w.reason }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if odds.boosters %}
+  <div class="mt-4 pt-4 border-t border-emerald-500/20">
+    <div class="text-[10px] uppercase tracking-[0.14em] text-slate-400 mb-2">Boost your odds</div>
+    <ul class="space-y-2">
+      {% for b in odds.boosters %}
+      <li class="flex items-start gap-3 text-[13px]">
+        <span class="shrink-0 text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full px-2 py-0.5">+{{ b.lift_pct }}%</span>
+        <div>
+          <div class="text-slate-200">{{ b.action }}</div>
+          <div class="text-slate-500 text-xs mt-0.5">{{ b.why }}</div>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if odds.free_plan %}
+  <details class="mt-4 pt-4 border-t border-emerald-500/20">
+    <summary class="cursor-pointer text-[11px] uppercase tracking-[0.14em] text-emerald-300 hover:text-emerald-200">Free 7-day plan</summary>
+    <ol class="mt-3 space-y-2">
+      {% for d in odds.free_plan %}
+      <li class="flex gap-3 text-[13px]">
+        <span class="shrink-0 w-12 text-slate-500 font-mono">D{{ d.day }}</span>
+        <span class="text-slate-300">{{ d.task }}</span>
+      </li>
+      {% endfor %}
+    </ol>
+    {% if odds.outreach_script %}
+    <div class="mt-4">
+      <div class="text-[10px] uppercase tracking-[0.14em] text-slate-400 mb-2">Outreach script</div>
+      <div class="rounded-xl border border-slate-700 bg-slate-900/40 p-3 text-[13px] text-slate-300 leading-relaxed">{{ odds.outreach_script }}</div>
+    </div>
+    {% endif %}
+  </details>
+  {% endif %}
+</div>
+{% endif %}
+
 {% if fit %}
 <div class="mt-6 grid grid-cols-2 gap-3 max-w-md">
   <div class="tm-card p-4 text-center">

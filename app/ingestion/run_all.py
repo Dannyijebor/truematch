@@ -5,7 +5,7 @@ from app.ingestion.adapters import ADAPTERS
 from app.ingestion.registry import all_pairs
 from app.ingestion.pipeline import upsert_jobs
 
-CONCURRENCY = 2
+CONCURRENCY = 8
 
 
 async def fetch_one(source, token, sem):

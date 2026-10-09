@@ -317,12 +317,24 @@ def job_detail(job_id: str, request: Request, db: Session = Depends(get_db)):
     if not job:
         raise HTTPException(404, "not found")
 
-    from app.db.models import ApplyPacket
+    from app.db.models import ApplyPacket, Resume as _Resume
     packet = db.execute(
         select(ApplyPacket).where(ApplyPacket.user_id == user.id, ApplyPacket.job_id == job.id)
     ).scalar_one_or_none()
 
-    return templates.TemplateResponse(request, "job.html", _ctx(request, db=db, user=user, job=job, packet=packet),
+    profile = db.get(Profile, user.id)
+    resume = db.execute(
+        select(_Resume).where(_Resume.user_id == user.id).order_by(_Resume.id.desc()).limit(1)
+    ).scalar_one_or_none()
+
+    odds = None
+    try:
+        from app.odds import compute_odds
+        odds = compute_odds(job, profile, resume)
+    except Exception:
+        pass
+
+    return templates.TemplateResponse(request, "job.html", _ctx(request, db=db, user=user, job=job, packet=packet, odds=odds),
     )
 
 

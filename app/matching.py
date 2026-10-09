@@ -169,6 +169,11 @@ def find_matches(db: Session, user: User, limit: int = 30, offset: int = 0, min_
     if not profile:
         return []
 
+    from app.db.models import Resume as _Resume
+    _resume = db.execute(
+        select(_Resume).where(_Resume.user_id == user.id).order_by(_Resume.id.desc()).limit(1)
+    ).scalar_one_or_none()
+
     stmt = (
         select(Job)
         .where(Job.is_active == True, Job.confidence >= 85)
@@ -198,6 +203,13 @@ def find_matches(db: Session, user: User, limit: int = 30, offset: int = 0, min_
     for score, reasons, job in page:
         prob = estimate_probability(job, profile, score, reasons)
         advice = build_advice(job, profile, reasons)
+        odds_pct = None
+        try:
+            from app.odds import compute_odds
+            _od = compute_odds(job, profile, _resume)
+            odds_pct = _od.get("odds_pct")
+        except Exception:
+            pass
         out.append({
             "job_id": str(job.id),
             "score": score,
@@ -210,6 +222,7 @@ def find_matches(db: Session, user: User, limit: int = 30, offset: int = 0, min_
             "remote": job.remote,
             "apply_url": job.apply_url,
             "posted_at": job.posted_at.isoformat() if job.posted_at else None,
+            "odds_pct": odds_pct,
         })
     return out
 
