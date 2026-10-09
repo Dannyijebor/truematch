@@ -1016,6 +1016,7 @@ async def save_settings_profile(request: Request, db: Session = Depends(get_db))
         return RedirectResponse("/login", status_code=302)
 
     form = await request.form()
+    _n = (form.get("next") or "").strip()
     profile = db.get(Profile, user.id) or Profile(user_id=user.id)
 
     # Username — lowercase, alphanumeric + underscore only
@@ -1023,11 +1024,11 @@ async def save_settings_profile(request: Request, db: Session = Depends(get_db))
     if raw_username:
         import re
         if not re.match(r"^[a-z0-9_]{3,30}$", raw_username):
-            return RedirectResponse("/settings?error=username-format", status_code=302)
+            return RedirectResponse(f"{_n}?error=username-format" if _n.startswith("/") else "/settings?error=username-format", status_code=302)
         # Check uniqueness
         existing = db.query(Profile).filter(Profile.username == raw_username, Profile.user_id != user.id).first()
         if existing:
-            return RedirectResponse("/settings?error=username-taken", status_code=302)
+            return RedirectResponse(f"{_n}?error=username-taken" if _n.startswith("/") else "/settings?error=username-taken", status_code=302)
         profile.username = raw_username
 
     profile.bio = (form.get("bio") or "").strip() or None
@@ -1052,13 +1053,14 @@ async def save_avatar(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse("/login", status_code=302)
 
     form = await request.form()
+    _n = (form.get("next") or "").strip()
     file = form.get("avatar")
     if not file or not file.filename:
-        return RedirectResponse("/settings?error=no-file", status_code=302)
+        return RedirectResponse(f"{_n}?error=no-file" if _n.startswith("/") else "/settings?error=no-file", status_code=302)
 
     data = await file.read()
     if len(data) > 5 * 1024 * 1024:
-        return RedirectResponse("/settings?error=too-large", status_code=302)
+        return RedirectResponse(f"{_n}?error=too-large" if _n.startswith("/") else "/settings?error=too-large", status_code=302)
 
     mime = "image/jpeg"
     if data[:8] == b"\x89PNG\r\n\x1a\n":
@@ -1071,7 +1073,7 @@ async def save_avatar(request: Request, db: Session = Depends(get_db)):
     try:
         url = upload_bytes(user.id, file.filename or "avatar", mime, data, kind="image")
     except Exception as e:
-        return RedirectResponse(f"/settings?error=upload-failed", status_code=302)
+        return RedirectResponse(f"{_n}?error=upload-failed" if _n.startswith("/") else "/settings?error=upload-failed", status_code=302)
 
     profile = db.get(Profile, user.id) or Profile(user_id=user.id)
     profile.avatar_url = url
@@ -1983,13 +1985,14 @@ async def save_banner(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse("/login", status_code=302)
 
     form = await request.form()
+    _n = (form.get("next") or "").strip()
     file = form.get("file")
     if not file or not file.filename:
-        return RedirectResponse("/settings?error=no-file", status_code=302)
+        return RedirectResponse(f"{_n}?error=no-file" if _n.startswith("/") else "/settings?error=no-file", status_code=302)
 
     data = await file.read()
     if len(data) > 5 * 1024 * 1024:
-        return RedirectResponse("/settings?error=too-large", status_code=302)
+        return RedirectResponse(f"{_n}?error=too-large" if _n.startswith("/") else "/settings?error=too-large", status_code=302)
 
     mime = "image/jpeg"
     if data[:8] == b"\x89PNG\r\n\x1a\n":
@@ -2002,7 +2005,7 @@ async def save_banner(request: Request, db: Session = Depends(get_db)):
     try:
         url = upload_bytes(user.id, file.filename or "banner", mime, data, kind="image")
     except Exception as e:
-        return RedirectResponse(f"/settings?error=upload-failed", status_code=302)
+        return RedirectResponse(f"{_n}?error=upload-failed" if _n.startswith("/") else "/settings?error=upload-failed", status_code=302)
 
     profile = db.get(Profile, user.id) or Profile(user_id=user.id)
     profile.banner_url = url
