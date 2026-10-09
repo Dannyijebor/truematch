@@ -45,6 +45,37 @@ def current_user_web(request: Request, db: Session) -> User | None:
     return db.get(User, uid)
 
 
+def _ensure_username(db: Session, user: User, profile=None) -> Profile:
+    """Ensure the user has a unique public username for their portfolio.
+    Auto-generates from their name/email on first visit. Returns the Profile."""
+    import re as _re, secrets as _secrets
+    from app.db.models import Profile as _P
+
+    if profile is None:
+        profile = db.get(_P, user.id)
+    if not profile:
+        profile = _P(user_id=user.id)
+        db.add(profile); db.commit(); db.refresh(profile)
+
+    if profile.username:
+        return profile
+
+    base = (user.full_name or (user.email or "").split("@")[0] or "user").strip().lower()
+    base = _re.sub(r"[^a-z0-9]+", "-", base).strip("-") or "user"
+    base = base[:24]
+    candidate = base
+    attempt = 0
+    while True:
+        exists = db.query(_P).filter(_P.username == candidate, _P.user_id != user.id).first()
+        if not exists:
+            break
+        attempt += 1
+        candidate = f"{base}-{_secrets.token_hex(2)}" if attempt > 3 else f"{base}-{attempt}"
+    profile.username = candidate
+    db.commit(); db.refresh(profile)
+    return profile
+
+
 def _ctx(request, db=None, **extra):
     """Build template context. Reuses the caller's DB session if provided."""
     base = {"request": request, "user": None, "user_profile": None}
@@ -1334,13 +1365,17 @@ def portfolio_edit(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse("/login?next=/portfolio/edit", status_code=302)
 
     from app.portfolio import get_portfolio_settings, list_items, THEMES, KINDS, ACCENTS
+
+    # Ensure the user has a public username (auto-generate on first visit)
+    profile = _ensure_username(db, user)
+
     settings = get_portfolio_settings(db, user.id)
     items = list_items(db, user.id)
 
     return templates.TemplateResponse(request, "portfolio_edit.html", _ctx(
         request, db=db, user=user, settings=settings, items=items,
         themes=THEMES, kinds=KINDS, accents=ACCENTS,
-        profile=db.get(Profile, user.id),
+        profile=profile,
     ))
 
 
