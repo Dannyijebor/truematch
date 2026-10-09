@@ -675,11 +675,28 @@
 
 <div class="pp-hero">
   {% if target.banner_url %}
-  <div class="pp-banner">
+  <div class="pp-banner" style="position:relative;">
     <img src="{{ target.banner_url }}" alt="{{ target.name }} banner">
+    {% if is_me %}
+    <label class="pp-edit-badge pp-edit-banner" title="Change banner" for="pp-banner-input" style="cursor:pointer;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    </label>
+    {% endif %}
   </div>
   {% else %}
-  <div class="pp-banner pp-banner-empty"></div>
+  <div class="pp-banner pp-banner-empty" style="position:relative;">
+    {% if is_me %}
+    <label class="pp-edit-badge pp-edit-banner" title="Add banner" for="pp-banner-input" style="cursor:pointer;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    </label>
+    {% endif %}
+  </div>
+  {% endif %}
+  {% if is_me %}
+  <form method="post" action="/app/settings/banner" enctype="multipart/form-data" id="pp-banner-form" style="display:none;">
+    <input type="hidden" name="next" value="/u/{{ target.username }}">
+    <input type="file" name="file" id="pp-banner-input" accept="image/*" onchange="document.getElementById('pp-banner-form').submit();">
+  </form>
   {% endif %}
 
   <div class="pp-hero-bg">
@@ -688,11 +705,20 @@
   </div>
 
   <div class="pp-hero-card">
-    <div class="pp-avatar">
+    <div class="pp-avatar" style="position:relative;">
       {% if target.avatar_url %}
         <img src="{{ target.avatar_url }}" alt="{{ target.name }}">
       {% else %}
         {{ (target.name or "?")[0]|upper }}
+      {% endif %}
+      {% if is_me %}
+      <label class="pp-edit-badge pp-edit-avatar" title="Change photo" for="pp-avatar-input" style="cursor:pointer;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      </label>
+      <form method="post" action="/app/settings/avatar" enctype="multipart/form-data" id="pp-avatar-form" style="display:none;">
+        <input type="hidden" name="next" value="/u/{{ target.username }}">
+        <input type="file" name="avatar" id="pp-avatar-input" accept="image/*" onchange="document.getElementById('pp-avatar-form').submit();">
+      </form>
       {% endif %}
     </div>
 
