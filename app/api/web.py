@@ -372,11 +372,34 @@ def resume_page(request: Request, db: Session = Depends(get_db)):
     if not user:
         return RedirectResponse("/login?next=/app/resume", status_code=302)
 
-    from app.db.models import Resume
+    from app.db.models import Resume, Profile
+    import re as _re, secrets as _secrets
+
+    profile = db.get(Profile, user.id)
+    if not profile:
+        profile = Profile(user_id=user.id)
+        db.add(profile); db.commit(); db.refresh(profile)
+
+    # Auto-generate a unique public username the first time they open this page
+    if not profile.username:
+        base = (user.full_name or (user.email or "").split("@")[0] or "user").strip().lower()
+        base = _re.sub(r"[^a-z0-9]+", "-", base).strip("-") or "user"
+        base = base[:24]
+        candidate = base
+        attempt = 0
+        while True:
+            exists = db.query(Profile).filter(Profile.username == candidate, Profile.user_id != user.id).first()
+            if not exists:
+                break
+            attempt += 1
+            candidate = f"{base}-{_secrets.token_hex(2)}" if attempt > 3 else f"{base}-{attempt}"
+        profile.username = candidate
+        db.commit(); db.refresh(profile)
+
     resume = db.query(Resume).filter_by(user_id=user.id).order_by(Resume.uploaded_at.desc()).first()
 
     return templates.TemplateResponse(request, "resume.html", _ctx(
-        request, user=user, resume=resume,
+        request, user=user, resume=resume, user_profile=profile,
     ))
 
 
