@@ -8,817 +8,504 @@
 <meta name="theme-color" content="{{ settings.accent }}">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='42' fill='{{ settings.accent }}'/></svg>">
 <style>
-  /* ============================================================
-     Base reset + typography
-     ============================================================ */
   *,*::before,*::after { box-sizing: border-box; }
   html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; scroll-behavior: smooth; }
-  body { margin: 0; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; line-height: 1.55; }
+  body { margin: 0; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; line-height: 1.55; overflow-x: hidden; }
   img { max-width: 100%; display: block; }
   a { color: inherit; }
-  button { font-family: inherit; }
+  button { font-family: inherit; cursor: pointer; }
+  ::selection { background: var(--accent); color: #fff; }
 
-  /* ============================================================
-     THEME VARS — default (editorial): warm cream, serif display
-     ============================================================ */
   :root {
     --accent: {{ settings.accent }};
     --accent-soft: {{ settings.accent }}22;
-    --bg: #faf7f1;
-    --bg-2: #ffffff;
-    --surface: #ffffff;
-    --border: rgba(20, 16, 10, 0.10);
-    --text: #1a1611;
-    --text-2: #4a4238;
-    --muted: #8a7f6e;
-    --display: 'Georgia', 'Times New Roman', serif;
+    --accent-glow: {{ settings.accent }}55;
+    --bg: #0a1418;
+    --bg-2: #0d1a1f;
+    --surface: rgba(22, 32, 37, 0.7);
+    --surface-solid: #162025;
+    --border: rgba(0, 217, 154, 0.10);
+    --border-2: rgba(255, 255, 255, 0.06);
+    --text: #f0f4f6;
+    --text-2: #b8c4cc;
+    --muted: #8a97a2;
+    --display: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     --body: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-    --radius: 12px;
-    --maxw: 900px;
+    --radius: 16px;
+    --maxw: 1080px;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #14120e;
-      --bg-2: #1a1712;
-      --surface: #1e1a14;
-      --border: rgba(255, 245, 220, 0.10);
-      --text: #f5efe2;
-      --text-2: #d5ccb8;
-      --muted: #8a8072;
-    }
+  html[data-mode="light"] {
+    --bg: #f6f1e4;
+    --bg-2: #faf8f2;
+    --surface: rgba(255, 255, 255, 0.7);
+    --surface-solid: #ffffff;
+    --border: rgba(0, 168, 132, 0.16);
+    --border-2: rgba(15, 23, 32, 0.08);
+    --text: #0f1720;
+    --text-2: #2a3640;
+    --muted: #667580;
   }
-
-  /* ---------- MINIMAL ---------- */
-  html[data-theme="minimal"] {
-    --bg: #ffffff;
-    --bg-2: #fafafa;
-    --surface: #ffffff;
-    --border: rgba(0,0,0,0.08);
-    --text: #0a0a0a;
-    --text-2: #3a3a3a;
-    --muted: #888;
-    --display: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-    --body: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-    --maxw: 760px;
-  }
-  @media (prefers-color-scheme: dark) {
-    html[data-theme="minimal"] {
-      --bg: #0a0a0a; --bg-2: #121212; --surface: #121212;
-      --border: rgba(255,255,255,0.08);
-      --text: #fafafa; --text-2: #c8c8c8; --muted: #777;
-    }
-  }
-
-  /* ---------- EXECUTIVE ---------- */
-  html[data-theme="executive"] {
-    --bg: #f4f1ea;
-    --bg-2: #ffffff;
-    --surface: #ffffff;
-    --border: rgba(20, 18, 12, 0.12);
-    --text: #14110c;
-    --text-2: #3a3528;
-    --muted: #7a7260;
-    --display: 'Georgia', 'Times New Roman', serif;
-    --maxw: 880px;
-  }
-  @media (prefers-color-scheme: dark) {
-    html[data-theme="executive"] {
-      --bg: #0f0e0b; --bg-2: #16140f; --surface: #16140f;
-      --border: rgba(200, 180, 140, 0.14);
-      --text: #ede4d0; --text-2: #c8bda0; --muted: #8a8170;
-    }
-  }
-
-  /* ---------- CHRONICLE ---------- */
-  html[data-theme="chronicle"] {
-    --bg: #0f1418;
-    --bg-2: #141a1f;
-    --surface: #1a2028;
-    --border: rgba(120, 180, 220, 0.12);
-    --text: #eaf1f7;
-    --text-2: #b8c4d0;
-    --muted: #7a8896;
-    --display: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-    --maxw: 860px;
-  }
-
-  /* ============================================================
-     Layout
-     ============================================================ */
   body { background: var(--bg); color: var(--text); font-family: var(--body); }
-  .pf-wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 22px; }
 
-  /* Fixed theme toggle */
-  .pf-toggle {
-    position: fixed; top: 16px; right: 16px;
-    width: 38px; height: 38px;
-    border-radius: 50%;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text-2);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; z-index: 100;
-    transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease;
-    -webkit-tap-highlight-color: transparent;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-  }
-  .pf-toggle:hover { transform: scale(1.08); color: var(--accent); }
+  .pf-progress { position: fixed; top: 0; left: 0; height: 2px; background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 60%, #fff)); width: 0%; z-index: 9999; box-shadow: 0 0 12px var(--accent-glow); transition: width 0.05s linear; }
+  .pf-toggle { position: fixed; top: 18px; right: 18px; width: 40px; height: 40px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border-2); color: var(--text-2); display: flex; align-items: center; justify-content: center; z-index: 100; transition: transform 0.18s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease; backdrop-filter: blur(14px) saturate(160%); -webkit-backdrop-filter: blur(14px) saturate(160%); -webkit-tap-highlight-color: transparent; }
+  .pf-toggle:hover { transform: scale(1.08); color: var(--accent); border-color: var(--accent); }
   .pf-toggle:active { transform: scale(0.94); }
   .pf-toggle svg { width: 18px; height: 18px; }
   .pf-toggle .pf-sun { display: none; }
-  html[data-dark="1"] .pf-toggle .pf-sun { display: block; }
-  html[data-dark="1"] .pf-toggle .pf-moon { display: none; }
+  html[data-mode="light"] .pf-toggle .pf-sun { display: block; }
+  html[data-mode="light"] .pf-toggle .pf-moon { display: none; }
 
-  /* ============================================================
-     HERO
-     ============================================================ */
-  .pf-hero {
-    padding: 90px 0 50px;
-    position: relative;
-  }
-  @media (min-width: 720px) { .pf-hero { padding: 130px 0 70px; } }
-  .pf-hero-avatar {
-    width: 96px; height: 96px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent) 0%, color-mix(in srgb, var(--accent) 55%, #000) 100%);
-    color: #fff;
-    font-family: var(--display);
-    font-weight: 700;
-    font-size: 38px;
-    display: flex; align-items: center; justify-content: center;
-    overflow: hidden;
-    margin-bottom: 28px;
-    box-shadow: 0 12px 36px -10px color-mix(in srgb, var(--accent) 45%, transparent);
-    animation: pfFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-  .pf-hero-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .pf-hero { position: relative; padding: 100px 22px 60px; overflow: hidden; isolation: isolate; }
+  @media (min-width: 720px) { .pf-hero { padding: 140px 22px 90px; } }
+  .pf-hero-bg { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+  .pf-orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.45; will-change: transform; }
+  .pf-orb-1 { width: 460px; height: 460px; background: radial-gradient(circle, var(--accent-glow), transparent 70%); top: -140px; left: -100px; animation: pfOrb1 24s ease-in-out infinite alternate; }
+  .pf-orb-2 { width: 420px; height: 420px; background: radial-gradient(circle, color-mix(in srgb, var(--accent) 40%, transparent), transparent 70%); bottom: -160px; right: -120px; animation: pfOrb2 30s ease-in-out infinite alternate; }
+  @keyframes pfOrb1 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(80px,60px) scale(1.15); } }
+  @keyframes pfOrb2 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(-60px,40px) scale(1.1); } }
 
-  .pf-hero-eyebrow {
-    display: inline-flex; align-items: center; gap: 8px;
-    font-size: 12px; font-weight: 600;
-    letter-spacing: 0.8px; text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 14px;
-    animation: pfFadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.05s both;
-  }
-  .pf-hero-eyebrow-dot {
-    display: inline-block;
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 0 0 var(--accent-soft);
-    animation: pfPulse 2.2s ease-in-out infinite;
-  }
-  @keyframes pfPulse {
-    0%,100% { box-shadow: 0 0 0 0 var(--accent-soft); }
-    50%     { box-shadow: 0 0 0 10px transparent; }
-  }
+  .pf-grid { position: absolute; inset: 0; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, #000 30%, transparent 75%); -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, #000 30%, transparent 75%); opacity: 0.8; }
+  html[data-mode="light"] .pf-grid { opacity: 0.5; }
 
-  .pf-hero h1 {
-    font-family: var(--display);
-    font-size: clamp(36px, 5.8vw, 64px);
-    line-height: 1.05;
-    letter-spacing: -1.2px;
-    font-weight: 700;
-    margin: 0 0 14px;
-    animation: pfFadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.12s both;
-  }
-  html[data-theme="minimal"] .pf-hero h1,
-  html[data-theme="chronicle"] .pf-hero h1 { font-weight: 800; letter-spacing: -1.8px; }
+  .pf-hero-inner { max-width: var(--maxw); margin: 0 auto; display: grid; gap: 40px; grid-template-columns: 1fr; align-items: center; }
+  @media (min-width: 900px) { .pf-hero-inner { grid-template-columns: 1.15fr 1fr; gap: 60px; } }
 
-  .pf-hero-title {
-    font-size: clamp(16px, 2vw, 20px);
-    color: var(--text-2);
-    line-height: 1.5;
-    margin: 0 0 22px;
-    animation: pfFadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.18s both;
-  }
-  .pf-hero-title .pf-company {
-    color: var(--accent);
-    font-weight: 600;
-  }
+  .pf-avatar { width: 96px; height: 96px; border-radius: 50%; background: linear-gradient(135deg, var(--accent) 0%, color-mix(in srgb, var(--accent) 55%, #000) 100%); color: #fff; font-weight: 800; font-size: 38px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 24px; box-shadow: 0 16px 44px -12px var(--accent-glow), 0 0 0 6px var(--accent-soft); animation: pfFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; position: relative; }
+  .pf-avatar::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid transparent; border-top-color: var(--accent); animation: pfSpin 5s linear infinite; opacity: 0.6; }
+  @keyframes pfSpin { to { transform: rotate(360deg); } }
+  .pf-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-  .pf-hero-tagline {
-    font-size: 17px;
-    line-height: 1.6;
-    color: var(--text-2);
-    max-width: 620px;
-    margin: 0 0 30px;
-    animation: pfFadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.24s both;
-  }
+  .pf-eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 26%, transparent); border-radius: 999px; color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 22px; animation: pfFadeUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.05s both; }
+  .pf-eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 var(--accent-glow); animation: pfPulse 2.2s ease-in-out infinite; }
+  @keyframes pfPulse { 0%,100% { box-shadow: 0 0 0 0 var(--accent-glow); } 50% { box-shadow: 0 0 0 10px transparent; } }
 
-  .pf-hero-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 18px;
-    font-size: 14px;
-    color: var(--muted);
-    margin-bottom: 32px;
-    animation: pfFadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.3s both;
-  }
-  .pf-hero-meta-item {
-    display: inline-flex; align-items: center; gap: 6px;
-  }
-  .pf-hero-meta-item svg { width: 15px; height: 15px; opacity: 0.75; }
+  .pf-name { font-family: var(--display); font-size: clamp(44px, 7.5vw, 84px); line-height: 0.98; letter-spacing: -2.4px; font-weight: 800; margin: 0 0 18px; overflow: hidden; }
+  .pf-name .pf-word { display: inline-block; opacity: 0; transform: translateY(110%); animation: pfWordIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards; margin-right: 0.14em; }
+  .pf-name .pf-word:last-child { margin-right: 0; }
+  @keyframes pfWordIn { to { opacity: 1; transform: translateY(0); } }
+  .pf-name-accent { background: linear-gradient(120deg, var(--accent) 0%, color-mix(in srgb, var(--accent) 70%, #fff) 60%, var(--accent) 120%); background-size: 200% 200%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: pfGradientShift 6s ease-in-out infinite alternate; }
+  @keyframes pfGradientShift { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
 
-  .pf-hero-cta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    animation: pfFadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.36s both;
-  }
-  .pf-btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 11px 20px;
-    border-radius: 10px;
-    font-size: 14.5px;
-    font-weight: 600;
-    text-decoration: none;
-    border: 1px solid transparent;
-    cursor: pointer;
-    transition: transform 0.14s ease, box-shadow 0.22s ease, background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
-    -webkit-tap-highlight-color: transparent;
-    font-family: inherit;
-  }
-  .pf-btn-primary {
-    background: var(--accent);
-    color: #fff;
-    box-shadow: 0 8px 24px -8px color-mix(in srgb, var(--accent) 55%, transparent);
-  }
-  .pf-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 12px 30px -8px color-mix(in srgb, var(--accent) 65%, transparent); }
+  .pf-role { font-size: clamp(17px, 2vw, 21px); color: var(--text-2); line-height: 1.45; margin: 0 0 22px; animation: pfFadeUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.4s both; }
+  .pf-role .pf-at { color: var(--muted); }
+  .pf-role .pf-company { color: var(--accent); font-weight: 700; }
+
+  .pf-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; animation: pfFadeUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.5s both; }
+  .pf-chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; background: var(--surface); border: 1px solid var(--border-2); border-radius: 10px; font-size: 13px; font-weight: 600; color: var(--text-2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: transform 0.15s ease, border-color 0.18s ease, color 0.18s ease; }
+  .pf-chip:hover { transform: translateY(-1px); border-color: var(--accent); color: var(--accent); }
+  .pf-chip svg { width: 13px; height: 13px; opacity: 0.8; }
+
+  .pf-actions { display: flex; flex-wrap: wrap; gap: 10px; animation: pfFadeUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.6s both; }
+  .pf-btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 12px; font-size: 14.5px; font-weight: 700; text-decoration: none; border: 1.5px solid transparent; transition: transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease, background 0.18s ease, border-color 0.18s ease, color 0.18s ease; -webkit-tap-highlight-color: transparent; font-family: inherit; }
+  .pf-btn-primary { background: var(--accent); color: #fff; box-shadow: 0 10px 30px -8px var(--accent-glow); }
+  .pf-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 16px 40px -10px var(--accent-glow); }
   .pf-btn-primary:active { transform: scale(0.98); }
-  .pf-btn-ghost {
-    background: transparent;
-    border-color: var(--border);
-    color: var(--text-2);
-  }
+  .pf-btn-ghost { background: var(--surface); border-color: var(--border-2); color: var(--text-2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
   .pf-btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
   .pf-btn svg { width: 15px; height: 15px; }
 
-  /* ============================================================
-     SECTIONS
-     ============================================================ */
-  .pf-section {
-    padding: 56px 0;
-    border-top: 1px solid var(--border);
-  }
-  .pf-section:first-of-type { border-top: none; }
+  .pf-hero-visual { position: relative; animation: pfFadeUp 1s cubic-bezier(0.16,1,0.3,1) 0.5s both; perspective: 1000px; }
+  .pf-hero-card { position: relative; aspect-ratio: 4 / 5; border-radius: 24px; overflow: hidden; background: linear-gradient(135deg, var(--accent-soft), var(--surface)); border: 1px solid var(--border-2); box-shadow: 0 40px 100px -30px rgba(0,0,0,0.5), 0 20px 50px -20px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,0.06); animation: pfFloat 7s ease-in-out infinite; }
+  @keyframes pfFloat { 0%,100% { transform: translateY(0) rotate(-0.5deg); } 50% { transform: translateY(-12px) rotate(0.5deg); } }
+  .pf-hero-card img { width: 100%; height: 100%; object-fit: cover; }
+  .pf-hero-card-fallback { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-family: var(--display); font-size: 120px; font-weight: 800; color: color-mix(in srgb, var(--accent) 60%, transparent); letter-spacing: -4px; }
+  .pf-hero-card-badge { position: absolute; bottom: 16px; left: 16px; right: 16px; padding: 14px 16px; background: rgba(10, 20, 24, 0.72); backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); border: 1px solid rgba(255,255,255,0.10); border-radius: 14px; display: flex; align-items: center; gap: 12px; color: #fff; }
+  html[data-mode="light"] .pf-hero-card-badge { background: rgba(255,255,255,0.86); border-color: rgba(15,23,32,0.08); color: #0f1720; }
+  .pf-hero-card-badge-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 var(--accent-glow); animation: pfPulse 2s ease-in-out infinite; flex-shrink: 0; }
+  .pf-hero-card-badge-text { font-size: 13px; font-weight: 700; letter-spacing: 0.2px; }
+  .pf-hero-card-badge-sub { font-size: 11.5px; opacity: 0.7; margin-top: 2px; }
 
-  .pf-section-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 20px;
-    margin-bottom: 28px;
-  }
-  .pf-section-title {
-    font-family: var(--display);
-    font-size: 24px;
-    font-weight: 700;
-    letter-spacing: -0.4px;
-    margin: 0;
-    color: var(--text);
-  }
-  html[data-theme="minimal"] .pf-section-title,
-  html[data-theme="chronicle"] .pf-section-title { font-size: 22px; letter-spacing: -0.6px; }
-  .pf-section-count {
-    font-size: 12.5px;
-    color: var(--muted);
-    font-family: var(--mono);
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-  }
+  .pf-main { max-width: var(--maxw); margin: 0 auto; padding: 20px 22px 80px; }
+  .pf-section { padding: 60px 0; border-top: 1px solid var(--border-2); }
+  .pf-section:first-child { border-top: none; padding-top: 20px; }
+  .pf-section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; margin-bottom: 36px; }
+  .pf-section-kicker { font-size: 11.5px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 10px; }
+  .pf-section-title { font-family: var(--display); font-size: clamp(28px, 4vw, 44px); font-weight: 800; letter-spacing: -1.2px; line-height: 1.05; margin: 0; color: var(--text); }
+  .pf-section-count { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; flex-shrink: 0; }
 
-  .pf-about {
-    font-size: 16.5px;
-    line-height: 1.75;
-    color: var(--text-2);
-    max-width: 680px;
-    white-space: pre-line;
-  }
-  html[data-theme="minimal"] .pf-about { font-size: 16px; }
+  .pf-about { font-size: 17px; line-height: 1.75; color: var(--text-2); max-width: 680px; white-space: pre-line; font-weight: 400; }
+  @media (min-width: 720px) { .pf-about { font-size: 19px; line-height: 1.7; } }
 
-  /* ============================================================
-     PROJECTS GRID
-     ============================================================ */
-  .pf-projects {
-    display: grid;
-    gap: 22px;
-    grid-template-columns: 1fr;
-  }
+  .pf-projects { display: grid; gap: 22px; grid-template-columns: 1fr; }
   @media (min-width: 640px) { .pf-projects { grid-template-columns: repeat(2, 1fr); } }
-
-  .pf-project {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    text-decoration: none;
-    color: inherit;
-    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.24s ease, box-shadow 0.32s ease;
-    animation: pfFadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both;
-  }
-  .pf-project:hover {
-    transform: translateY(-4px);
-    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
-    box-shadow: 0 20px 44px -18px color-mix(in srgb, var(--accent) 40%, transparent), 0 8px 20px -10px rgba(0,0,0,0.15);
-  }
-  .pf-project-thumb {
-    aspect-ratio: 16 / 10;
-    background: linear-gradient(135deg, var(--accent-soft) 0%, color-mix(in srgb, var(--accent) 8%, transparent) 100%);
-    display: flex; align-items: center; justify-content: center;
-    color: color-mix(in srgb, var(--accent) 70%, transparent);
-    font-family: var(--display);
-    font-size: 44px;
-    font-weight: 700;
-    overflow: hidden;
-    position: relative;
-  }
+  .pf-project { position: relative; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border-2); border-radius: 20px; overflow: hidden; text-decoration: none; color: inherit; transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.24s ease, box-shadow 0.32s ease; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); will-change: transform; }
+  .pf-project::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), var(--accent-soft), transparent 45%); opacity: 0; transition: opacity 0.3s ease; pointer-events: none; z-index: 2; }
+  .pf-project:hover::before { opacity: 1; }
+  .pf-project:hover { transform: translateY(-6px); border-color: color-mix(in srgb, var(--accent) 45%, transparent); box-shadow: 0 30px 60px -22px var(--accent-glow), 0 12px 26px -12px rgba(0,0,0,0.35); }
+  .pf-project-thumb { aspect-ratio: 16 / 10; background: linear-gradient(135deg, var(--accent-soft) 0%, color-mix(in srgb, var(--accent) 6%, transparent) 100%); display: flex; align-items: center; justify-content: center; color: color-mix(in srgb, var(--accent) 75%, transparent); font-family: var(--display); font-size: 56px; font-weight: 800; overflow: hidden; position: relative; }
   .pf-project-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.16,1,0.3,1); }
-  .pf-project:hover .pf-project-thumb img { transform: scale(1.05); }
+  .pf-project:hover .pf-project-thumb img { transform: scale(1.06); }
+  .pf-project-body { padding: 22px 24px 24px; flex: 1; display: flex; flex-direction: column; position: relative; z-index: 3; }
+  .pf-project-subtitle { font-size: 11.5px; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
+  .pf-project-title { font-family: var(--display); font-size: 22px; line-height: 1.2; font-weight: 800; letter-spacing: -0.4px; margin: 0 0 10px; }
+  .pf-project-desc { font-size: 14.5px; line-height: 1.6; color: var(--text-2); margin: 0 0 16px; flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .pf-project-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pf-tag { font-size: 11.5px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: var(--accent-soft); color: color-mix(in srgb, var(--accent) 80%, var(--text)); letter-spacing: 0.2px; }
 
-  .pf-project-body { padding: 20px 22px 22px; flex: 1; display: flex; flex-direction: column; }
-  .pf-project-subtitle {
-    font-size: 12px;
-    color: var(--muted);
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    font-weight: 600;
-    margin-bottom: 6px;
-  }
-  .pf-project-title {
-    font-family: var(--display);
-    font-size: 19px;
-    line-height: 1.25;
-    font-weight: 700;
-    letter-spacing: -0.3px;
-    margin: 0 0 8px;
-  }
-  .pf-project-desc {
-    font-size: 14.5px;
-    line-height: 1.6;
-    color: var(--text-2);
-    margin: 0 0 14px;
-    flex: 1;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .pf-project-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  .pf-tag {
-    font-size: 11.5px;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 999px;
-    background: var(--accent-soft);
-    color: color-mix(in srgb, var(--accent) 75%, var(--text));
-    letter-spacing: 0.2px;
-  }
-
-  /* ============================================================
-     TIMELINE (experience + education)
-     ============================================================ */
-  .pf-timeline {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    position: relative;
-  }
-  .pf-item {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 6px;
-    padding: 18px 0;
-    border-bottom: 1px solid var(--border);
-    animation: pfFadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both;
-  }
+  .pf-timeline { display: flex; flex-direction: column; position: relative; }
+  .pf-timeline::before { content: ""; position: absolute; left: 6px; top: 12px; bottom: 12px; width: 2px; background: linear-gradient(to bottom, transparent, var(--accent-soft) 10%, var(--accent-soft) 90%, transparent); }
+  @media (min-width: 640px) { .pf-timeline::before { left: 152px; } }
+  .pf-item { display: grid; grid-template-columns: 1fr; gap: 8px; padding: 22px 0 22px 26px; position: relative; border-bottom: 1px solid var(--border-2); }
   .pf-item:last-child { border-bottom: none; }
-  @media (min-width: 640px) {
-    .pf-item { grid-template-columns: 140px 1fr; gap: 24px; align-items: baseline; padding: 20px 0; }
-  }
-  .pf-item-date {
-    font-family: var(--mono);
-    font-size: 12.5px;
-    color: var(--muted);
-    letter-spacing: 0.3px;
-    padding-top: 2px;
-  }
-  .pf-item-title {
-    font-family: var(--display);
-    font-size: 17px;
-    font-weight: 700;
-    letter-spacing: -0.2px;
-    margin: 0 0 3px;
-  }
-  .pf-item-subtitle {
-    font-size: 14px;
-    color: var(--accent);
-    font-weight: 600;
-    margin: 0 0 6px;
-  }
-  .pf-item-desc {
-    font-size: 14.5px;
-    color: var(--text-2);
-    line-height: 1.6;
-    margin: 6px 0 0;
-    white-space: pre-line;
-  }
-  .pf-item-link {
-    display: inline-flex; align-items: center; gap: 4px;
-    font-size: 13px;
-    color: var(--accent);
-    text-decoration: none;
-    margin-top: 6px;
-    font-weight: 600;
-  }
-  .pf-item-link svg { width: 12px; height: 12px; }
+  .pf-item::before { content: ""; position: absolute; left: 0; top: 30px; width: 14px; height: 14px; border-radius: 50%; background: var(--bg); border: 2.5px solid var(--accent); box-shadow: 0 0 0 4px var(--bg), 0 0 20px -2px var(--accent-glow); z-index: 1; }
+  @media (min-width: 640px) { .pf-item { grid-template-columns: 130px 1fr; gap: 36px; padding: 24px 0 24px 40px; } .pf-item::before { left: 146px; top: 32px; } }
+  .pf-item-date { font-family: var(--mono); font-size: 12.5px; color: var(--muted); letter-spacing: 0.3px; padding-top: 4px; font-weight: 600; }
+  .pf-item-title { font-family: var(--display); font-size: 19px; font-weight: 800; letter-spacing: -0.3px; margin: 0 0 4px; line-height: 1.25; }
+  .pf-item-subtitle { font-size: 14.5px; color: var(--accent); font-weight: 700; margin: 0 0 8px; }
+  .pf-item-desc { font-size: 15px; color: var(--text-2); line-height: 1.65; margin: 8px 0 0; white-space: pre-line; }
 
-  /* ============================================================
-     SKILLS
-     ============================================================ */
-  .pf-skills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .pf-skill {
-    padding: 7px 14px;
-    font-size: 13.5px;
-    font-weight: 500;
-    background: var(--bg-2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text-2);
-    transition: transform 0.15s ease, border-color 0.18s ease, color 0.18s ease;
-  }
-  .pf-skill:hover { transform: translateY(-1px); border-color: var(--accent); color: var(--accent); }
+  .pf-skills { display: flex; flex-wrap: wrap; gap: 10px; }
+  .pf-skill { padding: 9px 16px; font-size: 14px; font-weight: 600; background: var(--surface); border: 1px solid var(--border-2); border-radius: 12px; color: var(--text-2); transition: transform 0.18s ease, border-color 0.2s ease, color 0.2s ease, background 0.2s ease; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  .pf-skill:hover { transform: translateY(-2px); border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
 
-  /* ============================================================
-     LINKS
-     ============================================================ */
-  .pf-links {
-    display: grid;
-    gap: 12px;
-    grid-template-columns: 1fr;
-  }
+  .pf-links { display: grid; gap: 14px; grid-template-columns: 1fr; }
   @media (min-width: 560px) { .pf-links { grid-template-columns: repeat(2, 1fr); } }
-  .pf-link {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 16px 18px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    text-decoration: none;
-    color: inherit;
-    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.28s ease;
-  }
-  .pf-link:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 12px 30px -14px color-mix(in srgb, var(--accent) 40%, transparent); }
-  .pf-link-icon {
-    width: 36px; height: 36px;
-    border-radius: 10px;
-    background: var(--accent-soft);
-    color: var(--accent);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .pf-link-icon svg { width: 18px; height: 18px; }
+  .pf-link { display: flex; align-items: center; gap: 14px; padding: 18px 20px; background: var(--surface); border: 1px solid var(--border-2); border-radius: 16px; text-decoration: none; color: inherit; transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.28s ease; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  .pf-link:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 16px 40px -18px var(--accent-glow); }
+  .pf-link-icon { width: 42px; height: 42px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .pf-link-icon svg { width: 20px; height: 20px; }
   .pf-link-body { min-width: 0; flex: 1; }
-  .pf-link-title { font-size: 15px; font-weight: 600; letter-spacing: -0.1px; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pf-link-title { font-size: 15.5px; font-weight: 700; letter-spacing: -0.1px; margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .pf-link-url { font-size: 12.5px; color: var(--muted); font-family: var(--mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-  /* ============================================================
-     FOOTER
-     ============================================================ */
-  .pf-footer {
-    padding: 60px 0 40px;
-    border-top: 1px solid var(--border);
-    text-align: center;
-  }
-  .pf-footer-quote {
-    font-family: var(--display);
-    font-size: 22px;
-    font-weight: 600;
-    letter-spacing: -0.3px;
-    margin: 0 0 22px;
-    color: var(--text);
-  }
-  .pf-footer-actions {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 32px;
-  }
-  .pf-footer-fine {
-    font-size: 12px;
-    color: var(--muted);
-    font-family: var(--mono);
-    letter-spacing: 0.3px;
-  }
+  .pf-cta-wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 22px 80px; }
+  .pf-cta { position: relative; padding: 70px 28px; text-align: center; border-radius: 28px; background: radial-gradient(ellipse at 50% 0%, var(--accent-glow) 0%, transparent 65%), linear-gradient(180deg, var(--surface-solid) 0%, var(--bg-2) 100%); border: 1px solid var(--border); overflow: hidden; isolation: isolate; }
+  .pf-cta::before { content: ""; position: absolute; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, var(--accent-glow), transparent 70%); filter: blur(70px); top: -250px; left: 50%; transform: translateX(-50%); animation: pfOrb1 20s ease-in-out infinite alternate; pointer-events: none; z-index: -1; }
+  .pf-cta h2 { font-family: var(--display); font-size: clamp(30px, 5vw, 52px); line-height: 1.05; font-weight: 800; letter-spacing: -1.4px; margin: 0 0 16px; color: var(--text); }
+  .pf-cta p { font-size: 16px; color: var(--muted); max-width: 500px; margin: 0 auto 32px; line-height: 1.55; }
+  .pf-cta .pf-btn { padding: 16px 30px; font-size: 16px; }
+  .pf-fine { text-align: center; font-family: var(--mono); font-size: 11.5px; color: var(--muted); letter-spacing: 0.4px; padding-bottom: 40px; opacity: 0.7; }
 
-  /* ============================================================
-     Reveal animations
-     ============================================================ */
-  @keyframes pfFadeUp {
-    from { opacity: 0; transform: translateY(14px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .pf-reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1); }
+  @keyframes pfFadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  .pf-reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
   .pf-reveal.pf-in { opacity: 1; transform: translateY(0); }
 
-  /* ============================================================
-     Print
-     ============================================================ */
+  @media (prefers-reduced-motion: reduce) {
+    .pf-orb, .pf-hero-card, .pf-avatar::after { animation: none !important; }
+    .pf-name .pf-word { opacity: 1; transform: none; animation: none; }
+  }
   @media print {
-    .pf-toggle, .pf-hero-cta, .pf-footer-actions { display: none; }
+    .pf-toggle, .pf-progress, .pf-actions, .pf-cta-wrap, .pf-hero-visual { display: none; }
     body { background: #fff; color: #000; }
-    .pf-project, .pf-link { break-inside: avoid; }
+    .pf-project, .pf-link, .pf-item { break-inside: avoid; }
   }
 </style>
 </head>
-<body data-theme="{{ settings.theme }}" data-accent="{{ settings.accent }}">
+<body>
+<div class="pf-progress" id="pf-progress"></div>
 <script>
-  // Apply theme attribute + OS-preference dark detection early
   (function(){
-    var t = "{{ settings.theme }}";
-    document.documentElement.setAttribute('data-theme', t);
     try {
-      var stored = localStorage.getItem('pf_theme_pref');
-      var isDark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
-      // For chronicle, force dark
-      if (t === 'chronicle') isDark = true;
-      document.documentElement.setAttribute('data-dark', isDark ? '1' : '0');
-      if (t === 'chronicle') document.body.style.background = '#0f1418';
-    } catch(_){}
+      var stored = localStorage.getItem('pf_mode');
+      var mode = stored ? stored : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-mode', mode);
+    } catch(_) {
+      document.documentElement.setAttribute('data-mode', 'dark');
+    }
   })();
 </script>
 
-<button class="pf-toggle" onclick="pfToggleTheme()" aria-label="Toggle theme">
+<button class="pf-toggle" onclick="pfToggleMode()" aria-label="Toggle theme">
   <svg class="pf-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
   <svg class="pf-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg>
 </button>
 
-<!-- ============ HERO ============ -->
-<header class="pf-hero pf-wrap">
-  <div class="pf-hero-avatar">
-    {% if profile.avatar_url %}
-      <img src="{{ profile.avatar_url }}" alt="{{ profile.full_name or profile.username }}">
-    {% else %}
-      {{ (profile.full_name or profile.username or '?')[0]|upper }}
-    {% endif %}
+<header class="pf-hero">
+  <div class="pf-hero-bg">
+    <div class="pf-orb pf-orb-1"></div>
+    <div class="pf-orb pf-orb-2"></div>
+    <div class="pf-grid"></div>
   </div>
 
-  <div class="pf-hero-eyebrow">
-    <span class="pf-hero-eyebrow-dot"></span>
-    Available for opportunities
-  </div>
-
-  <h1>{{ profile.full_name or profile.username }}</h1>
-
-  {% if profile.title or profile.company_name %}
-  <p class="pf-hero-title">
-    {{ profile.title or '' }}
-    {% if profile.title and profile.company_name %} at {% endif %}
-    {% if profile.company_name %}<span class="pf-company">{{ profile.company_name }}</span>{% endif %}
-  </p>
-  {% endif %}
-
-  {% if settings.tagline or profile.headline %}
-  <p class="pf-hero-tagline">{{ settings.tagline or profile.headline }}</p>
-  {% endif %}
-
-  <div class="pf-hero-meta">
-    {% if profile.location %}
-    <span class="pf-hero-meta-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      {{ profile.location }}
-    </span>
-    {% endif %}
-    {% if profile.seniority %}
-    <span class="pf-hero-meta-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
-      {{ profile.seniority|capitalize }}
-    </span>
-    {% endif %}
-    {% if profile.years_experience %}
-    <span class="pf-hero-meta-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      {{ profile.years_experience }}+ years experience
-    </span>
-    {% endif %}
-    {% if profile.remote_ok %}
-    <span class="pf-hero-meta-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-      Open to remote
-    </span>
-    {% endif %}
-  </div>
-
-  {% if portfolio_user.email %}
-  <div class="pf-hero-cta">
-    <a href="mailto:{{ portfolio_user.email }}" class="pf-btn pf-btn-primary">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-      Get in touch
-    </a>
-    <button class="pf-btn pf-btn-ghost" onclick="pfCopyEmail('{{ portfolio_user.email }}')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
-      <span id="pf-copy-label">Copy email</span>
-    </button>
-  </div>
-  {% endif %}
-</header>
-
-<!-- ============ ABOUT ============ -->
-{% if settings.about or profile.bio %}
-<section class="pf-section pf-wrap pf-reveal">
-  <div class="pf-section-head">
-    <h2 class="pf-section-title">About</h2>
-  </div>
-  <p class="pf-about">{{ settings.about or profile.bio }}</p>
-</section>
-{% endif %}
-
-<!-- ============ PROJECTS ============ -->
-{% if items.projects %}
-<section class="pf-section pf-wrap pf-reveal">
-  <div class="pf-section-head">
-    <h2 class="pf-section-title">Selected work</h2>
-    <span class="pf-section-count">{{ items.projects|length }} project{{ 's' if items.projects|length != 1 else '' }}</span>
-  </div>
-  <div class="pf-projects">
-    {% for p in items.projects %}
-      {% if p.link_url %}<a class="pf-project" href="{{ p.link_url }}" target="_blank" rel="noopener">{% else %}<div class="pf-project">{% endif %}
-        <div class="pf-project-thumb">
-          {% if p.image_url %}
-            <img src="{{ p.image_url }}" alt="{{ p.title }}">
-          {% else %}
-            {{ (p.title or '?')[0]|upper }}
-          {% endif %}
-        </div>
-        <div class="pf-project-body">
-          {% if p.subtitle %}<div class="pf-project-subtitle">{{ p.subtitle }}</div>{% endif %}
-          <h3 class="pf-project-title">{{ p.title }}</h3>
-          {% if p.description %}<p class="pf-project-desc">{{ p.description }}</p>{% endif %}
-          {% if p.tags %}
-          <div class="pf-project-tags">
-            {% for t in p.tags %}<span class="pf-tag">{{ t }}</span>{% endfor %}
-          </div>
-          {% endif %}
-        </div>
-      {% if p.link_url %}</a>{% else %}</div>{% endif %}
-    {% endfor %}
-  </div>
-</section>
-{% endif %}
-
-<!-- ============ EXPERIENCE ============ -->
-{% if items.experience %}
-<section class="pf-section pf-wrap pf-reveal">
-  <div class="pf-section-head">
-    <h2 class="pf-section-title">Experience</h2>
-    <span class="pf-section-count">{{ items.experience|length }} role{{ 's' if items.experience|length != 1 else '' }}</span>
-  </div>
-  <div class="pf-timeline">
-    {% for e in items.experience %}
-    <div class="pf-item">
-      <div class="pf-item-date">
-        {% if e.start_date or e.end_date %}
-          {{ e.start_date or '?' }}{% if e.end_date or e.start_date %} – {% endif %}{{ e.end_date or 'Present' }}
+  <div class="pf-hero-inner">
+    <div class="pf-hero-text">
+      <div class="pf-avatar">
+        {% if profile.avatar_url %}
+          <img src="{{ profile.avatar_url }}" alt="{{ profile.full_name or profile.username }}">
+        {% else %}
+          {{ (profile.full_name or profile.username or '?')[0]|upper }}
         {% endif %}
       </div>
-      <div>
-        <h3 class="pf-item-title">{{ e.title }}</h3>
-        {% if e.subtitle %}<div class="pf-item-subtitle">{{ e.subtitle }}</div>{% endif %}
-        {% if e.description %}<p class="pf-item-desc">{{ e.description }}</p>{% endif %}
+
+      <div class="pf-eyebrow">
+        <span class="pf-eyebrow-dot"></span>
+        Available for opportunities
+      </div>
+
+      {% set name_parts = (profile.full_name or profile.username or 'Portfolio').split() %}
+      <h1 class="pf-name">
+        {% for part in name_parts %}
+          <span class="pf-word{% if loop.last and name_parts|length > 1 %} pf-name-accent{% endif %}" style="animation-delay:{{ 0.05 + loop.index0 * 0.09 }}s">{{ part }}</span>
+        {% endfor %}
+      </h1>
+
+      {% if profile.title or profile.company_name %}
+      <p class="pf-role">
+        {{ profile.title or '' }}
+        {% if profile.title and profile.company_name %}<span class="pf-at"> at </span>{% endif %}
+        {% if profile.company_name %}<span class="pf-company">{{ profile.company_name }}</span>{% endif %}
+      </p>
+      {% endif %}
+
+      <div class="pf-chips">
+        {% if profile.location %}
+        <span class="pf-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          {{ profile.location }}
+        </span>
+        {% endif %}
+        {% if profile.seniority %}
+        <span class="pf-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
+          {{ profile.seniority|capitalize }}
+        </span>
+        {% endif %}
+        {% if profile.years_experience %}
+        <span class="pf-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          {{ profile.years_experience }}+ years
+        </span>
+        {% endif %}
+        {% if profile.remote_ok %}
+        <span class="pf-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          Remote
+        </span>
+        {% endif %}
+      </div>
+
+      {% if portfolio_user.email %}
+      <div class="pf-actions">
+        <a href="mailto:{{ portfolio_user.email }}" class="pf-btn pf-btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Get in touch
+        </a>
+        <button class="pf-btn pf-btn-ghost" onclick="pfCopyEmail('{{ portfolio_user.email }}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          <span id="pf-copy-label">Copy email</span>
+        </button>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="pf-hero-visual">
+      <div class="pf-hero-card">
+        {% if settings.hero_image %}
+          <img src="{{ settings.hero_image }}" alt="{{ profile.full_name or profile.username }}">
+        {% else %}
+          <div class="pf-hero-card-fallback">{{ (profile.full_name or profile.username or '?')[0]|upper }}</div>
+        {% endif %}
+        <div class="pf-hero-card-badge">
+          <span class="pf-hero-card-badge-dot"></span>
+          <div>
+            <div class="pf-hero-card-badge-text">{{ profile.full_name or profile.username }}</div>
+            <div class="pf-hero-card-badge-sub">{{ profile.title or 'Portfolio' }}</div>
+          </div>
+        </div>
       </div>
     </div>
-    {% endfor %}
   </div>
-</section>
-{% endif %}
+</header>
 
-<!-- ============ SKILLS ============ -->
-{% if profile.skills %}
-<section class="pf-section pf-wrap pf-reveal">
-  <div class="pf-section-head">
-    <h2 class="pf-section-title">Skills</h2>
-    <span class="pf-section-count">{{ profile.skills|length }} listed</span>
-  </div>
-  <div class="pf-skills">
-    {% for s in profile.skills %}<span class="pf-skill">{{ s }}</span>{% endfor %}
-  </div>
-</section>
-{% endif %}
-
-<!-- ============ EDUCATION ============ -->
-{% if items.education %}
-<section class="pf-section pf-wrap pf-reveal">
-  <div class="pf-section-head">
-    <h2 class="pf-section-title">Education</h2>
-  </div>
-  <div class="pf-timeline">
-    {% for ed in items.education %}
-    <div class="pf-item">
-      <div class="pf-item-date">{{ ed.start_date or '' }}{% if ed.end_date %} – {{ ed.end_date }}{% endif %}</div>
+<main class="pf-main">
+  {% if settings.about or profile.bio %}
+  <section class="pf-section pf-reveal">
+    <div class="pf-section-head">
       <div>
-        <h3 class="pf-item-title">{{ ed.title }}</h3>
-        {% if ed.subtitle %}<div class="pf-item-subtitle">{{ ed.subtitle }}</div>{% endif %}
-        {% if ed.description %}<p class="pf-item-desc">{{ ed.description }}</p>{% endif %}
+        <span class="pf-section-kicker">01 — About</span>
+        <h2 class="pf-section-title">A little about me</h2>
       </div>
     </div>
-    {% endfor %}
-  </div>
-</section>
-{% endif %}
+    <p class="pf-about">{{ settings.about or profile.bio }}</p>
+  </section>
+  {% endif %}
 
-<!-- ============ CERTIFICATIONS ============ -->
-{% if items.certifications %}
-<section class="pf-section pf-wrap pf-reveal">
-  <div class="pf-section-head">
-    <h2 class="pf-section-title">Certifications</h2>
-  </div>
-  <div class="pf-timeline">
-    {% for c in items.certifications %}
-    <div class="pf-item">
-      <div class="pf-item-date">{{ c.start_date or '' }}</div>
+  {% if items.projects %}
+  <section class="pf-section pf-reveal">
+    <div class="pf-section-head">
       <div>
-        <h3 class="pf-item-title">{{ c.title }}</h3>
-        {% if c.subtitle %}<div class="pf-item-subtitle">{{ c.subtitle }}</div>{% endif %}
+        <span class="pf-section-kicker">02 — Selected work</span>
+        <h2 class="pf-section-title">Projects &amp; things I've built</h2>
+      </div>
+      <span class="pf-section-count">{{ items.projects|length }} {{ 'item' if items.projects|length == 1 else 'items' }}</span>
+    </div>
+    <div class="pf-projects">
+      {% for p in items.projects %}
+        {% if p.link_url %}<a class="pf-project pf-card-tilt" href="{{ p.link_url }}" target="_blank" rel="noopener">{% else %}<div class="pf-project pf-card-tilt">{% endif %}
+          <div class="pf-project-thumb">
+            {% if p.image_url %}
+              <img src="{{ p.image_url }}" alt="{{ p.title }}">
+            {% else %}
+              {{ (p.title or '?')[0]|upper }}
+            {% endif %}
+          </div>
+          <div class="pf-project-body">
+            {% if p.subtitle %}<div class="pf-project-subtitle">{{ p.subtitle }}</div>{% endif %}
+            <h3 class="pf-project-title">{{ p.title }}</h3>
+            {% if p.description %}<p class="pf-project-desc">{{ p.description }}</p>{% endif %}
+            {% if p.tags %}
+            <div class="pf-project-tags">
+              {% for t in p.tags %}<span class="pf-tag">{{ t }}</span>{% endfor %}
+            </div>
+            {% endif %}
+          </div>
+        {% if p.link_url %}</a>{% else %}</div>{% endif %}
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if items.experience %}
+  <section class="pf-section pf-reveal">
+    <div class="pf-section-head">
+      <div>
+        <span class="pf-section-kicker">03 — Experience</span>
+        <h2 class="pf-section-title">Where I've worked</h2>
+      </div>
+      <span class="pf-section-count">{{ items.experience|length }} {{ 'role' if items.experience|length == 1 else 'roles' }}</span>
+    </div>
+    <div class="pf-timeline">
+      {% for e in items.experience %}
+      <div class="pf-item">
+        <div class="pf-item-date">
+          {% if e.start_date or e.end_date %}
+            {{ e.start_date or '?' }}{% if e.end_date or e.start_date %} → {% endif %}{{ e.end_date or 'Present' }}
+          {% endif %}
+        </div>
+        <div>
+          <h3 class="pf-item-title">{{ e.title }}</h3>
+          {% if e.subtitle %}<div class="pf-item-subtitle">{{ e.subtitle }}</div>{% endif %}
+          {% if e.description %}<p class="pf-item-desc">{{ e.description }}</p>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if profile.skills %}
+  <section class="pf-section pf-reveal">
+    <div class="pf-section-head">
+      <div>
+        <span class="pf-section-kicker">04 — Toolkit</span>
+        <h2 class="pf-section-title">Skills &amp; tools</h2>
+      </div>
+      <span class="pf-section-count">{{ profile.skills|length }} listed</span>
+    </div>
+    <div class="pf-skills">
+      {% for s in profile.skills %}<span class="pf-skill">{{ s }}</span>{% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if items.education %}
+  <section class="pf-section pf-reveal">
+    <div class="pf-section-head">
+      <div>
+        <span class="pf-section-kicker">05 — Education</span>
+        <h2 class="pf-section-title">Academic background</h2>
       </div>
     </div>
-    {% endfor %}
-  </div>
-</section>
-{% endif %}
-
-<!-- ============ LINKS ============ -->
-{% if items.links %}
-<section class="pf-section pf-wrap pf-reveal">
-  <div class="pf-section-head">
-    <h2 class="pf-section-title">Find me online</h2>
-  </div>
-  <div class="pf-links">
-    {% for l in items.links %}
-    <a class="pf-link" href="{{ l.link_url or '#' }}" target="_blank" rel="noopener">
-      <div class="pf-link-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+    <div class="pf-timeline">
+      {% for ed in items.education %}
+      <div class="pf-item">
+        <div class="pf-item-date">{{ ed.start_date or '' }}{% if ed.end_date %} → {{ ed.end_date }}{% endif %}</div>
+        <div>
+          <h3 class="pf-item-title">{{ ed.title }}</h3>
+          {% if ed.subtitle %}<div class="pf-item-subtitle">{{ ed.subtitle }}</div>{% endif %}
+          {% if ed.description %}<p class="pf-item-desc">{{ ed.description }}</p>{% endif %}
+        </div>
       </div>
-      <div class="pf-link-body">
-        <div class="pf-link-title">{{ l.title }}</div>
-        <div class="pf-link-url">{{ l.link_url or '' }}</div>
-      </div>
-    </a>
-    {% endfor %}
-  </div>
-</section>
-{% endif %}
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
 
-<!-- ============ FOOTER ============ -->
-<footer class="pf-footer pf-wrap">
-  <p class="pf-footer-quote">Let's build something together.</p>
-  <div class="pf-footer-actions">
-    {% if portfolio_user.email %}
+  {% if items.certifications %}
+  <section class="pf-section pf-reveal">
+    <div class="pf-section-head">
+      <div>
+        <span class="pf-section-kicker">06 — Certifications</span>
+        <h2 class="pf-section-title">Continuing education</h2>
+      </div>
+    </div>
+    <div class="pf-timeline">
+      {% for c in items.certifications %}
+      <div class="pf-item">
+        <div class="pf-item-date">{{ c.start_date or '' }}</div>
+        <div>
+          <h3 class="pf-item-title">{{ c.title }}</h3>
+          {% if c.subtitle %}<div class="pf-item-subtitle">{{ c.subtitle }}</div>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if items.links %}
+  <section class="pf-section pf-reveal">
+    <div class="pf-section-head">
+      <div>
+        <span class="pf-section-kicker">07 — Links</span>
+        <h2 class="pf-section-title">Find me online</h2>
+      </div>
+    </div>
+    <div class="pf-links">
+      {% for l in items.links %}
+      <a class="pf-link" href="{{ l.link_url or '#' }}" target="_blank" rel="noopener">
+        <div class="pf-link-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        </div>
+        <div class="pf-link-body">
+          <div class="pf-link-title">{{ l.title }}</div>
+          <div class="pf-link-url">{{ l.link_url or '' }}</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</main>
+
+{% if portfolio_user.email %}
+<div class="pf-cta-wrap">
+  <div class="pf-cta pf-reveal">
+    <h2>Let's build something<br>worth remembering.</h2>
+    <p>{{ profile.full_name or profile.username }} is currently open to new opportunities. Reach out to start a conversation.</p>
     <a href="mailto:{{ portfolio_user.email }}" class="pf-btn pf-btn-primary">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-      Email me
+      Start a conversation
     </a>
-    {% endif %}
   </div>
-  <div class="pf-footer-fine">{{ profile.full_name or profile.username }} · {{ '© ' ~ (now_year|default(2026)) }}</div>
-</footer>
+</div>
+{% endif %}
+
+<div class="pf-fine">{{ profile.full_name or profile.username }} · Portfolio · {{ now_year|default(2026) }}</div>
 
 <script>
-  // ---------- Theme toggle (persist per-device) ----------
-  window.pfToggleTheme = function(){
-    var cur = document.documentElement.getAttribute('data-dark') === '1';
-    var next = !cur;
-    document.documentElement.setAttribute('data-dark', next ? '1' : '0');
-    try { localStorage.setItem('pf_theme_pref', next ? 'dark' : 'light'); } catch(_){}
+  window.pfToggleMode = function(){
+    var cur = document.documentElement.getAttribute('data-mode');
+    var next = cur === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-mode', next);
+    try { localStorage.setItem('pf_mode', next); } catch(_){}
   };
 
-  // ---------- Copy email ----------
   window.pfCopyEmail = function(email){
     var label = document.getElementById('pf-copy-label');
-    function done(){ if (label){ label.textContent = 'Copied'; setTimeout(function(){ label.textContent = 'Copy email'; }, 1800); } }
+    function done(){
+      if (!label) return;
+      var old = label.textContent;
+      label.textContent = 'Copied ✓';
+      setTimeout(function(){ label.textContent = old; }, 1800);
+    }
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(email).then(done).catch(function(){
-        pfFallbackCopy(email, done);
-      });
-    } else { pfFallbackCopy(email, done); }
+      navigator.clipboard.writeText(email).then(done).catch(function(){ fallbackCopy(email, done); });
+    } else { fallbackCopy(email, done); }
   };
-  function pfFallbackCopy(txt, cb){
+  function fallbackCopy(txt, cb){
     var ta = document.createElement('textarea');
     ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
     document.body.appendChild(ta); ta.select();
@@ -826,7 +513,19 @@
     document.body.removeChild(ta);
   }
 
-  // ---------- Reveal on scroll ----------
+  (function(){
+    var bar = document.getElementById('pf-progress');
+    function onScroll(){
+      var h = document.documentElement;
+      var scrolled = h.scrollTop || document.body.scrollTop;
+      var height = h.scrollHeight - h.clientHeight;
+      var pct = height > 0 ? (scrolled / height) * 100 : 0;
+      if (bar) bar.style.width = pct + '%';
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+
   (function(){
     var io = new IntersectionObserver(function(entries){
       entries.forEach(function(e){
@@ -835,6 +534,22 @@
     }, { rootMargin: '0px 0px -60px 0px', threshold: 0.08 });
     document.querySelectorAll('.pf-reveal').forEach(function(el){ io.observe(el); });
   })();
+
+  document.querySelectorAll('.pf-card-tilt').forEach(function(card){
+    card.addEventListener('mousemove', function(e){
+      var r = card.getBoundingClientRect();
+      var x = ((e.clientX - r.left) / r.width) * 100;
+      var y = ((e.clientY - r.top) / r.height) * 100;
+      card.style.setProperty('--mx', x + '%');
+      card.style.setProperty('--my', y + '%');
+      var rx = ((e.clientY - r.top) / r.height - 0.5) * -3;
+      var ry = ((e.clientX - r.left) / r.width - 0.5) * 3;
+      card.style.transform = 'translateY(-6px) perspective(900px) rotateX(' + rx + 'deg) rotateY(' + ry + 'deg)';
+    });
+    card.addEventListener('mouseleave', function(){
+      card.style.transform = '';
+    });
+  });
 </script>
 </body>
 </html>
