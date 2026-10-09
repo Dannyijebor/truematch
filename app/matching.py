@@ -204,10 +204,12 @@ def find_matches(db: Session, user: User, limit: int = 30, offset: int = 0, min_
         prob = estimate_probability(job, profile, score, reasons)
         advice = build_advice(job, profile, reasons)
         odds_pct = None
+        top_boosters = []
         try:
             from app.odds import compute_odds
             _od = compute_odds(job, profile, _resume)
             odds_pct = _od.get("odds_pct")
+            top_boosters = _od.get("boosters") or []
         except Exception:
             pass
         out.append({
@@ -223,6 +225,7 @@ def find_matches(db: Session, user: User, limit: int = 30, offset: int = 0, min_
             "apply_url": job.apply_url,
             "posted_at": job.posted_at.isoformat() if job.posted_at else None,
             "odds_pct": odds_pct,
+            "top_boosters": top_boosters,
         })
     return out
 
