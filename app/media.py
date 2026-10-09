@@ -96,3 +96,21 @@ def delete_object(public_url: str):
         _client().delete_object(Bucket=os.getenv("R2_BUCKET"), Key=key)
     except Exception:
         pass
+
+
+def upload_bytes(user_id, filename: str, content_type: str, data: bytes, kind: str = "image") -> str:
+    """Upload raw bytes to R2 server-side. Returns public URL."""
+    import uuid as _uuid
+    ext = _ext_from_mime(content_type)
+    year_month = datetime.now(timezone.utc).strftime("%Y/%m")
+    key = f"u/{user_id}/{kind}/{year_month}/{_uuid.uuid4().hex}.{ext}"
+    client = _client()
+    bucket = os.getenv("R2_BUCKET")
+    client.put_object(
+        Bucket=bucket,
+        Key=key,
+        Body=data,
+        ContentType=content_type,
+        CacheControl="public, max-age=31536000, immutable",
+    )
+    return _public_url(key)

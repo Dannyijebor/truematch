@@ -1028,7 +1028,7 @@ async def save_settings_profile(request: Request, db: Session = Depends(get_db))
 
 @router.post("/app/settings/avatar")
 async def save_avatar(request: Request, db: Session = Depends(get_db)):
-    import base64
+    from app.media import upload_bytes
     user = current_user_web(request, db)
     if not user:
         return RedirectResponse("/login", status_code=302)
@@ -1039,10 +1039,9 @@ async def save_avatar(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse("/settings?error=no-file", status_code=302)
 
     data = await file.read()
-    if len(data) > 500 * 1024:
+    if len(data) > 5 * 1024 * 1024:
         return RedirectResponse("/settings?error=too-large", status_code=302)
 
-    # Detect mime
     mime = "image/jpeg"
     if data[:8] == b"\x89PNG\r\n\x1a\n":
         mime = "image/png"
@@ -1051,11 +1050,13 @@ async def save_avatar(request: Request, db: Session = Depends(get_db)):
     elif data[:4] == b"RIFF" and data[8:12] == b"WEBP":
         mime = "image/webp"
 
-    b64 = base64.b64encode(data).decode()
-    data_url = f"data:{mime};base64,{b64}"
+    try:
+        url = upload_bytes(user.id, file.filename or "avatar", mime, data, kind="image")
+    except Exception as e:
+        return RedirectResponse(f"/settings?error=upload-failed", status_code=302)
 
     profile = db.get(Profile, user.id) or Profile(user_id=user.id)
-    profile.avatar_url = data_url
+    profile.avatar_url = url
     db.add(profile)
     db.commit()
     _next = (form.get("next") or "").strip()
@@ -1958,7 +1959,7 @@ async def api_chat_report(request: Request, db: Session = Depends(get_db)):
 
 @router.post("/app/settings/banner")
 async def save_banner(request: Request, db: Session = Depends(get_db)):
-    import base64
+    from app.media import upload_bytes
     user = current_user_web(request, db)
     if not user:
         return RedirectResponse("/login", status_code=302)
@@ -1969,7 +1970,7 @@ async def save_banner(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse("/settings?error=no-file", status_code=302)
 
     data = await file.read()
-    if len(data) > 900 * 1024:
+    if len(data) > 5 * 1024 * 1024:
         return RedirectResponse("/settings?error=too-large", status_code=302)
 
     mime = "image/jpeg"
@@ -1980,11 +1981,13 @@ async def save_banner(request: Request, db: Session = Depends(get_db)):
     elif data[:4] == b"RIFF" and data[8:12] == b"WEBP":
         mime = "image/webp"
 
-    b64 = base64.b64encode(data).decode()
-    data_url = f"data:{mime};base64,{b64}"
+    try:
+        url = upload_bytes(user.id, file.filename or "banner", mime, data, kind="image")
+    except Exception as e:
+        return RedirectResponse(f"/settings?error=upload-failed", status_code=302)
 
     profile = db.get(Profile, user.id) or Profile(user_id=user.id)
-    profile.banner_url = data_url
+    profile.banner_url = url
     db.add(profile); db.commit()
     _next = (form.get("next") or "").strip()
     if _next and _next.startswith("/"):

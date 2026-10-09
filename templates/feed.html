@@ -144,7 +144,9 @@
     <header class="flex items-start gap-3 mb-3">
       {% if p.author.username %}<a href="/u/{{ p.author.username }}" class="shrink-0">{% endif %}
       {% if p.author.avatar_url %}
+        {% if p.author.username %}<a href="/u/{{ p.author.username }}" class="shrink-0">{% endif %}
         <img src="{{ p.author.avatar_url }}" class="w-10 h-10 rounded-full object-cover ring-1 ring-slate-700/50">
+        {% if p.author.username %}</a>{% endif %}
       {% else %}
         <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center font-semibold text-slate-950">
           {{ (p.author.name or '?')[0]|upper }}
