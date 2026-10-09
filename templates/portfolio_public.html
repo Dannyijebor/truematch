@@ -191,6 +191,65 @@
     body { background: #fff; color: #000; }
     .pf-project, .pf-link, .pf-item { break-inside: avoid; }
   }
+
+  /* ---------- Banner + socials (portfolio) ---------- */
+  .pf-banner {
+    position: relative;
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 0 22px;
+    margin-top: 22px;
+  }
+  .pf-banner-inner {
+    position: relative;
+    height: 180px;
+    border-radius: 22px;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--accent-soft) 0%, color-mix(in srgb, var(--accent) 8%, transparent) 100%);
+    border: 1px solid var(--border-2);
+    box-shadow: 0 20px 50px -22px var(--accent-glow);
+  }
+  @media (min-width: 720px) { .pf-banner-inner { height: 260px; } }
+  .pf-banner img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pf-banner-inner::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 55%, rgba(0,0,0,0.35) 100%);
+    pointer-events: none;
+  }
+  html[data-mode="light"] .pf-banner-inner::after {
+    background: linear-gradient(180deg, transparent 55%, rgba(0,0,0,0.15) 100%);
+  }
+
+  .pf-socials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 18px;
+  }
+  .pf-social {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border-2);
+    border-radius: 11px;
+    color: var(--text-2);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.15s ease, border-color 0.18s ease, color 0.18s ease;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .pf-social:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .pf-social svg { width: 15px; height: 15px; }
 </style>
 </head>
 <body>

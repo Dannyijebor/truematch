@@ -45,7 +45,98 @@
 <!-- Public profile -->
 <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5 mb-4">
   <h2 class="font-bold mb-4">Public profile</h2>
-  <form method="post" action="/app/settings/profile" class="space-y-4">
+  <!-- ===== Banner image ===== -->
+<div class="mt-6 rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+  <div class="flex items-start justify-between gap-3 flex-wrap mb-3">
+    <div>
+      <h3 class="text-base font-bold">Banner image</h3>
+      <p class="text-slate-400 text-sm mt-1">Shown as the hero on your profile and portfolio. Wide image (1500×500) works best.</p>
+    </div>
+  </div>
+
+  {% if profile.banner_url %}
+  <div class="mb-3 rounded-xl overflow-hidden border border-slate-800">
+    <img src="{{ profile.banner_url }}" alt="Banner" class="w-full h-32 object-cover">
+  </div>
+  {% endif %}
+
+  <form method="post" action="/app/settings/banner" enctype="multipart/form-data" class="flex flex-wrap gap-2">
+    <input type="file" name="file" accept="image/*" class="text-sm text-slate-300 file:bg-slate-800 file:border-0 file:px-3 file:py-2 file:rounded-lg file:text-slate-200 file:mr-3">
+    <button class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-4 py-2 rounded-xl text-sm">
+      Upload banner
+    </button>
+  </form>
+
+  {% if profile.banner_url %}
+  <form method="post" action="/app/settings/banner/remove" class="mt-2">
+    <button class="text-xs text-red-400 hover:text-red-300">Remove banner</button>
+  </form>
+  {% endif %}
+</div>
+
+<!-- ===== Social links ===== -->
+<div class="mt-6 rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+  <h3 class="text-base font-bold">Social &amp; professional links</h3>
+  <p class="text-slate-400 text-sm mt-1 mb-4">All optional. Shown on your profile and portfolio to spotlight you better.</p>
+
+  <form method="post" action="/app/settings/socials" class="space-y-3">
+    <div class="grid gap-3 md:grid-cols-2">
+      <label class="block">
+        <span class="text-xs text-slate-400 uppercase tracking-wider mb-1 block">LinkedIn</span>
+        <input type="url" name="linkedin" placeholder="https://linkedin.com/in/yourname"
+               value="{{ (profile.social_links or {}).get('linkedin', '') }}"
+               class="w-full bg-slate-950/60 border border-slate-700 rounded-xl px-3 py-2 text-sm">
+      </label>
+      <label class="block">
+        <span class="text-xs text-slate-400 uppercase tracking-wider mb-1 block">GitHub</span>
+        <input type="url" name="github" placeholder="https://github.com/yourname"
+               value="{{ (profile.social_links or {}).get('github', '') }}"
+               class="w-full bg-slate-950/60 border border-slate-700 rounded-xl px-3 py-2 text-sm">
+      </label>
+      <label class="block">
+        <span class="text-xs text-slate-400 uppercase tracking-wider mb-1 block">Twitter / X</span>
+        <input type="url" name="twitter" placeholder="https://x.com/yourname"
+               value="{{ (profile.social_links or {}).get('twitter', '') }}"
+               class="w-full bg-slate-950/60 border border-slate-700 rounded-xl px-3 py-2 text-sm">
+      </label>
+      <label class="block">
+        <span class="text-xs text-slate-400 uppercase tracking-wider mb-1 block">Behance</span>
+        <input type="url" name="behance" placeholder="https://behance.net/yourname"
+               value="{{ (profile.social_links or {}).get('behance', '') }}"
+               class="w-full bg-slate-950/60 border border-slate-700 rounded-xl px-3 py-2 text-sm">
+      </label>
+      <label class="block">
+        <span class="text-xs text-slate-400 uppercase tracking-wider mb-1 block">Dribbble</span>
+        <input type="url" name="dribbble" placeholder="https://dribbble.com/yourname"
+               value="{{ (profile.social_links or {}).get('dribbble', '') }}"
+               class="w-full bg-slate-950/60 border border-slate-700 rounded-xl px-3 py-2 text-sm">
+      </label>
+      <label class="block">
+        <span class="text-xs text-slate-400 uppercase tracking-wider mb-1 block">Instagram</span>
+        <input type="url" name="instagram" placeholder="https://instagram.com/yourname"
+               value="{{ (profile.social_links or {}).get('instagram', '') }}"
+               class="w-full bg-slate-950/60 border border-slate-700 rounded-xl px-3 py-2 text-sm">
+      </label>
+      <label class="block">
+        <span class="text-xs text-slate-400 uppercase tracking-wider mb-1 block">YouTube</span>
+        <input type="url" name="youtube" placeholder="https://youtube.com/@yourname"
+               value="{{ (profile.social_links or {}).get('youtube', '') }}"
+               class="w-full bg-slate-950/60 border border-slate-700 rounded-xl px-3 py-2 text-sm">
+      </label>
+      <label class="block">
+        <span class="text-xs text-slate-400 uppercase tracking-wider mb-1 block">Website</span>
+        <input type="url" name="website" placeholder="https://yourname.com"
+               value="{{ (profile.social_links or {}).get('website', '') }}"
+               class="w-full bg-slate-950/60 border border-slate-700 rounded-xl px-3 py-2 text-sm">
+      </label>
+    </div>
+    <button class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-4 py-2 rounded-xl text-sm">
+      Save links
+    </button>
+  </form>
+</div>
+
+<form method="post" action="/app/settings/profile" class="space-y-4">
 
     <div>
       <label class="block text-sm text-slate-400 mb-1">Username</label>

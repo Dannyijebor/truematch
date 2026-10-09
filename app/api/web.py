@@ -840,6 +840,8 @@ def public_profile(username: str, request: Request, db: Session = Depends(get_db
             "years_experience": years_exp,
             "remote_ok": bool(profile.remote_ok) if profile else False,
             "skills": merged_skills,
+            "banner_url": profile.banner_url if profile else None,
+            "social_links": (profile.social_links or {}) if profile else {},
             "portfolio_theme": profile.portfolio_theme if profile else "editorial",
             "portfolio_accent": (profile.portfolio_accent if profile and profile.portfolio_accent else "#10b981"),
         },
@@ -1944,3 +1946,72 @@ async def api_chat_report(request: Request, db: Session = Depends(get_db)):
     except Exception:
         pass
     return JSONResponse({"ok": True})
+
+
+# ---------- banner + socials ----------
+
+@router.post("/app/settings/banner")
+async def save_banner(request: Request, db: Session = Depends(get_db)):
+    import base64
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    form = await request.form()
+    file = form.get("file")
+    if not file or not file.filename:
+        return RedirectResponse("/settings?error=no-file", status_code=302)
+
+    data = await file.read()
+    if len(data) > 900 * 1024:
+        return RedirectResponse("/settings?error=too-large", status_code=302)
+
+    mime = "image/jpeg"
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        mime = "image/png"
+    elif data[:6] in (b"GIF87a", b"GIF89a"):
+        mime = "image/gif"
+    elif data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        mime = "image/webp"
+
+    b64 = base64.b64encode(data).decode()
+    data_url = f"data:{mime};base64,{b64}"
+
+    profile = db.get(Profile, user.id) or Profile(user_id=user.id)
+    profile.banner_url = data_url
+    db.add(profile); db.commit()
+    return RedirectResponse("/settings?saved=banner", status_code=302)
+
+
+@router.post("/app/settings/banner/remove")
+def remove_banner(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+    profile = db.get(Profile, user.id)
+    if profile:
+        profile.banner_url = None
+        db.commit()
+    return RedirectResponse("/settings?saved=banner-removed", status_code=302)
+
+
+@router.post("/app/settings/socials")
+async def save_socials(request: Request, db: Session = Depends(get_db)):
+    user = current_user_web(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    form = await request.form()
+    keys = ["linkedin", "github", "twitter", "behance", "dribbble", "instagram", "youtube", "website"]
+    links = {}
+    for k in keys:
+        v = (form.get(k) or "").strip()[:500]
+        if v:
+            if not v.startswith(("http://", "https://")):
+                v = "https://" + v
+            links[k] = v
+
+    profile = db.get(Profile, user.id) or Profile(user_id=user.id)
+    profile.social_links = links
+    db.add(profile); db.commit()
+    return RedirectResponse("/settings?saved=socials", status_code=302)

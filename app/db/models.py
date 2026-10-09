@@ -72,6 +72,8 @@ class Profile(Base):
     title: Mapped[str | None] = mapped_column(String, nullable=True)
     company_name: Mapped[str | None] = mapped_column(String, nullable=True)
     avatar_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    banner_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    social_links: Mapped[dict] = mapped_column(JSON, default=dict)
     theme: Mapped[str] = mapped_column(String, default="dark")
     portfolio_theme: Mapped[str] = mapped_column(String, default="editorial")
     portfolio_tagline: Mapped[str | None] = mapped_column(String, nullable=True)

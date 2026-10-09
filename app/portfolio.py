@@ -187,6 +187,8 @@ def public_portfolio(db: Session, username: str) -> dict | None:
         "profile": {
             "username": p.username,
             "avatar_url": p.avatar_url,
+            "banner_url": p.banner_url,
+            "social_links": p.social_links or {},
             "title": p.title,
             "company_name": p.company_name,
             "headline": p.headline,
