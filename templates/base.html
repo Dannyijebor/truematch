@@ -1,5 +1,5 @@
 <!doctype html>
-{% set theme = request.cookies.get('tm_theme', 'dark') %}
+{% set theme = request.cookies.get('tm_theme', 'light') %}
 {% if theme == 'system' %}{% set theme = 'dark' %}{% endif %}
 <html lang="en" class="{{ 'light' if theme == 'light' else 'dark' }}">
 <head>
@@ -1558,7 +1558,7 @@
     <div class="px-3 py-2">
       <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Theme</div>
       <form method="post" action="/app/settings/theme" class="flex gap-2">
-        {% set t = request.cookies.get('tm_theme', 'dark') %}
+        {% set t = request.cookies.get('tm_theme', 'light') %}
         <button name="theme" value="dark" class="flex-1 text-xs py-2 rounded-lg transition-colors {% if t == 'dark' %}bg-emerald-500 text-slate-950 font-semibold{% else %}bg-slate-800 text-slate-300 hover:bg-slate-700{% endif %}">Dark</button>
         <button name="theme" value="light" class="flex-1 text-xs py-2 rounded-lg transition-colors {% if t == 'light' %}bg-emerald-500 text-slate-950 font-semibold{% else %}bg-slate-800 text-slate-300 hover:bg-slate-700{% endif %}">Light</button>
       </form>

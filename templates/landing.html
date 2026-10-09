@@ -66,23 +66,65 @@
     0%,100% { box-shadow: 0 0 0 0 rgba(0,217,154,0.6); }
     50%     { box-shadow: 0 0 0 9px rgba(0,217,154,0); }
   }
-  .lm-nav-links { display: flex; align-items: center; gap: 10px; }
-  .lm-nav-login {
-    color: #d8dfe3; font-weight: 600; font-size: 14px;
-    text-decoration: none; padding: 8px 14px; border-radius: 10px;
-    transition: background 0.15s ease;
+  .lm-nav-links { display: flex; align-items: center; gap: 6px; }
+  @media (min-width: 480px) { .lm-nav-links { gap: 10px; } }
+
+  /* Theme toggle button */
+  .lm-nav-theme {
+    width: 38px; height: 38px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 10px;
+    color: #d8dfe3;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
   }
+  html.light .lm-nav-theme { border-color: rgba(15,23,32,0.12); color: #2a3640; }
+  .lm-nav-theme:hover { background: rgba(255,255,255,0.06); border-color: rgba(0,217,154,0.35); color: #00d99a; }
+  html.light .lm-nav-theme:hover { background: rgba(0,0,0,0.04); }
+  .lm-nav-theme svg { width: 18px; height: 18px; }
+  .lm-nav-theme .lm-icon-sun { display: none; }
+  .lm-nav-theme .lm-icon-moon { display: block; }
+  html.light .lm-nav-theme .lm-icon-sun { display: block; }
+  html.light .lm-nav-theme .lm-icon-moon { display: none; }
+
+  .lm-nav-login {
+    color: #d8dfe3; font-weight: 600; font-size: 13.5px;
+    text-decoration: none; padding: 8px 10px; border-radius: 10px;
+    transition: background 0.15s ease;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+  }
+  @media (min-width: 480px) { .lm-nav-login { font-size: 14px; padding: 8px 14px; } }
   html.light .lm-nav-login { color: #2a3640; }
   .lm-nav-login:hover { background: rgba(255,255,255,0.06); }
   html.light .lm-nav-login:hover { background: rgba(0,0,0,0.05); }
+
   .lm-nav-cta {
-    background: #00a884; color: #ffffff; font-weight: 700; font-size: 14px;
-    text-decoration: none; padding: 9px 16px; border-radius: 10px;
+    background: #00a884; color: #ffffff; font-weight: 700;
+    font-size: 13px;
+    text-decoration: none;
+    padding: 9px 12px;
+    border-radius: 10px;
+    white-space: nowrap;
     transition: background 0.15s ease, transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
     box-shadow: 0 6px 20px rgba(0,168,132,0.32);
+    -webkit-tap-highlight-color: transparent;
   }
+  @media (min-width: 480px) { .lm-nav-cta { font-size: 14px; padding: 9px 16px; } }
   .lm-nav-cta:hover { background: #00c197; box-shadow: 0 10px 28px rgba(0,168,132,0.5); transform: translateY(-1px); }
   .lm-nav-cta:active { transform: scale(0.97); }
+
+  /* Shrink logo on small screens */
+  @media (max-width: 400px) {
+    .lm-logo { font-size: 17px; }
+    .lm-nav-login { font-size: 13px; padding: 6px 8px; }
+    .lm-nav-cta { font-size: 12.5px; padding: 8px 10px; }
+    .lm-nav-theme { width: 34px; height: 34px; }
+  }
 
   /* ---------- HERO ---------- */
   .lm-hero {
@@ -635,6 +677,10 @@
   <div class="lm-wrap lm-nav-inner">
     <a href="/" class="lm-logo">TrueMatch<span class="lm-logo-dot"></span></a>
     <div class="lm-nav-links">
+      <button class="lm-nav-theme" onclick="lmToggleTheme()" aria-label="Toggle theme">
+        <svg class="lm-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="lm-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg>
+      </button>
       <a href="/login" class="lm-nav-login">Log in</a>
       <a href="/signup" class="lm-nav-cta">Create account</a>
     </div>
@@ -842,6 +888,21 @@
 (function(){
   document.body.classList.add('tm-landing');
 
+  // ---------- Theme toggle ----------
+  window.lmToggleTheme = function(){
+    var html = document.documentElement;
+    var isLight = html.classList.contains('light');
+    if (isLight) {
+      html.classList.remove('light');
+      html.classList.add('dark');
+      try { document.cookie = 'tm_theme=dark; path=/; max-age=' + (60*60*24*365); } catch(e){}
+    } else {
+      html.classList.add('light');
+      html.classList.remove('dark');
+      try { document.cookie = 'tm_theme=light; path=/; max-age=' + (60*60*24*365); } catch(e){}
+    }
+  };
+
   // ---------- Scroll progress + nav shadow ----------
   var prog = document.getElementById('lm-scroll-progress');
   var nav = document.getElementById('lm-nav');
@@ -1008,7 +1069,7 @@
   setInterval(function(){
     jcIdx = (jcIdx + 1) % jobs.length;
     renderJob(jcIdx);
-  }, 4500);
+  }, 7500);
 
   // ---------- Smooth anchor scroll ----------
   document.querySelectorAll('a[href^="#"]').forEach(function(a){
