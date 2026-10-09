@@ -23,7 +23,7 @@ def get_portfolio_settings(db: Session, user_id) -> dict:
         "tagline": p.portfolio_tagline,
         "about": p.portfolio_about,
         "hero_image": p.portfolio_hero_image,
-        "accent": p.portfolio_accent or "#10b981",
+        "accent": "#00a884",
         "is_public": bool(p.portfolio_is_public),
         "has_vercel_token": bool(p.vercel_token),
     }

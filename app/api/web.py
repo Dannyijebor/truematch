@@ -843,7 +843,7 @@ def public_profile(username: str, request: Request, db: Session = Depends(get_db
             "banner_url": profile.banner_url if profile else None,
             "social_links": (profile.social_links or {}) if profile else {},
             "portfolio_theme": profile.portfolio_theme if profile else "editorial",
-            "portfolio_accent": (profile.portfolio_accent if profile and profile.portfolio_accent else "#10b981"),
+            "portfolio_accent": "#00a884",
         },
         portfolio_items=portfolio_items,
         portfolio_count=portfolio_count,
@@ -1020,6 +1020,9 @@ async def save_settings_profile(request: Request, db: Session = Depends(get_db))
 
     db.add(profile)
     db.commit()
+    _next = (form.get("next") or "").strip()
+    if _next and _next.startswith("/"):
+        return RedirectResponse(f"{_next}?saved=profile", status_code=302)
     return RedirectResponse("/settings?saved=profile", status_code=302)
 
 
@@ -1055,6 +1058,9 @@ async def save_avatar(request: Request, db: Session = Depends(get_db)):
     profile.avatar_url = data_url
     db.add(profile)
     db.commit()
+    _next = (form.get("next") or "").strip()
+    if _next and _next.startswith("/"):
+        return RedirectResponse(f"{_next}?saved=avatar", status_code=302)
     return RedirectResponse("/settings?saved=avatar", status_code=302)
 
 
@@ -1980,6 +1986,9 @@ async def save_banner(request: Request, db: Session = Depends(get_db)):
     profile = db.get(Profile, user.id) or Profile(user_id=user.id)
     profile.banner_url = data_url
     db.add(profile); db.commit()
+    _next = (form.get("next") or "").strip()
+    if _next and _next.startswith("/"):
+        return RedirectResponse(f"{_next}?saved=banner", status_code=302)
     return RedirectResponse("/settings?saved=banner", status_code=302)
 
 
@@ -2014,4 +2023,7 @@ async def save_socials(request: Request, db: Session = Depends(get_db)):
     profile = db.get(Profile, user.id) or Profile(user_id=user.id)
     profile.social_links = links
     db.add(profile); db.commit()
+    _next = (form.get("next") or "").strip()
+    if _next and _next.startswith("/"):
+        return RedirectResponse(f"{_next}?saved=socials", status_code=302)
     return RedirectResponse("/settings?saved=socials", status_code=302)
