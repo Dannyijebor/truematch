@@ -1,70 +1,739 @@
 {% extends "base.html" %}
 {% block title %}{{ mode|capitalize }} · TrueMatch{% endblock %}
+
 {% block content %}
+<style>
+  /* Hide the global nav + footer on auth pages */
+  body.tm-auth-page nav,
+  body.tm-auth-page header.app-header,
+  body.tm-auth-page footer,
+  body.tm-auth-page .tm-cmd { display: none !important; }
+  body.tm-auth-page { overflow-x: hidden; }
 
-<div class="max-w-md mx-auto py-8 md:py-16">
-  <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">
-    {% if mode == "signup" %}Create your account{% else %}Welcome back{% endif %}
-  </h1>
-  <p class="text-slate-400 mt-2">
-    {% if mode == "signup" %}Free to start. No credit card.{% else %}Log in to see your matches.{% endif %}
-  </p>
+  /* ============ Auth layout ============ */
+  .tm-auth {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr;
+    background: #0a1418;
+    color: #e9edef;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+  @media (min-width: 900px) {
+    .tm-auth { grid-template-columns: 1.05fr 1fr; }
+  }
 
-  {% if error %}
-    <div class="mt-6 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 p-3 text-sm">
-      {{ error }}
+  /* ============ Left panel (brand) ============ */
+  .tm-auth-brand {
+    position: relative;
+    display: none;
+    overflow: hidden;
+    padding: 48px 56px;
+    isolation: isolate;
+  }
+  @media (min-width: 900px) {
+    .tm-auth-brand { display: flex; flex-direction: column; justify-content: space-between; }
+  }
+  .tm-auth-brand-bg {
+    position: absolute;
+    inset: -20%;
+    z-index: -1;
+    background:
+      radial-gradient(circle at 25% 20%, rgba(0, 168, 132, 0.55) 0%, transparent 45%),
+      radial-gradient(circle at 75% 75%, rgba(83, 189, 235, 0.35) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(0, 100, 80, 0.6) 0%, transparent 60%);
+    animation: tmAuthGradient 22s ease-in-out infinite alternate;
+    filter: blur(10px) saturate(140%);
+  }
+  @keyframes tmAuthGradient {
+    0%   { transform: translate(0%, 0%) scale(1); }
+    50%  { transform: translate(-3%, 2%) scale(1.08); }
+    100% { transform: translate(2%, -2%) scale(1.05); }
+  }
+  .tm-auth-brand::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+    background-size: 26px 26px;
+    mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
+    pointer-events: none;
+  }
+
+  .tm-auth-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.3px;
+    color: #fff;
+    text-decoration: none;
+  }
+  .tm-auth-logo-dot {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #00d99a;
+    box-shadow: 0 0 0 0 rgba(0,217,154,0.6);
+    animation: tmAuthLogoPulse 2.2s ease-in-out infinite;
+  }
+  @keyframes tmAuthLogoPulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(0,217,154,0.6); }
+    50%     { box-shadow: 0 0 0 10px rgba(0,217,154,0); }
+  }
+
+  .tm-auth-hero h1 {
+    font-size: clamp(34px, 3.4vw, 48px);
+    line-height: 1.08;
+    font-weight: 800;
+    letter-spacing: -1.2px;
+    color: #ffffff;
+    margin: 0 0 16px;
+  }
+  .tm-auth-hero p {
+    font-size: 17px;
+    line-height: 1.55;
+    color: rgba(255,255,255,0.75);
+    max-width: 480px;
+    margin: 0 0 32px;
+  }
+  .tm-auth-features {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-bottom: 40px;
+  }
+  .tm-auth-feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    color: rgba(255,255,255,0.9);
+    font-size: 15px;
+    line-height: 1.4;
+  }
+  .tm-auth-feature-icon {
+    width: 38px; height: 38px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.16);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .tm-auth-feature-icon svg {
+    width: 20px; height: 20px;
+    color: #ffffff;
+  }
+  .tm-auth-feature strong {
+    display: block;
+    color: #ffffff;
+    font-weight: 700;
+    margin-bottom: 2px;
+    font-size: 14.5px;
+  }
+  .tm-auth-feature span {
+    color: rgba(255,255,255,0.62);
+    font-size: 13px;
+  }
+
+  .tm-auth-quote {
+    border-left: 3px solid rgba(255,255,255,0.35);
+    padding: 4px 0 4px 18px;
+    color: rgba(255,255,255,0.85);
+    font-size: 14px;
+    line-height: 1.5;
+    font-style: italic;
+    max-width: 460px;
+  }
+  .tm-auth-quote-author {
+    display: block;
+    margin-top: 8px;
+    font-style: normal;
+    font-size: 12.5px;
+    color: rgba(255,255,255,0.55);
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  /* ============ Right panel (form) ============ */
+  .tm-auth-form-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    background: #0a1418;
+    position: relative;
+  }
+  @media (min-width: 900px) {
+    .tm-auth-form-panel { padding: 56px 48px; background: #0d1a1f; }
+  }
+
+  /* Mobile brand strip */
+  .tm-auth-mobile-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 28px;
+  }
+  @media (min-width: 900px) {
+    .tm-auth-mobile-brand { display: none; }
+  }
+
+  .tm-auth-form {
+    width: 100%;
+    max-width: 420px;
+    animation: tmAuthFadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @keyframes tmAuthFadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .tm-auth-heading {
+    font-size: 30px;
+    line-height: 1.15;
+    font-weight: 800;
+    letter-spacing: -0.6px;
+    color: #ffffff;
+    margin: 0 0 8px;
+  }
+  .tm-auth-subheading {
+    font-size: 14.5px;
+    color: #8a97a2;
+    margin: 0 0 28px;
+    line-height: 1.5;
+  }
+
+  /* Field group — floating label */
+  .tm-field {
+    position: relative;
+    margin-bottom: 16px;
+    animation: tmAuthField 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .tm-field:nth-child(1) { animation-delay: 0.05s; }
+  .tm-field:nth-child(2) { animation-delay: 0.10s; }
+  .tm-field:nth-child(3) { animation-delay: 0.15s; }
+  .tm-field:nth-child(4) { animation-delay: 0.20s; }
+  @keyframes tmAuthField {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .tm-field input,
+  .tm-field select {
+    width: 100%;
+    height: 56px;
+    background: #162025;
+    border: 1.5px solid #243038;
+    border-radius: 14px;
+    padding: 22px 16px 8px 46px;
+    color: #f0f4f6;
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.22s ease;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .tm-field select {
+    padding-right: 42px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238a97a2' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    cursor: pointer;
+  }
+  .tm-field select option {
+    background: #162025;
+    color: #f0f4f6;
+  }
+  .tm-field input:focus,
+  .tm-field select:focus {
+    border-color: #00d99a;
+    background: #18262c;
+    box-shadow: 0 0 0 4px rgba(0,217,154,0.12);
+  }
+  .tm-field input:not(:placeholder-shown),
+  .tm-field input:focus {
+    background: #18262c;
+  }
+  .tm-field label {
+    position: absolute;
+    left: 46px;
+    top: 18px;
+    font-size: 15px;
+    color: #7a878f;
+    pointer-events: none;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    transform-origin: left center;
+  }
+  .tm-field input:focus ~ label,
+  .tm-field input:not(:placeholder-shown) ~ label,
+  .tm-field.filled label {
+    top: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #00d99a;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+  }
+  .tm-field-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    color: #6d7a82;
+    pointer-events: none;
+    transition: color 0.18s ease;
+  }
+  .tm-field input:focus ~ .tm-field-icon,
+  .tm-field select:focus ~ .tm-field-icon {
+    color: #00d99a;
+  }
+
+  /* Password strength */
+  .tm-strength {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: -8px;
+    margin-bottom: 16px;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.22s ease, max-height 0.3s ease, margin 0.3s ease;
+  }
+  .tm-strength.tm-show { opacity: 1; max-height: 40px; }
+  .tm-strength-bar {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: #243038;
+    overflow: hidden;
+    position: relative;
+  }
+  .tm-strength-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 0%;
+    background: #ef4444;
+    border-radius: 2px;
+    transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.35s ease;
+  }
+  .tm-strength-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #ef4444;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    min-width: 62px;
+    text-align: right;
+    transition: color 0.35s ease;
+  }
+
+  /* Submit button */
+  .tm-auth-submit {
+    width: 100%;
+    height: 56px;
+    background: #00a884;
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.18s ease, transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.24s ease;
+    box-shadow: 0 8px 26px rgba(0, 168, 132, 0.35);
+    position: relative;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tm-auth-submit:hover { background: #00c197; box-shadow: 0 10px 34px rgba(0, 168, 132, 0.5); }
+  .tm-auth-submit:active { transform: scale(0.985); }
+  .tm-auth-submit:disabled {
+    background: #0a6b56;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .tm-auth-submit.tm-loading {
+    color: transparent;
+    pointer-events: none;
+  }
+  .tm-auth-submit.tm-loading::after {
+    content: "";
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 22px; height: 22px;
+    margin: -11px 0 0 -11px;
+    border: 2.5px solid rgba(255,255,255,0.35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: tmAuthSpin 0.7s linear infinite;
+  }
+  @keyframes tmAuthSpin { to { transform: rotate(360deg); } }
+
+  /* Error message */
+  .tm-auth-error {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    border-radius: 12px;
+    color: #fca5a5;
+    font-size: 13.5px;
+    font-weight: 500;
+    margin-bottom: 18px;
+    animation: tmAuthShake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  }
+  .tm-auth-error svg { width: 18px; height: 18px; flex-shrink: 0; }
+  @keyframes tmAuthShake {
+    10%, 90% { transform: translateX(-2px); }
+    20%, 80% { transform: translateX(4px); }
+    30%, 50%, 70% { transform: translateX(-6px); }
+    40%, 60% { transform: translateX(6px); }
+  }
+
+  /* Switch mode */
+  .tm-auth-switch {
+    text-align: center;
+    margin-top: 22px;
+    font-size: 14px;
+    color: #8a97a2;
+  }
+  .tm-auth-switch a {
+    color: #00d99a;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.15s ease;
+  }
+  .tm-auth-switch a:hover { opacity: 0.8; }
+
+  /* Meta row: remember me + forgot */
+  .tm-auth-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 4px 0 18px;
+    font-size: 13.5px;
+  }
+  .tm-auth-remember {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #8a97a2;
+    cursor: pointer;
+    user-select: none;
+  }
+  .tm-auth-remember input {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    border: 1.5px solid #35424c;
+    background: #162025;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.15s ease;
+    padding: 0;
+  }
+  .tm-auth-remember input:checked {
+    background: #00a884;
+    border-color: #00a884;
+  }
+  .tm-auth-remember input:checked::after {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 5px;
+    height: 9px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  .tm-auth-forgot {
+    color: #6d7a82;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .tm-auth-forgot:hover { color: #00d99a; }
+
+  /* Terms */
+  .tm-auth-terms {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #6d7a82;
+  }
+  .tm-auth-terms a { color: #8a97a2; text-decoration: underline; text-decoration-color: rgba(138,151,162,0.3); }
+  .tm-auth-terms a:hover { color: #00d99a; }
+
+  /* ============ Light mode ============ */
+  html.light .tm-auth { background: #f6f1e4; }
+  html.light .tm-auth-form-panel { background: #ffffff; }
+  @media (min-width: 900px) {
+    html.light .tm-auth-form-panel { background: #faf8f2; }
+  }
+  html.light .tm-auth-heading { color: #0f1720; }
+  html.light .tm-auth-subheading { color: #667580; }
+  html.light .tm-field input,
+  html.light .tm-field select {
+    background: #ffffff;
+    border-color: #dfe4e8;
+    color: #0f1720;
+  }
+  html.light .tm-field input:focus,
+  html.light .tm-field select:focus {
+    border-color: #00a884;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(0,168,132,0.14);
+  }
+  html.light .tm-field label { color: #8a97a2; }
+  html.light .tm-field input:focus ~ label,
+  html.light .tm-field input:not(:placeholder-shown) ~ label {
+    color: #008a6b;
+  }
+  html.light .tm-field-icon { color: #94a2aa; }
+  html.light .tm-field input:focus ~ .tm-field-icon,
+  html.light .tm-field select:focus ~ .tm-field-icon { color: #00a884; }
+  html.light .tm-auth-switch { color: #667580; }
+  html.light .tm-auth-switch a { color: #00a884; }
+  html.light .tm-auth-remember { color: #667580; }
+  html.light .tm-auth-remember input { background: #ffffff; border-color: #cfd6db; }
+  html.light .tm-auth-forgot { color: #94a2aa; }
+  html.light .tm-auth-forgot:hover { color: #00a884; }
+  html.light .tm-auth-terms { color: #8a97a2; }
+  html.light .tm-auth-terms a { color: #667580; text-decoration-color: rgba(102,117,128,0.35); }
+  html.light .tm-auth-terms a:hover { color: #00a884; }
+</style>
+
+<div class="tm-auth">
+  <!-- ======== BRAND PANEL (desktop only) ======== -->
+  <div class="tm-auth-brand">
+    <div class="tm-auth-brand-bg"></div>
+
+    <a href="/" class="tm-auth-logo">
+      TrueMatch<span class="tm-auth-logo-dot"></span>
+    </a>
+
+    <div class="tm-auth-hero">
+      <h1>Where top talent meets<br>verified opportunity.</h1>
+      <p>The modern job platform built for Africa's ambitious professionals — with AI that writes your applications so you can focus on landing the right role.</p>
+
+      <div class="tm-auth-features">
+        <div class="tm-auth-feature">
+          <div class="tm-auth-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <div>
+            <strong>Verified jobs only</strong>
+            <span>Every listing pulled directly from real company ATS boards</span>
+          </div>
+        </div>
+
+        <div class="tm-auth-feature">
+          <div class="tm-auth-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </div>
+          <div>
+            <strong>AI-tailored applications</strong>
+            <span>Custom cover letters and resume bullets for every role — in one tap</span>
+          </div>
+        </div>
+
+        <div class="tm-auth-feature">
+          <div class="tm-auth-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div>
+            <strong>Privacy-first</strong>
+            <span>No spam, no scraping, no shady recruiters. Ever.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tm-auth-quote">
+        "I landed three interviews in my first week. The applications actually felt personal — not like templates."
+        <span class="tm-auth-quote-author">— Early user, Lagos</span>
+      </div>
     </div>
-  {% endif %}
 
-  <form method="post" action="/{{ mode }}" class="mt-6 space-y-4">
-    <div>
-      <label class="block text-sm text-slate-400 mb-1">Email</label>
-      <input name="email" type="email" required autocomplete="email"
-             class="w-full rounded-xl bg-slate-900 border border-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 px-4 py-3 outline-none">
+    <div style="font-size:12px;color:rgba(255,255,255,0.5);letter-spacing:0.3px;">
+      © {{ now_year|default(2026) }} TrueMatch · Built for the modern career
     </div>
-    <div>
-      <label class="block text-sm text-slate-400 mb-1">Password</label>
-      <input name="password" type="password" required minlength="6" autocomplete="current-password"
-             class="w-full rounded-xl bg-slate-900 border border-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 px-4 py-3 outline-none">
+  </div>
+
+  <!-- ======== FORM PANEL ======== -->
+  <div class="tm-auth-form-panel">
+    <!-- Mobile brand strip -->
+    <div class="tm-auth-mobile-brand">
+      <a href="/" class="tm-auth-logo" style="color:#fff;">
+        TrueMatch<span class="tm-auth-logo-dot"></span>
+      </a>
     </div>
 
-    {% if mode == "signup" %}
-    <div>
-      <label class="block text-sm text-slate-400 mb-1">Full name (optional)</label>
-      <input name="full_name" type="text"
-             class="w-full rounded-xl bg-slate-900 border border-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 px-4 py-3 outline-none">
-    </div>
-    <div>
-      <label class="block text-sm text-slate-400 mb-1">Country</label>
-      <select name="country" class="w-full rounded-xl bg-slate-900 border border-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 px-4 py-3 outline-none">
-        <option value="NG" selected>Nigeria</option>
-        <option value="KE">Kenya</option>
-        <option value="GH">Ghana</option>
-        <option value="ZA">South Africa</option>
-        <option value="IN">India</option>
-        <option value="PH">Philippines</option>
-        <option value="BR">Brazil</option>
-        <option value="US">United States</option>
-        <option value="GB">United Kingdom</option>
-        <option value="CA">Canada</option>
-        <option value="DE">Germany</option>
-        <option value="OTHER">Other</option>
-      </select>
-    </div>
-    {% endif %}
+    <form class="tm-auth-form" method="post" action="/{{ mode }}" id="tm-auth-form" novalidate>
+      <h1 class="tm-auth-heading">
+        {% if mode == "signup" %}Create your account{% else %}Welcome back{% endif %}
+      </h1>
+      <p class="tm-auth-subheading">
+        {% if mode == "signup" %}Free to start. No credit card required.{% else %}Log in to see your matches and messages.{% endif %}
+      </p>
 
-    <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-6 py-3 rounded-xl text-lg">
-      {% if mode == "signup" %}Create account{% else %}Log in{% endif %}
-    </button>
-  </form>
+      {% if error %}
+      <div class="tm-auth-error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>{{ error }}</span>
+      </div>
+      {% endif %}
 
-  <p class="text-center text-slate-500 text-sm mt-6">
-    {% if mode == "signup" %}
-      Already have an account? <a href="/login" class="text-emerald-400 hover:underline">Log in</a>
-    {% else %}
-      New here? <a href="/signup" class="text-emerald-400 hover:underline">Create account</a>
-    {% endif %}
-  </p>
+      <!-- Email -->
+      <div class="tm-field">
+        <input type="email" name="email" id="tm-email" placeholder=" " autocomplete="email" required>
+        <label for="tm-email">Email address</label>
+        <svg class="tm-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+
+      <!-- Password -->
+      <div class="tm-field">
+        <input type="password" name="password" id="tm-password" placeholder=" " autocomplete="{% if mode == 'signup' %}new-password{% else %}current-password{% endif %}" required minlength="6">
+        <label for="tm-password">Password</label>
+        <svg class="tm-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+
+      {% if mode == "signup" %}
+      <div class="tm-strength" id="tm-strength">
+        <div class="tm-strength-bar"><div class="tm-strength-fill" id="tm-strength-fill"></div></div>
+        <div class="tm-strength-label" id="tm-strength-label">Weak</div>
+      </div>
+
+      <!-- Full name -->
+      <div class="tm-field">
+        <input type="text" name="full_name" id="tm-name" placeholder=" " autocomplete="name">
+        <label for="tm-name">Full name</label>
+        <svg class="tm-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+
+      <!-- Country -->
+      <div class="tm-field filled">
+        <select name="country" id="tm-country">
+          <option value="Nigeria" selected>🇳🇬 Nigeria</option>
+          <option value="Ghana">🇬🇭 Ghana</option>
+          <option value="Kenya">🇰🇪 Kenya</option>
+          <option value="South Africa">🇿🇦 South Africa</option>
+          <option value="Egypt">🇪🇬 Egypt</option>
+          <option value="United Kingdom">🇬🇧 United Kingdom</option>
+          <option value="United States">🇺🇸 United States</option>
+          <option value="Canada">🇨🇦 Canada</option>
+          <option value="Germany">🇩🇪 Germany</option>
+          <option value="France">🇫🇷 France</option>
+          <option value="Netherlands">🇳🇱 Netherlands</option>
+          <option value="Ireland">🇮🇪 Ireland</option>
+          <option value="Portugal">🇵🇹 Portugal</option>
+          <option value="Spain">🇪🇸 Spain</option>
+          <option value="United Arab Emirates">🇦🇪 United Arab Emirates</option>
+          <option value="India">🇮🇳 India</option>
+          <option value="Singapore">🇸🇬 Singapore</option>
+          <option value="Australia">🇦🇺 Australia</option>
+          <option value="Other">Other</option>
+        </select>
+        <label for="tm-country">Country</label>
+        <svg class="tm-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      </div>
+      {% else %}
+      <div class="tm-auth-meta">
+        <label class="tm-auth-remember">
+          <input type="checkbox" name="remember" checked>
+          <span>Remember me</span>
+        </label>
+        <a href="#" class="tm-auth-forgot" onclick="event.preventDefault(); alert('Password reset coming soon. For now, please contact support.')">Forgot password?</a>
+      </div>
+      {% endif %}
+
+      <button type="submit" class="tm-auth-submit" id="tm-auth-submit">
+        {% if mode == "signup" %}Create account{% else %}Log in{% endif %}
+      </button>
+
+      <div class="tm-auth-switch">
+        {% if mode == "signup" %}
+          Already have an account? <a href="/login">Log in</a>
+        {% else %}
+          Don't have an account? <a href="/signup">Create one</a>
+        {% endif %}
+      </div>
+
+      {% if mode == "signup" %}
+      <div class="tm-auth-terms">
+        By creating an account you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+      </div>
+      {% endif %}
+    </form>
+  </div>
 </div>
 
+<script>
+(function(){
+  // Mark the page so the nav hides
+  document.body.classList.add('tm-auth-page');
+
+  // Password strength meter (signup only)
+  var pwd = document.getElementById('tm-password');
+  var fill = document.getElementById('tm-strength-fill');
+  var label = document.getElementById('tm-strength-label');
+  var wrap = document.getElementById('tm-strength');
+
+  if (pwd && fill && label && wrap) {
+    pwd.addEventListener('input', function(){
+      var v = pwd.value;
+      if (!v) { wrap.classList.remove('tm-show'); return; }
+      wrap.classList.add('tm-show');
+      var score = 0;
+      if (v.length >= 6) score++;
+      if (v.length >= 10) score++;
+      if (/[A-Z]/.test(v)) score++;
+      if (/[0-9]/.test(v)) score++;
+      if (/[^A-Za-z0-9]/.test(v)) score++;
+      var pct = [15, 35, 55, 75, 95][Math.max(0, score - 1)] || 15;
+      var color = score <= 2 ? '#ef4444' : (score <= 3 ? '#f59e0b' : '#10b981');
+      var text = score <= 2 ? 'Weak' : (score <= 3 ? 'Fair' : 'Strong');
+      fill.style.width = pct + '%';
+      fill.style.background = color;
+      label.textContent = text;
+      label.style.color = color;
+    });
+  }
+
+  // Submit spinner
+  var form = document.getElementById('tm-auth-form');
+  var btn = document.getElementById('tm-auth-submit');
+  if (form && btn) {
+    form.addEventListener('submit', function(){
+      btn.classList.add('tm-loading');
+      btn.disabled = true;
+    });
+  }
+
+  // Country default state (already filled via 'filled' class)
+  // Email autofocus on desktop
+  if (window.innerWidth > 900) {
+    var email = document.getElementById('tm-email');
+    if (email) setTimeout(function(){ email.focus(); }, 400);
+  }
+})();
+</script>
 {% endblock %}
