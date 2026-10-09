@@ -6,6 +6,25 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from app.db.models import Job, Profile, User, Resume, ApplyPacket
 
+def _safe_json_loads(content):
+    """Parse model JSON, tolerating markdown fences and stray prose."""
+    if not content:
+        raise ValueError("empty model response")
+    t = content.strip()
+    if t.startswith("```"):
+        t = t.split("```", 2)[1]
+        if t.startswith("json"):
+            t = t[4:]
+        t = t.strip("`").strip()
+    try:
+        return __import__("json").loads(t)
+    except Exception:
+        start = t.find("{")
+        end = t.rfind("}")
+        if start != -1 and end > start:
+            return __import__("json").loads(t[start:end+1])
+        raise
+
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 
@@ -110,7 +129,7 @@ def _call_groq(system, user, max_tokens=2500, temperature=0.4, retries=3):
             data = r.json()
             content = data["choices"][0]["message"]["content"]
             usage = data.get("usage", {})
-            return json.loads(content), usage
+            return _safe_json_loads(content), usage
         except Exception as e:
             last_err = str(e)
             time.sleep(1 + attempt)
@@ -121,22 +140,41 @@ REQUIRED_KEYS = {"tailored_bullets", "cover_letter", "screening_answers", "gaps"
 
 
 def _validate_packet(packet, user_skills, resume_text):
+    """Tolerant validator — fills defaults instead of failing on shape drift."""
     if not isinstance(packet, dict):
         return None
-    for k in REQUIRED_KEYS:
-        if k not in packet:
-            return None
 
-    bullets = packet.get("tailored_bullets") or []
-    if not isinstance(bullets, list):
-        return None
+    # Coerce aliases the model sometimes uses
+    if "bullets" in packet and "tailored_bullets" not in packet:
+        packet["tailored_bullets"] = packet.pop("bullets")
+    if "cover" in packet and "cover_letter" not in packet:
+        packet["cover_letter"] = packet.pop("cover")
+    if "screening" in packet and "screening_answers" not in packet:
+        packet["screening_answers"] = packet.pop("screening")
 
+    # Default missing top-level keys
+    packet.setdefault("tailored_bullets", [])
+    packet.setdefault("cover_letter", "")
+    packet.setdefault("screening_answers", {})
+    packet.setdefault("gaps", [])
+    packet.setdefault("keywords_hit", [])
+
+    # Normalize types
+    if not isinstance(packet["tailored_bullets"], list):
+        packet["tailored_bullets"] = []
+    if not isinstance(packet["screening_answers"], dict):
+        packet["screening_answers"] = {}
+    if not isinstance(packet["gaps"], list):
+        packet["gaps"] = []
+    if not isinstance(packet["keywords_hit"], list):
+        packet["keywords_hit"] = []
+
+    # Clean bullets
     lowered_resume = (resume_text or "").lower()
     skills_lower = {s.lower() for s in (user_skills or [])}
-
-    safe_bullets = []
-    for b in bullets:
-        if not isinstance(b, str) or len(b) < 20:
+    safe = []
+    for b in packet["tailored_bullets"]:
+        if not isinstance(b, str) or len(b.strip()) < 20:
             continue
         bl = b.lower()
         hallucinated = False
@@ -146,16 +184,22 @@ def _validate_packet(packet, user_skills, resume_text):
                 break
         if hallucinated:
             continue
-        safe_bullets.append(b.strip())
+        safe.append(b.strip())
+    packet["tailored_bullets"] = safe[:5]
 
-    packet["tailored_bullets"] = safe_bullets[:5]
+    # Trim cover letter
     cl = packet.get("cover_letter") or ""
+    if not isinstance(cl, str):
+        cl = str(cl)
     if len(cl.split()) > 400:
-        packet["cover_letter"] = " ".join(cl.split()[:400])
+        cl = " ".join(cl.split()[:400])
+    packet["cover_letter"] = cl
+
+    # Only truly fail if both bullets and cover are empty
+    if not packet["tailored_bullets"] and not packet["cover_letter"].strip():
+        return None
 
     return packet
-
-
 def generate_packet(db: Session, user: User, job: Job, match_reason: dict, force: bool = False) -> ApplyPacket:
     existing = db.execute(
         select(ApplyPacket).where(
