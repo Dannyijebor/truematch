@@ -131,6 +131,8 @@ def signup_post(
         return templates.TemplateResponse(request, "auth.html", _ctx(request, db=db, mode="signup", error="That email is already registered."),
             status_code=400,
         )
+    import re as _re, secrets as _secrets
+
     user = User(
         email=email,
         password_hash=hash_password(password),
@@ -139,7 +141,23 @@ def signup_post(
     )
     db.add(user)
     db.flush()
-    db.add(Profile(user_id=user.id, skills=[], remote_ok=True))
+
+    # Auto-generate a unique public username
+    _base = (full_name.strip() or email.split("@")[0] or "user").strip().lower()
+    _base = _re.sub(r"[^a-z0-9]+", "-", _base).strip("-") or "user"
+    _base = _base[:24]
+    _candidate = _base
+    _attempt = 0
+    while True:
+        _exists = db.execute(
+            select(Profile).where(Profile.username == _candidate)
+        ).scalar_one_or_none()
+        if not _exists:
+            break
+        _attempt += 1
+        _candidate = f"{_base}-{_secrets.token_hex(2)}" if _attempt > 3 else f"{_base}-{_attempt}"
+
+    db.add(Profile(user_id=user.id, skills=[], remote_ok=True, username=_candidate))
     db.commit()
 
     token = create_token(str(user.id))
