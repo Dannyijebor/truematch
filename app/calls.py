@@ -74,6 +74,36 @@ def unread_from(db: Session, user_id, other_id) -> int:
 CALL_TTL_MINUTES = 2
 
 
+def active_call(db: Session, user_id) -> dict | None:
+    """Return the user's currently accepted call, if any (within last 4h)."""
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=4)
+    c = db.execute(
+        select(Call).where(
+            or_(Call.caller_id == user_id, Call.callee_id == user_id),
+            Call.status == "accepted",
+            Call.created_at > cutoff,
+        ).order_by(desc(Call.created_at)).limit(1)
+    ).scalar_one_or_none()
+    if not c:
+        return None
+    you_are = "caller" if c.caller_id == user_id else "callee"
+    peer_id = c.callee_id if you_are == "caller" else c.caller_id
+    peer = db.get(User, peer_id)
+    profile = db.get(Profile, peer_id)
+    from app.social import display_name
+    return {
+        "call_id": str(c.id),
+        "kind": c.kind,
+        "you_are": you_are,
+        "peer": {
+            "user_id": str(peer.id) if peer else None,
+            "name": display_name(peer, profile) if peer else "Unknown",
+            "avatar_url": profile.avatar_url if profile else None,
+        },
+        "started_at": c.created_at.isoformat() if c.created_at else None,
+    }
+
+
 def start_call(db: Session, caller: User, callee_id, kind: str) -> Call:
     if caller.id == callee_id:
         raise ValueError("You can't call yourself — open a chat with the other person to test.")

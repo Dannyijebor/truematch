@@ -241,7 +241,7 @@ window.tmFlipCamera = async function(){
   } catch(e) { console.warn('flip', e); }
 };
 
-async function setupPeer(){
+async function setupPeer(role){
   var pc=new RTCPeerConnection({iceServers:TURN,iceCandidatePoolSize:10});
   state.pc=pc;
   if(state.localStream){ state.localStream.getTracks().forEach(function(t){pc.addTrack(t,state.localStream);}); }
@@ -256,7 +256,7 @@ async function setupPeer(){
     }
     try{attachAnalyser(ev.streams[0],'remote');}catch(_){} };
   pc.onicecandidate=function(ev){ if(!ev.candidate) return;
-    var side=(state.role==='caller')?'caller':'callee';
+    var side=role || ((state.role==='caller')?'caller':'callee');
     fetch('/api/calls/'+state.callId+'/ice?side='+side,{method:'POST',credentials:'same-origin',
       headers:{'Content-Type':'application/json'},body:JSON.stringify({candidate:ev.candidate.toJSON()})}).catch(function(){});
   };
@@ -264,28 +264,32 @@ async function setupPeer(){
     var s=pc.connectionState, st=$('tm-c-status');
     if(s==='connected'){
       state.retryCount = 0;
+      if(state.disconnectTimer){ clearTimeout(state.disconnectTimer); state.disconnectTimer=null; }
       if(!state.connectedAt){
         startTimer();
         if(window.TMSound) window.TMSound.callConnect();
         if(window.TMHaptic) window.TMHaptic.connect();
       }
       if(st) st.classList.remove('ringing');
+      var ps=$('tm-pill-status'); if(ps) ps.textContent='Connected';
     } else if(s==='disconnected'){
-      // Transient — WebRTC usually reconnects on its own. Just show status.
       if(st) st.textContent='Reconnecting…';
+      if(!state.disconnectTimer && state.role==='caller'){
+        state.disconnectTimer = setTimeout(function(){
+          state.disconnectTimer = null;
+          if(pc.connectionState!=='connected' && state.role==='caller'){
+            try{ triggerRenegotiation(); }catch(_){}
+          }
+        }, 4000);
+      }
       state.retryCount = (state.retryCount || 0) + 1;
-      if(state.retryCount > 20) { // ~30s of continuous failure
+      if(state.retryCount > 30) {
         if(window.TMSound) window.TMSound.error();
         friendlyEnd('Connection lost');
       }
     } else if(s==='failed'){
-      // Only end if we can't ICE-restart after multiple tries
       if(st) st.textContent='Reconnecting…';
-      try {
-        if (state.pc && state.role === 'caller') {
-          state.pc.restartIce && state.pc.restartIce();
-        }
-      } catch(_){}
+      if(state.role==='caller'){ try{ triggerRenegotiation(); }catch(_){} }
       state.retryCount = (state.retryCount || 0) + 1;
       if(state.retryCount > 12) {
         friendlyEnd('Connection lost');
@@ -305,8 +309,20 @@ function startPolling(){
       var s=await r.json(); var me=s.you_are;
       if(s.status==='declined'){ friendlyEnd('Declined'); return; }
       if(s.status==='ended'){ friendlyEnd('Call ended'); return; }
-      if(me==='caller'&&s.answer&&state.pc&&!state.pc.currentRemoteDescription){
-        try{await state.pc.setRemoteDescription(new RTCSessionDescription(s.answer));}catch(e){}
+      if(s.offer&&s.offer.sdp&&s.offer.sdp!==state.appliedOfferSdp&&s.offer.sdp!==state.myLocalOfferSdp){
+        try{
+          await state.pc.setRemoteDescription(new RTCSessionDescription(s.offer));
+          state.appliedOfferSdp=s.offer.sdp;
+          if(me==='callee'){
+            var ans=await state.pc.createAnswer();
+            await state.pc.setLocalDescription(ans);
+            state.appliedAnswerSdp=ans.sdp;
+            await fetch('/api/calls/'+state.callId+'/answer',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({sdp:ans.sdp,type:ans.type})});
+          }
+        }catch(e){}
+      }
+      if(me==='caller'&&s.answer&&s.answer.sdp&&s.answer.sdp!==state.appliedAnswerSdp&&state.pc.signalingState!=='stable'){
+        try{await state.pc.setRemoteDescription(new RTCSessionDescription(s.answer));state.appliedAnswerSdp=s.answer.sdp;}catch(e){}
       }
       var list=(me==='caller'?s.ice_callee:s.ice_caller)||[];
       var seen=(me==='caller')?state.lastIceCount.callee:state.lastIceCount.caller;
@@ -383,7 +399,7 @@ window.tmStartCall=async function(kind){
   if(!r.ok){ var reason='unknown'; try{var j=await r.json();reason=j.detail||reason;}catch(_){}
     cleanup(); alert('Could not start the call: '+reason); return; }
   var data=await r.json(); state.callId=data.call_id;
-  await setupPeer();
+  await setupPeer('caller');
   var offer=await state.pc.createOffer(); await state.pc.setLocalDescription(offer);
   await fetch('/api/calls/'+state.callId+'/offer',{method:'POST',credentials:'same-origin',
     headers:{'Content-Type':'application/json'},body:JSON.stringify({sdp:offer.sdp,type:offer.type})});
@@ -425,7 +441,7 @@ window.tmAcceptIncoming=async function(){
   var st=$('tm-c-status'); if(st){st.textContent='Connecting...';st.classList.add('ringing');}
   startMeter();
   await fetch('/api/calls/'+state.callId+'/accept',{method:'POST',credentials:'same-origin'}).catch(function(){});
-  await setupPeer();
+  await setupPeer('callee');
   var tries=0;
   var waitOffer=setInterval(async function(){
     tries++;
@@ -524,6 +540,8 @@ function cleanup(){
   try { if (history.state && history.state.tmCall) { history.back(); } } catch(_){}
   state.active=false; state.role=null; state.callId=null; state.minimized=false;
   state.connectedAt=0; state.lastReactionAt=""; state.incomingPayload=null;
+  state.appliedOfferSdp=null; state.appliedAnswerSdp=null; state.myLocalOfferSdp=null;
+  if(state.disconnectTimer){ clearTimeout(state.disconnectTimer); state.disconnectTimer=null; }
 }
 window.tmCleanupCall=cleanup;
 
@@ -900,3 +918,103 @@ try {
 }
 
 })();
+
+// ---------- Premium widget: sync pill buttons + keep nav visible ----------
+(function premiumPillSync(){
+  function bind(fullId, pillId){
+    var full = document.getElementById(fullId);
+    var pill = document.getElementById(pillId);
+    if (!full || !pill) return;
+    var sync = function(){ pill.classList.toggle('tm-active', full.classList.contains('tm-active')); };
+    sync();
+    try { new MutationObserver(sync).observe(full, { attributes:true, attributeFilter:['class'] }); } catch(_){}
+  }
+  bind('tm-btn-mute', 'tm-pill-mute');
+  bind('tm-btn-speaker', 'tm-pill-speaker');
+
+  // When the top widget is visible, ensure nav is not hidden by tm-in-call
+  var pill = document.getElementById('tm-call-pill');
+  if (pill) {
+    var ensureNav = function(){
+      if (pill.classList.contains('tm-show')) {
+        document.body.classList.remove('tm-in-call');
+      }
+    };
+    ensureNav();
+    try { new MutationObserver(ensureNav).observe(pill, { attributes:true, attributeFilter:['class'] }); } catch(_){}
+  }
+})();
+
+// ---------- Renegotiation + rehydration (call persistence across navigation) ----------
+async function triggerRenegotiation(){
+  if(!state.pc || !state.callId) return;
+  try {
+    var offer = await state.pc.createOffer({iceRestart:true});
+    await state.pc.setLocalDescription(offer);
+    state.myLocalOfferSdp = offer.sdp;
+    await fetch('/api/calls/'+state.callId+'/offer',{
+      method:'POST',credentials:'same-origin',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({sdp:offer.sdp,type:offer.type})
+    });
+  } catch(e){ console.warn('renegotiate failed', e); }
+}
+
+async function rehydrateCall(){
+  if(state.active) return;
+  try {
+    var r = await fetch('/api/calls/active',{credentials:'same-origin'});
+    if(!r.ok) return;
+    var data = await r.json();
+    if(!data || !data.call_id) return;
+
+    // Rebuild local state
+    state.active = true;
+    state.role = data.you_are;
+    state.kind = data.kind;
+    state.callId = data.call_id;
+    state.lastIceCount = {caller:0, callee:0};
+    state.startedAt = Date.now();
+    state.appliedOfferSdp = null;
+    state.appliedAnswerSdp = null;
+    state.myLocalOfferSdp = null;
+
+    var isVideo = (state.kind === 'video');
+    state.videoEnabled = isVideo;
+    var constraints = { audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true} };
+    constraints.video = isVideo ? { facingMode: state.facingMode, width:{ideal:1280}, height:{ideal:720} } : false;
+    try {
+      state.localStream = await navigator.mediaDevices.getUserMedia(constraints);
+    } catch(e){
+      console.warn('rehydrate getUserMedia failed', e);
+      state.active = false;
+      return;
+    }
+    try { if(isVideo) activateVideoMode(); } catch(_){}
+    try { attachAnalyser(state.localStream,'local'); } catch(_){}
+
+    // Show the top pill widget (not full-screen) so user sees call continues
+    var pill = $('tm-call-pill');
+    if(pill) pill.classList.add('tm-show');
+    var pn = $('tm-pill-name'); if(pn) pn.textContent = data.peer.name || 'Call';
+    var pa = $('tm-pill-avatar');
+    if(pa){
+      if(data.peer.avatar_url){ pa.innerHTML = '<img src="'+data.peer.avatar_url+'" alt="">'; }
+      else { pa.textContent = ((data.peer.name||'?')[0]||'?').toUpperCase(); }
+    }
+    var ps = $('tm-pill-status'); if(ps) ps.textContent = 'Reconnecting…';
+
+    await setupPeer(state.role);
+
+    if(state.role === 'caller'){
+      try { await triggerRenegotiation(); } catch(_){}
+    }
+    startPolling();
+    startMeter();
+  } catch(e){
+    console.warn('rehydrate failed', e);
+  }
+}
+
+// Run on load — with a small delay so other init settles
+setTimeout(function(){ try { rehydrateCall(); } catch(_){} }, 400);

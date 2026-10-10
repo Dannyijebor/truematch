@@ -440,6 +440,15 @@ def incoming_call(user: User = Depends(current_user), db: Session = Depends(get_
     return {"call": active_incoming(db, user.id)}
 
 
+@app.get("/api/calls/active")
+def api_active_call(user: User = Depends(current_user), db: Session = Depends(get_db)):
+    from app.calls import active_call as _active
+    data = _active(db, user.id)
+    if not data:
+        raise HTTPException(404, "no active call")
+    return data
+
+
 @app.post("/api/calls/start/{other_id}")
 def api_start_call(other_id: str, kind: str = "audio",
                    user: User = Depends(current_user),

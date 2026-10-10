@@ -296,6 +296,30 @@ html.light .tm-call-pill-btn.tm-active { background: #0f1720; color: #fff; }
 .tm-call-minimize svg { width: 22px; height: 22px; }
 .tm-call-minimize:active { transform: scale(0.88); background: rgba(255,255,255,0.22); }
 .tm-call-screen.tm-video-mode .tm-call-minimize { background: rgba(0,0,0,0.5); }
+
+/* ========== PREMIUM TOP CALL WIDGET (override) ========== */
+.tm-call-pill { position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: auto !important; width: 100% !important; max-width: none !important; transform: translateY(-100%) !important; opacity: 0 !important; pointer-events: none !important; display: flex !important; align-items: center; gap: 12px; padding: max(env(safe-area-inset-top, 0px), 10px) 14px 12px; border-radius: 0 0 22px 22px; background: linear-gradient(180deg, rgba(10,16,20,0.99) 0%, rgba(18,26,31,0.97) 100%); border: none; border-bottom: 1px solid rgba(0,168,132,0.14); box-shadow: 0 24px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05); backdrop-filter: blur(40px) saturate(160%); -webkit-backdrop-filter: blur(40px) saturate(160%); cursor: pointer; touch-action: auto; color: #fff; z-index: 99999; transition: transform 0.42s cubic-bezier(0.34, 1.4, 0.64, 1), opacity 0.24s ease; -webkit-tap-highlight-color: transparent; animation: none !important; }
+.tm-call-pill.tm-show { transform: translateY(0) !important; opacity: 1 !important; pointer-events: auto !important; }
+html.light .tm-call-pill { background: linear-gradient(180deg, rgba(255,255,255,0.99) 0%, rgba(248,250,252,0.98) 100%); border-bottom-color: rgba(0,168,132,0.20); color: #0f1720; box-shadow: 0 18px 48px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.9); }
+.tm-call-pill::before { display: none !important; }
+.tm-call-pill-avatar { width: 44px !important; height: 44px !important; border-radius: 50% !important; background: linear-gradient(135deg, #00a884, #0b6b56) !important; font-size: 16px !important; box-shadow: 0 4px 14px rgba(0,168,132,0.35), 0 0 0 2px rgba(0,168,132,0.18) !important; }
+.tm-call-pill-avatar::after { display: none !important; }
+.tm-call-pill-avatar--video { width: 50px !important; height: 50px !important; border-radius: 14px !important; box-shadow: 0 4px 14px rgba(0,0,0,0.4) !important; }
+.tm-call-pill-info { padding-left: 2px; }
+.tm-call-pill-name { font-size: 15px !important; font-weight: 700 !important; letter-spacing: -0.15px !important; }
+.tm-call-pill-status { font-size: 12.5px !important; color: rgba(255,255,255,0.6) !important; margin-top: 3px !important; display: flex; align-items: center; gap: 6px; letter-spacing: 0.3px; font-variant-numeric: tabular-nums; }
+html.light .tm-call-pill-status { color: rgba(15,23,32,0.55) !important; }
+.tm-call-pill-status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #00d99a; box-shadow: 0 0 8px rgba(0,217,154,0.7); animation: tmPillPulse 1.6s ease-in-out infinite; flex-shrink: 0; }
+@keyframes tmPillPulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.85); } }
+.tm-call-pill-btn, .tm-call-pill-end { width: 40px !important; height: 40px !important; border-radius: 50% !important; }
+.tm-call-pill-btn { background: rgba(255,255,255,0.09) !important; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+html.light .tm-call-pill-btn { background: rgba(0,0,0,0.06) !important; color: #0f1720; }
+.tm-call-pill-btn svg { width: 17px !important; height: 17px !important; }
+.tm-call-pill-btn.tm-active { background: #fff !important; color: #0a1418 !important; }
+html.light .tm-call-pill-btn.tm-active { background: #0f1720 !important; color: #fff !important; }
+.tm-call-pill-end { background: #ef4444 !important; box-shadow: 0 6px 20px rgba(239,68,68,0.45) !important; }
+.tm-call-pill-end svg { width: 19px !important; height: 19px !important; transform: rotate(135deg); }
+
 </style>
 
 <div id="tm-incoming" class="tm-call-screen" aria-hidden="true">
@@ -397,6 +421,6 @@ html.light .tm-call-pill-btn.tm-active { background: #0f1720; color: #fff; }
 </div>
 
 <audio id="tm-remote-audio" autoplay playsinline></audio>
-<audio id="tm-local-audio" autoplay muted playsinline></audio><div id="tm-call-pill" class="tm-call-pill" onclick="tmExpandCall()"><div class="tm-call-pill-avatar" id="tm-pill-avatar">?</div><div class="tm-call-pill-info"><div class="tm-call-pill-name" id="tm-pill-name">Call</div><div class="tm-call-pill-status" id="tm-pill-status">00:00</div></div><button class="tm-call-pill-btn" id="tm-pill-mute" onclick="event.stopPropagation();tmToggleMute();"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg></button><button class="tm-call-pill-end" onclick="event.stopPropagation();tmEndCall();"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08c-.18-.17-.29-.42-.29-.7 0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.7l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.1-.7-.28-.79-.73-1.68-1.36-2.66-1.85-.33-.16-.56-.51-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"/></svg></button></div>
+<audio id="tm-local-audio" autoplay muted playsinline></audio><div id="tm-call-pill" class="tm-call-pill" onclick="tmExpandCall()"><div class="tm-call-pill-avatar" id="tm-pill-avatar">?</div><div class="tm-call-pill-info"><div class="tm-call-pill-name" id="tm-pill-name">Call</div><div class="tm-call-pill-status" id="tm-pill-status">00:00</div></div><button class="tm-call-pill-btn" id="tm-pill-mute" onclick="event.stopPropagation();tmToggleMute();"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg></button><button class="tm-call-pill-btn" id="tm-pill-speaker" onclick="event.stopPropagation();tmToggleSpeaker();"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zm-2.5-9.7v2.1a7 7 0 0 1 0 15.2v2.1a9 9 0 0 0 0-19.4z"/></svg></button><button class="tm-call-pill-end" onclick="event.stopPropagation();tmEndCall();"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08c-.18-.17-.29-.42-.29-.7 0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.7l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.1-.7-.28-.79-.73-1.68-1.36-2.66-1.85-.33-.16-.56-.51-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"/></svg></button></div>
 
 <script src="/static/calls.js?v=10" defer></script>
