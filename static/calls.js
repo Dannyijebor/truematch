@@ -1018,3 +1018,5 @@ async function rehydrateCall(){
 
 // Run on load — with a small delay so other init settles
 setTimeout(function(){ try { rehydrateCall(); } catch(_){} }, 400);
+
+window.tmState = state;
