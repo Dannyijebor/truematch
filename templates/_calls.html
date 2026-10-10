@@ -496,6 +496,163 @@ html.light .tm-call-pill-btn.tm-active { background: #0f1720 !important; color: 
 }
 .tm-call-btn.tm-mute-on svg { animation: tmMutePulse 2s ease-in-out infinite; }
 
+
+/* ========== Group call grid + invite sheet ========== */
+.tm-group-grid {
+  position: absolute; inset: 0;
+  display: none;
+  grid-template-columns: 1fr;
+  grid-auto-rows: 1fr;
+  gap: 6px;
+  padding: max(env(safe-area-inset-top, 0px), 60px) 6px 130px;
+  z-index: 2;
+  overflow-y: auto;
+}
+.tm-group-grid[data-count="2"] { grid-template-columns: 1fr 1fr; }
+.tm-group-grid[data-count="3"],
+.tm-group-grid[data-count="4"] { grid-template-columns: 1fr 1fr; }
+.tm-group-grid[data-count="5"],
+.tm-group-grid[data-count="6"] { grid-template-columns: 1fr 1fr 1fr; }
+.tm-gp-tile {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(30,40,48,0.9), rgba(15,20,24,0.95));
+  box-shadow: 0 6px 22px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.05);
+  min-height: 160px;
+  animation: tmGpIn 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes tmGpIn { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
+.tm-gp-tile video { width: 100%; height: 100%; object-fit: cover; display: block; background: #000; }
+.tm-gp-tile[data-state="connected"] { box-shadow: 0 6px 22px rgba(0,0,0,0.4), inset 0 0 0 2px rgba(0,217,154,0.35); }
+.tm-gp-tile[data-state="failed"],
+.tm-gp-tile[data-state="disconnected"] { box-shadow: 0 6px 22px rgba(0,0,0,0.4), inset 0 0 0 2px rgba(239,68,68,0.5); }
+.tm-gp-name {
+  position: absolute; bottom: 10px; left: 12px; right: 12px;
+  color: #fff; font-size: 13px; font-weight: 700;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+/* Invite sheet */
+.tm-invite-sheet {
+  position: fixed; inset: 0; z-index: 100000;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  display: none; align-items: flex-end; justify-content: center;
+  animation: tmFade 0.24s ease;
+}
+.tm-invite-sheet.tm-show { display: flex; }
+@keyframes tmFade { from { opacity: 0; } to { opacity: 1; } }
+.tm-invite-card {
+  width: 100%; max-width: 480px;
+  background: linear-gradient(180deg, rgba(22,28,34,0.99) 0%, rgba(15,20,24,0.99) 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-bottom: none;
+  border-radius: 26px 26px 0 0;
+  padding: 18px 16px calc(22px + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -22px 60px rgba(0,0,0,0.6);
+  animation: tmSheetUp 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+  color: #fff;
+}
+@keyframes tmSheetUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.tm-invite-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.tm-invite-title { font-size: 16px; font-weight: 800; letter-spacing: -0.1px; }
+.tm-invite-close {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: none; background: rgba(255,255,255,0.08); color: #fff;
+  font-size: 22px; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.14s, background 0.2s;
+}
+.tm-invite-close:active { transform: scale(0.9); background: rgba(255,255,255,0.16); }
+.tm-invite-search {
+  width: 100%; box-sizing: border-box;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 11px 14px;
+  color: #fff; font-size: 14px;
+  outline: none;
+  transition: border 0.2s, background 0.2s;
+}
+.tm-invite-search:focus { border-color: rgba(0,168,132,0.55); background: rgba(255,255,255,0.09); }
+.tm-invite-list {
+  margin-top: 12px;
+  max-height: 46vh; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.tm-invite-empty { padding: 26px 8px; text-align: center; color: rgba(255,255,255,0.45); font-size: 13px; }
+.tm-invite-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 9px 8px; border-radius: 14px;
+  transition: background 0.18s;
+}
+.tm-invite-row:hover { background: rgba(255,255,255,0.04); }
+.tm-invite-avatar {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: linear-gradient(135deg, #00a884, #0b6b56);
+  color: #fff; font-weight: 700; font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; overflow: hidden;
+}
+.tm-invite-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.tm-invite-info { flex: 1; min-width: 0; }
+.tm-invite-nm { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tm-invite-un { font-size: 11.5px; color: rgba(255,255,255,0.5); margin-top: 1px; }
+.tm-invite-add {
+  border: none; border-radius: 999px;
+  background: #00a884; color: #fff;
+  font-size: 12.5px; font-weight: 700;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.18s;
+}
+.tm-invite-add:hover { background: #00c495; }
+.tm-invite-add:active { transform: scale(0.92); }
+.tm-invite-add:disabled { opacity: 0.6; cursor: default; }
+.tm-invite-add.tm-invited { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); }
+.tm-invite-status { font-size: 11.5px; color: rgba(0,217,154,0.85); font-weight: 600; }
+
+
+/* Group call invite toast */
+.tm-group-invite-toast {
+  position: fixed;
+  top: max(env(safe-area-inset-top, 0px), 16px);
+  left: 50%; transform: translateX(-50%) translateY(-20px);
+  z-index: 100001;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.24s ease, transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.tm-group-invite-toast.tm-show {
+  opacity: 1; pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+.tm-git-card {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, rgba(22,28,34,0.99), rgba(15,20,24,0.99));
+  border: 1px solid rgba(0,168,132,0.35);
+  border-radius: 18px;
+  box-shadow: 0 18px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06);
+  color: #fff;
+  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+}
+.tm-git-text { font-size: 13.5px; font-weight: 600; }
+.tm-git-actions { display: flex; gap: 8px; }
+.tm-git-join, .tm-git-decline {
+  border: none; border-radius: 999px; padding: 7px 14px;
+  font-size: 12px; font-weight: 700; cursor: pointer;
+  transition: transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.tm-git-join { background: #00a884; color: #fff; }
+.tm-git-decline { background: rgba(255,255,255,0.1); color: #fff; }
+.tm-git-join:active, .tm-git-decline:active { transform: scale(0.92); }
+
 </style>
 
 <div id="tm-incoming" class="tm-call-screen" aria-hidden="true">
@@ -554,6 +711,7 @@ html.light .tm-call-pill-btn.tm-active { background: #0f1720 !important; color: 
 <span class="tm-self-pip-init" id="tm-self-pip-init">?</span>
 </div>
 </div>
+<div class="tm-group-grid" id="tm-group-grid" data-count="0"></div>
 <div class="tm-call-reactions" id="tm-reactions"></div>
 <div class="tm-call-controls">
 <div class="tm-call-emoji-row" id="tm-emoji-row">
@@ -601,3 +759,4 @@ html.light .tm-call-pill-btn.tm-active { background: #0f1720 !important; color: 
 
 <script src="/static/calls.js?v=10" defer></script>
 <script src="/static/calls-polish.js?v=1" defer></script>
+<script src="/static/calls-group.js?v=1" defer></script>

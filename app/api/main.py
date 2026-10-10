@@ -819,3 +819,122 @@ def debug_template_check():
         "calls_js_has_force_display": "el.style.display = 'flex'" in js,
         "calls_js_has_video_mode": "tm-video-mode" in js,
     }
+
+# ---------- Group call routes ----------
+@app.post("/api/calls/{call_id}/invite")
+def api_group_invite(call_id: str, payload: dict = Body(...),
+                     user: User = Depends(current_user),
+                     db: Session = Depends(get_db)):
+    from uuid import UUID
+    from app.calls_group import add_participant
+    target = (payload or {}).get("user_id")
+    if not target:
+        raise HTTPException(400, "user_id required")
+    try:
+        add_participant(db, UUID(call_id), user.id, UUID(target))
+    except Exception as e:
+        raise HTTPException(400, str(e))
+    return {"ok": True}
+
+
+@app.get("/api/calls/{call_id}/participants")
+def api_group_participants(call_id: str,
+                           user: User = Depends(current_user),
+                           db: Session = Depends(get_db)):
+    from uuid import UUID
+    from app.calls_group import list_participants, is_member
+    cid = UUID(call_id)
+    if not is_member(db, cid, user.id):
+        raise HTTPException(403, "not in this call")
+    return {"participants": list_participants(db, cid)}
+
+
+@app.post("/api/calls/{call_id}/join")
+def api_group_join(call_id: str,
+                   user: User = Depends(current_user),
+                   db: Session = Depends(get_db)):
+    from uuid import UUID
+    from app.calls_group import join_call
+    try:
+        join_call(db, UUID(call_id), user.id)
+    except Exception as e:
+        raise HTTPException(400, str(e))
+    return {"ok": True}
+
+
+@app.post("/api/calls/{call_id}/leave")
+def api_group_leave(call_id: str,
+                    user: User = Depends(current_user),
+                    db: Session = Depends(get_db)):
+    from uuid import UUID
+    from app.calls_group import leave_call
+    try:
+        leave_call(db, UUID(call_id), user.id)
+    except Exception as e:
+        raise HTTPException(400, str(e))
+    return {"ok": True}
+
+
+@app.post("/api/calls/{call_id}/signal")
+def api_group_signal(call_id: str, payload: dict = Body(...),
+                     user: User = Depends(current_user),
+                     db: Session = Depends(get_db)):
+    from uuid import UUID
+    from app.calls_group import push_signal, is_member
+    cid = UUID(call_id)
+    if not is_member(db, cid, user.id):
+        raise HTTPException(403, "not in this call")
+    to_user = (payload or {}).get("to")
+    kind = (payload or {}).get("kind")
+    data = (payload or {}).get("payload") or {}
+    if not to_user or not kind:
+        raise HTTPException(400, "to and kind required")
+    push_signal(db, cid, user.id, UUID(to_user), kind, data)
+    return {"ok": True}
+
+
+@app.get("/api/calls/{call_id}/signals")
+def api_group_signals(call_id: str, since: str | None = None,
+                      user: User = Depends(current_user),
+                      db: Session = Depends(get_db)):
+    from uuid import UUID
+    from app.calls_group import signals_for_me
+    return {"signals": signals_for_me(db, UUID(call_id), user.id, since)}
+
+
+@app.get("/api/calls/invites")
+def api_group_invites(user: User = Depends(current_user),
+                      db: Session = Depends(get_db)):
+    from app.calls_group import invites_for_me
+    return {"invites": invites_for_me(db, user.id)}
+
+
+@app.get("/api/people/search")
+def api_people_search(q: str = "", user: User = Depends(current_user),
+                      db: Session = Depends(get_db)):
+    from sqlalchemy import or_, func
+    from app.db.models import User as U, Profile as P
+    term = (q or "").strip().lower()
+    if not term:
+        return {"people": []}
+    rows = db.execute(
+        db.query(U, P).outerjoin(P, P.user_id == U.id)
+        .filter(
+            U.id != user.id,
+            or_(
+                func.lower(U.full_name).contains(term),
+                func.lower(P.username).contains(term),
+                func.lower(U.email).contains(term),
+            )
+        ).limit(12)
+    ).all()
+    out = []
+    for u, pr in rows:
+        from app.social import display_name
+        out.append({
+            "user_id": str(u.id),
+            "name": display_name(u, pr),
+            "username": pr.username if pr else None,
+            "avatar_url": pr.avatar_url if pr else None,
+        })
+    return {"people": out}
