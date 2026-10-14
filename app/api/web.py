@@ -1475,7 +1475,7 @@ def portfolio_edit(request: Request, db: Session = Depends(get_db)):
     if not user:
         return RedirectResponse("/login?next=/portfolio/edit", status_code=302)
 
-    from app.portfolio import get_portfolio_settings, list_items, THEMES, KINDS, COLORS, SCENES
+    from app.portfolio import get_portfolio_settings, list_items, THEMES, KINDS, COLORS, SCENES, PRESETS, FONTS, HERO_LAYOUTS, SECTION_KEYS
 
     # Ensure the user has a public username (auto-generate on first visit)
     profile = _ensure_username(db, user)
@@ -1485,7 +1485,7 @@ def portfolio_edit(request: Request, db: Session = Depends(get_db)):
 
     return templates.TemplateResponse(request, "portfolio_edit.html", _ctx(
         request, db=db, user=user, settings=settings, items=items,
-        themes=THEMES, kinds=KINDS, colors=COLORS, scenes=SCENES,
+        themes=THEMES, kinds=KINDS, colors=COLORS, scenes=SCENES, presets=PRESETS, fonts=FONTS, hero_layouts=HERO_LAYOUTS, section_keys=SECTION_KEYS,
         profile=profile,
     ))
 
@@ -1503,6 +1503,17 @@ async def portfolio_save_settings(request: Request, db: Session = Depends(get_db
         "about": form.get("about"),
         "accent_key": form.get("accent_key"),
         "scene": form.get("scene"),
+        "personality": form.get("personality"),
+        "custom_accent": form.get("custom_accent"),
+        "font": form.get("font"),
+        "hero": form.get("hero"),
+        "sec_about": form.get("sec_about") is not None,
+        "sec_projects": form.get("sec_projects") is not None,
+        "sec_experience": form.get("sec_experience") is not None,
+        "sec_education": form.get("sec_education") is not None,
+        "sec_certifications": form.get("sec_certifications") is not None,
+        "sec_skills": form.get("sec_skills") is not None,
+        "sec_links": form.get("sec_links") is not None,
         "is_public": form.get("is_public") is not None,
     }
     hero = form.get("hero_image")

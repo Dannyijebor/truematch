@@ -30,6 +30,29 @@ SCENES = (
     "cherry", "ocean", "forest", "desert", "rain",
 )
 
+
+# Personality presets — one-tap bundles
+PRESETS = {
+    "minimalist": {"color": "ivory",    "scene": "aurora",  "font": "system",  "hero": "centered"},
+    "bold":       {"color": "crimson",  "scene": "rain",    "font": "display", "hero": "left"},
+    "dreamy":     {"color": "violet",   "scene": "butterfly","font": "serif",   "hero": "centered"},
+    "executive":  {"color": "midnight", "scene": "aurora",  "font": "system",  "hero": "split"},
+    "editorial":  {"color": "onyx",     "scene": "ocean",   "font": "serif",   "hero": "left"},
+    "playful":    {"color": "amber",    "scene": "field",   "font": "display", "hero": "centered"},
+    "serene":     {"color": "sapphire", "scene": "ocean",   "font": "system",  "hero": "centered"},
+    "nocturnal":  {"color": "midnight", "scene": "night",   "font": "display", "hero": "split"},
+}
+
+FONTS = {
+    "system":  "-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif",
+    "serif":   "'Georgia', 'Times New Roman', serif",
+    "display": "'Inter Tight', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+}
+
+HERO_LAYOUTS = ("centered", "split", "left")
+
+SECTION_KEYS = ("about", "projects", "experience", "education", "certifications", "skills", "links")
+
 DEFAULT_ACCENT_KEY = "emerald"
 DEFAULT_SCENE = "aurora"
 
@@ -59,6 +82,25 @@ def get_portfolio_settings(db: Session, user_id) -> dict:
 
     accent_main, accent_glow, accent_soft = resolve_accent(accent_key)
 
+    cfg = p.portfolio_config or {}
+    custom_accent = (cfg.get("custom_accent") or "").strip()
+    if custom_accent and (custom_accent.startswith("#") and len(custom_accent) == 7):
+        accent_main = custom_accent
+        accent_glow = custom_accent + "55"
+        accent_soft = custom_accent + "22"
+    else:
+        custom_accent = ""
+
+    font = cfg.get("font") or "system"
+    if font not in FONTS: font = "system"
+    hero = cfg.get("hero") or "centered"
+    if hero not in HERO_LAYOUTS: hero = "centered"
+    personality = cfg.get("personality") or ""
+    if personality and personality not in PRESETS: personality = ""
+
+    sections = cfg.get("sections") or {}
+    sections_visible = {k: bool(sections.get(k, True)) for k in SECTION_KEYS}
+
     return {
         "theme": p.portfolio_theme or "editorial",
         "tagline": p.portfolio_tagline,
@@ -68,7 +110,13 @@ def get_portfolio_settings(db: Session, user_id) -> dict:
         "accent": accent_main,
         "accent_glow": accent_glow,
         "accent_soft": accent_soft,
+        "custom_accent": custom_accent,
         "scene": scene,
+        "font": font,
+        "font_stack": FONTS[font],
+        "hero": hero,
+        "personality": personality,
+        "sections_visible": sections_visible,
         "is_public": bool(p.portfolio_is_public),
         "has_vercel_token": bool(p.vercel_token),
     }
@@ -103,6 +151,35 @@ def save_portfolio_settings(db: Session, user_id, data: dict):
     if "vercel_token" in data:
         tok = (data.get("vercel_token") or "").strip()
         p.vercel_token = tok or None
+
+    # --- config JSONB: personality + custom_accent + font + hero + sections ---
+    cfg = dict(p.portfolio_config or {})
+
+    personality = (data.get("personality") or "").strip().lower()
+    if personality and personality not in PRESETS: personality = ""
+    cfg["personality"] = personality
+
+    custom = (data.get("custom_accent") or "").strip()
+    if custom and custom.startswith("#") and len(custom) == 7:
+        cfg["custom_accent"] = custom
+    else:
+        cfg.pop("custom_accent", None)
+
+    font = (data.get("font") or "system").strip().lower()
+    if font not in FONTS: font = "system"
+    cfg["font"] = font
+
+    hero = (data.get("hero") or "centered").strip().lower()
+    if hero not in HERO_LAYOUTS: hero = "centered"
+    cfg["hero"] = hero
+
+    sections = cfg.get("sections") or {}
+    new_sections = dict(sections)
+    for k in SECTION_KEYS:
+        new_sections[k] = bool(data.get("sec_" + k))
+    cfg["sections"] = new_sections
+
+    p.portfolio_config = cfg
 
     db.add(p); db.commit()
     return p
