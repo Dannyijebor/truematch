@@ -8,15 +8,15 @@
     {% if unread %}<p class="text-emerald-400 text-sm mt-1">{{ unread }} unread</p>{% endif %}
   </div>
 
-  <div class="relative">
     <button onclick="toggleNewChat(event)" class="tm-btn tm-btn-primary px-4 py-2 text-sm">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="w-4 h-4">
         <path d="M12 5v14M5 12h14"/>
       </svg>
       New
     </button>
+  </div>
 
-<div id="new-chat-pop" class="ncp-root hidden" onclick="closeNewChat()">
+  <div id="new-chat-pop" class="ncp-root hidden" onclick="closeNewChat()">
   <div class="ncp-sheet" onclick="event.stopPropagation()">
     <div class="ncp-handle"></div>
     <div class="ncp-head">
@@ -227,6 +227,78 @@ function closeNewChat() {
       setTimeout(function(){ q.focus(); }, 150);
     }
   };
+})();
+</script>
+
+
+<script>
+(function(){
+  var pop = document.getElementById('new-chat-pop');
+  if (!pop) return;
+  var sheet = pop.querySelector('.ncp-sheet');
+  if (!sheet) return;
+
+  var startY = 0, curY = 0, dragging = false, pid = null;
+
+  function setY(y){
+    sheet.style.transform = 'translateY(' + y + 'px)';
+    sheet.style.transition = 'none';
+  }
+  function release(){
+    sheet.style.transition = 'transform 0.32s cubic-bezier(0.16,1,0.3,1)';
+    if (curY > 120) {
+      // dismiss
+      sheet.style.transform = 'translateY(110%)';
+      setTimeout(function(){ closeNewChat(); sheet.style.transform=''; }, 220);
+    } else {
+      sheet.style.transform = '';
+    }
+    dragging = false;
+  }
+
+  sheet.addEventListener('touchstart', function(e){
+    // Ignore if touch starts on input (so keyboard still works)
+    if (e.target.closest('input')) return;
+    // Ignore if touch starts inside scrollable list AND list can scroll
+    var list = e.target.closest('.ncp-list');
+    if (list && list.scrollHeight > list.clientHeight && list.scrollTop > 0) return;
+
+    var t = e.touches[0];
+    startY = t.clientY; curY = 0; dragging = true; pid = t.identifier;
+  }, { passive: true });
+
+  sheet.addEventListener('touchmove', function(e){
+    if (!dragging) return;
+    var t = null;
+    for (var i = 0; i < e.touches.length; i++) {
+      if (e.touches[i].identifier === pid) { t = e.touches[i]; break; }
+    }
+    if (!t) return;
+
+    var list = sheet.querySelector('.ncp-list');
+    var delta = t.clientY - startY;
+
+    // If scrolled inside list and pulling down when at top — hand off to sheet drag
+    if (list && list.scrollHeight > list.clientHeight && list.scrollTop > 0 && delta > 0) {
+      // let the list scroll, reset our tracking
+      startY = t.clientY;
+      return;
+    }
+    if (delta < 0) delta = 0; // no upward
+    curY = delta;
+    setY(delta);
+    e.preventDefault();
+  }, { passive: false });
+
+  sheet.addEventListener('touchend', function(e){
+    if (!dragging) return;
+    release();
+  }, { passive: true });
+
+  sheet.addEventListener('touchcancel', function(){
+    if (!dragging) return;
+    release();
+  }, { passive: true });
 })();
 </script>
 
