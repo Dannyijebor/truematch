@@ -1507,13 +1507,6 @@ async def portfolio_save_settings(request: Request, db: Session = Depends(get_db
         "custom_accent": form.get("custom_accent"),
         "font": form.get("font"),
         "hero": form.get("hero"),
-        "sec_about": form.get("sec_about") is not None,
-        "sec_projects": form.get("sec_projects") is not None,
-        "sec_experience": form.get("sec_experience") is not None,
-        "sec_education": form.get("sec_education") is not None,
-        "sec_certifications": form.get("sec_certifications") is not None,
-        "sec_skills": form.get("sec_skills") is not None,
-        "sec_links": form.get("sec_links") is not None,
         "is_public": form.get("is_public") is not None,
     }
     hero = form.get("hero_image")
@@ -1527,6 +1520,11 @@ async def portfolio_save_settings(request: Request, db: Session = Depends(get_db
             elif raw[:4] == b"RIFF" and raw[8:12] == b"WEBP":
                 mime = "image/webp"
             data["hero_image"] = f"data:{mime};base64,{base64.b64encode(raw).decode()}"
+
+    if any(k.startswith("sec_") for k in form.keys()):
+        from app.portfolio import SECTION_KEYS
+        for k in SECTION_KEYS:
+            data["sec_" + k] = form.get("sec_" + k) is not None
 
     from app.portfolio import save_portfolio_settings
     save_portfolio_settings(db, user.id, data)
@@ -1680,6 +1678,51 @@ async def portfolio_inline_save(request: Request, db: Session = Depends(get_db))
 
     db.add(user); db.add(prof); db.commit()
     return JSONResponse({"ok": True})
+
+
+@router.post("/api/portfolio/live-setting")
+async def portfolio_live_setting(request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    user = current_user_web(request, db)
+    if not user:
+        return JSONResponse({"ok": False, "error": "Not signed in"}, status_code=401)
+    try:
+        payload = await request.json()
+    except Exception:
+        return JSONResponse({"ok": False, "error": "Bad payload"}, status_code=400)
+
+    kind = (payload.get("kind") or "").strip()
+    val  = (payload.get("value") or "").strip()
+
+    from app.db.models import Profile
+    from app.portfolio import COLORS, SCENES, FONTS, HERO_LAYOUTS, SECTION_KEYS, DEFAULT_ACCENT_KEY
+    prof = db.get(Profile, user.id)
+    if not prof:
+        return JSONResponse({"ok": False, "error": "No profile"}, status_code=404)
+
+    cfg = dict(prof.portfolio_config or {})
+
+    if kind == "hero" and val in HERO_LAYOUTS:
+        cfg["hero"] = val
+    elif kind == "font" and val in FONTS:
+        cfg["font"] = val
+    elif kind == "scene" and val in SCENES:
+        prof.portfolio_scene = val
+    elif kind == "accent" and val in COLORS:
+        prof.portfolio_accent_key = val
+        prof.portfolio_accent = COLORS[val][0]
+        cfg.pop("custom_accent", None)
+    elif kind == "section" and val in SECTION_KEYS:
+        sec = dict(cfg.get("sections") or {})
+        sec[val] = not bool(sec.get(val, True))
+        cfg["sections"] = sec
+    else:
+        return JSONResponse({"ok": False, "error": "Unknown kind/value"}, status_code=400)
+
+    prof.portfolio_config = cfg
+    db.add(prof); db.commit()
+    return JSONResponse({"ok": True})
+
 
 
 
