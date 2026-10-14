@@ -73,26 +73,104 @@
   </div>
 
   <div class="mt-6">
-    <label class="block text-sm text-slate-400 mb-2">Color</label>
-    <div class="flex flex-wrap gap-3" id="pfColors">
-      {% for key, vals in colors.items() %}
-        <label class="cursor-pointer pf-swatch {% if settings.accent_key == key %}is-active{% endif %}"
-               title="{{ key|capitalize }}" data-key="{{ key }}">
-          <input type="radio" name="accent_key" value="{{ key }}" class="hidden" {% if settings.accent_key == key %}checked{% endif %}>
-          <div class="pf-swatch-dot" style="background: {{ vals[0] }};"></div>
-          <div class="pf-swatch-name">{{ key|capitalize }}</div>
+    <label class="block text-sm text-slate-400 mb-3">Personality</label>
+    <p class="text-xs text-slate-500 mb-3">Pick a vibe — sets color, scene, font and layout in one tap.</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-2" id="pfPresets">
+      {% for key, cfg in presets.items() %}
+        <label class="pf-preset {% if settings.personality == key %}is-active{% endif %}" data-key="{{ key }}">
+          <input type="radio" name="personality" value="{{ key }}" class="hidden" {% if settings.personality == key %}checked{% endif %}>
+          <div class="pf-preset-dot" style="background: {{ colors[cfg.color][0] }};"></div>
+          <div class="pf-preset-name">{{ key|capitalize }}</div>
+          <div class="pf-preset-hint">{{ cfg.font }} · {{ cfg.hero }}</div>
         </label>
       {% endfor %}
     </div>
   </div>
 
   <div class="mt-6">
-    <label class="block text-sm text-slate-400 mb-2">Scene</label>
+    <label class="block text-sm text-slate-400 mb-2">Accent color</label>
+    <div class="flex flex-wrap gap-3" id="pfColors">
+      {% for key, vals in colors.items() %}
+        <label class="cursor-pointer pf-swatch {% if settings.accent_key == key and not settings.custom_accent %}is-active{% endif %}"
+               title="{{ key|capitalize }}" data-key="{{ key }}">
+          <input type="radio" name="accent_key" value="{{ key }}" class="hidden" {% if settings.accent_key == key and not settings.custom_accent %}checked{% endif %}>
+          <div class="pf-swatch-dot" style="background: {{ vals[0] }};"></div>
+          <div class="pf-swatch-name">{{ key|capitalize }}</div>
+        </label>
+      {% endfor %}
+    </div>
+    <div class="mt-3 flex items-center gap-3 flex-wrap">
+      <span class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Custom</span>
+      <label class="pf-custom-wrap" title="Pick a custom color">
+        <input type="color" id="pfCustomPicker" value="{{ settings.custom_accent or settings.accent }}">
+      </label>
+      <input type="text" name="custom_accent" id="pfCustomHex" maxlength="7" placeholder="#000000"
+             value="{{ settings.custom_accent or '' }}"
+             class="w-28 rounded-lg bg-slate-950 border border-slate-800 focus:border-emerald-500 px-3 py-2 text-xs font-mono outline-none">
+      <button type="button" id="pfCustomClear" class="text-xs text-slate-400 hover:text-white underline">Clear</button>
+    </div>
+  </div>
+
+  <div class="mt-6">
+    <label class="block text-sm text-slate-400 mb-2">Motion scene</label>
     <div class="grid grid-cols-2 md:grid-cols-5 gap-2" id="pfScenes">
       {% for s in scenes %}
         <label class="cursor-pointer pf-scene-card {% if settings.scene == s %}is-active{% endif %}" data-key="{{ s }}">
           <input type="radio" name="scene" value="{{ s }}" class="hidden" {% if settings.scene == s %}checked{% endif %}>
+          <div class="pf-scene-icon">
+            {% if s == 'aurora' %}<span class="pf-si pf-si-aurora"></span>
+            {% elif s == 'butterfly' %}<span class="pf-si pf-si-bfly">◊</span>
+            {% elif s == 'snow' %}<span class="pf-si">❄</span>
+            {% elif s == 'night' %}<span class="pf-si">✦</span>
+            {% elif s == 'field' %}<span class="pf-si">≋</span>
+            {% elif s == 'cherry' %}<span class="pf-si">✿</span>
+            {% elif s == 'ocean' %}<span class="pf-si">≈</span>
+            {% elif s == 'forest' %}<span class="pf-si">▲</span>
+            {% elif s == 'desert' %}<span class="pf-si">◐</span>
+            {% elif s == 'rain' %}<span class="pf-si">│</span>
+            {% endif %}
+          </div>
           <div class="pf-scene-name">{{ s|capitalize }}</div>
+        </label>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-4 mt-6">
+    <div>
+      <label class="block text-sm text-slate-400 mb-2">Font</label>
+      <div class="grid grid-cols-3 gap-2" id="pfFonts">
+        {% for key in fonts.keys() %}
+          <label class="cursor-pointer pf-font-card {% if settings.font == key %}is-active{% endif %}" data-key="{{ key }}">
+            <input type="radio" name="font" value="{{ key }}" class="hidden" {% if settings.font == key %}checked{% endif %}>
+            <div class="pf-font-sample pf-font-{{ key }}">Aa</div>
+            <div class="pf-font-name">{{ key|capitalize }}</div>
+          </label>
+        {% endfor %}
+      </div>
+    </div>
+    <div>
+      <label class="block text-sm text-slate-400 mb-2">Hero layout</label>
+      <div class="grid grid-cols-3 gap-2" id="pfHeroes">
+        {% for h in hero_layouts %}
+          <label class="cursor-pointer pf-hero-card {% if settings.hero == h %}is-active{% endif %}" data-key="{{ h }}">
+            <input type="radio" name="hero" value="{{ h }}" class="hidden" {% if settings.hero == h %}checked{% endif %}>
+            <div class="pf-hero-icon pf-hero-icon-{{ h }}"></div>
+            <div class="pf-hero-name">{{ h|capitalize }}</div>
+          </label>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-6">
+    <label class="block text-sm text-slate-400 mb-2">Sections on page</label>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+      {% for k in section_keys %}
+        <label class="pf-sec-toggle {% if settings.sections_visible[k] %}is-on{% endif %}" data-key="{{ k }}">
+          <input type="checkbox" name="sec_{{ k }}" class="hidden" {% if settings.sections_visible[k] %}checked{% endif %}>
+          <span class="pf-sec-check">✓</span>
+          <span class="pf-sec-name">{{ k|capitalize }}</span>
         </label>
       {% endfor %}
     </div>
@@ -215,41 +293,105 @@
 </div>
 
 
+
+
+
+
+
 <style>
+  /* ---- preset cards ---- */
+  .pf-preset { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 8px;
+    border: 1.5px solid #1e293b; border-radius: 12px; background: rgba(15,23,42,0.35);
+    cursor: pointer; transition: all 0.16s ease; text-align: center; }
+  .pf-preset:hover { border-color: #475569; transform: translateY(-1px); }
+  .pf-preset.is-active { border-color: #10b981; background: rgba(16,185,129,0.10);
+    box-shadow: 0 0 0 3px rgba(16,185,129,0.15), 0 6px 18px -6px rgba(16,185,129,0.4); }
+  .pf-preset-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.15); }
+  .pf-preset-name { font-size: 12px; font-weight: 700; color: #cbd5e1; }
+  .pf-preset.is-active .pf-preset-name { color: #34d399; }
+  .pf-preset-hint { font-size: 9.5px; color: #64748b; letter-spacing: 0.2px; }
+
+  /* ---- color swatches ---- */
   .pf-swatch { display: flex; flex-direction: column; align-items: center; gap: 6px; transition: transform 0.14s ease; }
   .pf-swatch:active { transform: scale(0.94); }
-  .pf-swatch-dot {
-    width: 44px; height: 44px; border-radius: 50%;
-    border: 2px solid #1e293b; position: relative; transition: all 0.18s ease;
-  }
-  .pf-swatch.is-active .pf-swatch-dot {
-    border-color: #ffffff;
+  .pf-swatch-dot { width: 44px; height: 44px; border-radius: 50%;
+    border: 2px solid #1e293b; position: relative; transition: all 0.18s ease; }
+  .pf-swatch.is-active .pf-swatch-dot { border-color: #ffffff;
     box-shadow: 0 0 0 3px rgba(255,255,255,0.15), 0 0 0 5px rgba(0,0,0,0.3), 0 6px 18px -4px rgba(0,0,0,0.6);
-    transform: scale(1.08);
-  }
-  .pf-swatch.is-active .pf-swatch-dot::after {
-    content: "✓"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    color: #fff; font-weight: 900; font-size: 18px; text-shadow: 0 1px 4px rgba(0,0,0,0.7);
-  }
+    transform: scale(1.08); }
+  .pf-swatch.is-active .pf-swatch-dot::after { content: "✓"; position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 18px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.7); }
   .pf-swatch-name { font-size: 10px; color: #64748b; font-weight: 600; letter-spacing: 0.3px; transition: color 0.15s ease; }
   .pf-swatch.is-active .pf-swatch-name { color: #ffffff; }
 
-  .pf-scene-card {
-    border: 1.5px solid #1e293b; border-radius: 12px; padding: 12px 8px; text-align: center;
-    transition: all 0.16s ease; background: rgba(15,23,42,0.35);
-  }
-  .pf-scene-card:hover { border-color: #475569; }
-  .pf-scene-card.is-active {
-    border-color: #10b981; background: rgba(16,185,129,0.10);
-    box-shadow: 0 0 0 3px rgba(16,185,129,0.15), 0 6px 18px -6px rgba(16,185,129,0.4);
-  }
+  .pf-custom-wrap { width: 44px; height: 44px; border-radius: 50%; overflow: hidden;
+    border: 2px solid #334155; cursor: pointer; display: inline-block; position: relative; }
+  .pf-custom-wrap input[type="color"] { width: 200%; height: 200%; position: absolute;
+    top: -50%; left: -50%; border: none; cursor: pointer; padding: 0; }
+
+  /* ---- scene cards ---- */
+  .pf-scene-card { border: 1.5px solid #1e293b; border-radius: 12px; padding: 12px 8px; text-align: center;
+    transition: all 0.16s ease; background: rgba(15,23,42,0.35); cursor: pointer; }
+  .pf-scene-card:hover { border-color: #475569; transform: translateY(-1px); }
+  .pf-scene-card.is-active { border-color: #10b981; background: rgba(16,185,129,0.10);
+    box-shadow: 0 0 0 3px rgba(16,185,129,0.15), 0 6px 18px -6px rgba(16,185,129,0.4); }
+  .pf-scene-icon { height: 24px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; color: #94a3b8; font-size: 16px; }
+  .pf-scene-card.is-active .pf-scene-icon { color: #34d399; }
+  .pf-si { display: inline-block; }
+  .pf-si-aurora { width: 22px; height: 14px; border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent, #00a884), #a78bfa, #38bdf8); opacity: 0.85; }
   .pf-scene-name { font-size: 12px; font-weight: 700; color: #cbd5e1; }
   .pf-scene-card.is-active .pf-scene-name { color: #34d399; }
+
+  /* ---- font cards ---- */
+  .pf-font-card { border: 1.5px solid #1e293b; border-radius: 12px; padding: 14px 8px; text-align: center;
+    background: rgba(15,23,42,0.35); cursor: pointer; transition: all 0.16s ease; }
+  .pf-font-card:hover { border-color: #475569; }
+  .pf-font-card.is-active { border-color: #10b981; background: rgba(16,185,129,0.10);
+    box-shadow: 0 0 0 3px rgba(16,185,129,0.15); }
+  .pf-font-sample { font-size: 24px; font-weight: 700; color: #e2e8f0; margin-bottom: 4px; }
+  .pf-font-system  { font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; }
+  .pf-font-serif   { font-family: Georgia, 'Times New Roman', serif; }
+  .pf-font-display { font-family: 'Inter Tight', -apple-system, system-ui, sans-serif; letter-spacing: -1px; }
+  .pf-font-name { font-size: 11px; color: #94a3b8; font-weight: 600; }
+  .pf-font-card.is-active .pf-font-name { color: #34d399; }
+
+  /* ---- hero layout cards ---- */
+  .pf-hero-card { border: 1.5px solid #1e293b; border-radius: 12px; padding: 10px 8px; text-align: center;
+    background: rgba(15,23,42,0.35); cursor: pointer; transition: all 0.16s ease; }
+  .pf-hero-card:hover { border-color: #475569; }
+  .pf-hero-card.is-active { border-color: #10b981; background: rgba(16,185,129,0.10);
+    box-shadow: 0 0 0 3px rgba(16,185,129,0.15); }
+  .pf-hero-icon { width: 100%; height: 34px; border-radius: 6px; background: rgba(148,163,184,0.14); position: relative; margin-bottom: 6px; overflow: hidden; }
+  .pf-hero-icon::before, .pf-hero-icon::after { content: ""; position: absolute; border-radius: 3px; background: rgba(226,232,240,0.65); }
+  .pf-hero-icon-centered::before { left: 50%; top: 30%; width: 40%; height: 8px; transform: translateX(-50%); }
+  .pf-hero-icon-centered::after  { left: 50%; top: 58%; width: 60%; height: 6px; transform: translateX(-50%); opacity: 0.55; }
+  .pf-hero-icon-left::before { left: 8%; top: 30%; width: 44%; height: 8px; }
+  .pf-hero-icon-left::after  { left: 8%; top: 58%; width: 66%; height: 6px; opacity: 0.55; }
+  .pf-hero-icon-split::before { left: 8%; top: 30%; width: 40%; height: 8px; }
+  .pf-hero-icon-split::after  { right: 8%; top: 22%; width: 34%; height: 56%; opacity: 0.55; }
+  .pf-hero-card.is-active .pf-hero-icon::before,
+  .pf-hero-card.is-active .pf-hero-icon::after { background: #34d399; }
+  .pf-hero-name { font-size: 11px; color: #94a3b8; font-weight: 600; }
+  .pf-hero-card.is-active .pf-hero-name { color: #34d399; }
+
+  /* ---- section toggles ---- */
+  .pf-sec-toggle { display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+    border: 1.5px solid #1e293b; border-radius: 10px; background: rgba(15,23,42,0.35);
+    cursor: pointer; transition: all 0.14s ease; }
+  .pf-sec-toggle:hover { border-color: #475569; }
+  .pf-sec-toggle.is-on { border-color: #10b981; background: rgba(16,185,129,0.08); }
+  .pf-sec-check { width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid #475569;
+    display: flex; align-items: center; justify-content: center; color: transparent;
+    font-size: 12px; font-weight: 900; transition: all 0.14s ease; flex-shrink: 0; }
+  .pf-sec-toggle.is-on .pf-sec-check { background: #10b981; border-color: #10b981; color: #0a1418; }
+  .pf-sec-name { font-size: 13px; font-weight: 600; color: #cbd5e1; }
 </style>
 
 <script>
 (function(){
-  function wire(groupId, cardSel){
+  function wire(groupId, cardSel, radioName){
     var group = document.getElementById(groupId);
     if (!group) return;
     var cards = [].slice.call(group.querySelectorAll(cardSel));
@@ -258,14 +400,78 @@
         cards.forEach(function(c){ c.classList.remove('is-active'); });
         card.classList.add('is-active');
       });
-      card.addEventListener('touchstart', function(){
-        cards.forEach(function(c){ c.classList.remove('is-active'); });
-        card.classList.add('is-active');
-      }, { passive: true });
     });
   }
-  wire('pfColors', '.pf-swatch');
-  wire('pfScenes', '.pf-scene-card');
+  wire('pfPresets', '.pf-preset');
+  wire('pfColors',  '.pf-swatch');
+  wire('pfScenes',  '.pf-scene-card');
+  wire('pfFonts',   '.pf-font-card');
+  wire('pfHeroes',  '.pf-hero-card');
+
+  // section toggles
+  [].slice.call(document.querySelectorAll('.pf-sec-toggle')).forEach(function(el){
+    el.addEventListener('click', function(){
+      el.classList.toggle('is-on');
+      var inp = el.querySelector('input[type="checkbox"]');
+      if (inp) inp.checked = el.classList.contains('is-on');
+    });
+  });
+
+  // custom accent: picker <-> text input
+  var picker = document.getElementById('pfCustomPicker');
+  var hex    = document.getElementById('pfCustomHex');
+  var clear  = document.getElementById('pfCustomClear');
+  function setCustom(val){
+    if (hex) hex.value = val;
+    if (picker) picker.value = val;
+    // clear active state on preset swatches when custom used
+    if (val && /^#[0-9a-fA-F]{6}$/.test(val)) {
+      [].slice.call(document.querySelectorAll('#pfColors .pf-swatch')).forEach(function(c){
+        c.classList.remove('is-active');
+        var r = c.querySelector('input[type="radio"]'); if (r) r.checked = false;
+      });
+    }
+  }
+  if (picker) picker.addEventListener('input', function(){ setCustom(picker.value); });
+  if (hex) hex.addEventListener('input', function(){ if (/^#[0-9a-fA-F]{6}$/.test(hex.value)) setCustom(hex.value); });
+  if (clear) clear.addEventListener('click', function(e){
+    e.preventDefault();
+    if (hex) hex.value = '';
+    if (picker) picker.value = '#00a884';
+  });
+
+  // preset applies visual selection only (server applies full preset on save)
+  [].slice.call(document.querySelectorAll('#pfPresets .pf-preset')).forEach(function(el){
+    el.addEventListener('click', function(){
+      // visually mark corresponding color/scene/font/hero for instant feedback
+      var key = el.dataset.key;
+      var map = {
+        minimalist: {c:'ivory',   s:'aurora',   f:'system', h:'centered'},
+        bold:       {c:'crimson', s:'rain',     f:'display',h:'left'},
+        dreamy:     {c:'violet',  s:'butterfly',f:'serif',  h:'centered'},
+        executive:  {c:'midnight',s:'aurora',   f:'system', h:'split'},
+        editorial:  {c:'onyx',    s:'ocean',    f:'serif',  h:'left'},
+        playful:    {c:'amber',   s:'field',    f:'display',h:'centered'},
+        serene:     {c:'sapphire',s:'ocean',    f:'system', h:'centered'},
+        nocturnal:  {c:'midnight',s:'night',    f:'display',h:'split'}
+      };
+      var m = map[key]; if (!m) return;
+      function mark(groupId, sel, target){
+        var g = document.getElementById(groupId); if (!g) return;
+        [].slice.call(g.querySelectorAll(sel)).forEach(function(c){
+          var active = c.dataset.key === target;
+          c.classList.toggle('is-active', active);
+          var r = c.querySelector('input'); if (r) r.checked = active;
+        });
+      }
+      mark('pfColors', '.pf-swatch', m.c);
+      mark('pfScenes', '.pf-scene-card', m.s);
+      mark('pfFonts',  '.pf-font-card',  m.f);
+      mark('pfHeroes', '.pf-hero-card',  m.h);
+      // clear custom accent
+      if (hex) hex.value = '';
+    });
+  });
 })();
 </script>
 
