@@ -1625,9 +1625,12 @@ def portfolio_public_view(username: str, request: Request, db: Session = Depends
     owner_id = (data.get("portfolio_user") or {}).get("id")
     is_owner = bool(viewer and owner_id and str(viewer.id) == str(owner_id))
     data["is_owner"] = is_owner
-    return templates.TemplateResponse(request, "portfolio_public.html", _ctx(
+    resp = templates.TemplateResponse(request, "portfolio_public.html", _ctx(
         request, db=db, user=viewer, **data,
     ))
+    resp.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    resp.headers["Pragma"] = "no-cache"
+    return resp
 
 
 @router.post("/api/portfolio/inline-save")
@@ -1706,7 +1709,9 @@ async def portfolio_inline_save(request: Request, db: Session = Depends(get_db))
         prof.portfolio_config = cfg
 
     db.add(user); db.add(prof); db.commit()
-    return JSONResponse({"ok": True})
+    r = JSONResponse({"ok": True})
+    r.headers["Cache-Control"] = "no-store"
+    return r
 
 
 @router.post("/api/portfolio/live-setting")
