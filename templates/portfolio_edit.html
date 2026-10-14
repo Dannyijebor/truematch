@@ -399,10 +399,11 @@
 
   // section toggles
   [].slice.call(document.querySelectorAll('.pf-sec-toggle')).forEach(function(el){
-    el.addEventListener('click', function(){
-      el.classList.toggle('is-on');
-      var inp = el.querySelector('input[type="checkbox"]');
-      if (inp) inp.checked = el.classList.contains('is-on');
+    var inp = el.querySelector('input[type="checkbox"]');
+    if (!inp) return;
+    // Use the checkbox change event (fires once), not click (which double-fires via label)
+    inp.addEventListener('change', function(){
+      el.classList.toggle('is-on', inp.checked);
     });
   });
 
