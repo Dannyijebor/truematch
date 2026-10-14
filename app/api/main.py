@@ -406,9 +406,15 @@ class TimingMiddleware(BaseHTTPMiddleware):
         if path.startswith("/static/") or path.endswith((".css", ".js", ".png", ".jpg", ".webp")):
             response.headers["Cache-Control"] = "public, max-age=86400"
 
+        # Never cache API responses (auth-dependent, user-specific)
+        if path.startswith("/api/") or path in ("/health", "/stats"):
+            response.headers["Cache-Control"] = "private, no-store, must-revalidate"
+            response.headers["Pragma"] = "no-cache"
+
         # Private, no-store for app pages — fresh data
-        if path.startswith("/app") or path.startswith("/hire") or path.startswith("/messages"):
+        if path.startswith("/app") or path.startswith("/hire") or path.startswith("/messages") or path.startswith("/feed") or path.startswith("/discover") or path.startswith("/portfolio") or path.startswith("/settings") or path.startswith("/p/") or path.startswith("/u/"):
             response.headers["Cache-Control"] = "private, no-store"
+            response.headers["Pragma"] = "no-cache"
 
         return response
 
