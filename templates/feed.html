@@ -1339,6 +1339,12 @@ function tmVideoSelected(input) {
 (function(){
   var state = { postId: null, replyTo: null };
 
+  function esc(s){
+    return (s == null ? '' : String(s)).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
   window.tmOpenComments = function(e, postId){
     if (e) { e.preventDefault(); e.stopPropagation(); }
     state.postId = postId;
