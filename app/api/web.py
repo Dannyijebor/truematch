@@ -1636,7 +1636,9 @@ def portfolio_public_view(username: str, request: Request, db: Session = Depends
 @router.post("/api/portfolio/inline-save")
 async def portfolio_inline_save(request: Request, db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
+    import sys
     user = current_user_web(request, db)
+    print(f"[inline-save] user={getattr(user,'id',None) if user else None}", file=sys.stderr, flush=True)
     if not user:
         return JSONResponse({"ok": False, "error": "Not signed in"}, status_code=401)
 
@@ -1708,7 +1710,9 @@ async def portfolio_inline_save(request: Request, db: Session = Depends(get_db))
         cfg["sections"] = sec
         prof.portfolio_config = cfg
 
+    print(f"[inline-save] fields={list((payload.get('fields') or {}).keys())} items={(payload.get('items') or [])[:1]}", file=sys.stderr, flush=True)
     db.add(user); db.add(prof); db.commit()
+    print(f"[inline-save] committed", file=sys.stderr, flush=True)
     r = JSONResponse({"ok": True})
     r.headers["Cache-Control"] = "no-store"
     return r
