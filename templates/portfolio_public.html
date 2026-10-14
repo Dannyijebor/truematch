@@ -507,6 +507,29 @@
 
   body.pf-editing .pf-avatar,
   body.pf-editing .pf-hero-card { cursor: pointer; }
+
+  @media (max-width: 560px) {
+    .pf-toolbar { padding: 10px 10px; gap: 6px; flex-wrap: wrap; }
+    .pf-tb-label { padding: 5px 9px; font-size: 10.5px; letter-spacing: 1.2px; }
+    .pf-tb-spacer { display: none; }
+    .pf-tb-btn { padding: 8px 11px; font-size: 12px; }
+    #pfTbSave { padding: 8px 14px; font-size: 12.5px; margin-left: auto; }
+  }
+
+  body.pf-editing .pf-chip { position: relative; padding-right: 28px; cursor: default; }
+  body.pf-editing .pf-chip .pf-chip-del {
+    position: absolute; top: -6px; right: -6px;
+    width: 18px; height: 18px; border-radius: 50%; border: none;
+    background: #ef4444; color: #fff; font-size: 11px; font-weight: 900;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 3px 8px -2px rgba(239,68,68,0.6); }
+  body.pf-editing .pf-chip.pf-chip-hidden { display: none; }
+
+  /* add chip row */
+  body.pf-editing .pf-chips-add { display: inline-flex; }
+  .pf-chips-add { display: none; align-items: center; gap: 6px; padding: 7px 12px;
+    background: var(--accent-soft); border: 1px dashed var(--accent); border-radius: 10px;
+    color: var(--accent); font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
 </style>
 </head>
 <body data-scene="{{ settings.scene }}" data-hero="{{ settings.hero }}">
@@ -923,10 +946,10 @@
 <div class="pf-toolbar" id="pfToolbar">
   <span class="pf-tb-label">EDITING</span>
   <span class="pf-tb-spacer"></span>
+  <button class="pf-tb-btn pf-tb-btn-primary" id="pfTbSave" type="button">Save</button>
   <button class="pf-tb-btn" id="pfTbDesign" type="button">Design</button>
   <button class="pf-tb-btn" id="pfTbAdd" type="button">+ Add</button>
   <button class="pf-tb-btn" id="pfTbCancel" type="button">Cancel</button>
-  <button class="pf-tb-btn pf-tb-btn-primary" id="pfTbSave" type="button">Save changes</button>
 </div>
 {% endif %}
 
@@ -976,12 +999,31 @@
     });
   }
 
+
+  // ---- chips: delete in edit mode ----
+  function decorateChips(){
+    document.querySelectorAll('.pf-chips .pf-chip').forEach(function(chip){
+      if (chip.querySelector('.pf-chip-del')) return;
+      var x = document.createElement('button');
+      x.type = 'button';
+      x.className = 'pf-chip-del';
+      x.textContent = '×';
+      x.title = 'Hide this chip';
+      x.addEventListener('click', function(e){
+        e.preventDefault(); e.stopPropagation();
+        chip.classList.add('pf-chip-hidden');
+      });
+      chip.appendChild(x);
+    });
+  }
+
   function enterEdit(){
     body.classList.add('pf-editing');
     markItems();
+    decorateChips();
     snapshot();
     setEditable(true);
-    toast('Editing — tap any text to change it');
+    toast('Editing — tap any text, tap × to hide a chip');
   }
   function exitEdit(saved){
     body.classList.remove('pf-editing');
@@ -990,6 +1032,16 @@
     if (m) m.classList.remove('is-show');
     if (!saved) restore();
     original = null;
+  }
+
+
+  // apply persisted hidden chips
+  var HIDDEN_CHIPS = {{ (settings.hidden_chips or [])|tojson }};
+  if (HIDDEN_CHIPS && HIDDEN_CHIPS.length) {
+    document.querySelectorAll('.pf-chips .pf-chip').forEach(function(c){
+      var txt = (c.textContent || '').replace(/\s+/g,' ').trim();
+      if (HIDDEN_CHIPS.indexOf(txt) !== -1) c.style.display = 'none';
+    });
   }
 
   fab.addEventListener('click', enterEdit);
@@ -1016,13 +1068,18 @@
     document.querySelectorAll('.pf-editable-item[data-id]').forEach(function(el){
       ids.push(el.getAttribute('data-id'));
     });
+    var hidden_chips = [];
+    document.querySelectorAll('.pf-chips .pf-chip.pf-chip-hidden').forEach(function(c){
+      var txt = (c.textContent || '').replace('×','').replace(/\s+/g,' ').trim();
+      if (txt) hidden_chips.push(txt);
+    });
     btnSave.disabled = true;
     var oldTxt = btnSave.textContent;
     btnSave.textContent = 'Saving…';
     fetch('/api/portfolio/inline-save', {
       method:'POST', credentials:'include',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({fields: fields, items: items, items_order: ids, sections: {}})
+      body: JSON.stringify({fields: fields, items: items, items_order: ids, sections: {}, hidden_chips: hidden_chips})
     }).then(function(r){ return r.json().catch(function(){ return {}; }); }).then(function(res){
       btnSave.disabled = false;
       btnSave.textContent = oldTxt;

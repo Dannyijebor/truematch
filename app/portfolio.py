@@ -117,6 +117,7 @@ def get_portfolio_settings(db: Session, user_id) -> dict:
         "hero": hero,
         "personality": personality,
         "sections_visible": sections_visible,
+        "hidden_chips": cfg.get("hidden_chips") or [],
         "is_public": bool(p.portfolio_is_public),
         "has_vercel_token": bool(p.vercel_token),
     }
