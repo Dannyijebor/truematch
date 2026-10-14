@@ -7,11 +7,18 @@
     <h1 class="text-2xl font-extrabold tracking-tight">Your Portfolio</h1>
     <p class="text-slate-400 text-sm mt-1">A living page for your work. One link to share everywhere.</p>
   </div>
-  {% if profile and profile.username %}
-    <a href="/p/{{ profile.username }}" target="_blank" class="tm-btn tm-btn-ghost px-4 py-2.5 text-sm">View live</a>
-  {% else %}
-    <a href="/settings" class="tm-btn tm-btn-ghost px-4 py-2.5 text-sm">Set username first</a>
-  {% endif %}
+  <div class="text-right">
+    {% if profile and profile.username %}
+      <a href="/p/{{ profile.username }}" target="_blank"
+         class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm shadow-[0_10px_30px_-10px_rgba(0,168,132,0.7)] transition-all">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        View live portfolio
+      </a>
+      <div class="text-[11px] text-slate-500 mt-1.5 font-mono">/p/{{ profile.username }}</div>
+    {% else %}
+      <a href="/settings" class="tm-btn tm-btn-ghost px-4 py-2.5 text-sm">Set username first</a>
+    {% endif %}
+  </div>
 </div>
 
 {% if request.query_params.get('saved') %}
@@ -67,14 +74,13 @@
 
   <div class="mt-6">
     <label class="block text-sm text-slate-400 mb-2">Color</label>
-    <div class="flex flex-wrap gap-3">
+    <div class="flex flex-wrap gap-3" id="pfColors">
       {% for key, vals in colors.items() %}
-        <label class="cursor-pointer" title="{{ key|capitalize }}">
-          <input type="radio" name="accent_key" value="{{ key }}" class="hidden peer" {% if settings.accent_key == key %}checked{% endif %}>
-          <div class="w-11 h-11 rounded-full border-2 border-slate-800 peer-checked:border-white transition-all"
-               style="background: {{ vals[0] }}; box-shadow: 0 0 0 2px transparent;">
-          </div>
-          <div class="text-[10px] text-center text-slate-500 mt-1 peer-checked:text-white">{{ key|capitalize }}</div>
+        <label class="cursor-pointer pf-swatch {% if settings.accent_key == key %}is-active{% endif %}"
+               title="{{ key|capitalize }}" data-key="{{ key }}">
+          <input type="radio" name="accent_key" value="{{ key }}" class="hidden" {% if settings.accent_key == key %}checked{% endif %}>
+          <div class="pf-swatch-dot" style="background: {{ vals[0] }};"></div>
+          <div class="pf-swatch-name">{{ key|capitalize }}</div>
         </label>
       {% endfor %}
     </div>
@@ -82,13 +88,11 @@
 
   <div class="mt-6">
     <label class="block text-sm text-slate-400 mb-2">Scene</label>
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-2" id="pfScenes">
       {% for s in scenes %}
-        <label class="cursor-pointer">
-          <input type="radio" name="scene" value="{{ s }}" class="hidden peer" {% if settings.scene == s %}checked{% endif %}>
-          <div class="peer-checked:border-emerald-500 peer-checked:bg-emerald-500/5 border border-slate-800 rounded-xl p-3 text-center text-xs hover:border-slate-600 transition-colors">
-            <div class="font-semibold">{{ s|capitalize }}</div>
-          </div>
+        <label class="cursor-pointer pf-scene-card {% if settings.scene == s %}is-active{% endif %}" data-key="{{ s }}">
+          <input type="radio" name="scene" value="{{ s }}" class="hidden" {% if settings.scene == s %}checked{% endif %}>
+          <div class="pf-scene-name">{{ s|capitalize }}</div>
         </label>
       {% endfor %}
     </div>
@@ -209,5 +213,60 @@
     </form>
   </details>
 </div>
+
+
+<style>
+  .pf-swatch { display: flex; flex-direction: column; align-items: center; gap: 6px; transition: transform 0.14s ease; }
+  .pf-swatch:active { transform: scale(0.94); }
+  .pf-swatch-dot {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 2px solid #1e293b; position: relative; transition: all 0.18s ease;
+  }
+  .pf-swatch.is-active .pf-swatch-dot {
+    border-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.15), 0 0 0 5px rgba(0,0,0,0.3), 0 6px 18px -4px rgba(0,0,0,0.6);
+    transform: scale(1.08);
+  }
+  .pf-swatch.is-active .pf-swatch-dot::after {
+    content: "✓"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 900; font-size: 18px; text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+  }
+  .pf-swatch-name { font-size: 10px; color: #64748b; font-weight: 600; letter-spacing: 0.3px; transition: color 0.15s ease; }
+  .pf-swatch.is-active .pf-swatch-name { color: #ffffff; }
+
+  .pf-scene-card {
+    border: 1.5px solid #1e293b; border-radius: 12px; padding: 12px 8px; text-align: center;
+    transition: all 0.16s ease; background: rgba(15,23,42,0.35);
+  }
+  .pf-scene-card:hover { border-color: #475569; }
+  .pf-scene-card.is-active {
+    border-color: #10b981; background: rgba(16,185,129,0.10);
+    box-shadow: 0 0 0 3px rgba(16,185,129,0.15), 0 6px 18px -6px rgba(16,185,129,0.4);
+  }
+  .pf-scene-name { font-size: 12px; font-weight: 700; color: #cbd5e1; }
+  .pf-scene-card.is-active .pf-scene-name { color: #34d399; }
+</style>
+
+<script>
+(function(){
+  function wire(groupId, cardSel){
+    var group = document.getElementById(groupId);
+    if (!group) return;
+    var cards = [].slice.call(group.querySelectorAll(cardSel));
+    cards.forEach(function(card){
+      card.addEventListener('click', function(){
+        cards.forEach(function(c){ c.classList.remove('is-active'); });
+        card.classList.add('is-active');
+      });
+      card.addEventListener('touchstart', function(){
+        cards.forEach(function(c){ c.classList.remove('is-active'); });
+        card.classList.add('is-active');
+      }, { passive: true });
+    });
+  }
+  wire('pfColors', '.pf-swatch');
+  wire('pfScenes', '.pf-scene-card');
+})();
+</script>
 
 {% endblock %}
