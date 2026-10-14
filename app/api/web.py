@@ -1624,9 +1624,63 @@ def portfolio_public_view(username: str, request: Request, db: Session = Depends
         raise HTTPException(404, "Portfolio not found or not public")
 
     viewer = current_user_web(request, db)
+    owner_id = (data.get("portfolio_user") or {}).get("id")
+    is_owner = bool(viewer and owner_id and str(viewer.id) == str(owner_id))
+    data["is_owner"] = is_owner
     return templates.TemplateResponse(request, "portfolio_public.html", _ctx(
         request, db=db, user=viewer, **data,
     ))
+
+
+@router.post("/api/portfolio/inline-save")
+async def portfolio_inline_save(request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    user = current_user_web(request, db)
+    if not user:
+        return JSONResponse({"ok": False, "error": "Not signed in"}, status_code=401)
+
+    try:
+        payload = await request.json()
+    except Exception:
+        return JSONResponse({"ok": False, "error": "Bad payload"}, status_code=400)
+
+    from app.db.models import Profile, PortfolioItem
+    prof = db.get(Profile, user.id)
+    if not prof:
+        return JSONResponse({"ok": False, "error": "No profile"}, status_code=404)
+
+    fields = payload.get("fields") or {}
+    if "full_name" in fields and fields["full_name"]:
+        user.full_name = fields["full_name"][:120]
+
+    if "headline" in fields:
+        prof.headline = (fields["headline"] or "").strip()[:200] or None
+    if "about" in fields:
+        prof.portfolio_about = (fields["about"] or "").strip()[:3000] or None
+
+    # items order
+    order = payload.get("items_order") or []
+    for idx, item_id in enumerate(order):
+        try:
+            it = db.get(PortfolioItem, item_id)
+            if it and str(it.user_id) == str(user.id):
+                it.sort_order = idx
+        except Exception:
+            pass
+
+    # sections
+    sections = payload.get("sections") or {}
+    if sections:
+        cfg = dict(prof.portfolio_config or {})
+        sec = dict(cfg.get("sections") or {})
+        for k, v in sections.items():
+            sec[k] = bool(v)
+        cfg["sections"] = sec
+        prof.portfolio_config = cfg
+
+    db.add(user); db.add(prof); db.commit()
+    return JSONResponse({"ok": True})
+
 
 
 # ---------- stories ----------
