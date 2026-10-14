@@ -332,6 +332,7 @@ function fallback(inp, cb) {
     background: var(--bg, #0a1418);
     display: flex; flex-direction: column;
     height: 100vh;
+    height: 100dvh;
     animation: rsRise 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
@@ -493,6 +494,9 @@ function fallback(inp, cb) {
   }
   .rs-wiz-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 14px 34px -10px var(--accent-glow, rgba(0,168,132,0.42)); }
   .rs-wiz-btn-primary:disabled { opacity: 0.55; cursor: wait; transform: none; }
+
+  /* Hide global nav while wizard is open */
+  body.rs-wiz-open nav[class*="bottom-0"] { display: none !important; }
 </style>
 
 <script>
@@ -512,6 +516,7 @@ function fallback(inp, cb) {
   window.rsOpenWizard = function(){
     root.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
+    document.body.classList.add('rs-wiz-open');
     currentStep = 0;
     renderStep();
     // Prefill from profile if available
@@ -525,6 +530,7 @@ function fallback(inp, cb) {
     if (!confirm('Close the wizard? Your progress will be lost.')) return;
     root.classList.add('hidden');
     document.body.style.overflow = '';
+    document.body.classList.remove('rs-wiz-open');
   };
 
   function renderStep(){
@@ -787,6 +793,7 @@ function fallback(inp, cb) {
       btn.textContent = txt;
       if (res.ok) {
         document.body.style.overflow = '';
+        document.body.classList.remove('rs-wiz-open');
         window.location.href = '/app/resume?saved=1';
       } else {
         alert((res && res.error) || 'Could not save.');
