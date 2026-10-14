@@ -1560,6 +1560,12 @@ function tmVideoSelected(input) {
       .catch(function(){ list.innerHTML = '<div class="tm-sheet-empty">Network error.</div>'; });
   };
 
+  window.tmCloseComments = function(){
+    document.getElementById('tm-comments-sheet').classList.add('hidden');
+    document.body.style.overflow = '';
+    state.postId = null;
+  };
+
   window.tmCloseLikers = function(){
     document.getElementById('tm-likers-sheet').classList.add('hidden');
     document.body.style.overflow = '';
