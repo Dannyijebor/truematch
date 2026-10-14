@@ -1154,6 +1154,10 @@ function tmVideoSelected(input) {
     <div class="tm-comments-list" id="tm-comments-list">
       <div class="tm-sheet-empty">Loading...</div>
     </div>
+    <div class="tm-reply-bar hidden" id="tm-reply-bar">
+      <span>Replying to <b class="tm-reply-name"></b></span>
+      <button type="button" onclick="tmCancelReply()" class="tm-reply-x">×</button>
+    </div>
     <form class="tm-comments-composer" onsubmit="tmSubmitComment(event)">
       <input type="text" id="tm-comment-input" placeholder="Write a comment..." autocomplete="off" maxlength="2000">
       <button type="submit" class="tm-comment-send" aria-label="Send">
@@ -1296,42 +1300,66 @@ function tmVideoSelected(input) {
   .tm-liker-name { font-size: 14px; font-weight: 700; color: #f0f4f6; }
   html.light .tm-liker-name { color: #0f1720; }
   .tm-liker-sub { font-size: 12px; color: #8a97a2; margin-top: 2px; }
+
+  .tm-comment-actions { display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+  .tm-comment-act {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 8px; border-radius: 8px;
+    background: none; border: none; cursor: pointer;
+    color: #8a97a2; font-size: 11.5px; font-weight: 700;
+    font-family: inherit; transition: all 0.14s ease;
+  }
+  .tm-comment-act:hover { color: #00a884; background: rgba(0,168,132,0.10); }
+  .tm-comment-act svg { width: 14px; height: 14px; }
+  .tm-comment-act.is-liked { color: #ef4444; }
+  .tm-comment-act.is-liked:hover { color: #ef4444; background: rgba(239,68,68,0.10); }
+  .tm-comment-act-n { font-size: 11px; }
+  .tm-comment-act-del:hover { color: #ef4444; background: rgba(239,68,68,0.10); }
+  .tm-comment-reply { margin-left: 44px; border-left: 2px solid rgba(0,168,132,0.20); padding-left: 10px; }
+  html.light .tm-comment-act { color: #667580; }
+  .tm-reply-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 20px; font-size: 12.5px; color: #8a97a2;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    background: rgba(0,168,132,0.05);
+  }
+  html.light .tm-reply-bar { background: rgba(0,168,132,0.04); border-top-color: rgba(15,23,32,0.06); }
+  .tm-reply-bar.hidden { display: none; }
+  .tm-reply-x {
+    background: none; border: none; color: #8a97a2;
+    font-size: 20px; cursor: pointer; line-height: 1;
+    padding: 0 6px; border-radius: 6px;
+  }
+  .tm-reply-x:hover { color: #ef4444; }
 </style>
 
 <script>window.TM_CURRENT_USER_ID = "{{ user.id if user else '' }}";</script>
 
 <script>
 (function(){
-  var state = { postId: null };
+  var state = { postId: null, replyTo: null };
 
   window.tmOpenComments = function(e, postId){
     if (e) { e.preventDefault(); e.stopPropagation(); }
     state.postId = postId;
+    state.replyTo = null;
     var sheet = document.getElementById('tm-comments-sheet');
     sheet.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
+    loadComments();
+    setTimeout(function(){ var i = document.getElementById('tm-comment-input'); if (i) i.focus(); }, 260);
+  };
+
+  function loadComments(){
     var list = document.getElementById('tm-comments-list');
     list.innerHTML = '<div class="tm-sheet-empty">Loading...</div>';
-    fetch('/api/posts/' + postId + '/comments', { credentials: 'include' })
+    fetch('/api/posts/' + state.postId + '/comments', { credentials: 'include', cache: 'no-store' })
       .then(function(r){ return r.json(); })
       .then(function(res){
         if (!res.ok) { list.innerHTML = '<div class="tm-sheet-empty">Could not load comments.</div>'; return; }
         renderComments(res.comments || []);
       })
       .catch(function(){ list.innerHTML = '<div class="tm-sheet-empty">Network error.</div>'; });
-    setTimeout(function(){ var i = document.getElementById('tm-comment-input'); if (i) i.focus(); }, 260);
-  };
-
-  window.tmCloseComments = function(){
-    document.getElementById('tm-comments-sheet').classList.add('hidden');
-    document.body.style.overflow = '';
-    state.postId = null;
-  };
-
-  function esc(s){
-    return (s == null ? '' : String(s)).replace(/[&<>"']/g, function(c){
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
-    });
   }
 
   function renderComments(comments){
@@ -1341,24 +1369,108 @@ function tmVideoSelected(input) {
       return;
     }
     var me = window.TM_CURRENT_USER_ID || null;
-    list.innerHTML = comments.map(function(c){
+    var tops = comments.filter(function(c){ return !c.parent_id; });
+    var replies = {};
+    comments.forEach(function(c){
+      if (c.parent_id) {
+        if (!replies[c.parent_id]) replies[c.parent_id] = [];
+        replies[c.parent_id].push(c);
+      }
+    });
+
+    function renderOne(c, isReply){
       var av = c.author.avatar_url
         ? '<img src="' + esc(c.author.avatar_url) + '" class="tm-comment-av" alt="">'
         : '<div class="tm-comment-av tm-comment-av-fallback">' + esc((c.author.name || '?')[0].toUpperCase()) + '</div>';
       var nameLink = c.author.username
         ? '<a href="/u/' + esc(c.author.username) + '" class="tm-comment-name">' + esc(c.author.name) + '</a>'
         : '<span class="tm-comment-name">' + esc(c.author.name) + '</span>';
-      var del = (me && c.author.user_id === me)
-        ? '<button class="tm-comment-del" onclick="tmDeleteComment(\'' + esc(c.id) + '\')">Delete</button>'
-        : '';
       var when = c.created_at ? c.created_at.slice(5, 16).replace('T', ' ') : '';
-      return '<div class="tm-comment" data-id="' + esc(c.id) + '">' + av
+      var editedTag = c.edited ? ' <span class="tm-comment-time">(edited)</span>' : '';
+      var isMine = me && c.author.user_id === me;
+      var actions = '<div class="tm-comment-actions">'
+        + '<button class="tm-comment-act ' + (c.liked ? 'is-liked' : '') + '" onclick="tmLikeComment(\'' + esc(c.id) + '\', this)" title="Like">'
+        +   '<svg viewBox="0 0 24 24" fill="' + (c.liked ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'
+        +   (c.likes ? '<span class="tm-comment-act-n">' + c.likes + '</span>' : '')
+        + '</button>'
+        + (isReply ? '' : '<button class="tm-comment-act" onclick="tmReplyTo(\'' + esc(c.id) + '\', \'' + esc(c.author.name) + '\')">Reply</button>')
+        + (isMine ? '<button class="tm-comment-act" onclick="tmEditComment(\'' + esc(c.id) + '\')">Edit</button>' : '')
+        + (isMine ? '<button class="tm-comment-act tm-comment-act-del" onclick="tmDeleteComment(\'' + esc(c.id) + '\')">Delete</button>' : '')
+        + '</div>';
+
+      return '<div class="tm-comment' + (isReply ? ' tm-comment-reply' : '') + '" data-id="' + esc(c.id) + '" data-raw="' + esc(c.body) + '">'
+        + av
         + '<div class="tm-comment-body">'
-        +   '<div class="tm-comment-head">' + nameLink + '<span class="tm-comment-time">' + esc(when) + '</span></div>'
+        +   '<div class="tm-comment-head">' + nameLink + '<span class="tm-comment-time">' + esc(when) + '</span>' + editedTag + '</div>'
         +   '<div class="tm-comment-text">' + esc(c.body) + '</div>'
-        + '</div>' + del + '</div>';
+        +   actions
+        + '</div>'
+      + '</div>';
+    }
+
+    list.innerHTML = tops.map(function(c){
+      var kids = replies[c.id] || [];
+      return renderOne(c, false) + kids.map(function(k){ return renderOne(k, true); }).join('');
     }).join('');
   }
+
+  window.tmReplyTo = function(commentId, name){
+    state.replyTo = commentId;
+    var input = document.getElementById('tm-comment-input');
+    var bar = document.getElementById('tm-reply-bar');
+    if (bar) { bar.classList.remove('hidden'); bar.querySelector('.tm-reply-name').textContent = name; }
+    if (input) {
+      input.placeholder = 'Reply to ' + name + '...';
+      input.focus();
+    }
+  };
+
+  window.tmCancelReply = function(){
+    state.replyTo = null;
+    var input = document.getElementById('tm-comment-input');
+    var bar = document.getElementById('tm-reply-bar');
+    if (bar) bar.classList.add('hidden');
+    if (input) input.placeholder = 'Write a comment...';
+  };
+
+  window.tmEditComment = function(commentId){
+    var el = document.querySelector('.tm-comment[data-id="' + commentId + '"]');
+    if (!el) return;
+    var raw = el.getAttribute('data-raw') || '';
+    var next = prompt('Edit comment:', raw);
+    if (next == null) return;
+    next = next.trim();
+    if (!next || next === raw) return;
+    fetch('/api/posts/comments/' + commentId + '/edit', {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ body: next })
+    }).then(function(r){ return r.json(); }).then(function(res){
+      if (res.ok) loadComments();
+    });
+  };
+
+  window.tmLikeComment = function(commentId, btn){
+    fetch('/api/posts/comments/' + commentId + '/like', { method: 'POST', credentials: 'include' })
+      .then(function(r){ return r.json(); }).then(function(res){
+        if (!res.ok) return;
+        var el = document.querySelector('.tm-comment[data-id="' + commentId + '"]');
+        if (!el) return;
+        var b = el.querySelector('.tm-comment-act');
+        if (!b) return;
+        var n = b.querySelector('.tm-comment-act-n');
+        if (res.liked) {
+          b.classList.add('is-liked');
+          b.querySelector('svg').setAttribute('fill', 'currentColor');
+          if (n) n.textContent = res.likes;
+          else { n = document.createElement('span'); n.className = 'tm-comment-act-n'; n.textContent = res.likes; b.appendChild(n); }
+        } else {
+          b.classList.remove('is-liked');
+          b.querySelector('svg').setAttribute('fill', 'none');
+          if (n) { if (res.likes > 0) n.textContent = res.likes; else n.remove(); }
+        }
+      });
+  };
 
   window.tmSubmitComment = function(e){
     e.preventDefault();
@@ -1367,25 +1479,27 @@ function tmVideoSelected(input) {
     if (!val || !state.postId) return;
     var btn = e.target.querySelector('button');
     if (btn) btn.disabled = true;
+    var payload = { body: val };
+    if (state.replyTo) payload.parent_id = state.replyTo;
     fetch('/api/posts/' + state.postId + '/comments', {
       method: 'POST', credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ body: val })
+      body: JSON.stringify(payload)
     }).then(function(r){ return r.json(); }).then(function(res){
       if (btn) btn.disabled = false;
       if (res.ok) {
         input.value = '';
-        return fetch('/api/posts/' + state.postId + '/comments', { credentials: 'include' })
-          .then(function(r){ return r.json(); }).then(function(rr){
-            renderComments(rr.comments || []);
-            document.querySelectorAll('.tm-post').forEach(function(a){
-              var b = a.querySelector('button[onclick*="tmOpenComments"][onclick*="' + state.postId + '"]');
-              if (b) {
-                var cc = a.querySelector('.cmt-count');
-                if (cc) cc.textContent = String((parseInt(cc.textContent, 10) || 0) + 1);
-              }
-            });
-          });
+        tmCancelReply();
+        loadComments();
+        document.querySelectorAll('.tm-post').forEach(function(a){
+          var b = a.querySelector('button[onclick*="tmOpenComments"][onclick*="' + state.postId + '"]');
+          if (b) {
+            var cc = a.querySelector('.cmt-count');
+            if (cc) cc.textContent = String((parseInt(cc.textContent, 10) || 0) + 1);
+          }
+        });
+      } else {
+        alert((res && res.error) || 'Could not post');
       }
     }).catch(function(){ if (btn) btn.disabled = false; });
   };
@@ -1395,8 +1509,7 @@ function tmVideoSelected(input) {
     fetch('/api/posts/comments/' + commentId + '/delete', { method: 'POST', credentials: 'include' })
       .then(function(r){ return r.json(); }).then(function(res){
         if (res.ok) {
-          var el = document.querySelector('.tm-comment[data-id="' + commentId + '"]');
-          if (el) el.remove();
+          loadComments();
           document.querySelectorAll('.tm-post').forEach(function(a){
             var b = a.querySelector('button[onclick*="tmOpenComments"][onclick*="' + state.postId + '"]');
             if (b) {

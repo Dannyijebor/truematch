@@ -1884,8 +1884,9 @@ async def post_add_comment(post_id: str, request: Request, db: Session = Depends
     except Exception:
         payload = {}
     body = (payload.get("body") or "").strip()
+    parent_id = (payload.get("parent_id") or "").strip() or None
     from app.social import add_comment
-    res = add_comment(db, user.id, post_id, body)
+    res = add_comment(db, user.id, post_id, body, parent_id=parent_id)
     return JSONResponse(res)
 
 
@@ -1896,7 +1897,7 @@ def post_list_comments(post_id: str, request: Request, db: Session = Depends(get
     if not user:
         return JSONResponse({"ok": False, "error": "Not signed in"}, status_code=401)
     from app.social import list_comments
-    return JSONResponse({"ok": True, "comments": list_comments(db, post_id)})
+    return JSONResponse({"ok": True, "comments": list_comments(db, post_id, viewer_id=user.id)})
 
 
 @router.post("/api/posts/comments/{comment_id}/delete")
@@ -1907,6 +1908,31 @@ async def post_delete_comment(comment_id: str, request: Request, db: Session = D
         return JSONResponse({"ok": False, "error": "Not signed in"}, status_code=401)
     from app.social import delete_comment
     return JSONResponse(delete_comment(db, user.id, comment_id))
+
+
+@router.post("/api/posts/comments/{comment_id}/edit")
+async def post_edit_comment(comment_id: str, request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    user = current_user_web(request, db)
+    if not user:
+        return JSONResponse({"ok": False, "error": "Not signed in"}, status_code=401)
+    try:
+        payload = await request.json()
+    except Exception:
+        payload = {}
+    body = (payload.get("body") or "").strip()
+    from app.social import edit_comment
+    return JSONResponse(edit_comment(db, user.id, comment_id, body))
+
+
+@router.post("/api/posts/comments/{comment_id}/like")
+def post_like_comment(comment_id: str, request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    user = current_user_web(request, db)
+    if not user:
+        return JSONResponse({"ok": False, "error": "Not signed in"}, status_code=401)
+    from app.social import toggle_comment_like
+    return JSONResponse(toggle_comment_like(db, user.id, comment_id))
 
 
 @router.get("/api/posts/{post_id}/likers")
