@@ -16,43 +16,57 @@
       New
     </button>
 
-    <div id="new-chat-pop" class="hidden">
-      <div class="pro-popover-backdrop" onclick="closeNewChat()"></div>
-      <div class="pro-popover" onclick="event.stopPropagation()" style="min-width:280px; max-height:400px; overflow-y:auto;">
-        <div class="pro-popover-header">Start a new chat</div>
-        {% if candidates %}
-          {% for p in candidates %}
-          {% if p.username %}
-        <a href="/u/{{ p.username }}" class="theme-row" style="display:flex;">
-        {% else %}
-        <a href="/messages/{{ p.user_id }}" class="theme-row" style="display:flex;">
-        {% endif %}
-            {% if p.avatar_url %}
-              <img src="{{ p.avatar_url }}" class="w-8 h-8 rounded-full object-cover">
-            {% else %}
-              <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-xs font-bold text-slate-950">
-                {{ (p.name or "?")[0]|upper }}
-              </div>
-            {% endif %}
-            <div style="min-width:0; flex:1;">
-              <div style="font-weight:500; font-size:13px;" class="truncate">{{ p.name }}</div>
-              {% if p.title or p.company %}
-                <div style="font-size:11px; color:var(--muted);" class="truncate">
-                  {{ p.title or '' }}{% if p.title and p.company %} · {% endif %}{{ p.company or '' }}
-                </div>
-              {% endif %}
-            </div>
-          </a>
-          {% endfor %}
-        {% else %}
-          <div style="padding:16px; font-size:13px; color:var(--muted); text-align:center;">
-            Follow people to message them.<br><a href="/app/people" style="color:var(--accent);">Find people →</a>
-          </div>
-        {% endif %}
+<div id="new-chat-pop" class="ncp-root hidden" onclick="closeNewChat()">
+  <div class="ncp-sheet" onclick="event.stopPropagation()">
+    <div class="ncp-handle"></div>
+    <div class="ncp-head">
+      <div>
+        <div class="ncp-title">New message</div>
+        <div class="ncp-sub">People you follow</div>
       </div>
+      <button class="ncp-close" onclick="closeNewChat()" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
     </div>
+
+    {% if candidates %}
+    <div class="ncp-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="ncp-q" type="text" placeholder="Search people..." autocomplete="off">
+    </div>
+
+    <div class="ncp-list" id="ncp-list">
+      {% for p in candidates %}
+      <a href="/messages/{{ p.user_id }}" class="ncp-row" data-name="{{ (p.name or '')|lower }} {{ (p.username or '')|lower }} {{ (p.title or '')|lower }}">
+        {% if p.avatar_url %}
+          <img src="{{ p.avatar_url }}" class="ncp-av" alt="{{ p.name }}">
+        {% else %}
+          <div class="ncp-av ncp-av-fallback">{{ (p.name or "?")[0]|upper }}</div>
+        {% endif %}
+        <div class="ncp-meta">
+          <div class="ncp-name">{{ p.name }}</div>
+          {% if p.title or p.company %}
+            <div class="ncp-role">{{ p.title or '' }}{% if p.title and p.company %} &middot; {% endif %}{{ p.company or '' }}</div>
+          {% endif %}
+        </div>
+        <svg class="ncp-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+      </a>
+      {% endfor %}
+    </div>
+    <div class="ncp-empty hidden" id="ncp-empty">No matches.</div>
+    {% else %}
+    <div class="ncp-blank">
+      <div class="ncp-blank-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><circle cx="17" cy="9" r="2.4"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5"/><path d="M15 14c3 0 6 1.5 6 4"/></svg>
+      </div>
+      <div class="ncp-blank-title">No one to message yet</div>
+      <div class="ncp-blank-sub">Follow people and they will show up here.</div>
+      <a href="/app/people" class="ncp-blank-cta">Find people</a>
+    </div>
+    {% endif %}
   </div>
 </div>
+
 
 {% if not convos %}
 <div class="tm-card p-8 text-center text-slate-400">
@@ -96,6 +110,124 @@ function toggleNewChat(e) {
 function closeNewChat() {
   document.getElementById('new-chat-pop').classList.add('hidden');
 }
+</script>
+
+
+<style>
+  /* ============ NEW CHAT (premium) ============ */
+  .ncp-root {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(4, 12, 15, 0.55);
+    backdrop-filter: blur(10px) saturate(140%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    display: flex; align-items: flex-end; justify-content: center;
+    animation: ncpFade 0.22s ease both;
+  }
+  .ncp-root.hidden { display: none; }
+  @media (min-width: 640px) { .ncp-root { align-items: center; } }
+
+  @keyframes ncpFade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes ncpRise { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  .ncp-sheet {
+    width: 100%; max-width: 460px;
+    background: linear-gradient(180deg, #0f1d22 0%, #0b1a1f 100%);
+    border: 1px solid rgba(0, 217, 154, 0.12);
+    border-bottom: none;
+    border-radius: 22px 22px 0 0;
+    padding: 12px 0 8px;
+    box-shadow: 0 -20px 60px -20px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.02) inset;
+    animation: ncpRise 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+    max-height: 82vh; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  @media (min-width: 640px) {
+    .ncp-sheet { border-radius: 22px; border-bottom: 1px solid rgba(0, 217, 154, 0.12); max-height: 70vh; }
+  }
+
+  .ncp-handle { width: 44px; height: 4px; border-radius: 4px; background: rgba(255,255,255,0.14); margin: 0 auto 12px; }
+  @media (min-width: 640px) { .ncp-handle { display: none; } }
+
+  .ncp-head { display: flex; align-items: flex-start; justify-content: space-between; padding: 0 20px 14px; gap: 12px; }
+  .ncp-title { font-size: 17px; font-weight: 800; letter-spacing: -0.3px; color: #f0f4f6; }
+  .ncp-sub { font-size: 12.5px; color: #8a97a2; margin-top: 2px; }
+  .ncp-close { width: 34px; height: 34px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.06); color: #8a97a2; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease; flex-shrink: 0; }
+  .ncp-close:hover { background: rgba(255,255,255,0.09); color: #fff; }
+  .ncp-close svg { width: 15px; height: 15px; }
+
+  .ncp-search { margin: 0 20px 12px; padding: 10px 14px; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; display: flex; align-items: center; gap: 10px; transition: border-color 0.15s ease; }
+  .ncp-search:focus-within { border-color: rgba(0, 217, 154, 0.4); }
+  .ncp-search svg { width: 15px; height: 15px; color: #6d7a82; flex-shrink: 0; }
+  .ncp-search input { flex: 1; background: transparent; border: none; outline: none; color: #f0f4f6; font-size: 14px; font-family: inherit; min-width: 0; }
+  .ncp-search input::placeholder { color: #556069; }
+
+  .ncp-list { overflow-y: auto; padding: 2px 10px 14px; flex: 1; }
+  .ncp-row { display: flex; align-items: center; gap: 12px; padding: 11px 10px; border-radius: 12px; text-decoration: none; color: inherit; transition: background 0.14s ease, transform 0.14s ease; -webkit-tap-highlight-color: transparent; }
+  .ncp-row:hover { background: rgba(0, 168, 132, 0.09); }
+  .ncp-row:active { transform: scale(0.985); }
+
+  .ncp-av { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(255,255,255,0.06); }
+  .ncp-av-fallback { display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #00a884, #00795e); color: #06201a; font-weight: 800; font-size: 15px; box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 6px 18px -8px rgba(0,168,132,0.6); }
+  .ncp-meta { min-width: 0; flex: 1; }
+  .ncp-name { font-size: 14.5px; font-weight: 700; color: #e8eef1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: -0.1px; }
+  .ncp-role { font-size: 12px; color: #8a97a2; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ncp-arrow { width: 14px; height: 14px; color: #4a565e; flex-shrink: 0; transition: color 0.15s ease, transform 0.15s ease; }
+  .ncp-row:hover .ncp-arrow { color: #00a884; transform: translateX(2px); }
+
+  .ncp-empty { padding: 24px 20px; text-align: center; font-size: 13px; color: #6d7a82; }
+  .ncp-empty.hidden { display: none; }
+
+  .ncp-blank { padding: 30px 24px 40px; text-align: center; }
+  .ncp-blank-icon { width: 54px; height: 54px; margin: 0 auto 14px; border-radius: 16px; background: rgba(0,168,132,0.10); display: flex; align-items: center; justify-content: center; color: #00a884; }
+  .ncp-blank-icon svg { width: 26px; height: 26px; }
+  .ncp-blank-title { font-size: 15px; font-weight: 800; color: #e8eef1; }
+  .ncp-blank-sub { font-size: 13px; color: #8a97a2; margin-top: 4px; }
+  .ncp-blank-cta { display: inline-block; margin-top: 18px; padding: 10px 20px; background: #00a884; color: #06201a; font-weight: 800; font-size: 13.5px; border-radius: 12px; text-decoration: none; box-shadow: 0 10px 26px -10px rgba(0,168,132,0.6); transition: transform 0.14s ease, box-shadow 0.2s ease; }
+  .ncp-blank-cta:hover { transform: translateY(-1px); box-shadow: 0 14px 32px -12px rgba(0,168,132,0.75); }
+
+  html.light .ncp-root { background: rgba(15, 23, 32, 0.45); }
+  html.light .ncp-sheet { background: linear-gradient(180deg, #ffffff 0%, #f7faf9 100%); border-color: rgba(0,168,132,0.18); }
+  html.light .ncp-title { color: #0f1720; }
+  html.light .ncp-sub, html.light .ncp-role, html.light .ncp-empty { color: #667580; }
+  html.light .ncp-name { color: #0f1720; }
+  html.light .ncp-row:hover { background: rgba(0,168,132,0.08); }
+  html.light .ncp-search { background: #f0ebe0; border-color: rgba(15,23,32,0.08); }
+  html.light .ncp-search input { color: #0f1720; }
+  html.light .ncp-handle { background: rgba(15,23,32,0.15); }
+  html.light .ncp-close { background: rgba(15,23,32,0.05); color: #667580; }
+</style>
+
+<script>
+(function(){
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeNewChat(); });
+
+  var q = document.getElementById('ncp-q');
+  if (q) {
+    q.addEventListener('input', function(){
+      var term = q.value.trim().toLowerCase();
+      var rows = document.querySelectorAll('#ncp-list .ncp-row');
+      var visible = 0;
+      rows.forEach(function(r){
+        var hay = r.getAttribute('data-name') || '';
+        var match = !term || hay.indexOf(term) !== -1;
+        r.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+      var empty = document.getElementById('ncp-empty');
+      if (empty) empty.classList.toggle('hidden', visible !== 0);
+    });
+  }
+
+  // Enhance toggleNewChat to auto-focus search
+  var origToggle = window.toggleNewChat;
+  window.toggleNewChat = function(e){
+    if (origToggle) origToggle(e);
+    var pop = document.getElementById('new-chat-pop');
+    if (pop && !pop.classList.contains('hidden') && q) {
+      setTimeout(function(){ q.focus(); }, 150);
+    }
+  };
+})();
 </script>
 
 {% endblock %}
