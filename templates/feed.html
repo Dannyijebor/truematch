@@ -1354,12 +1354,21 @@ function tmVideoSelected(input) {
     var list = document.getElementById('tm-comments-list');
     list.innerHTML = '<div class="tm-sheet-empty">Loading...</div>';
     fetch('/api/posts/' + state.postId + '/comments?_=' + Date.now(), { credentials: 'include', cache: 'no-store' })
-      .then(function(r){ return r.json(); })
-      .then(function(res){
-        if (!res.ok) { list.innerHTML = '<div class="tm-sheet-empty">Could not load comments.</div>'; return; }
+      .then(function(r){
+        console.log('[comments] status', r.status, 'ct', r.headers.get('content-type'));
+        return r.text();
+      })
+      .then(function(txt){
+        console.log('[comments] body', txt.slice(0, 300));
+        var res;
+        try { res = JSON.parse(txt); } catch(e) {
+          document.getElementById('tm-comments-list').innerHTML = '<div class="tm-sheet-empty" style="font-size:11px;padding:12px;">Debug: ' + txt.slice(0, 200).replace(/</g,'&lt;') + '</div>';
+          return;
+        }
+        if (!res.ok) { list.innerHTML = '<div class="tm-sheet-empty">Could not load: ' + (res.error||'') + '</div>'; return; }
         renderComments(res.comments || []);
       })
-      .catch(function(){ list.innerHTML = '<div class="tm-sheet-empty">Network error.</div>'; });
+      .catch(function(e){ console.error('[comments] fetch failed', e); list.innerHTML = '<div class="tm-sheet-empty">Network: ' + (e && e.message || 'err') + '</div>'; });
   }
 
   function renderComments(comments){
