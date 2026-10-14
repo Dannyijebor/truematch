@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Resume · TrueMatch{% endblock %}
 {% block content %}
+{% if request.query_params.get('saved') %}
+  <div class="mb-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 p-3 text-sm">
+    Resume saved. Your matches will refresh shortly.
+  </div>
+{% endif %}
 
 <a href="/app" class="text-slate-400 hover:text-white text-sm">← Back to matches</a>
 
@@ -145,10 +150,13 @@
   </form>
 </div>
 
-<div class="mt-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
-  <h3 class="font-bold mb-1">Build from scratch (coming soon)</h3>
-  <p class="text-slate-400 text-sm">Guided questions tailored to your target job. Available next update.</p>
-</div>
+  <div class="mt-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+    <h3 class="font-bold mb-1">Build from scratch</h3>
+    <p class="text-slate-400 text-sm mb-4">Guided wizard. Industry-standard structure. Takes 5 minutes.</p>
+    <button type="button" onclick="rsOpenWizard()" class="tm-btn tm-btn-primary px-5 py-3 w-full text-sm">
+      Start building
+    </button>
+  </div>
 
 {% if resume and resume.structured_data %}
   </div>
@@ -183,4 +191,617 @@ function fallback(inp, cb) {
   try { document.execCommand('copy'); cb(); } catch(_){}
 }
 </script>
+
+<div id="rs-wiz-root" class="rs-wiz-root hidden">
+  <div class="rs-wiz-shell">
+    <header class="rs-wiz-head">
+      <button type="button" onclick="rsCloseWizard()" class="rs-wiz-x" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" width="18" height="18"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <div class="rs-wiz-progress"><div class="rs-wiz-progress-fill" id="rs-wiz-fill"></div></div>
+      <div class="rs-wiz-step-label"><span id="rs-wiz-step-num">1</span> / 6 · <span id="rs-wiz-step-name">Basics</span></div>
+    </header>
+
+    <div class="rs-wiz-body" id="rs-wiz-body">
+
+      <section class="rs-wiz-step" data-step="0">
+        <h2 class="rs-wiz-title">Let's start with the basics</h2>
+        <p class="rs-wiz-sub">This is what recruiters see first. Keep it clean and accurate.</p>
+        <div class="rs-wiz-field">
+          <label>Full name <span class="req">*</span></label>
+          <input type="text" id="rs-name" placeholder="Jane Adeyemi" maxlength="120">
+        </div>
+        <div class="rs-wiz-field">
+          <label>Professional headline <span class="req">*</span></label>
+          <input type="text" id="rs-headline" placeholder="Senior Product Manager · Fintech · 7 yrs" maxlength="200">
+          <span class="rs-hint">Title · Industry · Years. Aim for 60-100 chars.</span>
+        </div>
+        <div class="rs-wiz-row">
+          <div class="rs-wiz-field">
+            <label>Email <span class="req">*</span></label>
+            <input type="email" id="rs-email" placeholder="you@email.com" maxlength="200">
+          </div>
+          <div class="rs-wiz-field">
+            <label>Phone</label>
+            <input type="tel" id="rs-phone" placeholder="+234 800 000 0000" maxlength="40">
+          </div>
+        </div>
+        <div class="rs-wiz-field">
+          <label>Location</label>
+          <input type="text" id="rs-location" placeholder="Lagos, Nigeria" maxlength="120">
+        </div>
+      </section>
+
+      <section class="rs-wiz-step hidden" data-step="1">
+        <h2 class="rs-wiz-title">Professional summary</h2>
+        <p class="rs-wiz-sub">3-5 sentences. What you do, your strongest impact, what you're aiming for next.</p>
+        <div class="rs-wiz-field">
+          <textarea id="rs-summary" rows="7" placeholder="Product Manager with 7 years shipping consumer and B2B products across fintech and marketplaces. Led a 12-person team that grew monthly active users from 40k to 350k in 18 months. Strong on discovery, data, and go-to-market. Looking for a lead role where I can shape the product function end-to-end." maxlength="3000"></textarea>
+          <span class="rs-hint"><span id="rs-summary-count">0</span> / 3000 · Aim for 300-700 characters.</span>
+        </div>
+      </section>
+
+      <section class="rs-wiz-step hidden" data-step="2">
+        <h2 class="rs-wiz-title">Experience</h2>
+        <p class="rs-wiz-sub">Most recent first. Bullets should start with strong action verbs.</p>
+        <div id="rs-exp-list"></div>
+        <button type="button" class="rs-wiz-add" onclick="rsAddExp()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="16" height="16"><path d="M12 5v14M5 12h14"/></svg>
+          Add experience
+        </button>
+      </section>
+
+      <section class="rs-wiz-step hidden" data-step="3">
+        <h2 class="rs-wiz-title">Education</h2>
+        <p class="rs-wiz-sub">Most recent first. Skip if self-taught — add certifications instead.</p>
+        <div id="rs-edu-list"></div>
+        <button type="button" class="rs-wiz-add" onclick="rsAddEdu()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="16" height="16"><path d="M12 5v14M5 12h14"/></svg>
+          Add education
+        </button>
+      </section>
+
+      <section class="rs-wiz-step hidden" data-step="4">
+        <h2 class="rs-wiz-title">Skills, certifications & languages</h2>
+        <p class="rs-wiz-sub">Skills fuel your matches. Add everything relevant — even 30+ is fine.</p>
+
+        <div class="rs-wiz-field">
+          <label>Skills <span class="req">*</span></label>
+          <div id="rs-skills-chips" class="rs-chips"></div>
+          <div class="rs-chip-add">
+            <input type="text" id="rs-skill-input" placeholder="Type a skill and hit Enter" maxlength="80">
+            <button type="button" onclick="rsAddSkillFromInput()">Add</button>
+          </div>
+          <span class="rs-hint">Examples: Product Strategy, Figma, SQL, Python, Roadmapping, Stakeholder Management</span>
+        </div>
+
+        <div class="rs-wiz-field">
+          <label>Certifications</label>
+          <div id="rs-cert-chips" class="rs-chips"></div>
+          <div class="rs-chip-add">
+            <input type="text" id="rs-cert-input" placeholder="PMP, AWS Solutions Architect..." maxlength="200">
+            <button type="button" onclick="rsAddCertFromInput()">Add</button>
+          </div>
+        </div>
+
+        <div class="rs-wiz-field">
+          <label>Languages</label>
+          <div id="rs-lang-chips" class="rs-chips"></div>
+          <div class="rs-chip-add">
+            <input type="text" id="rs-lang-input" placeholder="English (native), French (B2)..." maxlength="60">
+            <button type="button" onclick="rsAddLangFromInput()">Add</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="rs-wiz-step hidden" data-step="5">
+        <h2 class="rs-wiz-title">Projects (optional)</h2>
+        <p class="rs-wiz-sub">Side projects, open source, personal builds. Strong signal for career switchers and juniors.</p>
+        <div id="rs-proj-list"></div>
+        <button type="button" class="rs-wiz-add" onclick="rsAddProj()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="16" height="16"><path d="M12 5v14M5 12h14"/></svg>
+          Add project
+        </button>
+      </section>
+
+    </div>
+
+    <footer class="rs-wiz-foot">
+      <button type="button" class="rs-wiz-btn-ghost" id="rs-wiz-back" onclick="rsPrev()">Back</button>
+      <div class="rs-wiz-foot-spacer"></div>
+      <button type="button" class="rs-wiz-btn-primary" id="rs-wiz-next" onclick="rsNext()">Next</button>
+    </footer>
+  </div>
+</div>
+
+
+<style>
+  /* ============ BUILD FROM SCRATCH WIZARD ============ */
+  .rs-wiz-root {
+    position: fixed; inset: 0; z-index: 300;
+    background: var(--bg, #0a1418);
+    display: flex; align-items: stretch; justify-content: center;
+    animation: rsFade 0.2s ease both;
+  }
+  .rs-wiz-root.hidden { display: none; }
+  @keyframes rsFade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes rsRise { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  .rs-wiz-shell {
+    width: 100%; max-width: 640px;
+    background: var(--bg, #0a1418);
+    display: flex; flex-direction: column;
+    height: 100vh;
+    animation: rsRise 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .rs-wiz-head {
+    position: relative;
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--border-2, rgba(0,217,154,0.10));
+    background: var(--bg, #0a1418);
+    flex-shrink: 0;
+  }
+  .rs-wiz-x {
+    position: absolute; top: 12px; right: 14px;
+    width: 34px; height: 34px; border-radius: 10px;
+    background: var(--surface, rgba(22,32,37,0.55));
+    border: 1px solid var(--border-2, rgba(0,217,154,0.10));
+    color: var(--muted, #8a97a2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.15s ease;
+  }
+  .rs-wiz-x:hover { color: var(--accent, #00a884); border-color: var(--accent, #00a884); }
+
+  .rs-wiz-progress { height: 4px; border-radius: 4px; background: rgba(255,255,255,0.06); overflow: hidden; margin-right: 46px; }
+  .rs-wiz-progress-fill { height: 100%; width: 16.6%; background: linear-gradient(90deg, var(--accent, #00a884), color-mix(in srgb, var(--accent, #00a884) 60%, #fff)); transition: width 0.32s cubic-bezier(0.16,1,0.3,1); box-shadow: 0 0 12px var(--accent-glow, rgba(0,168,132,0.42)); }
+  html.light .rs-wiz-progress { background: rgba(15,23,32,0.08); }
+
+  .rs-wiz-step-label { font-size: 12px; font-weight: 700; color: var(--muted, #8a97a2); margin-top: 10px; letter-spacing: 0.4px; text-transform: uppercase; }
+
+  .rs-wiz-body { flex: 1; overflow-y: auto; padding: 22px 22px 40px; }
+  .rs-wiz-step { max-width: 560px; margin: 0 auto; }
+
+  .rs-wiz-title {
+    font-size: 22px; font-weight: 800; letter-spacing: -0.5px;
+    color: var(--text, #f0f4f6); margin: 0 0 6px;
+  }
+  .rs-wiz-sub { font-size: 13.5px; color: var(--muted, #8a97a2); margin-bottom: 22px; line-height: 1.55; }
+
+  .rs-wiz-field { margin-bottom: 16px; display: flex; flex-direction: column; gap: 6px; }
+  .rs-wiz-field label { font-size: 13px; font-weight: 700; color: var(--text-2, #d8dfe3); }
+  .rs-wiz-field .req { color: #ef4444; margin-left: 2px; }
+  .rs-wiz-field input,
+  .rs-wiz-field textarea {
+    width: 100%; padding: 12px 14px;
+    background: var(--surface, rgba(22,32,37,0.55));
+    border: 1.5px solid var(--border-2, rgba(0,217,154,0.10));
+    border-radius: 12px;
+    color: var(--text, #f0f4f6); font-size: 14.5px; font-family: inherit;
+    outline: none; resize: vertical;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    box-sizing: border-box;
+  }
+  .rs-wiz-field input:focus,
+  .rs-wiz-field textarea:focus {
+    border-color: var(--accent, #00a884);
+    box-shadow: 0 0 0 3px var(--accent-soft, rgba(0,168,132,0.15));
+  }
+  .rs-wiz-field textarea { min-height: 100px; line-height: 1.55; }
+  .rs-hint { font-size: 11.5px; color: var(--muted-2, #6d7a82); margin-top: 2px; }
+
+  .rs-wiz-row { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  @media (min-width: 480px) { .rs-wiz-row { grid-template-columns: 1fr 1fr; } }
+
+  /* Experience / Education / Project cards */
+  .rs-item-card {
+    padding: 16px; margin-bottom: 12px;
+    background: var(--surface, rgba(22,32,37,0.55));
+    border: 1px solid var(--border-2, rgba(0,217,154,0.10));
+    border-radius: 14px;
+    position: relative;
+  }
+  .rs-item-remove {
+    position: absolute; top: 10px; right: 10px;
+    width: 26px; height: 26px; border-radius: 8px; border: none;
+    background: rgba(239,68,68,0.10); color: #ef4444;
+    font-weight: 900; cursor: pointer; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.14s ease;
+  }
+  .rs-item-remove:hover { background: rgba(239,68,68,0.22); }
+  .rs-item-card .rs-wiz-field { margin-bottom: 12px; }
+  .rs-item-card .rs-wiz-field:last-child { margin-bottom: 0; }
+  .rs-item-card .rs-wiz-field input,
+  .rs-item-card .rs-wiz-field textarea { font-size: 13.5px; padding: 10px 12px; }
+
+  .rs-wiz-add {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 13px;
+    background: transparent;
+    border: 1.5px dashed var(--accent, #00a884);
+    border-radius: 12px;
+    color: var(--accent, #00a884); font-weight: 700; font-size: 14px;
+    cursor: pointer; font-family: inherit;
+    transition: all 0.14s ease;
+  }
+  .rs-wiz-add:hover { background: var(--accent-soft, rgba(0,168,132,0.15)); }
+
+  /* Skills / certs / langs chips */
+  .rs-chips { display: flex; flex-wrap: wrap; gap: 8px; min-height: 8px; }
+  .rs-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 12px;
+    background: var(--accent-soft, rgba(0,168,132,0.15));
+    border: 1px solid var(--accent, #00a884);
+    border-radius: 999px;
+    font-size: 12.5px; font-weight: 700;
+    color: var(--accent, #00a884);
+    animation: rsChipIn 0.2s ease both;
+  }
+  @keyframes rsChipIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+  .rs-chip-x {
+    background: none; border: none; color: inherit; cursor: pointer;
+    font-size: 15px; line-height: 1; padding: 0 0 0 2px; opacity: 0.75;
+  }
+  .rs-chip-x:hover { opacity: 1; }
+
+  .rs-chip-add { display: flex; gap: 8px; margin-top: 8px; }
+  .rs-chip-add input {
+    flex: 1; min-width: 0; padding: 10px 14px;
+    background: var(--surface, rgba(22,32,37,0.55));
+    border: 1.5px solid var(--border-2, rgba(0,217,154,0.10));
+    border-radius: 10px;
+    color: var(--text, #f0f4f6); font-size: 13.5px;
+    outline: none; font-family: inherit;
+  }
+  .rs-chip-add input:focus { border-color: var(--accent, #00a884); }
+  .rs-chip-add button {
+    padding: 0 16px; border-radius: 10px;
+    background: var(--accent, #00a884); color: #fff; border: none;
+    font-weight: 700; font-size: 13px; cursor: pointer;
+    font-family: inherit;
+  }
+
+  /* Foot */
+  .rs-wiz-foot {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 20px calc(14px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--border-2, rgba(0,217,154,0.10));
+    background: var(--bg-2, #0d1a1f);
+    flex-shrink: 0;
+  }
+  html.light .rs-wiz-foot { background: #faf8f2; }
+  .rs-wiz-foot-spacer { flex: 1; }
+  .rs-wiz-btn-ghost,
+  .rs-wiz-btn-primary {
+    padding: 12px 22px; border-radius: 12px;
+    font-size: 14px; font-weight: 800; font-family: inherit;
+    cursor: pointer; border: 1.5px solid transparent;
+    transition: all 0.14s ease;
+  }
+  .rs-wiz-btn-ghost {
+    background: var(--surface, rgba(22,32,37,0.55));
+    border-color: var(--border-2, rgba(0,217,154,0.10));
+    color: var(--text-2, #d8dfe3);
+  }
+  .rs-wiz-btn-ghost:hover { border-color: var(--accent, #00a884); color: var(--accent, #00a884); }
+  .rs-wiz-btn-ghost:disabled { opacity: 0.35; cursor: not-allowed; }
+  .rs-wiz-btn-primary {
+    background: var(--accent, #00a884); color: #fff;
+    box-shadow: 0 10px 26px -10px var(--accent-glow, rgba(0,168,132,0.42));
+  }
+  .rs-wiz-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 14px 34px -10px var(--accent-glow, rgba(0,168,132,0.42)); }
+  .rs-wiz-btn-primary:disabled { opacity: 0.55; cursor: wait; transform: none; }
+</style>
+
+<script>
+(function(){
+  var STEP_NAMES = ["Basics", "Summary", "Experience", "Education", "Skills", "Projects"];
+  var TOTAL = 6;
+  var currentStep = 0;
+  var state = {
+    name: '', headline: '', email: '', phone: '', location: '',
+    summary: '', experience: [], education: [], projects: [],
+    skills: [], certifications: [], languages: []
+  };
+
+  var root = document.getElementById('rs-wiz-root');
+  if (!root) return;
+
+  window.rsOpenWizard = function(){
+    root.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    currentStep = 0;
+    renderStep();
+    // Prefill from profile if available
+    var pre = window.RS_PREFILL || {};
+    if (pre.name) document.getElementById('rs-name').value = pre.name;
+    if (pre.email) document.getElementById('rs-email').value = pre.email;
+    if (pre.location) document.getElementById('rs-location').value = pre.location;
+    if (pre.headline) document.getElementById('rs-headline').value = pre.headline;
+  };
+  window.rsCloseWizard = function(){
+    if (!confirm('Close the wizard? Your progress will be lost.')) return;
+    root.classList.add('hidden');
+    document.body.style.overflow = '';
+  };
+
+  function renderStep(){
+    document.querySelectorAll('.rs-wiz-step').forEach(function(s){
+      s.classList.toggle('hidden', parseInt(s.dataset.step, 10) !== currentStep);
+    });
+    document.getElementById('rs-wiz-fill').style.width = ((currentStep + 1) / TOTAL * 100) + '%';
+    document.getElementById('rs-wiz-step-num').textContent = String(currentStep + 1);
+    document.getElementById('rs-wiz-step-name').textContent = STEP_NAMES[currentStep];
+    document.getElementById('rs-wiz-back').disabled = currentStep === 0;
+    var next = document.getElementById('rs-wiz-next');
+    next.textContent = currentStep === TOTAL - 1 ? 'Save resume' : 'Next';
+  }
+
+  function collectCurrent(){
+    // Read step fields into state before moving
+    if (currentStep === 0) {
+      state.name = val('rs-name');
+      state.headline = val('rs-headline');
+      state.email = val('rs-email');
+      state.phone = val('rs-phone');
+      state.location = val('rs-location');
+    } else if (currentStep === 1) {
+      state.summary = val('rs-summary');
+    }
+  }
+  function val(id){ var el = document.getElementById(id); return el ? (el.value || '').trim() : ''; }
+
+  window.rsNext = function(){
+    collectCurrent();
+    // Validate current step
+    var err = validateStep(currentStep);
+    if (err) { alert(err); return; }
+    if (currentStep === TOTAL - 1) { submit(); return; }
+    currentStep++;
+    renderStep();
+    document.getElementById('rs-wiz-body').scrollTop = 0;
+  };
+  window.rsPrev = function(){
+    collectCurrent();
+    if (currentStep === 0) return;
+    currentStep--;
+    renderStep();
+    document.getElementById('rs-wiz-body').scrollTop = 0;
+  };
+
+  function validateStep(step){
+    if (step === 0) {
+      if (!state.name) return 'Full name is required.';
+      if (!state.headline) return 'Professional headline is required.';
+      if (!state.email || state.email.indexOf('@') === -1) return 'A valid email is required.';
+    }
+    if (step === 4) {
+      if (!state.skills.length) return 'Add at least one skill.';
+    }
+    return null;
+  }
+
+  // ---------- EXPERIENCE ----------
+  window.rsAddExp = function(data){
+    var e = data || {};
+    state.experience.push({
+      company: e.company || '', title: e.title || '', start: e.start || '',
+      end: e.end || '', location: e.location || '', bullets: e.bullets || []
+    });
+    renderExp();
+  };
+  function renderExp(){
+    var list = document.getElementById('rs-exp-list');
+    list.innerHTML = '';
+    state.experience.forEach(function(e, i){
+      var card = document.createElement('div');
+      card.className = 'rs-item-card';
+      card.innerHTML = ''
+        + '<button type="button" class="rs-item-remove" onclick="rsRemoveExp(' + i + ')">×</button>'
+        + '<div class="rs-wiz-row">'
+        +   '<div class="rs-wiz-field"><label>Company</label><input data-k="company" data-i="' + i + '" value="' + esc(e.company) + '" placeholder="Company name"></div>'
+        +   '<div class="rs-wiz-field"><label>Title</label><input data-k="title" data-i="' + i + '" value="' + esc(e.title) + '" placeholder="Your role"></div>'
+        + '</div>'
+        + '<div class="rs-wiz-row">'
+        +   '<div class="rs-wiz-field"><label>Start</label><input data-k="start" data-i="' + i + '" value="' + esc(e.start) + '" placeholder="Jan 2020"></div>'
+        +   '<div class="rs-wiz-field"><label>End</label><input data-k="end" data-i="' + i + '" value="' + esc(e.end) + '" placeholder="Present"></div>'
+        + '</div>'
+        + '<div class="rs-wiz-field"><label>Location</label><input data-k="location" data-i="' + i + '" value="' + esc(e.location) + '" placeholder="Remote / Lagos"></div>'
+        + '<div class="rs-wiz-field"><label>Highlights (one per line, start with action verbs)</label><textarea data-k="bullets" data-i="' + i + '" rows="4" placeholder="Led a team of 6 to ship payments feature that cut checkout time by 40%">' + esc((e.bullets || []).join('\n')) + '</textarea></div>';
+      list.appendChild(card);
+    });
+    list.querySelectorAll('input,textarea').forEach(function(el){
+      el.addEventListener('input', function(){
+        var i = parseInt(el.dataset.i, 10);
+        var k = el.dataset.k;
+        if (k === 'bullets') {
+          state.experience[i].bullets = el.value.split('\n').map(function(x){ return x.trim(); }).filter(Boolean).slice(0, 12);
+        } else {
+          state.experience[i][k] = el.value;
+        }
+      });
+    });
+  }
+  window.rsRemoveExp = function(i){ state.experience.splice(i, 1); renderExp(); };
+
+  // ---------- EDUCATION ----------
+  window.rsAddEdu = function(data){
+    var e = data || {};
+    state.education.push({
+      school: e.school || '', degree: e.degree || '', field: e.field || '',
+      start: e.start || '', end: e.end || ''
+    });
+    renderEdu();
+  };
+  function renderEdu(){
+    var list = document.getElementById('rs-edu-list');
+    list.innerHTML = '';
+    state.education.forEach(function(e, i){
+      var card = document.createElement('div');
+      card.className = 'rs-item-card';
+      card.innerHTML = ''
+        + '<button type="button" class="rs-item-remove" onclick="rsRemoveEdu(' + i + ')">×</button>'
+        + '<div class="rs-wiz-field"><label>School / University</label><input data-k="school" data-i="' + i + '" value="' + esc(e.school) + '" placeholder="University of Lagos"></div>'
+        + '<div class="rs-wiz-row">'
+        +   '<div class="rs-wiz-field"><label>Degree</label><input data-k="degree" data-i="' + i + '" value="' + esc(e.degree) + '" placeholder="B.Sc."></div>'
+        +   '<div class="rs-wiz-field"><label>Field</label><input data-k="field" data-i="' + i + '" value="' + esc(e.field) + '" placeholder="Computer Science"></div>'
+        + '</div>'
+        + '<div class="rs-wiz-row">'
+        +   '<div class="rs-wiz-field"><label>Start</label><input data-k="start" data-i="' + i + '" value="' + esc(e.start) + '" placeholder="2015"></div>'
+        +   '<div class="rs-wiz-field"><label>End</label><input data-k="end" data-i="' + i + '" value="' + esc(e.end) + '" placeholder="2019"></div>'
+        + '</div>';
+      list.appendChild(card);
+    });
+    list.querySelectorAll('input').forEach(function(el){
+      el.addEventListener('input', function(){
+        state.education[parseInt(el.dataset.i,10)][el.dataset.k] = el.value;
+      });
+    });
+  }
+  window.rsRemoveEdu = function(i){ state.education.splice(i, 1); renderEdu(); };
+
+  // ---------- PROJECTS ----------
+  window.rsAddProj = function(data){
+    var e = data || {};
+    state.projects.push({ name: e.name || '', description: e.description || '', tech: e.tech || [] });
+    renderProj();
+  };
+  function renderProj(){
+    var list = document.getElementById('rs-proj-list');
+    list.innerHTML = '';
+    state.projects.forEach(function(e, i){
+      var card = document.createElement('div');
+      card.className = 'rs-item-card';
+      card.innerHTML = ''
+        + '<button type="button" class="rs-item-remove" onclick="rsRemoveProj(' + i + ')">×</button>'
+        + '<div class="rs-wiz-field"><label>Project name</label><input data-k="name" data-i="' + i + '" value="' + esc(e.name) + '" placeholder="Payments Platform v2"></div>'
+        + '<div class="rs-wiz-field"><label>Description</label><textarea data-k="description" data-i="' + i + '" rows="3" placeholder="Rebuilt checkout pipeline serving 500k+ transactions per day.">' + esc(e.description) + '</textarea></div>'
+        + '<div class="rs-wiz-field"><label>Tech (comma-separated)</label><input data-k="tech" data-i="' + i + '" value="' + esc((e.tech || []).join(', ')) + '" placeholder="React, Node, Postgres"></div>';
+      list.appendChild(card);
+    });
+    list.querySelectorAll('input,textarea').forEach(function(el){
+      el.addEventListener('input', function(){
+        var i = parseInt(el.dataset.i, 10);
+        var k = el.dataset.k;
+        if (k === 'tech') {
+          state.projects[i].tech = el.value.split(',').map(function(x){ return x.trim(); }).filter(Boolean).slice(0, 30);
+        } else {
+          state.projects[i][k] = el.value;
+        }
+      });
+    });
+  }
+  window.rsRemoveProj = function(i){ state.projects.splice(i, 1); renderProj(); };
+
+  // ---------- CHIPS (skills / certs / langs) ----------
+  function renderChips(kind){
+    var container = document.getElementById('rs-' + kind.replace('ification','if').replace('anguages','ang') + '-chips');
+    if (!container) return;
+    container.innerHTML = '';
+    state[kind].forEach(function(v, i){
+      var chip = document.createElement('span');
+      chip.className = 'rs-chip';
+      chip.innerHTML = esc(v) + '<button type="button" class="rs-chip-x" aria-label="Remove">×</button>';
+      chip.querySelector('.rs-chip-x').addEventListener('click', function(){
+        state[kind].splice(i, 1);
+        renderChips(kind);
+      });
+      container.appendChild(chip);
+    });
+  }
+
+  window.rsAddSkillFromInput = function(){ addFromInput('skills', 'rs-skill-input'); };
+  window.rsAddCertFromInput = function(){ addFromInput('certifications', 'rs-cert-input'); };
+  window.rsAddLangFromInput = function(){ addFromInput('languages', 'rs-lang-input'); };
+
+  function addFromInput(kind, inputId){
+    var el = document.getElementById(inputId);
+    if (!el) return;
+    var v = (el.value || '').trim();
+    if (!v) return;
+    if (state[kind].indexOf(v) === -1) state[kind].push(v);
+    el.value = '';
+    // chip container id convention: rs-skills-chips / rs-certifications-chips... but ours are rs-cert-chips etc.
+    var chipId = kind === 'skills' ? 'rs-skills-chips' : kind === 'certifications' ? 'rs-cert-chips' : 'rs-lang-chips';
+    renderChipsInto(kind, chipId);
+  }
+  function renderChipsInto(kind, containerId){
+    var container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = '';
+    state[kind].forEach(function(v, i){
+      var chip = document.createElement('span');
+      chip.className = 'rs-chip';
+      var label = document.createTextNode(v);
+      var x = document.createElement('button');
+      x.type = 'button'; x.className = 'rs-chip-x'; x.textContent = '×';
+      x.addEventListener('click', function(){ state[kind].splice(i, 1); renderChipsInto(kind, containerId); });
+      chip.appendChild(label); chip.appendChild(x);
+      container.appendChild(chip);
+    });
+  }
+
+  // Enter key on chip inputs
+  ['rs-skill-input','rs-cert-input','rs-lang-input'].forEach(function(id, idx){
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('keydown', function(e){
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (id === 'rs-skill-input') rsAddSkillFromInput();
+        if (id === 'rs-cert-input') rsAddCertFromInput();
+        if (id === 'rs-lang-input') rsAddLangFromInput();
+      }
+    });
+  });
+
+  // Summary counter
+  var sumEl = document.getElementById('rs-summary');
+  var sumCount = document.getElementById('rs-summary-count');
+  if (sumEl && sumCount) {
+    sumEl.addEventListener('input', function(){ sumCount.textContent = String(sumEl.value.length); });
+  }
+
+  function esc(s){ return (s == null ? '' : String(s)).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+  // ---------- SUBMIT ----------
+  function submit(){
+    var btn = document.getElementById('rs-wiz-next');
+    btn.disabled = true;
+    var txt = btn.textContent;
+    btn.textContent = 'Saving...';
+    fetch('/api/resume/scratch/save', {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: state.name, headline: state.headline, email: state.email,
+        phone: state.phone, location: state.location, summary: state.summary,
+        experience: state.experience, education: state.education,
+        projects: state.projects, skills: state.skills,
+        certifications: state.certifications, languages: state.languages
+      })
+    }).then(function(r){ return r.json(); }).then(function(res){
+      btn.disabled = false;
+      btn.textContent = txt;
+      if (res.ok) {
+        document.body.style.overflow = '';
+        window.location.href = '/app/resume?saved=1';
+      } else {
+        alert((res && res.error) || 'Could not save.');
+      }
+    }).catch(function(){
+      btn.disabled = false;
+      btn.textContent = txt;
+      alert('Network error');
+    });
+  }
+
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && !root.classList.contains('hidden')) rsCloseWizard();
+  });
+})();
+</script>
+
 {% endblock %}

@@ -585,6 +585,151 @@ async def resume_paste(request: Request, db: Session = Depends(get_db)):
     return RedirectResponse("/app/resume", status_code=302)
 
 
+@router.post("/api/resume/scratch/save")
+async def resume_scratch_save(request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    user = current_user_web(request, db)
+    if not user:
+        return JSONResponse({"ok": False, "error": "Not signed in"}, status_code=401)
+    try:
+        payload = await request.json()
+    except Exception:
+        return JSONResponse({"ok": False, "error": "Bad payload"}, status_code=400)
+
+    from app.db.models import Resume
+
+    # Normalize fields
+    def s(v, n=500): return (v or "").strip()[:n] or None
+    def sl(v, n=20): 
+        if not isinstance(v, list): return []
+        return [str(x).strip()[:n] for x in v if str(x).strip()][:50]
+
+    exp_in = payload.get("experience") or []
+    exp = []
+    for e in exp_in[:30]:
+        if not isinstance(e, dict): continue
+        company = s(e.get("company"), 200)
+        title = s(e.get("title"), 200)
+        if not (company or title): continue
+        bullets = sl(e.get("bullets"), 500)
+        exp.append({
+            "company": company or "",
+            "title": title or "",
+            "start": s(e.get("start"), 40),
+            "end": s(e.get("end"), 40),
+            "location": s(e.get("location"), 120),
+            "bullets": bullets,
+        })
+
+    edu_in = payload.get("education") or []
+    edu = []
+    for e in edu_in[:20]:
+        if not isinstance(e, dict): continue
+        school = s(e.get("school"), 200)
+        if not school: continue
+        edu.append({
+            "school": school,
+            "degree": s(e.get("degree"), 200) or "",
+            "field": s(e.get("field"), 200) or "",
+            "start": s(e.get("start"), 40) or "",
+            "end": s(e.get("end"), 40) or "",
+        })
+
+    proj_in = payload.get("projects") or []
+    proj = []
+    for pr in proj_in[:20]:
+        if not isinstance(pr, dict): continue
+        name = s(pr.get("name"), 200)
+        if not name: continue
+        proj.append({
+            "name": name,
+            "description": s(pr.get("description"), 2000) or "",
+            "tech": sl(pr.get("tech"), 60),
+        })
+
+    structured = {
+        "name": s(payload.get("name"), 120) or (user.full_name or ""),
+        "email": s(payload.get("email"), 200) or user.email,
+        "phone": s(payload.get("phone"), 40),
+        "location": s(payload.get("location"), 120),
+        "headline": s(payload.get("headline"), 200) or "",
+        "summary": s(payload.get("summary"), 3000) or "",
+        "experience": exp,
+        "education": edu,
+        "projects": proj,
+        "skills": sl(payload.get("skills"), 80),
+        "certifications": sl(payload.get("certifications"), 200),
+        "languages": sl(payload.get("languages"), 60),
+    }
+
+    # Simple text projection for raw_text and skills for matching
+    lines = []
+    if structured["name"]: lines.append(structured["name"])
+    if structured["headline"]: lines.append(structured["headline"])
+    if structured["email"]: lines.append(structured["email"])
+    if structured["phone"]: lines.append(structured["phone"])
+    if structured["location"]: lines.append(structured["location"])
+    if structured["summary"]: lines += ["", "SUMMARY", structured["summary"]]
+    if exp:
+        lines += ["", "EXPERIENCE"]
+        for e in exp:
+            line = f"{e['title']} at {e['company']}"
+            if e["start"] or e["end"]:
+                line += f" ({e['start'] or ''} - {e['end'] or ''})"
+            lines.append(line)
+            for b in e["bullets"]:
+                lines.append("  - " + b)
+    if edu:
+        lines += ["", "EDUCATION"]
+        for e in edu:
+            lines.append(f"{e['degree']} {e['field']}, {e['school']}")
+    if structured["skills"]:
+        lines += ["", "SKILLS", ", ".join(structured["skills"])]
+    if proj:
+        lines += ["", "PROJECTS"]
+        for pr in proj:
+            lines.append(pr["name"])
+            if pr["description"]: lines.append("  " + pr["description"])
+    raw = "\n".join(lines).strip()
+
+    # Upsert: latest resume for user, or create new
+    existing = db.execute(
+        select(Resume).where(Resume.user_id == user.id).order_by(Resume.uploaded_at.desc()).limit(1)
+    ).scalar_one_or_none()
+
+    if existing:
+        existing.filename = "built-from-scratch"
+        existing.raw_text = raw
+        existing.parsed_skills = structured["skills"]
+        existing.structured_data = structured
+        db.add(existing)
+    else:
+        r = Resume(
+            user_id=user.id,
+            filename="built-from-scratch",
+            raw_text=raw,
+            parsed_skills=structured["skills"],
+            structured_data=structured,
+        )
+        db.add(r)
+
+    # Also update profile headline/skills/location so matching improves
+    from app.db.models import Profile
+    prof = db.get(Profile, user.id)
+    if prof:
+        if structured["headline"] and not prof.headline:
+            prof.headline = structured["headline"]
+        if structured["location"] and not prof.location:
+            prof.location = structured["location"]
+        if structured["skills"]:
+            merged = list({*(prof.skills or []), *structured["skills"]})[:60]
+            prof.skills = merged
+        db.add(prof)
+
+    db.commit()
+    return JSONResponse({"ok": True})
+
+
 @router.get("/app/resume/download")
 def resume_download(request: Request, db: Session = Depends(get_db)):
     from fastapi.responses import Response
