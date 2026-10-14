@@ -1,6 +1,7 @@
 from sqlalchemy import select, desc, func, or_
 from sqlalchemy.orm import Session
 from app.db.models import User, Profile, Follow, Post, PostLike
+from app.db.models import PostComment
 
 
 def get_profile(db: Session, user_id) -> Profile | None:
@@ -90,6 +91,7 @@ def _serialize_post(db: Session, p: Post, viewer_id) -> dict:
         "link_url": p.link_url,
         "likes": p.likes_count,
         "liked": liked,
+        "comments": count_comments(db, p.id),
         "created_at": p.created_at.isoformat() if p.created_at else None,
         "author": {
             "user_id": str(author.id),
@@ -358,3 +360,80 @@ def delete_post(db: Session, user_id, post_id):
         raise ValueError("not found or not yours")
     db.delete(p)
     db.commit()
+
+
+# ---------- comments ----------
+
+def _serialize_comment(db: Session, c: PostComment) -> dict:
+    author = db.get(User, c.user_id)
+    profile = db.get(Profile, c.user_id)
+    return {
+        "id": str(c.id),
+        "body": c.body,
+        "created_at": c.created_at.isoformat() if c.created_at else None,
+        "author": {
+            "user_id": str(author.id) if author else None,
+            "name": display_name(author, profile) if author else None,
+            "username": profile.username if profile else None,
+            "avatar_url": profile.avatar_url if profile else None,
+        },
+    }
+
+
+def add_comment(db: Session, user_id, post_id, body: str) -> dict:
+    p = db.get(Post, post_id)
+    if not p:
+        return {"ok": False, "error": "no post"}
+    body = (body or "").strip()
+    if not body:
+        return {"ok": False, "error": "empty"}
+    c = PostComment(post_id=post_id, user_id=user_id, body=body[:2000])
+    db.add(c); db.commit(); db.refresh(c)
+    return {"ok": True, "comment": _serialize_comment(db, c)}
+
+
+def list_comments(db: Session, post_id, limit: int = 50) -> list[dict]:
+    rows = db.execute(
+        select(PostComment).where(PostComment.post_id == post_id)
+        .order_by(PostComment.created_at.asc())
+        .limit(limit)
+    ).scalars().all()
+    return [_serialize_comment(db, c) for c in rows]
+
+
+def count_comments(db: Session, post_id) -> int:
+    return int(db.execute(
+        select(func.count()).select_from(PostComment).where(PostComment.post_id == post_id)
+    ).scalar() or 0)
+
+
+def delete_comment(db: Session, user_id, comment_id) -> dict:
+    c = db.get(PostComment, comment_id)
+    if not c:
+        return {"ok": False, "error": "not found"}
+    if str(c.user_id) != str(user_id):
+        return {"ok": False, "error": "forbidden"}
+    db.delete(c); db.commit()
+    return {"ok": True}
+
+
+def list_likers(db: Session, post_id, limit: int = 100) -> list[dict]:
+    rows = db.execute(
+        select(PostLike).where(PostLike.post_id == post_id)
+        .order_by(PostLike.created_at.desc())
+        .limit(limit)
+    ).scalars().all()
+    out = []
+    for r in rows:
+        u = db.get(User, r.user_id)
+        prof = db.get(Profile, r.user_id)
+        if not u: continue
+        out.append({
+            "user_id": str(u.id),
+            "name": display_name(u, prof),
+            "username": prof.username if prof else None,
+            "avatar_url": prof.avatar_url if prof else None,
+            "title": prof.title if prof else None,
+        })
+    return out
+

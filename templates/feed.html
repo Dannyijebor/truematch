@@ -186,6 +186,16 @@
         </svg>
         <span class="like-count">{{ p.likes }}</span>
       </button>
+
+      <button class="tm-post-act" onclick="tmOpenLikers(event, '{{ p.id }}')" aria-label="See who liked"{% if not p.likes %} disabled style="opacity:.5;cursor:default"{% endif %}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-4 h-4"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        <span>See likes</span>
+      </button>
+
+      <button class="tm-post-act" onclick="tmOpenComments(event, '{{ p.id }}')" aria-label="Comments">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-4 h-4"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        <span class="cmt-count">{{ p.comments or 0 }}</span>
+      </button>
     </footer>
   </article>
   {% endfor %}
@@ -1128,5 +1138,311 @@ function tmVideoSelected(input) {
 
 
 
+
+
+
+<!-- COMMENTS SHEET -->
+<div id="tm-comments-sheet" class="tm-sheet-root hidden" onclick="if(event.target===this)tmCloseComments()">
+  <div class="tm-sheet-panel">
+    <div class="tm-sheet-handle"></div>
+    <div class="tm-sheet-head">
+      <div class="tm-sheet-title">Comments</div>
+      <button onclick="tmCloseComments()" class="tm-sheet-close" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </button>
+    </div>
+    <div class="tm-comments-list" id="tm-comments-list">
+      <div class="tm-sheet-empty">Loading...</div>
+    </div>
+    <form class="tm-comments-composer" onsubmit="tmSubmitComment(event)">
+      <input type="text" id="tm-comment-input" placeholder="Write a comment..." autocomplete="off" maxlength="2000">
+      <button type="submit" class="tm-comment-send" aria-label="Send">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- LIKERS SHEET -->
+<div id="tm-likers-sheet" class="tm-sheet-root hidden" onclick="if(event.target===this)tmCloseLikers()">
+  <div class="tm-sheet-panel">
+    <div class="tm-sheet-handle"></div>
+    <div class="tm-sheet-head">
+      <div class="tm-sheet-title">Likes</div>
+      <button onclick="tmCloseLikers()" class="tm-sheet-close" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </button>
+    </div>
+    <div class="tm-likers-list" id="tm-likers-list">
+      <div class="tm-sheet-empty">Loading...</div>
+    </div>
+  </div>
+</div>
+
+
+<style>
+  .tm-post-act {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 10px; margin-left: 8px; border-radius: 10px;
+    background: transparent; border: 1px solid var(--border-2);
+    color: var(--muted); font-size: 12px; font-weight: 700;
+    cursor: pointer; font-family: inherit; transition: all 0.14s ease;
+  }
+  .tm-post-act:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+
+  .tm-sheet-root {
+    position: fixed; inset: 0; z-index: 220;
+    background: rgba(4, 12, 15, 0.55);
+    backdrop-filter: blur(10px) saturate(140%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    animation: tmSheetFade 0.22s ease both;
+  }
+  .tm-sheet-root.hidden { display: none; }
+  @media (min-width: 640px) { .tm-sheet-root { align-items: center; padding-bottom: 0; } }
+
+  @keyframes tmSheetFade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes tmSheetRise { from { transform: translateY(28px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  .tm-sheet-panel {
+    width: 100%; max-width: 520px;
+    background: linear-gradient(180deg, #0f1d22 0%, #0b1a1f 100%);
+    border: 1px solid rgba(0, 217, 154, 0.12);
+    border-bottom: none;
+    border-radius: 22px 22px 0 0;
+    box-shadow: 0 -20px 60px -20px rgba(0,0,0,0.6);
+    animation: tmSheetRise 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+    max-height: calc(82vh - 72px - env(safe-area-inset-bottom, 0px));
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  @media (min-width: 640px) {
+    .tm-sheet-panel { border-radius: 22px; border-bottom: 1px solid rgba(0, 217, 154, 0.12); max-height: 70vh; }
+  }
+  html.light .tm-sheet-panel { background: #ffffff; }
+
+  .tm-sheet-handle { width: 44px; height: 4px; border-radius: 4px; background: rgba(255,255,255,0.14); margin: 10px auto 8px; }
+  @media (min-width: 640px) { .tm-sheet-handle { display: none; } }
+  html.light .tm-sheet-handle { background: rgba(15,23,32,0.15); }
+
+  .tm-sheet-head { display: flex; align-items: center; justify-content: space-between; padding: 6px 20px 14px; gap: 12px; flex-shrink: 0; }
+  .tm-sheet-title { font-size: 16px; font-weight: 800; color: #f0f4f6; letter-spacing: -0.2px; }
+  html.light .tm-sheet-title { color: #0f1720; }
+  .tm-sheet-close {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.06);
+    color: #8a97a2; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0;
+  }
+  .tm-sheet-close:hover { color: #00a884; border-color: #00a884; }
+  html.light .tm-sheet-close { background: rgba(15,23,32,0.05); }
+
+  .tm-sheet-empty { padding: 30px 20px; text-align: center; font-size: 13.5px; color: #8a97a2; }
+
+  .tm-comments-list { overflow-y: auto; padding: 4px 12px 12px; flex: 1; min-height: 120px; }
+  .tm-comment { display: flex; align-items: flex-start; gap: 10px; padding: 10px 8px; border-radius: 12px; }
+  .tm-comment:hover { background: rgba(255,255,255,0.03); }
+  html.light .tm-comment:hover { background: rgba(15,23,32,0.03); }
+  .tm-comment-av { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(255,255,255,0.06); }
+  .tm-comment-av-fallback {
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #00a884, #00795e);
+    color: #06201a; font-weight: 800; font-size: 13px;
+  }
+  .tm-comment-body { min-width: 0; flex: 1; }
+  .tm-comment-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .tm-comment-name { font-size: 13.5px; font-weight: 700; color: #f0f4f6; text-decoration: none; }
+  .tm-comment-name:hover { color: #00a884; }
+  html.light .tm-comment-name { color: #0f1720; }
+  .tm-comment-time { font-size: 11px; color: #8a97a2; }
+  .tm-comment-text { font-size: 13.5px; color: #b8c4cc; line-height: 1.5; margin-top: 3px; overflow-wrap: anywhere; white-space: pre-wrap; }
+  html.light .tm-comment-text { color: #2a3640; }
+  .tm-comment-del {
+    flex-shrink: 0; padding: 4px 8px; font-size: 11px; font-weight: 700;
+    color: #8a97a2; background: none; border: none; cursor: pointer;
+    border-radius: 6px; font-family: inherit;
+  }
+  .tm-comment-del:hover { color: #ef4444; background: rgba(239,68,68,0.08); }
+
+  .tm-comments-composer {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid rgba(255,255,255,0.06);
+    background: #0b1a1f; flex-shrink: 0;
+  }
+  html.light .tm-comments-composer { background: #f7faf9; border-top-color: rgba(15,23,32,0.06); }
+  .tm-comments-composer input {
+    flex: 1; min-width: 0; padding: 12px 16px;
+    background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px; color: #f0f4f6; font-size: 14px;
+    outline: none; font-family: inherit; transition: border-color 0.14s ease;
+  }
+  .tm-comments-composer input:focus { border-color: #00a884; }
+  html.light .tm-comments-composer input { background: #f0ebe0; border-color: rgba(15,23,32,0.08); color: #0f1720; }
+  .tm-comment-send {
+    width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+    background: #00a884; color: #fff; border: none;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; box-shadow: 0 8px 22px -8px rgba(0,168,132,0.6);
+    transition: transform 0.12s ease;
+  }
+  .tm-comment-send:active { transform: scale(0.94); }
+
+  .tm-likers-list { overflow-y: auto; padding: 4px 12px 18px; flex: 1; min-height: 80px; }
+  .tm-liker { display: flex; align-items: center; gap: 12px; padding: 10px 10px; border-radius: 12px; text-decoration: none; color: inherit; transition: background 0.14s ease; }
+  .tm-liker:hover { background: rgba(255,255,255,0.03); }
+  html.light .tm-liker:hover { background: rgba(15,23,32,0.03); }
+  .tm-liker-av { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(255,255,255,0.06); }
+  .tm-liker-name { font-size: 14px; font-weight: 700; color: #f0f4f6; }
+  html.light .tm-liker-name { color: #0f1720; }
+  .tm-liker-sub { font-size: 12px; color: #8a97a2; margin-top: 2px; }
+</style>
+
+<script>window.TM_CURRENT_USER_ID = "{{ user.id if user else '' }}";</script>
+
+<script>
+(function(){
+  var state = { postId: null };
+
+  window.tmOpenComments = function(e, postId){
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    state.postId = postId;
+    var sheet = document.getElementById('tm-comments-sheet');
+    sheet.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    var list = document.getElementById('tm-comments-list');
+    list.innerHTML = '<div class="tm-sheet-empty">Loading...</div>';
+    fetch('/api/posts/' + postId + '/comments', { credentials: 'include' })
+      .then(function(r){ return r.json(); })
+      .then(function(res){
+        if (!res.ok) { list.innerHTML = '<div class="tm-sheet-empty">Could not load comments.</div>'; return; }
+        renderComments(res.comments || []);
+      })
+      .catch(function(){ list.innerHTML = '<div class="tm-sheet-empty">Network error.</div>'; });
+    setTimeout(function(){ var i = document.getElementById('tm-comment-input'); if (i) i.focus(); }, 260);
+  };
+
+  window.tmCloseComments = function(){
+    document.getElementById('tm-comments-sheet').classList.add('hidden');
+    document.body.style.overflow = '';
+    state.postId = null;
+  };
+
+  function esc(s){
+    return (s == null ? '' : String(s)).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function renderComments(comments){
+    var list = document.getElementById('tm-comments-list');
+    if (!comments.length) {
+      list.innerHTML = '<div class="tm-sheet-empty">No comments yet. Be the first.</div>';
+      return;
+    }
+    var me = window.TM_CURRENT_USER_ID || null;
+    list.innerHTML = comments.map(function(c){
+      var av = c.author.avatar_url
+        ? '<img src="' + esc(c.author.avatar_url) + '" class="tm-comment-av" alt="">'
+        : '<div class="tm-comment-av tm-comment-av-fallback">' + esc((c.author.name || '?')[0].toUpperCase()) + '</div>';
+      var nameLink = c.author.username
+        ? '<a href="/u/' + esc(c.author.username) + '" class="tm-comment-name">' + esc(c.author.name) + '</a>'
+        : '<span class="tm-comment-name">' + esc(c.author.name) + '</span>';
+      var del = (me && c.author.user_id === me)
+        ? '<button class="tm-comment-del" onclick="tmDeleteComment(\'' + esc(c.id) + '\')">Delete</button>'
+        : '';
+      var when = c.created_at ? c.created_at.slice(5, 16).replace('T', ' ') : '';
+      return '<div class="tm-comment" data-id="' + esc(c.id) + '">' + av
+        + '<div class="tm-comment-body">'
+        +   '<div class="tm-comment-head">' + nameLink + '<span class="tm-comment-time">' + esc(when) + '</span></div>'
+        +   '<div class="tm-comment-text">' + esc(c.body) + '</div>'
+        + '</div>' + del + '</div>';
+    }).join('');
+  }
+
+  window.tmSubmitComment = function(e){
+    e.preventDefault();
+    var input = document.getElementById('tm-comment-input');
+    var val = (input.value || '').trim();
+    if (!val || !state.postId) return;
+    var btn = e.target.querySelector('button');
+    if (btn) btn.disabled = true;
+    fetch('/api/posts/' + state.postId + '/comments', {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ body: val })
+    }).then(function(r){ return r.json(); }).then(function(res){
+      if (btn) btn.disabled = false;
+      if (res.ok) {
+        input.value = '';
+        return fetch('/api/posts/' + state.postId + '/comments', { credentials: 'include' })
+          .then(function(r){ return r.json(); }).then(function(rr){
+            renderComments(rr.comments || []);
+            document.querySelectorAll('.tm-post').forEach(function(a){
+              var b = a.querySelector('button[onclick*="tmOpenComments"][onclick*="' + state.postId + '"]');
+              if (b) {
+                var cc = a.querySelector('.cmt-count');
+                if (cc) cc.textContent = String((parseInt(cc.textContent, 10) || 0) + 1);
+              }
+            });
+          });
+      }
+    }).catch(function(){ if (btn) btn.disabled = false; });
+  };
+
+  window.tmDeleteComment = function(commentId){
+    if (!confirm('Delete this comment?')) return;
+    fetch('/api/posts/comments/' + commentId + '/delete', { method: 'POST', credentials: 'include' })
+      .then(function(r){ return r.json(); }).then(function(res){
+        if (res.ok) {
+          var el = document.querySelector('.tm-comment[data-id="' + commentId + '"]');
+          if (el) el.remove();
+          document.querySelectorAll('.tm-post').forEach(function(a){
+            var b = a.querySelector('button[onclick*="tmOpenComments"][onclick*="' + state.postId + '"]');
+            if (b) {
+              var cc = a.querySelector('.cmt-count');
+              if (cc) cc.textContent = String(Math.max(0, (parseInt(cc.textContent, 10) || 0) - 1));
+            }
+          });
+        }
+      });
+  };
+
+  window.tmOpenLikers = function(e, postId){
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    var sheet = document.getElementById('tm-likers-sheet');
+    sheet.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    var list = document.getElementById('tm-likers-list');
+    list.innerHTML = '<div class="tm-sheet-empty">Loading...</div>';
+    fetch('/api/posts/' + postId + '/likers', { credentials: 'include' })
+      .then(function(r){ return r.json(); }).then(function(res){
+        if (!res.ok) { list.innerHTML = '<div class="tm-sheet-empty">Could not load.</div>'; return; }
+        var arr = res.likers || [];
+        if (!arr.length) { list.innerHTML = '<div class="tm-sheet-empty">No likes yet.</div>'; return; }
+        list.innerHTML = arr.map(function(u){
+          var av = u.avatar_url
+            ? '<img src="' + esc(u.avatar_url) + '" class="tm-liker-av" alt="">'
+            : '<div class="tm-liker-av tm-comment-av-fallback">' + esc((u.name || '?')[0].toUpperCase()) + '</div>';
+          var sub = u.title ? '<div class="tm-liker-sub">' + esc(u.title) + '</div>' : '';
+          var href = u.username ? '/u/' + esc(u.username) : '#';
+          return '<a href="' + href + '" class="tm-liker">' + av + '<div><div class="tm-liker-name">' + esc(u.name) + '</div>' + sub + '</div></a>';
+        }).join('');
+      })
+      .catch(function(){ list.innerHTML = '<div class="tm-sheet-empty">Network error.</div>'; });
+  };
+
+  window.tmCloseLikers = function(){
+    document.getElementById('tm-likers-sheet').classList.add('hidden');
+    document.body.style.overflow = '';
+  };
+
+  document.addEventListener('keydown', function(e){
+    if (e.key !== 'Escape') return;
+    if (!document.getElementById('tm-comments-sheet').classList.contains('hidden')) tmCloseComments();
+    if (!document.getElementById('tm-likers-sheet').classList.contains('hidden')) tmCloseLikers();
+  });
+})();
+</script>
 
 {% endblock %}

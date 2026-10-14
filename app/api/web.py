@@ -1870,6 +1870,54 @@ def api_delete_post(post_id: str, request: Request, db: Session = Depends(get_db
 
 
 # ---------- story edit ----------
+
+# ---------- comments ----------
+
+@router.post("/api/posts/{post_id}/comments")
+async def post_add_comment(post_id: str, request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    user = current_user_web(request, db)
+    if not user:
+        return JSONResponse({"ok": False, "error": "Not signed in"}, status_code=401)
+    try:
+        payload = await request.json()
+    except Exception:
+        payload = {}
+    body = (payload.get("body") or "").strip()
+    from app.social import add_comment
+    res = add_comment(db, user.id, post_id, body)
+    return JSONResponse(res)
+
+
+@router.get("/api/posts/{post_id}/comments")
+def post_list_comments(post_id: str, request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    user = current_user_web(request, db)
+    if not user:
+        return JSONResponse({"ok": False, "error": "Not signed in"}, status_code=401)
+    from app.social import list_comments
+    return JSONResponse({"ok": True, "comments": list_comments(db, post_id)})
+
+
+@router.post("/api/posts/comments/{comment_id}/delete")
+async def post_delete_comment(comment_id: str, request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    user = current_user_web(request, db)
+    if not user:
+        return JSONResponse({"ok": False, "error": "Not signed in"}, status_code=401)
+    from app.social import delete_comment
+    return JSONResponse(delete_comment(db, user.id, comment_id))
+
+
+@router.get("/api/posts/{post_id}/likers")
+def post_list_likers(post_id: str, request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    user = current_user_web(request, db)
+    if not user:
+        return JSONResponse({"ok": False, "error": "Not signed in"}, status_code=401)
+    from app.social import list_likers
+    return JSONResponse({"ok": True, "likers": list_likers(db, post_id)})
+
 @router.post("/api/stories/{story_id}/edit")
 async def api_edit_story(story_id: str, request: Request, db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
