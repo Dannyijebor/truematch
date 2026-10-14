@@ -252,6 +252,7 @@
   /* ============ SCENE LAYER ============ */
   .pf-scene { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
   .pf-scene > [data-scene] { display: none; width: 100%; height: 100%; }
+  body[data-scene="aurora"]    .pf-scene > [data-scene="aurora"],
   body[data-scene="butterfly"] .pf-scene > [data-scene="butterfly"],
   body[data-scene="snow"]      .pf-scene > [data-scene="snow"],
   body[data-scene="night"]     .pf-scene > [data-scene="night"],
