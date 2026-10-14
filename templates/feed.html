@@ -1195,12 +1195,11 @@ function tmVideoSelected(input) {
   .tm-post-act:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
 
   .tm-sheet-root {
-    position: fixed; inset: 0; z-index: 220;
+    position: fixed; inset: 0; z-index: 300;
     background: rgba(4, 12, 15, 0.55);
     backdrop-filter: blur(10px) saturate(140%);
     -webkit-backdrop-filter: blur(10px) saturate(140%);
     display: flex; align-items: flex-end; justify-content: center;
-    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
     animation: tmSheetFade 0.22s ease both;
   }
   .tm-sheet-root.hidden { display: none; }
@@ -1217,7 +1216,8 @@ function tmVideoSelected(input) {
     border-radius: 22px 22px 0 0;
     box-shadow: 0 -20px 60px -20px rgba(0,0,0,0.6);
     animation: tmSheetRise 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
-    max-height: calc(82vh - 72px - env(safe-area-inset-bottom, 0px));
+    max-height: 88vh;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     display: flex; flex-direction: column; overflow: hidden;
   }
   @media (min-width: 640px) {
@@ -1353,7 +1353,7 @@ function tmVideoSelected(input) {
   function loadComments(){
     var list = document.getElementById('tm-comments-list');
     list.innerHTML = '<div class="tm-sheet-empty">Loading...</div>';
-    fetch('/api/posts/' + state.postId + '/comments', { credentials: 'include', cache: 'no-store' })
+    fetch('/api/posts/' + state.postId + '/comments?_=' + Date.now(), { credentials: 'include', cache: 'no-store' })
       .then(function(r){ return r.json(); })
       .then(function(res){
         if (!res.ok) { list.innerHTML = '<div class="tm-sheet-empty">Could not load comments.</div>'; return; }
@@ -1528,7 +1528,7 @@ function tmVideoSelected(input) {
     document.body.style.overflow = 'hidden';
     var list = document.getElementById('tm-likers-list');
     list.innerHTML = '<div class="tm-sheet-empty">Loading...</div>';
-    fetch('/api/posts/' + postId + '/likers', { credentials: 'include' })
+    fetch('/api/posts/' + postId + '/likers?_=' + Date.now(), { credentials: 'include', cache: 'no-store' })
       .then(function(r){ return r.json(); }).then(function(res){
         if (!res.ok) { list.innerHTML = '<div class="tm-sheet-empty">Could not load.</div>'; return; }
         var arr = res.likers || [];
