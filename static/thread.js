@@ -1203,4 +1203,37 @@ console.log('[TrueMatch] chat loaded');
 })();
 
 
+  // ---- Expose inline-handler API (required by templates/thread_v2.html) ----
+  try {
+    window.tmCancelReply = tmCancelReply;
+    window.tmClearChat = tmClearChat;
+    window.tmCloseChatMenu = tmCloseChatMenu;
+    window.tmCloseStickers = tmCloseStickers;
+    window.tmCopyUsername = tmCopyUsername;
+    window.tmLightbox = tmLightbox;
+    window.tmOnSendBtn = tmOnSendBtn;
+    window.tmOpenChatMenu = tmOpenChatMenu;
+    window.tmOpenStickers = tmOpenStickers;
+    window.tmOpenThemeFromMenu = tmOpenThemeFromMenu;
+    window.tmPickImage = tmPickImage;
+    window.tmRecCancelFromLock = tmRecCancelFromLock;
+    window.tmRecPauseToggle = tmRecPauseToggle;
+    window.tmRecStopFromLock = tmRecStopFromLock;
+    window.tmReportUser = tmReportUser;
+    window.tmSearchChat = tmSearchChat;
+    window.tmToggleAttach = tmToggleAttach;
+    window.tmToggleMuteChat = tmToggleMuteChat;
+    window.tmToggleTheme = tmToggleTheme;
+    window.tmToggleVoice = tmToggleVoice;
+    window.tmAutoGrow = tmAutoGrow;
+    window.tmMicUp = tmMicUp;
+    window.tmMicDown = tmMicDown;
+    window.tmMicMove = tmMicMove;
+    window.tmRecSend = tmRecSend;
+    window.tmRecCancel = tmRecCancel;
+    window.tmRecLock = tmRecLock;
+    window.tmToggleSendMic = tmToggleSendMic;
+    window.tmSendSticker = tmSendSticker;
+  } catch (e) { console.error('[thread.js] expose failed', e); }
+
 })();
