@@ -209,7 +209,7 @@ function fallback(inp, cb) {
         <p class="rs-wiz-sub">This is what recruiters see first. Keep it clean and accurate.</p>
         <div class="rs-wiz-field">
           <label>Full name <span class="req">*</span></label>
-          <input type="text" id="rs-name" placeholder="Jane Adeyemi" maxlength="120">
+          <input type="text" id="rs-name" placeholder="Jane Anderson" maxlength="120">
         </div>
         <div class="rs-wiz-field">
           <label>Professional headline <span class="req">*</span></label>
@@ -219,16 +219,16 @@ function fallback(inp, cb) {
         <div class="rs-wiz-row">
           <div class="rs-wiz-field">
             <label>Email <span class="req">*</span></label>
-            <input type="email" id="rs-email" placeholder="you@email.com" maxlength="200">
+            <input type="email" id="rs-email" placeholder="jane@example.com" maxlength="200">
           </div>
           <div class="rs-wiz-field">
             <label>Phone</label>
-            <input type="tel" id="rs-phone" placeholder="+234 800 000 0000" maxlength="40">
+            <input type="tel" id="rs-phone" placeholder="+1 (415) 555-0142" maxlength="40">
           </div>
         </div>
         <div class="rs-wiz-field">
           <label>Location</label>
-          <input type="text" id="rs-location" placeholder="Lagos, Nigeria" maxlength="120">
+          <input type="text" id="rs-location" placeholder="San Francisco, CA" maxlength="120">
         </div>
       </section>
 
@@ -236,7 +236,7 @@ function fallback(inp, cb) {
         <h2 class="rs-wiz-title">Professional summary</h2>
         <p class="rs-wiz-sub">3-5 sentences. What you do, your strongest impact, what you're aiming for next.</p>
         <div class="rs-wiz-field">
-          <textarea id="rs-summary" rows="7" placeholder="Product Manager with 7 years shipping consumer and B2B products across fintech and marketplaces. Led a 12-person team that grew monthly active users from 40k to 350k in 18 months. Strong on discovery, data, and go-to-market. Looking for a lead role where I can shape the product function end-to-end." maxlength="3000"></textarea>
+          <textarea id="rs-summary" rows="7" placeholder="Product Manager with 7 years shipping consumer and B2B products across fintech and marketplaces. Led a 12-person team that grew monthly active users from 40K to 350K in 18 months. Strong on discovery, data, and go-to-market. Looking for a lead role where I can shape the product function end-to-end." maxlength="3000"></textarea>
           <span class="rs-hint"><span id="rs-summary-count">0</span> / 3000 · Aim for 300-700 characters.</span>
         </div>
       </section>
@@ -288,7 +288,7 @@ function fallback(inp, cb) {
           <label>Languages</label>
           <div id="rs-lang-chips" class="rs-chips"></div>
           <div class="rs-chip-add">
-            <input type="text" id="rs-lang-input" placeholder="English (native), French (B2)..." maxlength="60">
+            <input type="text" id="rs-lang-input" placeholder="English (native), Spanish (B2)..." maxlength="60">
             <button type="button" onclick="rsAddLangFromInput()">Add</button>
           </div>
         </div>
@@ -601,15 +601,15 @@ function fallback(inp, cb) {
       card.innerHTML = ''
         + '<button type="button" class="rs-item-remove" onclick="rsRemoveExp(' + i + ')">×</button>'
         + '<div class="rs-wiz-row">'
-        +   '<div class="rs-wiz-field"><label>Company</label><input data-k="company" data-i="' + i + '" value="' + esc(e.company) + '" placeholder="Company name"></div>'
-        +   '<div class="rs-wiz-field"><label>Title</label><input data-k="title" data-i="' + i + '" value="' + esc(e.title) + '" placeholder="Your role"></div>'
+        +   '<div class="rs-wiz-field"><label>Company</label><input data-k="company" data-i="' + i + '" value="' + esc(e.company) + '" placeholder="Acme Corp"></div>'
+        +   '<div class="rs-wiz-field"><label>Title</label><input data-k="title" data-i="' + i + '" value="' + esc(e.title) + '" placeholder="Senior Product Manager"></div>'
         + '</div>'
         + '<div class="rs-wiz-row">'
         +   '<div class="rs-wiz-field"><label>Start</label><input data-k="start" data-i="' + i + '" value="' + esc(e.start) + '" placeholder="Jan 2020"></div>'
         +   '<div class="rs-wiz-field"><label>End</label><input data-k="end" data-i="' + i + '" value="' + esc(e.end) + '" placeholder="Present"></div>'
         + '</div>'
-        + '<div class="rs-wiz-field"><label>Location</label><input data-k="location" data-i="' + i + '" value="' + esc(e.location) + '" placeholder="Remote / Lagos"></div>'
-        + '<div class="rs-wiz-field"><label>Highlights (one per line, start with action verbs)</label><textarea data-k="bullets" data-i="' + i + '" rows="4" placeholder="Led a team of 6 to ship payments feature that cut checkout time by 40%">' + esc((e.bullets || []).join('\n')) + '</textarea></div>';
+        + '<div class="rs-wiz-field"><label>Location</label><input data-k="location" data-i="' + i + '" value="' + esc(e.location) + '" placeholder="Remote / New York, NY"></div>'
+        + '<div class="rs-wiz-field"><label>Highlights (one per line, start with action verbs)</label><textarea data-k="bullets" data-i="' + i + '" rows="4" placeholder="Led a team of 6 to ship a payments feature that cut checkout time by 40%">' + esc((e.bullets || []).join('\n')) + '</textarea></div>';
       list.appendChild(card);
     });
     list.querySelectorAll('input,textarea').forEach(function(el){
@@ -643,9 +643,9 @@ function fallback(inp, cb) {
       card.className = 'rs-item-card';
       card.innerHTML = ''
         + '<button type="button" class="rs-item-remove" onclick="rsRemoveEdu(' + i + ')">×</button>'
-        + '<div class="rs-wiz-field"><label>School / University</label><input data-k="school" data-i="' + i + '" value="' + esc(e.school) + '" placeholder="University of Lagos"></div>'
+        + '<div class="rs-wiz-field"><label>School / University</label><input data-k="school" data-i="' + i + '" value="' + esc(e.school) + '" placeholder="University of California, Berkeley"></div>'
         + '<div class="rs-wiz-row">'
-        +   '<div class="rs-wiz-field"><label>Degree</label><input data-k="degree" data-i="' + i + '" value="' + esc(e.degree) + '" placeholder="B.Sc."></div>'
+        +   '<div class="rs-wiz-field"><label>Degree</label><input data-k="degree" data-i="' + i + '" value="' + esc(e.degree) + '" placeholder="B.S."></div>'
         +   '<div class="rs-wiz-field"><label>Field</label><input data-k="field" data-i="' + i + '" value="' + esc(e.field) + '" placeholder="Computer Science"></div>'
         + '</div>'
         + '<div class="rs-wiz-row">'
@@ -677,7 +677,7 @@ function fallback(inp, cb) {
       card.innerHTML = ''
         + '<button type="button" class="rs-item-remove" onclick="rsRemoveProj(' + i + ')">×</button>'
         + '<div class="rs-wiz-field"><label>Project name</label><input data-k="name" data-i="' + i + '" value="' + esc(e.name) + '" placeholder="Payments Platform v2"></div>'
-        + '<div class="rs-wiz-field"><label>Description</label><textarea data-k="description" data-i="' + i + '" rows="3" placeholder="Rebuilt checkout pipeline serving 500k+ transactions per day.">' + esc(e.description) + '</textarea></div>'
+        + '<div class="rs-wiz-field"><label>Description</label><textarea data-k="description" data-i="' + i + '" rows="3" placeholder="Rebuilt checkout pipeline serving 500K+ transactions per day.">' + esc(e.description) + '</textarea></div>'
         + '<div class="rs-wiz-field"><label>Tech (comma-separated)</label><input data-k="tech" data-i="' + i + '" value="' + esc((e.tech || []).join(', ')) + '" placeholder="React, Node, Postgres"></div>';
       list.appendChild(card);
     });
