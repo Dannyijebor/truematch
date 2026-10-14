@@ -523,13 +523,18 @@
     background: #ef4444; color: #fff; font-size: 11px; font-weight: 900;
     cursor: pointer; display: flex; align-items: center; justify-content: center;
     box-shadow: 0 3px 8px -2px rgba(239,68,68,0.6); }
-  body.pf-editing .pf-chip.pf-chip-hidden { display: none; }
+  /* Hidden chips ghost in edit mode so they can be restored */
+  body.pf-editing .pf-chip.pf-chip-hidden { opacity: 0.32; border-style: dashed; }
+  body.pf-editing .pf-chip.pf-chip-hidden .pf-chip-del {
+    background: #10b981; box-shadow: 0 3px 8px -2px rgba(16,185,129,0.6); }
 
   /* add chip row */
-  body.pf-editing .pf-chips-add { display: inline-flex; }
-  .pf-chips-add { display: none; align-items: center; gap: 6px; padding: 7px 12px;
+  .pf-chips-add { display: none; align-items: center; gap: 6px; padding: 7px 14px;
     background: var(--accent-soft); border: 1px dashed var(--accent); border-radius: 10px;
     color: var(--accent); font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  body.pf-editing .pf-chips-add { display: inline-flex; }
+
+  body:not(.pf-editing) .pf-chips .pf-chip.pf-chip-hidden { display: none; }
 </style>
 </head>
 <body data-scene="{{ settings.scene }}" data-hero="{{ settings.hero }}">
@@ -614,6 +619,13 @@
           Remote
         </span>
         {% endif %}
+        {% for c in (settings.custom_chips or []) %}
+        <span class="pf-chip pf-chip-custom">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
+          {{ c }}
+        </span>
+        {% endfor %}
+        <button type="button" class="pf-chips-add" id="pfChipAdd">+ Add chip</button>
       </div>
 
       {% if portfolio_user.email %}
@@ -1003,17 +1015,41 @@
   // ---- chips: delete in edit mode ----
   function decorateChips(){
     document.querySelectorAll('.pf-chips .pf-chip').forEach(function(chip){
-      if (chip.querySelector('.pf-chip-del')) return;
-      var x = document.createElement('button');
-      x.type = 'button';
-      x.className = 'pf-chip-del';
-      x.textContent = '×';
-      x.title = 'Hide this chip';
-      x.addEventListener('click', function(e){
+      var x = chip.querySelector('.pf-chip-del');
+      if (!x) {
+        x = document.createElement('button');
+        x.type = 'button';
+        x.className = 'pf-chip-del';
+        chip.appendChild(x);
+      }
+      // Sync label with state
+      function refresh(){
+        var hidden = chip.classList.contains('pf-chip-hidden');
+        x.textContent = hidden ? '+' : '×';
+        x.title = hidden ? 'Restore this chip' : 'Hide this chip';
+      }
+      x.onclick = function(e){
         e.preventDefault(); e.stopPropagation();
-        chip.classList.add('pf-chip-hidden');
-      });
-      chip.appendChild(x);
+        chip.classList.toggle('pf-chip-hidden');
+        refresh();
+      };
+      refresh();
+    });
+  }
+
+  // Add chip button
+  var chipAddBtn = document.getElementById('pfChipAdd');
+  if (chipAddBtn) {
+    chipAddBtn.addEventListener('click', function(){
+      var val = prompt('Chip text (e.g. Open to relocate):');
+      if (!val) return;
+      val = val.trim().slice(0, 40);
+      if (!val) return;
+      var span = document.createElement('span');
+      span.className = 'pf-chip pf-chip-custom';
+      span.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg> ' + val;
+      chipAddBtn.parentElement.insertBefore(span, chipAddBtn);
+      decorateChips();
     });
   }
 
@@ -1039,8 +1075,8 @@
   var HIDDEN_CHIPS = {{ (settings.hidden_chips or [])|tojson }};
   if (HIDDEN_CHIPS && HIDDEN_CHIPS.length) {
     document.querySelectorAll('.pf-chips .pf-chip').forEach(function(c){
-      var txt = (c.textContent || '').replace(/\s+/g,' ').trim();
-      if (HIDDEN_CHIPS.indexOf(txt) !== -1) c.style.display = 'none';
+      var txt = (c.textContent || '').replace(/[×+]/g,'').replace(/\s+/g,' ').trim();
+      if (HIDDEN_CHIPS.indexOf(txt) !== -1) c.classList.add('pf-chip-hidden');
     });
   }
 
@@ -1070,8 +1106,13 @@
     });
     var hidden_chips = [];
     document.querySelectorAll('.pf-chips .pf-chip.pf-chip-hidden').forEach(function(c){
-      var txt = (c.textContent || '').replace('×','').replace(/\s+/g,' ').trim();
+      var txt = (c.textContent || '').replace(/[×+]/g,'').replace(/\s+/g,' ').trim();
       if (txt) hidden_chips.push(txt);
+    });
+    var custom_chips = [];
+    document.querySelectorAll('.pf-chips .pf-chip-custom').forEach(function(c){
+      var txt = (c.textContent || '').replace(/[×+]/g,'').replace(/\s+/g,' ').trim();
+      if (txt) custom_chips.push(txt);
     });
     btnSave.disabled = true;
     var oldTxt = btnSave.textContent;
@@ -1079,7 +1120,7 @@
     fetch('/api/portfolio/inline-save', {
       method:'POST', credentials:'include',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({fields: fields, items: items, items_order: ids, sections: {}, hidden_chips: hidden_chips})
+      body: JSON.stringify({fields: fields, items: items, items_order: ids, sections: {}, hidden_chips: hidden_chips, custom_chips: custom_chips})
     }).then(function(r){ return r.json().catch(function(){ return {}; }); }).then(function(res){
       btnSave.disabled = false;
       btnSave.textContent = oldTxt;

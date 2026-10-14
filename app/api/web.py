@@ -1702,6 +1702,13 @@ async def portfolio_inline_save(request: Request, db: Session = Depends(get_db))
         cfg = dict(prof.portfolio_config or {})
         cfg["hidden_chips"] = [str(c)[:80] for c in hidden_chips if c][:20]
         prof.portfolio_config = cfg
+
+    # custom chips
+    custom_chips = payload.get("custom_chips") or []
+    if isinstance(custom_chips, list):
+        cfg = dict(prof.portfolio_config or {})
+        cfg["custom_chips"] = [str(c)[:40] for c in custom_chips if c][:12]
+        prof.portfolio_config = cfg
     if sections:
         cfg = dict(prof.portfolio_config or {})
         sec = dict(cfg.get("sections") or {})
