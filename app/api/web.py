@@ -1475,7 +1475,7 @@ def portfolio_edit(request: Request, db: Session = Depends(get_db)):
     if not user:
         return RedirectResponse("/login?next=/portfolio/edit", status_code=302)
 
-    from app.portfolio import get_portfolio_settings, list_items, THEMES, KINDS, ACCENTS
+    from app.portfolio import get_portfolio_settings, list_items, THEMES, KINDS, COLORS, SCENES
 
     # Ensure the user has a public username (auto-generate on first visit)
     profile = _ensure_username(db, user)
@@ -1485,7 +1485,7 @@ def portfolio_edit(request: Request, db: Session = Depends(get_db)):
 
     return templates.TemplateResponse(request, "portfolio_edit.html", _ctx(
         request, db=db, user=user, settings=settings, items=items,
-        themes=THEMES, kinds=KINDS, accents=ACCENTS,
+        themes=THEMES, kinds=KINDS, colors=COLORS, scenes=SCENES,
         profile=profile,
     ))
 
@@ -1501,7 +1501,8 @@ async def portfolio_save_settings(request: Request, db: Session = Depends(get_db
         "theme": form.get("theme"),
         "tagline": form.get("tagline"),
         "about": form.get("about"),
-        "accent": form.get("accent"),
+        "accent_key": form.get("accent_key"),
+        "scene": form.get("scene"),
         "is_public": form.get("is_public") is not None,
     }
     hero = form.get("hero_image")

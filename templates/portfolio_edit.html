@@ -52,7 +52,7 @@
   </div>
 
   <div class="mt-6">
-    <label class="block text-sm text-slate-400 mb-2">Theme</label>
+    <label class="block text-sm text-slate-400 mb-2">Layout</label>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
       {% for t in themes %}
         <label class="cursor-pointer">
@@ -66,12 +66,29 @@
   </div>
 
   <div class="mt-6">
-    <label class="block text-sm text-slate-400 mb-2">Accent color</label>
-    <div class="flex flex-wrap gap-2">
-      {% for a in accents %}
+    <label class="block text-sm text-slate-400 mb-2">Color</label>
+    <div class="flex flex-wrap gap-3">
+      {% for key, vals in colors.items() %}
+        <label class="cursor-pointer" title="{{ key|capitalize }}">
+          <input type="radio" name="accent_key" value="{{ key }}" class="hidden peer" {% if settings.accent_key == key %}checked{% endif %}>
+          <div class="w-11 h-11 rounded-full border-2 border-slate-800 peer-checked:border-white transition-all"
+               style="background: {{ vals[0] }}; box-shadow: 0 0 0 2px transparent;">
+          </div>
+          <div class="text-[10px] text-center text-slate-500 mt-1 peer-checked:text-white">{{ key|capitalize }}</div>
+        </label>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="mt-6">
+    <label class="block text-sm text-slate-400 mb-2">Scene</label>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
+      {% for s in scenes %}
         <label class="cursor-pointer">
-          <input type="radio" name="accent" value="{{ a }}" class="hidden peer" {% if settings.accent == a %}checked{% endif %}>
-          <div class="w-10 h-10 rounded-full border-2 border-transparent peer-checked:border-white" style="background: {{ a }};"></div>
+          <input type="radio" name="scene" value="{{ s }}" class="hidden peer" {% if settings.scene == s %}checked{% endif %}>
+          <div class="peer-checked:border-emerald-500 peer-checked:bg-emerald-500/5 border border-slate-800 rounded-xl p-3 text-center text-xs hover:border-slate-600 transition-colors">
+            <div class="font-semibold">{{ s|capitalize }}</div>
+          </div>
         </label>
       {% endfor %}
     </div>

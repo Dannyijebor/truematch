@@ -80,6 +80,8 @@ class Profile(Base):
     portfolio_about: Mapped[str | None] = mapped_column(Text, nullable=True)
     portfolio_hero_image: Mapped[str | None] = mapped_column(Text, nullable=True)
     portfolio_accent: Mapped[str] = mapped_column(String, default="#10b981")
+    portfolio_accent_key: Mapped[str] = mapped_column(String, default="emerald")
+    portfolio_scene: Mapped[str] = mapped_column(String, default="aurora")
     portfolio_config: Mapped[dict] = mapped_column(JSON, default=dict)
     portfolio_is_public: Mapped[bool] = mapped_column(Boolean, default=True)
     vercel_token: Mapped[str | None] = mapped_column(String, nullable=True)

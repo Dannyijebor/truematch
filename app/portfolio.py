@@ -1,5 +1,5 @@
 """
-Portfolio builder — data operations.
+Portfolio builder - data operations.
 """
 from sqlalchemy import select, desc, func
 from sqlalchemy.orm import Session
@@ -8,7 +8,38 @@ from app.db.models import Profile, PortfolioItem, User
 
 THEMES = ("editorial", "minimal", "executive", "chronicle")
 KINDS = ("project", "experience", "education", "certification", "link")
-ACCENTS = ["#10b981", "#3b82f6", "#8b5cf6", "#f59e0b", "#ef4444", "#ec4899", "#14b8a6", "#a16207"]
+
+# 12 named color presets. Value = (main, glow, soft)
+COLORS = {
+    "rose":     ("#e11d48", "#e11d4855", "#e11d4822"),
+    "crimson":  ("#dc2626", "#dc262655", "#dc262622"),
+    "violet":   ("#7c3aed", "#7c3aed55", "#7c3aed22"),
+    "royal":    ("#1e40af", "#1e40af55", "#1e40af22"),
+    "sapphire": ("#0284c7", "#0284c755", "#0284c722"),
+    "emerald":  ("#00a884", "#00a88455", "#00a88422"),
+    "amber":    ("#d97706", "#d9770655", "#d9770622"),
+    "sunset":   ("#ea580c", "#ea580c55", "#ea580c22"),
+    "midnight": ("#0f172a", "#0f172a55", "#0f172a22"),
+    "onyx":     ("#1f1f1f", "#1f1f1f55", "#1f1f1f22"),
+    "ivory":    ("#a8a29e", "#a8a29e55", "#a8a29e22"),
+    "forest":   ("#15803d", "#15803d55", "#15803d22"),
+}
+
+SCENES = (
+    "aurora", "butterfly", "snow", "night", "field",
+    "cherry", "ocean", "forest", "desert", "rain",
+)
+
+DEFAULT_ACCENT_KEY = "emerald"
+DEFAULT_SCENE = "aurora"
+
+
+def resolve_accent(key: str | None) -> tuple[str, str, str]:
+    """Return (main, glow, soft) for a preset key. Falls back to emerald."""
+    k = (key or DEFAULT_ACCENT_KEY).lower()
+    if k not in COLORS:
+        k = DEFAULT_ACCENT_KEY
+    return COLORS[k]
 
 
 # ---------- settings ----------
@@ -18,12 +49,26 @@ def get_portfolio_settings(db: Session, user_id) -> dict:
     if not p:
         p = Profile(user_id=user_id)
         db.add(p); db.commit(); db.refresh(p)
+
+    accent_key = getattr(p, "portfolio_accent_key", None) or DEFAULT_ACCENT_KEY
+    if accent_key not in COLORS:
+        accent_key = DEFAULT_ACCENT_KEY
+    scene = getattr(p, "portfolio_scene", None) or DEFAULT_SCENE
+    if scene not in SCENES:
+        scene = DEFAULT_SCENE
+
+    accent_main, accent_glow, accent_soft = resolve_accent(accent_key)
+
     return {
         "theme": p.portfolio_theme or "editorial",
         "tagline": p.portfolio_tagline,
         "about": p.portfolio_about,
         "hero_image": p.portfolio_hero_image,
-        "accent": "#00a884",
+        "accent_key": accent_key,
+        "accent": accent_main,
+        "accent_glow": accent_glow,
+        "accent_soft": accent_soft,
+        "scene": scene,
         "is_public": bool(p.portfolio_is_public),
         "has_vercel_token": bool(p.vercel_token),
     }
@@ -37,10 +82,16 @@ def save_portfolio_settings(db: Session, user_id, data: dict):
         theme = "editorial"
     p.portfolio_theme = theme
 
-    accent = (data.get("accent") or "#10b981").strip()
-    if not accent.startswith("#") or len(accent) != 7:
-        accent = "#10b981"
-    p.portfolio_accent = accent
+    accent_key = (data.get("accent_key") or DEFAULT_ACCENT_KEY).lower().strip()
+    if accent_key not in COLORS:
+        accent_key = DEFAULT_ACCENT_KEY
+    p.portfolio_accent_key = accent_key
+    p.portfolio_accent = resolve_accent(accent_key)[0]
+
+    scene = (data.get("scene") or DEFAULT_SCENE).lower().strip()
+    if scene not in SCENES:
+        scene = DEFAULT_SCENE
+    p.portfolio_scene = scene
 
     p.portfolio_tagline = (data.get("tagline") or "").strip()[:200] or None
     p.portfolio_about = (data.get("about") or "").strip()[:3000] or None
