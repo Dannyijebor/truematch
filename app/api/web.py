@@ -1656,6 +1656,29 @@ async def portfolio_inline_save(request: Request, db: Session = Depends(get_db))
     if "about" in fields:
         prof.portfolio_about = (fields["about"] or "").strip()[:3000] or None
 
+    # item-level edits (title / subtitle / description)
+    items_payload = payload.get("items") or []
+    if items_payload:
+        from app.db.models import PortfolioItem
+        for itm in items_payload:
+            try:
+                iid = itm.get("id")
+                field = itm.get("field")
+                val = (itm.get("value") or "").strip()
+                if not iid or field not in ("title","subtitle","description"):
+                    continue
+                row = db.get(PortfolioItem, iid)
+                if not row or str(row.user_id) != str(user.id):
+                    continue
+                if field == "title":
+                    row.title = val[:200] or row.title
+                elif field == "subtitle":
+                    row.subtitle = val[:200] or None
+                elif field == "description":
+                    row.description = val[:3000] or None
+            except Exception:
+                pass
+
     # items order
     order = payload.get("items_order") or []
     for idx, item_id in enumerate(order):

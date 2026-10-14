@@ -483,6 +483,30 @@
     padding: 14px 22px; background: var(--bg-2); border-top: 1px solid var(--border-2);
     display: none; }
   body.pf-drawer-open .pf-drawer-actions { display: block; }
+
+  .pf-toast { position: fixed; bottom: 92px; left: 50%; transform: translate(-50%, 20px); z-index: 260;
+    padding: 12px 20px; border-radius: 12px; background: rgba(15,23,42,0.92); color: #fff;
+    font-size: 13.5px; font-weight: 700; letter-spacing: 0.2px;
+    box-shadow: 0 20px 44px -14px rgba(0,0,0,0.6);
+    backdrop-filter: blur(14px) saturate(160%); -webkit-backdrop-filter: blur(14px) saturate(160%);
+    opacity: 0; pointer-events: none; transition: opacity 0.24s ease, transform 0.24s cubic-bezier(0.16,1,0.3,1); }
+  .pf-toast.is-show { opacity: 1; transform: translate(-50%, 0); }
+
+  .pf-add-menu { position: fixed; top: 62px; right: 200px; z-index: 262;
+    display: none; flex-direction: column; min-width: 180px;
+    background: var(--bg-2); border: 1px solid var(--border-2); border-radius: 14px;
+    padding: 8px; box-shadow: 0 24px 60px -20px rgba(0,0,0,0.55); }
+  .pf-add-menu.is-show { display: flex; }
+  .pf-add-menu-label { padding: 8px 12px 6px; font-size: 11px; letter-spacing: 1.4px;
+    text-transform: uppercase; color: var(--muted); font-weight: 800; }
+  .pf-add-menu button { background: none; border: none; padding: 10px 12px; text-align: left;
+    font-family: inherit; font-size: 13.5px; font-weight: 700; color: var(--text-2);
+    border-radius: 8px; cursor: pointer; transition: background 0.12s ease, color 0.12s ease; }
+  .pf-add-menu button:hover { background: var(--accent-soft); color: var(--accent); }
+  .pf-add-menu button:disabled { opacity: 0.5; cursor: wait; }
+
+  body.pf-editing .pf-avatar,
+  body.pf-editing .pf-hero-card { cursor: pointer; }
 </style>
 </head>
 <body data-scene="{{ settings.scene }}" data-hero="{{ settings.hero }}">
@@ -637,9 +661,9 @@
             {% endif %}
           </div>
           <div class="pf-project-body">
-            {% if p.subtitle %}<div class="pf-project-subtitle">{{ p.subtitle }}</div>{% endif %}
-            <h3 class="pf-project-title">{{ p.title }}</h3>
-            {% if p.description %}<p class="pf-project-desc">{{ p.description }}</p>{% endif %}
+            {% if p.subtitle %}<div class="pf-project-subtitle" data-pf-edit="item.subtitle" contenteditable="false" spellcheck="false">{{ p.subtitle }}</div>{% endif %}
+            <h3 class="pf-project-title" data-pf-edit="item.title" contenteditable="false" spellcheck="false">{{ p.title }}</h3>
+            {% if p.description %}<p class="pf-project-desc" data-pf-edit="item.description" contenteditable="false" spellcheck="false">{{ p.description }}</p>{% endif %}
             {% if p.tags %}
             <div class="pf-project-tags">
               {% for t in p.tags %}<span class="pf-tag">{{ t }}</span>{% endfor %}
@@ -670,9 +694,9 @@
           {% endif %}
         </div>
         <div>
-          <h3 class="pf-item-title">{{ e.title }}</h3>
+          <h3 class="pf-item-title" data-pf-edit="item.title" contenteditable="false" spellcheck="false">{{ e.title }}</h3>
           {% if e.subtitle %}<div class="pf-item-subtitle">{{ e.subtitle }}</div>{% endif %}
-          {% if e.description %}<p class="pf-item-desc">{{ e.description }}</p>{% endif %}
+          {% if e.description %}<p class="pf-item-desc" data-pf-edit="item.description" contenteditable="false" spellcheck="false">{{ e.description }}</p>{% endif %}
         </div>
       </div>
       {% endfor %}
@@ -708,9 +732,9 @@
       <div class="pf-item" data-id="{{ ed.id }}">
         <div class="pf-item-date">{{ ed.start_date or '' }}{% if ed.end_date %} → {{ ed.end_date }}{% endif %}</div>
         <div>
-          <h3 class="pf-item-title">{{ ed.title }}</h3>
+          <h3 class="pf-item-title" data-pf-edit="item.title" contenteditable="false" spellcheck="false">{{ ed.title }}</h3>
           {% if ed.subtitle %}<div class="pf-item-subtitle">{{ ed.subtitle }}</div>{% endif %}
-          {% if ed.description %}<p class="pf-item-desc">{{ ed.description }}</p>{% endif %}
+          {% if ed.description %}<p class="pf-item-desc" data-pf-edit="item.description" contenteditable="false" spellcheck="false">{{ ed.description }}</p>{% endif %}
         </div>
       </div>
       {% endfor %}
@@ -731,7 +755,7 @@
       <div class="pf-item" data-id="{{ c.id }}">
         <div class="pf-item-date">{{ c.start_date or '' }}</div>
         <div>
-          <h3 class="pf-item-title">{{ c.title }}</h3>
+          <h3 class="pf-item-title" data-pf-edit="item.title" contenteditable="false" spellcheck="false">{{ c.title }}</h3>
           {% if c.subtitle %}<div class="pf-item-subtitle">{{ c.subtitle }}</div>{% endif %}
         </div>
       </div>
@@ -909,107 +933,170 @@
 <script>
 (function(){
   var fab = document.getElementById('pfEditFab');
-  if (!fab) return; // not owner
-  var toolbar = document.getElementById('pfToolbar');
+  if (!fab) return;
+
   var btnSave = document.getElementById('pfTbSave');
   var btnCancel = document.getElementById('pfTbCancel');
+  var btnAdd = document.getElementById('pfTbAdd');
   var body = document.body;
-
-  // Snapshot original content for cancel
   var original = null;
+
+  function toast(msg){
+    var t = document.getElementById('pfToast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('is-show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function(){ t.classList.remove('is-show'); }, 2200);
+  }
+
   function snapshot(){
-    var fields = document.querySelectorAll('[data-pf-edit]');
     original = [];
-    fields.forEach(function(f){ original.push(f.innerHTML); });
+    document.querySelectorAll('[data-pf-edit]').forEach(function(f){ original.push(f.innerHTML); });
   }
   function restore(){
     if (!original) return;
-    var fields = document.querySelectorAll('[data-pf-edit]');
-    fields.forEach(function(f, i){ if (original[i] != null) f.innerHTML = original[i]; });
+    var i = 0;
+    document.querySelectorAll('[data-pf-edit]').forEach(function(f){
+      if (original[i] != null) f.innerHTML = original[i];
+      i++;
+    });
+  }
+
+  function setEditable(on){
+    document.querySelectorAll('[data-pf-edit]').forEach(function(f){
+      f.setAttribute('contenteditable', on ? 'true' : 'false');
+      if (on) f.setAttribute('spellcheck', 'false');
+    });
+  }
+
+  function markItems(){
+    document.querySelectorAll('.pf-project, .pf-item').forEach(function(el){
+      el.classList.add('pf-editable-item');
+    });
   }
 
   function enterEdit(){
     body.classList.add('pf-editing');
+    markItems();
     snapshot();
-    markEditable();
+    setEditable(true);
+    toast('Editing — tap any text to change it');
   }
   function exitEdit(saved){
     body.classList.remove('pf-editing');
+    setEditable(false);
+    var m = document.getElementById('pfAddMenu');
+    if (m) m.classList.remove('is-show');
     if (!saved) restore();
     original = null;
   }
 
   fab.addEventListener('click', enterEdit);
-  btnCancel.addEventListener('click', function(){ exitEdit(false); });
+  btnCancel.addEventListener('click', function(){ exitEdit(false); toast('Changes discarded'); });
 
-  // Mark text nodes editable
-  function markEditable(){
-    var map = [
-      ['.pf-name', 'full_name'],
-      ['.pf-role', 'headline'],
-      ['.pf-about', 'about'],
-      ['.pf-eyebrow', 'eyebrow']  // pseudo — will ignore on save
-    ];
-    map.forEach(function(pair){
-      var el = document.querySelector(pair[0]);
-      if (el && !el.hasAttribute('data-pf-edit')) {
-        el.setAttribute('data-pf-edit', pair[1]);
-        el.setAttribute('contenteditable', 'true');
-        el.setAttribute('spellcheck', 'false');
-      }
-    });
-    // projects & timeline items: mark wrappers
-    document.querySelectorAll('.pf-project').forEach(function(el){
-      if (!el.classList.contains('pf-editable-item')) {
-        el.classList.add('pf-editable-item');
-        el.setAttribute('draggable', 'true');
-      }
-    });
-    document.querySelectorAll('.pf-item').forEach(function(el){
-      if (!el.classList.contains('pf-editable-item')) {
-        el.classList.add('pf-editable-item');
-        el.setAttribute('draggable', 'true');
-      }
-    });
-  }
-
-  // Save
+  // ---- Save ----
   btnSave.addEventListener('click', function(){
-    var payload = { fields: {}, items_order: [], sections: {} };
+    var fields = {};
+    var items = [];
     document.querySelectorAll('[data-pf-edit]').forEach(function(f){
       var key = f.getAttribute('data-pf-edit');
-      if (key === 'eyebrow') return;
-      payload.fields[key] = f.textContent.trim();
+      if (!key) return;
+      var val = (f.textContent || '').replace(/\s+/g,' ').trim();
+      if (key.indexOf('item.') === 0) {
+        var holder = f.closest('[data-id]');
+        if (holder) {
+          items.push({ id: holder.getAttribute('data-id'), field: key.slice(5), value: val });
+        }
+      } else {
+        fields[key] = val;
+      }
     });
-    // capture order of draggable items by data-id (set later when items have ids)
     var ids = [];
     document.querySelectorAll('.pf-editable-item[data-id]').forEach(function(el){
       ids.push(el.getAttribute('data-id'));
     });
-    payload.items_order = ids;
-
     btnSave.disabled = true;
+    var oldTxt = btnSave.textContent;
     btnSave.textContent = 'Saving…';
     fetch('/api/portfolio/inline-save', {
-      method: 'POST', credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    }).then(function(r){ return r.json().catch(function(){return {};}); }).then(function(res){
+      method:'POST', credentials:'include',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({fields: fields, items: items, items_order: ids, sections: {}})
+    }).then(function(r){ return r.json().catch(function(){ return {}; }); }).then(function(res){
       btnSave.disabled = false;
-      btnSave.textContent = 'Save changes';
+      btnSave.textContent = oldTxt;
       if (res && res.ok) {
-        exitEdit(true);
+        setEditable(false);
+        body.classList.remove('pf-editing');
+        toast('Saved');
+        setTimeout(function(){ window.location.reload(); }, 500);
       } else {
-        alert((res && res.error) || 'Save failed');
+        toast((res && res.error) || 'Save failed');
       }
     }).catch(function(){
       btnSave.disabled = false;
-      btnSave.textContent = 'Save changes';
-      alert('Network error');
+      btnSave.textContent = oldTxt;
+      toast('Network error');
     });
   });
 
-  // ESC to cancel
+  // ---- Add menu ----
+  if (btnAdd) {
+    btnAdd.addEventListener('click', function(e){
+      e.stopPropagation();
+      var m = document.getElementById('pfAddMenu');
+      if (m) m.classList.toggle('is-show');
+    });
+    document.addEventListener('click', function(e){
+      var m = document.getElementById('pfAddMenu');
+      if (!m) return;
+      if (!m.contains(e.target) && e.target !== btnAdd) m.classList.remove('is-show');
+    });
+    document.querySelectorAll('#pfAddMenu button').forEach(function(b){
+      b.addEventListener('click', function(){
+        var kind = b.dataset.kind;
+        var title = prompt('Title for this ' + kind + ':', 'Untitled ' + kind);
+        if (title == null) return;
+        title = title.trim() || ('Untitled ' + kind);
+        b.disabled = true;
+        var fd = new URLSearchParams();
+        fd.append('kind', kind); fd.append('title', title);
+        fetch('/portfolio/items/add', {
+          method:'POST', credentials:'include',
+          headers:{'Content-Type':'application/x-www-form-urlencoded'},
+          body: fd.toString()
+        }).then(function(){ window.location.reload(); })
+          .catch(function(){ b.disabled = false; toast('Add failed'); });
+      });
+    });
+  }
+
+  // ---- Avatar / hero upload (only in edit mode) ----
+  function wireUpload(clickSel, inputId, endpoint, fieldName){
+    var clickEl = document.querySelector(clickSel);
+    var input = document.getElementById(inputId);
+    if (!clickEl || !input) return;
+    clickEl.addEventListener('click', function(e){
+      if (!body.classList.contains('pf-editing')) return;
+      e.preventDefault(); e.stopPropagation();
+      input.click();
+    });
+    input.addEventListener('change', function(){
+      var f = input.files && input.files[0];
+      if (!f) return;
+      var fd = new FormData();
+      fd.append(fieldName, f);
+      fd.append('next', window.location.pathname);
+      toast('Uploading…');
+      fetch(endpoint, { method:'POST', credentials:'include', body: fd, redirect:'manual' })
+        .then(function(){ window.location.reload(); })
+        .catch(function(){ toast('Upload failed'); });
+    });
+  }
+  wireUpload('.pf-avatar', 'pfAvatarInput', '/app/settings/avatar', 'avatar');
+  wireUpload('.pf-hero-card', 'pfHeroInput', '/app/settings/banner', 'file');
+
   document.addEventListener('keydown', function(e){
     if (e.key === 'Escape' && body.classList.contains('pf-editing')) exitEdit(false);
   });
@@ -1138,5 +1225,17 @@
   });
 })();
 </script>
+
+<div class="pf-toast" id="pfToast"></div>
+<div class="pf-add-menu" id="pfAddMenu">
+  <div class="pf-add-menu-label">Add item</div>
+  <button type="button" data-kind="project">Project</button>
+  <button type="button" data-kind="experience">Experience</button>
+  <button type="button" data-kind="education">Education</button>
+  <button type="button" data-kind="certification">Certification</button>
+  <button type="button" data-kind="link">Link</button>
+</div>
+<input type="file" id="pfAvatarInput" accept="image/*" style="display:none">
+<input type="file" id="pfHeroInput" accept="image/*" style="display:none">
 </body>
 </html>
